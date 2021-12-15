@@ -242,7 +242,8 @@
                                         <label class="form-label mb-1">
                                             Part Title
                                         </label>
-                                        {{-- <input type="hidden" name="LawId"> --}}
+                                        <input type="hidden" name="LawId">
+                                        <input type="hidden" name="PartId">
                                         <input type="text" name="PartHeader" class="form-control">
                                     </div>
                                     <hr class="my-5">
@@ -264,19 +265,23 @@
                                             <h1 class="mb-3">Now create Section</h1>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Section Header
-                                        </label>
-                                        <input type="hidden" name="LawId">
-                                        <input type="hidden" name="PartId">
-                                        <input type="text" name="SectionHeader" class="form-control">
+                                    <div class="add_more">
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Section Header
+                                            </label>
+                                            <input type="text" name="SectionHeader" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Section Body
+                                            </label>
+                                            <textarea name="SectionBody" rows="5"></textarea>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Section Body
-                                        </label>
-                                        <textarea name="SectionBody" rows="5"></textarea>
+                                    <div id="add_field"></div>
+                                    <div class="justify-content-end">
+                                        <a class="text-color" onclick="addFields()"><i class="mdi mdi-plus"></i></a>
                                     </div>
                                     <hr class="my-5">
                                     <div class="nav row align-items-center">
@@ -301,4 +306,15 @@
             </div>
         </div>
     </div>
+    <script>
+        var section_no = 1;
+            function add_fields() {
+                section_no++;
+                var objTo = document.getElementById('add_field)
+                var divcreate = document.createElement("div");
+                divtest.innerHTML = '<div class="label">Room ' + section_no +':</div><div class="content"><span>Width: <input type="text" style="width:48px;" name="width[]" value="" /><small>(ft)</small> X</span><span>Length: <input type="text" style="width:48px;" namae="length[]" value="" /><small>(ft)</small></span></div>';
+
+                objTo.appendChild(divcreate)
+            }
+    </script>
 @endsection
