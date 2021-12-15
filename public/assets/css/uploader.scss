@@ -1,0 +1,29 @@
+.input-group{
+    padding-bottom: 40px;
+    .custom-file{
+        width: 100%;
+        height: auto;
+        .custom-file-label{ 
+            width: 168px;   
+            border-radius: 5px;
+            cursor: pointer;  
+            font: 700 14px/40px $roboto;
+            border: 1px solid #99a2a8; 
+            text-align: center;
+            @include transition;
+            color: $pfont;
+            i{
+                font-size: 20px;
+                padding-right: 10px;
+            }
+            &:hover, &:focus{
+                background: $bc;
+                border-color: $bc;
+                color: #fff;
+            }
+        }
+        input{
+            display: none;
+        }
+    }
+}
