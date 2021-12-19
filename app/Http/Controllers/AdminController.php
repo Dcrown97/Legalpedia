@@ -10,12 +10,15 @@ use App\Models\Dictionary;
 use App\Models\FormsPrecedence;
 use App\Models\AreaOfLaw;
 use App\Models\Category;
+use App\Models\Package;
+use App\Models\Discount;
 use App\Models\LawOfFederation;
 use App\Models\LawOfFedPart;
 use App\Models\LawOfFedSection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 class AdminController extends Controller
 {
@@ -38,52 +41,53 @@ class AdminController extends Controller
     }
 
     public function state_rules() {
+        $state_rules = StateRule::orderBy()->get();
         return view('admin.state-rules-of-court.index');
     }
 
 
     //laws of federation
     public function fed() {
-        $feds = LawOfFederation::orderBy('Title', 'ASC')->get();
-        $area_of_laws = AreaOfLaw::orderBy('AreaOfLaw', 'asc')->get();
+        $feds = LawOfFederation::orderBy('title', 'ASC')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
         $categories = Category::orderBy('category', 'asc')->get();
         $fed_count = LawOfFederation::count();
         return view('admin.laws-of-federation.index', compact('feds', 'area_of_laws', 'categories', 'fed_count'));
     }
     public function storeFed(Request $request) {
         $validated = $request->validate([
-            'Title' => 'required',
+            'title' => 'required',
             'area_of_law' => 'required',
-            'Descr' => 'required',
+            'description' => 'required',
             'category' => 'required',
-            'LawNo' => 'required',
-            'LawDate' => 'required',
-            'SubsidiaryLegislation' => 'required',
+            'law_no' => 'required',
+            'law_date' => 'required',
+            'subsidiary_legislation' => 'required',
 
 
         ]);
         $fed_input = [
-            'Title' => $request->Title,
+            'title' => $request->title,
             'area_of_law' => $request->area_of_law,
-            'Descr' => $request->Descr,
+            'Descr' => $request->description,
             'category' => $request->category,
-            'LawNo' => $request->LawNo,
-            'LawDate' => $request->LawDate,
-            'SubsidiaryLegislation' => $request->SubsidiaryLegislation,
+            'law_no' => $request->law_no,
+            'law_date' => $request->law_date,
+            'subsidiary_legislation' => $request->subsidiary_legislation,
         ];
         $fed = LawOfFederation::create($fed_input);
-        $request->LawId = $fed->id;
+        $request->law_of_federation_id = $fed->id;
         $fed_part_input = [
-            'PartHeader' => $request->PartHeader,
-            'LawId' => $request->LawId
+            'part_header' => $request->part_header,
+            'law_of_federation_id' => $request->law_of_federation_id
         ];
         $fed_part = LawOfFedPart::create($fed_part_input);
-        $request->PartId = $fed_part->id;
+        $request->law_of_fed_part_id = $fed_part->id;
         $fed_section_input = [
-            'SectionHeader' => $request->SectionHeader,
-            'SectionBody' => $request->SectionBody,
-            'LawId' =>  $fed->id,
-            'PartId' => $fed_part->id
+            'section_header' => $request->section_header,
+            'section_body' => $request->section_body,
+            'law_of_federation_id' =>  $fed->id,
+            'law_of_fed_part_id' => $fed_part->id
         ];
         LawOfFedSection::create($fed_section_input);
 
@@ -92,23 +96,23 @@ class AdminController extends Controller
     }
     public function editFed($id) {
         $fed = LawOfFederation::findOrFail($id);
-        $area_of_laws = AreaOfLaw::orderBy('AreaOfLaw', 'asc')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
         $categories = Category::orderBy('category', 'asc')->get();
         return view('admin.laws-of-federation.edit-fed', compact('fed', 'area_of_laws', 'categories'));
     }
     public function showFed($id) {
         $fed = LawOfFederation::findOrFail($id);
-        $fed_part = LawOfFedPart::where('LawId', 671)->first();
-        // $fed_section = LawOfFedSection::where('LawId', 671)->first();
-        dd($fed_part);
-        $area_of_laws = AreaOfLaw::orderBy('AreaOfLaw', 'asc')->get();
+        $fed_part = LawOfFedPart::where('law_of_federation_id', 671)->first();
+        // $fed_section = LawOfFedSection::where('law_of_federation_id', 671)->first();
+        // dd($fed_part);
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
         $categories = Category::orderBy('category', 'asc')->get();
         return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories'));
     }
     public function updateFed(Request $request, $id) {
         $fed = LawOfFederation::findOrFail($id);
         $validated = $request->validate([
-            'Title' => 'required',
+            'title' => 'required',
             'area_of_law' => 'required',
             'Descr' => 'required',
             'category' => 'required',
@@ -121,8 +125,8 @@ class AdminController extends Controller
         return back()->with('success', 'Law updated');
     }
     public function deleteFed($id) {
-        $form = FormsPrecedence::findOrFail($id);
-        $form->delete();
+        $fed = LawOfFederation::findOrFail($id);
+        $fed->delete();
         return back()->with('success', 'Law deleted');
     }
 
@@ -130,13 +134,13 @@ class AdminController extends Controller
 
     // area of law
     public function area_of_law() {
-        $area_of_laws = AreaOfLaw::orderBy('AreaOfLaw', 'ASC')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
         $area_count = AreaOfLaw::count();
         return view('admin.areas-of-laws.index', compact('area_of_laws', 'area_count'));
     }
     public function storeArea(Request $request) {
         $validated = $request->validate([
-            'AreaOfLaw' => 'required',
+            'area_of_law' => 'required',
         ]);
         $input = $request->all();
         AreaOfLaw::create($input);
@@ -144,10 +148,10 @@ class AdminController extends Controller
     }
     public function updateArea(Request $request) {
         $validated = $request->validate([
-            'AreaOfLaw' => 'required',
+            'area_of_law' => 'required',
         ]);
         $input = [
-          'AreaOfLaw'=> $request->category,
+          'area_of_law'=> $request->category,
         ];
         DB::table('areas_of_laws')->where('id', $request->area_id)->update($input);
         return back()->with('success', 'Area of law updated');
@@ -192,7 +196,7 @@ class AdminController extends Controller
     // Forms and precedences
     public function forms() {
         $forms = FormsPrecedence::orderBy('title', 'ASC')->get();
-        $area_of_laws = AreaOfLaw::orderBy('AreaOfLaw', 'asc')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
         $categories = Category::orderBy('category', 'asc')->get();
         $form_count = FormsPrecedence::count();
         return view('admin.forms-and-precedences.index', compact('area_of_laws', 'forms', 'categories', 'form_count'));
@@ -213,7 +217,7 @@ class AdminController extends Controller
     }
     public function editForm($id) {
         $form = FormsPrecedence::findOrFail($id);
-        $area_of_laws = AreaOfLaw::orderBy('AreaOfLaw', 'asc')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
         $categories = Category::orderBy('category', 'asc')->get();
         return view('admin.forms-and-precedences.edit-form', compact('form', 'area_of_laws', 'categories'));
     }
@@ -244,8 +248,9 @@ class AdminController extends Controller
 
     //Legal Articles
     public function articles() {
-        $articles = Article::orderBy('title', 'ASC')->paginate(15);
-        return view('admin.legal-articles.index', compact('articles'));
+        $articles = Article::orderBy('title', 'ASC')->get();
+        $article_count = Article::count();
+        return view('admin.legal-articles.index', compact('articles', 'article_count'));
     }
     public function storeArticle(Request $request) {
         $validated = $request->validate([
@@ -286,8 +291,9 @@ class AdminController extends Controller
     //Legal Dictionary
 
     public function dictionary() {
-        $words = Dictionary::orderBy('title', 'ASC')->paginate(15);
-        return view('admin.law-dictionary.index', compact('words'));
+        $words = Dictionary::orderBy('title', 'ASC')->get();
+        $word_count = Dictionary::count();
+        return view('admin.law-dictionary.index', compact('words', 'word_count'));
     }
     public function storeDictionary(Request $request) {
         $validated = $request->validate([
@@ -324,8 +330,11 @@ class AdminController extends Controller
     // Legal Maxims
 
     public function maxim() {
-        $maxims = Maxim::orderBy('title', 'ASC')->paginate(15);
-        return view('admin.legal-maxims.index', compact('maxims'));
+        $maxims = Maxim::orderBy('title', 'ASC')->get();
+        $maxim_count = Maxim::count();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+        $categories = Category::orderBy('category', 'asc')->get();
+        return view('admin.legal-maxims.index', compact('maxims', 'maxim_count', 'area_of_laws', 'categories'));
     }
 
     public function fetch_maxim(Request $request)
@@ -374,14 +383,17 @@ class AdminController extends Controller
     // Foreign resources
 
     public function resource() {
-        $resources = Resource::paginate(15);
-        return view('admin.resources.index', compact('resources'));
+        $resources = Resource::OrderBy('title', 'ASC')->get();
+        $resource_count = Resource::count();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+        return view('admin.resources.index', compact('resources', 'resource_count', 'area_of_laws'));
     }
     public function storeResource(Request $request) {
         $validated = $request->validate([
-            'Title' => 'required',
-            'Url' => 'required',
-            'Description' => 'required',
+            'title' => 'required',
+            'url' => 'required',
+            'description' => 'required',
+            'area_of_law' => 'required',
         ]);
         $input = $request->all();
         Resource::create($input);
@@ -395,7 +407,7 @@ class AdminController extends Controller
     public function updateResource(Request $request, $id) {
         $resource = Resource::findOrFail($id);
         $validated = $request->validate([
-            'Title' => 'required',
+            'title' => 'required',
             'Url' => 'required',
             'Description' => 'required',
         ]);
@@ -409,20 +421,150 @@ class AdminController extends Controller
         return back()->with('success', 'Resource deleted');
     }
 
-
-
-
-    public function customers() {
-        return view('admin.customers.index');
-    }
-
+    //subscription package
     public function subscription() {
-        return view('admin.subscriptions.index');
+        $packages = Package::orderBy('name', 'ASC')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+        $categories = Category::orderBy('category', 'asc')->get();
+        return view('admin.subscriptions.index', compact('packages', 'area_of_laws', 'categories'));
     }
 
-    public function discount() {
-        return view('admin.discounts.index');
+    public function storePackage(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+            'price' => 'required',
+            'validity' => 'required',
+            'recur_date' => 'required',
+        ]);
+
+        $judgement_feature = collect([
+            [
+                'judg_cat' => $request->judg_cat,
+                'judg_area_of_law' => $request->judg_area_of_law
+            ]
+        ]);
+        $lfn_feature = collect([
+            [
+                'lfn_cat' => $request->lfn_cat,
+                'lfn_area_of_law' => $request->lfn_area_of_law
+            ]
+        ]);
+        $roc_feature = collect([
+            [
+                'roc_cat' => $request->roc_cat
+            ]
+        ]);
+        $sroc_feature = collect([
+            [
+                'sroc_cat' => $request->sroc_cat
+            ]
+        ]);
+        $form_feature = collect([
+            [
+                'form_cat' => $request->form_cat
+            ]
+        ]);
+        $article_feature = collect([
+            [
+                'article_cat' => $request->article_cat,
+                'article_area_of_law' => $request->article_area_of_law
+            ]
+        ]);
+        $maxim_feature = collect([
+            [
+                'maxim_area_of_law' => $request->maxim_area_of_law
+            ]
+        ]);
+        $dict_feature = collect([
+            [
+                'dict_area_of_law' => $request->dict_area_of_law
+            ]
+        ]);
+        $resource_feature = collect([
+            [
+                'resource_area_of_law' => $request->resource_area_of_law
+            ]
+        ]);
+
+        // if($judgement_feature || $lfn_feature || $roc_feature || $sroc_feature || $form_feature || $article_feature || $maxim_feature || $dict_feature || $resource_feature) {
+        //     $input = [
+        //         'name' => $request->name,
+        //         'description' => $request->description,
+        //         'price' => $request->price,
+        //         'validity' => $request->validity,
+        //         'recur_date' => $request->recur_date,
+        //         'judgement_feature' => $judgement_feature,
+        //         'judg_start_year' => $request->judg_start_year,
+        //         'judg_end_year' => $request->judg_end_year,
+        //         'lfn_feature' => $lfn_feature,
+        //         'roc_feature' => $roc_feature,
+        //         'sroc_feature' => $sroc_feature,
+        //         'form_feature' => $form_feature,
+        //         'article_feature' => $article_feature,
+        //         'maxim_feature' => $maxim_feature,
+        //         'dict_feature' => $dict_feature,
+        //         'resource_feature' => $resource_feature,
+        //     ];
+        // }
+
+        $input = [
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'validity' => $request->validity,
+            'recur_date' => $request->recur_date,
+            'judgement_feature' => $judgement_feature,
+            'judg_start_year' => $request->judg_start_year,
+            'judg_end_year' => $request->judg_end_year,
+            'lfn_feature' => $lfn_feature,
+            'roc_feature' => $roc_feature,
+            'sroc_feature' => $sroc_feature,
+            'form_feature' => $form_feature,
+            'article_feature' => $article_feature,
+            'maxim_feature' => $maxim_feature,
+            'dict_feature' => $dict_feature,
+            'resource_feature' => $resource_feature,
+        ];
+
+        // dd($input);
+
+        Package::create($input);
+        return back()->with('success', 'Package created');
     }
+
+    public function deletePackage($id) {
+        $package = Package::findOrFail($id);
+        $package->delete();
+        return back()->with('success', 'Subscription package deleted');
+    }
+
+
+
+
+    // discount
+    public function discount() {
+        $discounts = Discount::orderBy('name', 'asc')->get();
+        $packages = Package::orderBy('name', 'asc')->get();
+        return view('admin.discounts.index', compact('discounts', 'packages'));
+    }
+    public function storeDiscount(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required',
+            'validity_start_date' => 'required',
+            'validity_end_date' => 'required',
+            'discount_code' => 'required',
+            'usage' => 'required',
+            'percentage' => 'required',
+            'package' => 'required',
+        ]);
+        $input = $request->all();
+        Discount::create($input);
+        return back()->with('success', 'Discount Added');
+
+    }
+
+    
 
     public function message() {
         return view('admin.messages.index');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -64,12 +65,18 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $role = Role::where('name','Customer')->first();
+        if(!$role){
+            return back()->withErrors('Role Customer not found please contact admin');
+        }
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'coupon_code' => $data['coupon_code'],
-            'referral_link' => $data['referral_link'],
-            'referral_link' => $data['referral_link'],
+            'role_id' => $role->id,
+            'license_code' => $data['license_code'], //license code
+            'referrer' => $data['referrer'],
+            'dob' => $data['dob'],
+            'call_to_bar_year' => $data['call_to_bar_year'],
             'password' => Hash::make($data['password']),
         ]);
     }

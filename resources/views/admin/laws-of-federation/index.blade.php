@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.laws-of-federation')
 
 @section('title')
     <title>Laws of Federation - Legalpedia</title>
@@ -72,7 +72,7 @@
                                             </div>
                                             <div class="col">
                                                 <h4 class="mb-1 item-name">
-                                                    <a href="{{route('show.fed', $fed->id)}}">{{$fed->Title}}</a>
+                                                    <a href="{{route('show.fed', $fed->id)}}">{{$fed->title}}</a>
                                                 </h4>
                                                 <p class="card-text text-muted small mb-1">Category: <span class="text-color">{{$fed->category}}</span></p>
                                             </div>
@@ -159,7 +159,7 @@
                                         <label class="form-label mb-1">
                                             Title
                                         </label>
-                                        <input type="text" name="Title" class="form-control">
+                                        <input type="text" name="title" class="form-control">
                                     </div>
                                     <div class="row">
                                         <div class="col-12 col-lg-6 col-xl-6">
@@ -167,7 +167,7 @@
                                                 <label class="form-label mb-1">
                                                     Law No.
                                                 </label>
-                                                <input type="number" name="LawNo" class="form-control">
+                                                <input type="number" name="law_no" class="form-control">
                                             </div>
                                         </div>
                                         <div class="col-12 col-lg-6 col-xl-6">
@@ -175,7 +175,7 @@
                                                 <label class="form-label mb-1">
                                                     Law Date.
                                                 </label>
-                                                <input type="date" name="LawDate" class="form-control">
+                                                <input type="date" name="law_date" class="form-control">
                                             </div>
                                         </div>
                                     </div>
@@ -183,7 +183,7 @@
                                         <label class="form-label mb-1">
                                             Description
                                         </label>
-                                        <textarea name="Descr" rows="5" placeholder="Enter description"></textarea>
+                                        <textarea name="description" rows="5" placeholder="Enter description"></textarea>
                                     </div>
                                     <div class="row">
                                         <div class="col-12 col-lg-6 col-xl-6">
@@ -207,7 +207,7 @@
                                                 <select name="area_of_law" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
                                                     <option value="">Select Area of Law</option>
                                                     @foreach($area_of_laws as $area_of_law)
-                                                        <option value="{{$area_of_law->AreaOfLaw}}">{{$area_of_law->AreaOfLaw}}</option>
+                                                        <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -217,7 +217,7 @@
                                         <label class="form-label mb-1">
                                             Subsidiary Legislation
                                         </label>
-                                        <textarea name="SubsidiaryLegislation" rows="5" placeholder=""></textarea>
+                                        <textarea name="subsidiary_legislation" rows="5" placeholder=""></textarea>
                                     </div>
                                     <hr class="my-5">
                                     <div class="nav row align-items-center">
@@ -242,9 +242,9 @@
                                         <label class="form-label mb-1">
                                             Part Title
                                         </label>
-                                        <input type="hidden" name="LawId">
-                                        <input type="hidden" name="PartId">
-                                        <input type="text" name="PartHeader" class="form-control">
+                                        <input type="hidden" name="law_of_federation_id">
+                                        <input type="hidden" name="law_of_fed_part_id">
+                                        <input type="text" name="part_header" class="form-control">
                                     </div>
                                     <hr class="my-5">
                                     <div class="nav row align-items-center">
@@ -268,20 +268,21 @@
                                     <div class="add_more">
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Section Header
+                                                1. Section Header
                                             </label>
-                                            <input type="text" name="SectionHeader" class="form-control">
+                                            <input type="text" name="section_header" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label mb-1">
                                                 Section Body
                                             </label>
-                                            <textarea name="SectionBody" rows="5"></textarea>
+                                            <textarea name="section_body" rows="5"></textarea>
                                         </div>
                                     </div>
+                                    <hr class="my-5">
                                     <div id="add_field"></div>
                                     <div class="justify-content-end">
-                                        <a class="text-color" onclick="addFields()"><i class="mdi mdi-plus"></i></a>
+                                        <a type="button" id="more_fields" class="text-color" onclick="addFields()"><i class="mdi mdi-plus"></i> Add Section</a>
                                     </div>
                                     <hr class="my-5">
                                     <div class="nav row align-items-center">
@@ -308,13 +309,19 @@
     </div>
     <script>
         var section_no = 1;
-            function add_fields() {
-                section_no++;
-                var objTo = document.getElementById('add_field)
-                var divcreate = document.createElement("div");
-                divtest.innerHTML = '<div class="label">Room ' + section_no +':</div><div class="content"><span>Width: <input type="text" style="width:48px;" name="width[]" value="" /><small>(ft)</small> X</span><span>Length: <input type="text" style="width:48px;" namae="length[]" value="" /><small>(ft)</small></span></div>';
+        function addFields() {
+            section_no++;
+            var objTo = document.getElementById('add_field')
+            var divcreate = document.createElement("div");
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_no +
+            '. Section Header</label><input type="text" name="section_header" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="section_body" rows="5"></textarea></div><hr class="my-5">';
+            objTo.appendChild(divcreate);
+        }
 
-                objTo.appendChild(divcreate)
-            }
+        function deleteFunction() {
+            if(!confirm("Are you sure you want to delete this law of federation?"))
+            event.preventDefault();
+        }
     </script>
 @endsection
+

@@ -10,7 +10,7 @@ class AreaOfLaw extends Model
     use HasFactory;
 
     protected $fillable = [
-        'AreaOfLaw'
+        'area_of_law'
     ];
 
     protected $table = 'areas_of_laws';

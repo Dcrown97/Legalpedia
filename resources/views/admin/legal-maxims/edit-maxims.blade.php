@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.legal-maxims')
 
 @section('title')
     <title>{{$maxim->title}} - Legalpedia</title>

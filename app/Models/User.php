@@ -24,10 +24,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'bio',
         'dob',
+        'role_id',
         'call_to_bar_year',
         'is_active',
-        'referral_link',
-        'referral_link',
+        'referrer',
+        'license_code',
     ];
 
     /**
@@ -48,4 +49,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function role() {
+        return $this->belongsTo(Role::class);
+    }
 }

@@ -10,7 +10,7 @@ class LawOfFedSection extends Model
     use HasFactory;
 
     protected $fillable = [
-        'SectionHeader', 'SectionBody', 'LawId', 'PartId'
+        'section_header', 'section_body', 'law_of_federation_id', 'law_of_fed_part_id'
     ];
 
     protected $table = 'law_of_fed_sections';

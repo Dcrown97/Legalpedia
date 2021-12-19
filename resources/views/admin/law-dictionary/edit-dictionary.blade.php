@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.law-dictionary')
 
 @section('title')
     <title>{{$word->title}} - Legalpedia</title>

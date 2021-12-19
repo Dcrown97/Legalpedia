@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.resources')
 
 @section('title')
     <title>{{$resource->Title}} - Legalpedia</title>

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.law-dictionary')
 
 @section('title')
     <title>Law Dictionary - Legalpedia</title>
@@ -26,20 +26,13 @@
             </div>
         </div>
     </div>
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="card" data-list='{"valueNames": ["name"]}'>
+                <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
                         <h4 class="card-header-title">Words</h4>
-                        <ul class="list-pagination pagination pagination-tabs card-pagination">
-                            <li class="page-item">
-                                <a class="page-link ps-4 pe-0" href="#!">
-                                    Showing {{ $words->firstItem() }}–{{ $words->lastItem() }} of {{ $words->total() }} results
-                                </a>
-                            </li>
-                        </ul>
+                        <h4>{{$word_count}} records</h4>
                     </div>
                     <div class="card-header">
                         <form>
@@ -59,7 +52,7 @@
                                         <div class="row align-items-center">
                                             <div class="col">
                                                 <a data-toggle="collapse" href="#multiCollapse{{$word->id}}" role="button" aria-expanded="false" aria-controls="multiCollapse{{$word->id}}">
-                                                    <h4 class="mb-1 name">
+                                                    <h4 class="mb-1 item-name">
                                                         <span class="recent-link">
                                                             <span class="mr-2 text-color">{{Str::limit($word->title, 1, '')}}</span>{{$word->title}}
                                                         </span>
@@ -100,10 +93,26 @@
                             </div>
                         @endif
                     </div>
-                    <div class="card-footer d-flex justify-content-center">
-                        <div class="m-2">
-                            {{$words->links()}}
-                        </div>
+                    <!-- Pagination -->
+                    <div class="row g-0">
+                        <!-- Pagination (prev) -->
+                        <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                <i class="fe fe-arrow-left me-1"></i> Prev
+                                </a>
+                            </li>
+                        </ul>
+                        <!-- Pagination -->
+                        <ul class="col list-pagination pagination pagination-tabs justify-content-center"></ul>
+                        <!-- Pagination (next) -->
+                        <ul class="col list-pagination-next pagination pagination-tabs justify-content-end">
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                Next <i class="fe fe-arrow-right ms-1"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

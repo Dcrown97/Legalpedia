@@ -10,7 +10,7 @@ class LawOfFederation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category', 'LawNo', 'Title', 'LawDate', 'Descr', 'SubsidiaryLegislation', 'Tags', 'area_of_law'
+        'category', 'law_no', 'title', 'law_date', 'description', 'subsidiary_legislation', 'tags', 'area_of_law'
     ];
 
     protected $table = 'laws_of_federations';

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.forms-and-precedences')
 
 @section('title')
     <title>Forms and Precedences - Legalpedia</title>
@@ -195,7 +195,7 @@
                                         <select name="area_of_law" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
                                             <option value="">Select Area of Law</option>
                                             @foreach($area_of_laws as $area_of_law)
-                                                <option value="{{$area_of_law->AreaOfLaw}}">{{$area_of_law->AreaOfLaw}}</option>
+                                                <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
                                             @endforeach
                                         </select>
                                     </div>

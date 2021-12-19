@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.license')
 
 @section('title')
     <title>License - Legalpedia</title>

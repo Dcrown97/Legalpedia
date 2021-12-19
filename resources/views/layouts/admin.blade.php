@@ -16,9 +16,6 @@
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.1.95/css/materialdesignicons.min.css">
 
-    {{-- <link href="{{asset('assets/custom/plugins/global/plugins.bundle.css')}}" rel="stylesheet" type="text/css" />
-    <link href="{{asset('assets/custom/css/style.bundle.css')}}" rel="stylesheet" type="text/css" /> --}}
-
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
     @yield('links')
@@ -30,6 +27,7 @@
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
@@ -63,9 +61,6 @@
     <!-- Theme JS -->
     <script src="{{asset('assets/js/theme.bundle.js')}}"></script>
 
-    {{-- <script src="{{asset('assets/custom/plugins/global/plugins.bundle.js')}}"></script>
-    <script src="{{asset('assets/custom/js/scripts.bundle.js')}}"></script> --}}
-
     <script>
         $(document).ready(function(){
             var $window=$(window);
@@ -86,6 +81,6 @@
             $('.toast').toast('show');
         });
   </script>
-  
+
   </body>
 </html>

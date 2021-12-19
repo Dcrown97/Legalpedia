@@ -10,7 +10,7 @@ class LawOfFedPart extends Model
     use HasFactory;
 
     protected $fillable = [
-        'PartHeader', 'LawId'
+        'part_header', 'law_of_federation_id'
     ];
 
     protected $table = 'law_of_fed_parts';

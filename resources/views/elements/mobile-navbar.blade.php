@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-light d-none d-md-flex" id="topbar">
     <div class="container-fluid">
       <!-- Form -->
-      <form class="form-inline me-4 d-none d-md-flex">
+      <form class="form-inline me-4 d-none d-md-flex" style="visibility: hidden">
         <div class="input-group input-group-flush input-group-merge input-group-reverse" data-list='{"valueNames": ["name"]}'>
 
           <!-- Input -->
@@ -452,8 +452,7 @@
 
           <!-- Menu -->
           <div class="dropdown-menu dropdown-menu-end">
-            <a href="profile-posts.html" class="dropdown-item">Profile</a>
-            <a href="account-general.html" class="dropdown-item">Settings</a>
+            <a href="{{route('edit.customer', Auth::user()->id)}}" class="dropdown-item">Settings</a>
             <hr class="dropdown-divider" />
             <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <span class="mr-2" aria-hidden="true"><i class="mdi mdi-logout-variant"></i></span> Sign out

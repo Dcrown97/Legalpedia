@@ -40,7 +40,7 @@
                             </span>
                         @enderror
                     </div>
-                    <button type="submit" class="btn btn-block login-btn" onclick="this.classList.toggle('button--loading')">
+                    <button type="submit" class="btn button_load btn-block login-btn" onclick="this.classList.toggle('button--loading')">
                         <span class="button__text">Login</span>
                     </button>
                     {{-- <a href="{{ url('/admin/dashboard') }}" class="btn btn-block login-btn" onclick="this.classList.toggle('button--loading')">

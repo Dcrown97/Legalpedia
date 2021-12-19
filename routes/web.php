@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\PackageController;
 use Illuminate\Support\Facades\Auth;
 
 // Route::get('/', function () {
@@ -22,7 +23,7 @@ Route::get('/admin/rules-of-court', [AdminController::class, 'rules'])->name('ad
 Route::get('/admin/state-rules-of-court', [AdminController::class, 'state_rules'])->name('admin.state-rules-of-court');
 
 Route::get('/admin/laws-of-federation', [AdminController::class, 'fed'])->name('admin.laws-of-federation');
-// Route::get('/admin/laws-of-federation/create', [AdminController::class, 'createFed'])->name('create.fed');
+Route::get('/admin/laws-of-federation/create', [AdminController::class, 'createFed'])->name('create.fed');
 Route::post('/admin/laws-of-federation', [AdminController::class, 'storeFed'])->name('store.fed');
 Route::get('/admin/laws-of-federation/edit-fed/{id}', [AdminController::class, 'editFed'])->name('edit.fed');
 Route::get('/admin/laws-of-federation/{id}', [AdminController::class, 'showFed'])->name('show.fed');
@@ -72,9 +73,27 @@ Route::get('/admin/resources/edit-resources/{id}', [AdminController::class, 'edi
 Route::patch('/admin/resources/edit-resources/{id}', [AdminController::class, 'updateResource'])->name('update.resource');
 Route::delete('/admin/resources/{id}', [AdminController::class, 'deleteResource'])->name('delete.resource');
 
-Route::get('/admin/customers', [AdminController::class, 'customers'])->name('admin.customers');
+Route::get('/admin/customers', [AdminUserController::class, 'index'])->name('admin.customers');
+Route::get('/admin/customers/{id}', [AdminUserController::class, 'show'])->name('show.customer');
+Route::get('/admin/customers/{id}/profile', [AdminUserController::class, 'edit'])->name('edit.customer');
+Route::patch('/admin/customers/{id}/profile', [AdminUserController::class, 'update'])->name('update.customer');
+
+
 Route::get('/admin/subscriptions', [AdminController::class, 'subscription'])->name('admin.subscriptions');
+Route::post('/admin/subscriptions', [AdminController::class, 'storePackage'])->name('store.package');
+Route::patch('/admin/subscriptions', [AdminController::class, 'updatePackage'])->name('update.package');
+Route::delete('/admin/subscriptions/{id}', [AdminController::class, 'deletePackage'])->name('delete.package');
+
+
+Route::get('/subscription-package', [PackageController::class, 'sub_pack'])->name('subscription');
+Route::get('/subscription-package/{slug}', [PackageController::class, 'subPack'])->name('sub.pack');
+
+
 Route::get('/admin/discount', [AdminController::class, 'discount'])->name('admin.discount');
+Route::post('/admin/discount', [AdminController::class, 'storeDiscount'])->name('store.discount');
+Route::patch('/admin/discount', [AdminController::class, 'updateDiscount'])->name('update.discount');
+Route::delete('/admin/discount/{id}', [AdminController::class, 'deleteDiscount'])->name('delete.discount');
+
 Route::get('/admin/messages', [AdminController::class, 'message'])->name('admin.messages');
 Route::get('/admin/licenses', [AdminController::class, 'license'])->name('admin.licenses');
 

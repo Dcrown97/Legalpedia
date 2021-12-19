@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.state-rules-of-court')
 
 @section('title')
     <title>State Rules of Court - Legalpedia</title>

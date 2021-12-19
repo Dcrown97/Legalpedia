@@ -13,5 +13,5 @@ class Maxim extends Model
         'version_no', 'content', 'title'
     ];
 
-    protected $table = 'maxims_old';
+    protected $table = 'maxims';
 }

@@ -10,8 +10,8 @@ class Resource extends Model
     use HasFactory;
 
     protected $fillable = [
-        'Url', 'Title', 'Description'
+        'url', 'title', 'description', 'area_of_law'
     ];
 
-    protected $table = 'ForeignLegalResources';
+    protected $table = 'resources';
 }

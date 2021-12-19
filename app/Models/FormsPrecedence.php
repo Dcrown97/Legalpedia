@@ -13,5 +13,5 @@ class FormsPrecedence extends Model
         'version_no', 'content', 'title', 'category', 'area_of_law', 'author'
     ];
 
-    protected $table = 'forms_precedence';
+    protected $table = 'form_precedences';
 }

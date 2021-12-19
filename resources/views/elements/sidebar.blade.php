@@ -31,14 +31,13 @@
           <!-- Toggle -->
           <a href="#" id="sidebarIcon" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="avatar avatar-sm avatar-online">
-              <img src="assets/img/avatars/profiles/avatar-1.jpg" class="avatar-img rounded-circle" alt="...">
+              <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
             </div>
           </a>
 
           <!-- Menu -->
           <div class="dropdown-menu dropdown-menu-end" aria-labelledby="sidebarIcon">
-            <a href="profile-posts.html" class="dropdown-item">Profile</a>
-            <a href="account-general.html" class="dropdown-item">Settings</a>
+            <a href="{{route('edit.customer', Auth::user()->id)}}" class="dropdown-item">Settings</a>
             <hr class="dropdown-divider">
             <a href="sign-in.html" class="dropdown-item">Logout</a>
           </div>
@@ -47,8 +46,8 @@
 
       </div>
 
-      <!-- Collapse -->
-      <div class="collapse navbar-collapse" id="sidebarCollapse">
+    <!-- Collapse -->
+    <div class="collapse navbar-collapse" id="sidebarCollapse">
 
         <!-- Form -->
         <form class="mt-4 mb-3 d-md-none">
@@ -147,53 +146,8 @@
                     <i class="fe fe-bell"></i> License
                 </a>
             </li>
-            {{-- <hr class="navbar-divider my-3"> --}}
-
-          {{-- <li class="nav-item">
-            <a class="nav-link" href="#sidebarPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPages">
-              <i class="fe fe-file"></i> Admin
-            </a>
-            <div class="collapse " id="sidebarPages">
-              <ul class="nav nav-sm flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="#sidebarDashboards">
-                        <i class="fe fe-users"></i> Users
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#sidebarDashboards">
-                        <i class="fe fe-bell"></i> Roles
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#sidebarCrm" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCrm">
-                        Membership
-                    </a>
-                    <div class="collapse " id="sidebarCrm">
-                        <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                                <a href="crm-contacts.html" class="nav-link ">
-                                Packages
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="crm-companies.html" class="nav-link ">
-                                Customers
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="crm-deals.html" class="nav-link ">
-                                Licenses
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-              </ul>
-            </div>
-          </li> --}}
         </ul>
-        <div class="mt-auto"></div>
+        <div class="mt-auto">
             <div class="navbar-user d-none d-md-flex" id="sidebarUser">
                 <a class="navbar-user-link-0" data-bs-toggle="offcanvas" href="#sidebarOffcanvasActivity" aria-controls="sidebarOffcanvasActivity">
                 <span class="icon">
@@ -207,8 +161,7 @@
                     </div>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="sidebarIconCopy">
-                    <a href="profile-posts.html" class="dropdown-item">Profile</a>
-                    <a href="account-general.html" class="dropdown-item">Settings</a>
+                    <a href="{{route('edit.customer', Auth::user()->id)}}" class="dropdown-item">Settings</a>
                     <hr class="dropdown-divider">
                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <span class="mr-2" aria-hidden="true"><i class="mdi mdi-logout-variant"></i></span> Sign out
@@ -218,7 +171,7 @@
                     </form>
                 </div>
                 </div>
-                <a class="navbar-user-link-0" data-bs-toggle="offcanvas" href="#sidebarOffcanvasSearch" aria-controls="sidebarOffcanvasSearch">
+                <a class="navbar-user-link-0">
                 <span class="icon">
                     <i class="fe fe-search"></i>
                 </span>

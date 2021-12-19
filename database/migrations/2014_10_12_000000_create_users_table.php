@@ -16,13 +16,15 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->nullable();
-            $table->string('referral_link')->nullable();
-            $table->string('coupon_code')->nullable();
+            $table->string('role_id')->nullable();
+            $table->string('referrer')->nullable();
+            $table->string('license_code')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable();
+            $table->string('photo')->nullable();
             $table->text('bio')->nullable();
             $table->dateTime('dob')->nullable();
             $table->integer('call_to_bar_year')->nullable();

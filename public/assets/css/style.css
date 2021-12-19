@@ -456,3 +456,29 @@ a:hover{
     width: 100%;
     overflow: scroll;
 }
+
+.w-8 {
+    width: 100px !important;
+}
+
+.h-8 {
+    height: 100px !important;
+}
+.ml-5 {
+    margin-left: 50px !important;
+}
+
+.mt-5 {
+    margin-left: 50px !important;
+}
+
+.priceamount input[type="number"] {
+    padding-left: 25px;
+}
+.priceamount .curr {
+    margin-top: -1.7em;
+    padding: 0 0 0 0.5em;
+    float: left;
+    color: #777;
+    font-size: 18px;
+}

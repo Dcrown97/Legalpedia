@@ -14,15 +14,13 @@
                     <h6 class="header-pretitle">
                     </h6>
                     <h1 class="header-title">
-                        Welcome, Admin
+                        @if(Auth::user()->role->name == 'Admin')
+                            Welcome, Admin
+                            @else
+                            Welcome, {{Str::words(Auth::user()->name, 1)}}
+                        @endif
                     </h1>
                 </div>
-                {{-- <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button">New Project</a> --}}
-                {{-- <div class="col-auto">
-                    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                    Create Report
-                    </a>
-                </div> --}}
             </div>
         </div>
         </div>
@@ -50,118 +48,132 @@
                 </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                        Laws
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Laws of Federation"> Laws of Federation
-                        </span>
+                <a href="{{url('admin/laws-of-federation')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                Laws
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Laws of Federation"> Laws of Federation
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                        Rules
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State Rules of Court"> Rules of Court
-                        </span>
+                <a href="{{url('admin/rules-of-court')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                Rules
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State Rules of Court"> Rules of Court
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                        State Rules
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State rules of court"> State Rules of Court
-                        </span>
+                <a href="{{url('admin/state-rules-of-court')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                State Rules
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State rules of court"> State Rules of Court
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
         </div>
         <div class="row">
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                            Forms
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/balance.png')}}" alt="Forms & Precedences"> Forms & Precedences
-                        </span>
+                <a href="{{url('admin/forms-and-precedences')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                    Forms
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/balance.png')}}" alt="Forms & Precedences"> Forms & Precedences
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                            Legal Articles
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Laws of Federation"> Legal Articles
-                        </span>
+                <a href="{{url('admin/legal-articles')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                    Legal Articles
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Laws of Federation"> Legal Articles
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                            Law Dictionary
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State Rules of Court"> Law Dictionary
-                        </span>
+                <a href="{{url('admin/law-dictionary')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                    Law Dictionary
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State Rules of Court"> Law Dictionary
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-3">
-                            Maxims
-                        </h6>
-                        <span class="h2 mb-0">
-                            <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Forms and Precedents"> Legal Maxims
-                        </span>
+                <a href="{{url('admin/legal-maxims')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-3">
+                                    Maxims
+                                </h6>
+                                <span class="h2 mb-0">
+                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Forms and Precedents"> Legal Maxims
+                                </span>
+                            </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                </div>
+                </a>
             </div>
         </div>
             {{-- <div class="row">

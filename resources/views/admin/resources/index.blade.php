@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.resources')
 
 @section('title')
     <title>Foreign Legal Resources - Legalpedia</title>
@@ -34,25 +34,19 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="card" data-list='{"valueNames": ["name"]}'>
+                <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
                         <h4 class="card-header-title">Resources</h4>
-                        <ul class="list-pagination pagination pagination-tabs card-pagination">
-                            <li class="page-item">
-                                <a class="page-link ps-4 pe-0" href="#!">
-                                    Showing {{ $resources->firstItem() }}–{{ $resources->lastItem() }} of {{ $resources->total() }} results
-                                </a>
-                            </li>
-                        </ul>
+                        <h4>{{$resource_count}} records</h4>
                     </div>
                     <div class="card-header">
                         <form>
-                        <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                            <input class="form-control list-search" type="search" placeholder="Search">
-                            <div class="input-group-text">
-                            <span class="fe fe-search"></span>
+                            <div class="input-group input-group-flush input-group-merge input-group-reverse">
+                                <input class="form-control list-search" type="search" placeholder="Search">
+                                <div class="input-group-text">
+                                <span class="fe fe-search"></span>
+                                </div>
                             </div>
-                        </div>
                         </form>
                     </div>
                     <div class="card-body">
@@ -67,10 +61,10 @@
                                                 </a>
                                             </div>
                                             <div class="col">
-                                                <h4 class="mb-1 name">
-                                                    <a href="{{$resource->Url}}">{{$resource->Title}}</a>
+                                                <h4 class="mb-1 item-name">
+                                                    <a href="{{$resource->url}}">{{$resource->title}}</a>
                                                 </h4>
-                                                <p class="card-text small text-muted">{!! $resource->Description !!}</p>
+                                                <p class="card-text small text-muted">{!! $resource->description !!}</p>
                                             </div>
                                             <div class="col-auto">
                                                 <div class="dropdown">
@@ -101,45 +95,26 @@
                             </div>
                         @endif
                     </div>
-                    <div class="card-footer d-flex justify-content-center">
-                        {{-- @if($resources->hasPages())
-                            <ul class="list-pagination-prev pagination pagination-tabs card-pagination">
-                                <li class="page-item">
-                                    @if($resources->onFirstPage())
-                                        <a class="page-link ps-0 pe-4 border-end disabled">
-                                            <i class="fe fe-arrow-left me-1"></i> Prev
-                                        </a>
-                                        @else
-                                        <a class="page-link ps-0 pe-4 border-end" href="{{$resources->previousPageUrl()}}">
-                                            <i class="fe fe-arrow-left me-1"></i> Prev
-                                        </a>
-                                    @endif
-                                </li>
-                            </ul>
-                            <ul class="list-pagination pagination pagination-tabs card-pagination">
-                                <li class="page-item">
-                                    <a class="page-link ps-4 pe-0" href="#!">
-                                        Showing {{ $resources->firstItem() }}–{{ $resources->lastItem() }} of {{ $resources->total() }} results
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="list-pagination-next pagination pagination-tabs card-pagination">
-                                <li class="page-item">
-                                    @if($resources->hasMorePages())
-                                        <a class="page-link ps-4 pe-0 border-start" href="{{$resources->nextPageUrl()}}">
-                                            Next <i class="fe fe-arrow-right ms-1"></i>
-                                        </a>
-                                        @else
-                                        <a class="page-link ps-4 pe-0 border-start disabled">
-                                            Next <i class="fe fe-arrow-right ms-1"></i>
-                                        </a>
-                                    @endif
-                                </li>
-                            </ul>
-                        @endif --}}
-                        <div class="m-2">
-                            {{$resources->render()}}
-                        </div>
+                    <!-- Pagination -->
+                    <div class="row g-0">
+                        <!-- Pagination (prev) -->
+                        <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                <i class="fe fe-arrow-left me-1"></i> Prev
+                                </a>
+                            </li>
+                        </ul>
+                        <!-- Pagination -->
+                        <ul class="col list-pagination pagination pagination-tabs justify-content-center"></ul>
+                        <!-- Pagination (next) -->
+                        <ul class="col list-pagination-next pagination pagination-tabs justify-content-end">
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                Next <i class="fe fe-arrow-right ms-1"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -165,15 +140,26 @@
                                     @csrf
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Resource Title
+                                            Resource title
                                         </label>
-                                        <input type="text" name="Title" class="form-control">
+                                        <input type="text" name="title" class="form-control">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Resource Link
                                         </label>
-                                        <input type="text" name="Url" class="form-control" placeholder="https://">
+                                        <input type="text" name="url" class="form-control" placeholder="https://">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Area of Law
+                                        </label>
+                                        <select name="area_of_law" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <option value="">Select Area of Law</option>
+                                            @foreach($area_of_laws as $area_of_law)
+                                                <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
@@ -182,7 +168,7 @@
                                         <small class="form-text text-muted">
                                             This is the body of the resource
                                         </small>
-                                        <textarea name="Description" rows="5" placeholder="Enter description"></textarea>
+                                        <textarea name="description" rows="5" placeholder="Enter description"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

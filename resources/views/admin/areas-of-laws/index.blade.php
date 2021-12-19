@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.areas-of-laws')
 
 @section('title')
     <title>Areas of Laws - Legalpedia</title>
@@ -65,7 +65,7 @@
                                         <div class="row align-items-center">
                                         <div class="col">
                                             <h4 class="mb-1 item-name">
-                                                <i class="fe fe-file mr-3"></i>{{$area_of_law->AreaOfLaw}}
+                                                <i class="fe fe-file mr-3"></i>{{$area_of_law->area_of_law}}
                                             </h4>
                                         </div>
                                         <div class="col-auto">
@@ -74,7 +74,7 @@
                                                     <i class="fe fe-more-vertical"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-end">
-                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditAreaModal('{{$area_of_law->AreaOfLaw}}', '{{$area_of_law->id}}')" class="dropdown-item">
+                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditAreaModal('{{$area_of_law->area_of_law}}', '{{$area_of_law->id}}')" class="dropdown-item">
                                                         <i class="mdi mdi-pencil mr-2"></i> Edit
                                                     </a>
                                                     <form action="/admin/areas-of-laws/{{$area_of_law->id}}" method="POST">
@@ -139,7 +139,7 @@
                                         <label class="form-label mb-1">
                                             Area of Law
                                         </label>
-                                        <input type="text" name="AreaOfLaw" class="form-control">
+                                        <input type="text" name="area_of_law" class="form-control">
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -177,7 +177,7 @@
                                             Area of Law
                                         </label>
                                         <input type="hidden" id="area-id" name="area_id">
-                                        <input type="text" name="AreaOfLaw" id="area-input" class="form-control">
+                                        <input type="text" name="area_of_law" id="area-input" class="form-control">
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

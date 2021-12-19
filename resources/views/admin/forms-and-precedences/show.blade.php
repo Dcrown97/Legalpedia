@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.forms-and-precedences')
 
 @section('title')
     <title>{{$form->title}} - Legalpedia</title>
