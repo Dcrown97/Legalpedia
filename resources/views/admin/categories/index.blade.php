@@ -61,21 +61,21 @@
                         <h4>All Categories</h4>
                     </div>
                     <div class="card-header">
-                      <div class="row align-items-center">
-                        <div class="col">
-                          <form>
-                            <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                              <input class="form-control list-search" type="search" placeholder="Search">
-                              <span class="input-group-text">
-                                <i class="fe fe-search"></i>
-                              </span>
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <form>
+                                    <div class="input-group input-group-flush input-group-merge input-group-reverse">
+                                    <input class="form-control list-search" type="search" placeholder="Search">
+                                    <span class="input-group-text">
+                                        <i class="fe fe-search"></i>
+                                    </span>
+                                    </div>
+                                </form>
                             </div>
-                          </form>
+                            <div class="col-auto me-n3">
+                                <h4>{{$category_count}} records</h4>
+                            </div>
                         </div>
-                        <div class="col-auto me-n3">
-                            <h4>{{$category_count}} records</h4>
-                        </div>
-                      </div>
                     </div>
                     <div class="card-body">
                         @if($categories)

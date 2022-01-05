@@ -15,12 +15,12 @@ class CreateRulesTable extends Migration
     {
         Schema::create('rules', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
-            $table->text('title');
-            $table->text('section');
-            $table->text('content');
-            $table->text('type');
-            $table->text('version_no');
+            $table->text('name')->nullable();
+            $table->text('title')->nullable();
+            $table->text('section')->nullable();
+            $table->text('content')->nullable();
+            $table->text('type')->nullable();
+            $table->text('version_no')->nullable();
             $table->timestamps();
         });
     }

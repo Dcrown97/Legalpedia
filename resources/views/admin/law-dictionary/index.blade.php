@@ -16,11 +16,13 @@
                             Law Dictionary
                         </h1>
                     </div>
-                    <div class="col-auto">
-                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="fe fe-plus"></i> Add Words
-                        </a>
-                    </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <i class="fe fe-plus"></i> Add Words
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -58,31 +60,35 @@
                                                         </span>
                                                         <div class="">
                                                             <div class="collapse multi-collapse" id="multiCollapse{{$word->id}}">
-                                                                <div class="mt-2 p-3">{!! $word->content !!}</div>
+                                                                <div class="mt-2 p-3" style="line-height: 25px; font-weight: 400">
+                                                                    <p>{!! $word->content !!}</p>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </h4>
                                                 </a>
                                             </div>
-                                            <div class="col-auto">
-                                                <div class="dropdown">
-                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="{{route('edit.dictionary', $word->id)}}" class="dropdown-item">
-                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                            @if(Auth::user()->role->name == 'Admin')
+                                                <div class="col-auto">
+                                                    <div class="dropdown">
+                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fe fe-more-vertical"></i>
                                                         </a>
-                                                        <form action="/admin/law-dictionary/{{$word->id}}" method="POST">
-                                                            {{ csrf_field() }}
-                                                            {{ method_field('DELETE') }}
-                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                <i class="fe fe-trash mr-2"></i>Delete
-                                                            </button>
-                                                        </form>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a href="{{route('edit.dictionary', $word->id)}}" class="dropdown-item">
+                                                                <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                            </a>
+                                                            <form action="/admin/law-dictionary/{{$word->id}}" method="POST">
+                                                                {{ csrf_field() }}
+                                                                {{ method_field('DELETE') }}
+                                                                <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                    <i class="fe fe-trash mr-2"></i>Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     </li>
                                 @endforeach

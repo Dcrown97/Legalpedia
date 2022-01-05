@@ -17,6 +17,7 @@
                         Manage Customers
                     </h1>
                 </div>
+                @include('elements.notifications')
             </div>
         </div>
     </div>
@@ -98,7 +99,7 @@
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-end">
                                                     <a href="{{route('show.customer', $user->id)}}" style="cursor: pointer" class="dropdown-item">
-                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                        <i class="mdi mdi-eye mr-2"></i> View Details
                                                     </a>
                                                     <form action="/admin/customers/{{$user->id}}" method="POST">
                                                         {{ csrf_field() }}

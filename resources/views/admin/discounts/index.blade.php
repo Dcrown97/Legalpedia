@@ -1,4 +1,4 @@
-@extends('layouts.admin.discounts')
+@extends('layouts.admin.discount')
 
 @section('title')
     <title>Discount - Legalpedia</title>

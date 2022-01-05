@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\UserTeam;
 use App\Models\Role;
+use App\Models\Invite;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -69,15 +71,42 @@ class RegisterController extends Controller
         if(!$role){
             return back()->withErrors('Role Customer not found please contact admin');
         }
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'role_id' => $role->id,
-            'license_code' => $data['license_code'], //license code
-            'referrer' => $data['referrer'],
-            'dob' => $data['dob'],
-            'call_to_bar_year' => $data['call_to_bar_year'],
-            'password' => Hash::make($data['password']),
-        ]);
+        if(Invite::where('token', $data['token'])->first() !==null) {
+            $invite = Invite::where('token', $data['token'])->first();
+
+            UserTeam::create([
+                'token' => $data['token'],
+                // 'user_id' => $data['user_id'],
+                'team_id' => $data['team_id'],
+                'send_request' => $data['send_request'],
+                'approve_request' => $data['approve_request'],
+            ]);
+
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'role_id' => $role->id,
+                'license_code' => $data['license_code'],
+                'referrer' => $data['referrer'],
+                'dob' => $data['dob'],
+                'call_to_bar_year' => $data['call_to_bar_year'],
+                'password' => Hash::make($data['password']),
+            ]);
+            return $user;
+
+        } else {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'role_id' => $role->id,
+                'license_code' => $data['license_code'],
+                'referrer' => $data['referrer'],
+                'dob' => $data['dob'],
+                'call_to_bar_year' => $data['call_to_bar_year'],
+                'password' => Hash::make($data['password']),
+            ]);
+
+            return $user;
+        }
     }
 }

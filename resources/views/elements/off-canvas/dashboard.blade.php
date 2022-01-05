@@ -31,8 +31,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/forms-and-precedences')}}">
-                        <i class="fe fe-bell"></i> Forms and Precedences
+                        <a class="nav-link" href="{{url('admin/forms-and-precedents')}}">
+                        <i class="fe fe-bell"></i> Forms and Precedents
                         </a>
                     </li>
                     <li class="nav-item">

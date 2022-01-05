@@ -472,6 +472,10 @@ a:hover{
     margin-left: 50px !important;
 }
 
+.mt-51 {
+    margin-top: 50px !important;
+}
+
 .priceamount input[type="number"] {
     padding-left: 25px;
 }
@@ -481,4 +485,47 @@ a:hover{
     float: left;
     color: #777;
     font-size: 18px;
+}
+
+.width-300 {
+    width: 300px !important;
+}
+
+.btn {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
+    border-radius: 3px !important;
+}
+
+.mr-8 {
+    margin-right: 8rem !important
+}
+
+.form-select {
+    border-radius: 3px !important;
+}
+.text-green {
+    color: #009900 !important;
+}
+
+.alert-primary {
+    background-color: #E3EDFF !important;
+    border-color: #E3EDFF !important;
+    color: #767676 !important;
+}
+.text-4xl {
+    font-size: 30px;
+}
+
+.nav.btn-group .btn-white.active {
+    background-color: #EC6959 !important;
+    border-color: #EC6959 !important;
+}
+
+.text-green-0{
+    color: #32E017;
+}
+
+.header-img-top {
+    height: 300px !important;
+    object-fit: cover !important;
 }

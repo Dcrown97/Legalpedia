@@ -29,6 +29,7 @@ class CreateUsersTable extends Migration
             $table->dateTime('dob')->nullable();
             $table->integer('call_to_bar_year')->nullable();
             $table->rememberToken();
+            $table->timestamp('last_seen')->nullable();
             $table->timestamps();
         });
     }

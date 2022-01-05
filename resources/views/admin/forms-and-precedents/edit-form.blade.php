@@ -1,4 +1,4 @@
-@extends('layouts.admin.forms-and-precedences')
+@extends('layouts.admin.forms-and-precedents')
 
 @section('title')
     <title>{{$form->title}} - Legalpedia</title>
@@ -10,7 +10,7 @@
             <div class="header-body">
                 <div class="row align-items-end">
                     <div class="col">
-                        <a href="{{url('admin/forms-and-precedences')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
+                        <a href="{{url('admin/forms-and-precedents')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
                         <h1 class="header-title">
                             {{$form->title}}
                         </h1>

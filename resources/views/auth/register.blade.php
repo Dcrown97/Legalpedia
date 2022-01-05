@@ -36,7 +36,6 @@
                     <div class="form-group">
                         <input type="hidden" name="is_active" value="1">
                         <input type="hidden" name="token" value="{{Str::random(15)}}">
-                        <input type="hidden" name="group_id" value="0">
                         <input type="hidden" name="send_request" value="0">
                         <input type="hidden" name="approve_request" value="0">
                         <label for="name">Full Name <span class="text-color">*<span></label>

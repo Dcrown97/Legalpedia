@@ -49,16 +49,6 @@
                                             Billing
                                             </a>
                                         </li>
-                                        {{-- <li class="nav-item">
-                                            <a href="#!" class="nav-link">
-                                            Something
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="#!" class="nav-link">
-                                            Something
-                                            </a>
-                                        </li> --}}
                                         <li class="nav-item">
                                             <a href="#!" class="nav-link">
                                             Notifications
@@ -102,7 +92,7 @@
                         </div>
                         <hr class="mt-6 mb-5">
                         <div class="form-group">
-                            <label class="form-label">Last name</label>
+                            <label class="form-label">Full name</label>
                             <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
                         </div>
                         <div class="form-group">

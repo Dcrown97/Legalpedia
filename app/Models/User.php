@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_active',
         'referrer',
         'license_code',
+        'last_seen',
     ];
 
     /**

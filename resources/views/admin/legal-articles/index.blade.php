@@ -21,12 +21,13 @@
                             Legal Articles
                         </h1>
                     </div>
-                    {{-- <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button">New Project</a> --}}
-                    <div class="col-auto">
-                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="fe fe-plus"></i> Add Article
-                        </a>
-                    </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <i class="fe fe-plus"></i> Add Article
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -56,30 +57,32 @@
                                 @foreach($articles as $article)
                                     <li class="list-group-item">
                                         <div class="row align-items-center">
-                                        <div class="col">
-                                            <h4 class="mb-1 item-name">
-                                                <i class="fe fe-file mr-3"></i><a href="{{route('show.article', $article->id)}}">{{$article->title}}</a>
-                                            </h4>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="fe fe-more-vertical"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a href="{{route('edit.article', $article->id)}}" class="dropdown-item">
-                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
-                                                    </a>
-                                                    <form action="/admin/legal-articles/{{$article->id}}" method="POST">
-                                                        {{ csrf_field() }}
-                                                        {{ method_field('DELETE') }}
-                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                            <i class="fe fe-trash mr-2"></i>Delete
-                                                        </button>
-                                                    </form>
-                                                </div>
+                                            <div class="col">
+                                                <h4 class="mb-1 item-name">
+                                                    <i class="fe fe-file mr-3"></i><a href="{{route('show.article', $article->id)}}">{{$article->title}}</a>
+                                                </h4>
                                             </div>
-                                        </div>
+                                            @if(Auth::user()->role->name == 'Admin')
+                                                <div class="col-auto">
+                                                    <div class="dropdown">
+                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fe fe-more-vertical"></i>
+                                                        </a>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a href="{{route('edit.article', $article->id)}}" class="dropdown-item">
+                                                                <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                            </a>
+                                                            <form action="/admin/legal-articles/{{$article->id}}" method="POST">
+                                                                {{ csrf_field() }}
+                                                                {{ method_field('DELETE') }}
+                                                                <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                    <i class="fe fe-trash mr-2"></i>Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     </li>
                                 @endforeach

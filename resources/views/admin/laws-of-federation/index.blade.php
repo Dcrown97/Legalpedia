@@ -16,11 +16,13 @@
                             Laws of Federation
                         </h1>
                     </div>
-                    <div class="col-auto">
-                        <a href="#" class="btn text-white btn-primary text0-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="fe fe-plus"></i> Add Laws
-                        </a>
-                    </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="#" class="btn text-white btn-primary text0-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <i class="fe fe-plus"></i> Add Laws
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -32,15 +34,16 @@
                 <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
                         <h4 class="card-header-title">Laws</h4>
-                        <form class="me-3 w-20">
-                            <select class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                <option value="">Select </option>
+                        <form action="{{route('admin.laws-of-federation')}}" method="GET" class="me-3 d-flex">
+                            <select name="category" class="form-select form-control-flush mr-8" data-choices='{"searchEnabled": true}'>
                                 @foreach($categories as $category)
-                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                    <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
                                 @endforeach
                             </select>
+                            <button type="submit" name="fetch_fed" onclick="this.classList.toggle('button--loading')" class="btn ml-3 button_load text-white btn-sm btn-primary p-2">
+                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                            </button>
                         </form>
-                        <a href="#!" class="btn text-white btn-sm btn-primary p-2"><i class="mdi mdi-filter"></i> Filter</a>
                     </div>
                     <div class="card-header">
                       <div class="row align-items-center">
@@ -60,8 +63,8 @@
                       </div>
                     </div>
                     <div class="card-body">
-                        @if($feds)
-                            <ul class="list-group list-group-lg list-group-flush list my-n4">
+                        @if(count($feds) > 0)
+                            <ul class="list-group list-group-lg list-group-flush list my-n4"  id="fed_data">
                                 @foreach($feds as $fed)
                                     <li class="list-group-item">
                                         <div class="row align-items-center">
@@ -76,32 +79,34 @@
                                                 </h4>
                                                 <p class="card-text text-muted small mb-1">Category: <span class="text-color">{{$fed->category}}</span></p>
                                             </div>
-                                            <div class="col-auto">
-                                                <div class="dropdown">
-                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="{{route('edit.fed', $fed->id)}}" class="dropdown-item">
-                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                            @if(Auth::user()->role->name == 'Admin')
+                                                <div class="col-auto">
+                                                    <div class="dropdown">
+                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fe fe-more-vertical"></i>
                                                         </a>
-                                                        <form action="/admin/laws-of-federation/{{$fed->id}}" method="POST">
-                                                            {{ csrf_field() }}
-                                                            {{ method_field('DELETE') }}
-                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                <i class="fe fe-trash mr-2"></i>Delete
-                                                            </button>
-                                                        </form>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a href="{{route('edit.fed', $fed->id)}}" class="dropdown-item">
+                                                                <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                            </a>
+                                                            <form action="/admin/laws-of-federation/{{$fed->id}}" method="POST">
+                                                                {{ csrf_field() }}
+                                                                {{ method_field('DELETE') }}
+                                                                <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                    <i class="fe fe-trash mr-2"></i>Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     </li>
                                 @endforeach
                             </ul>
                             @else
                             <div class="text-center">
-                                <h1>No record found</h1>
+                                <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                             </div>
                         @endif
                     </div>
@@ -321,6 +326,23 @@
         function deleteFunction() {
             if(!confirm("Are you sure you want to delete this law of federation?"))
             event.preventDefault();
+        }
+        $('#fed').on('change', function() {
+            getFed();
+        });
+
+        function getFed() {
+            var selectedCat = $('#fed option:selected').val();
+            $.ajax({
+                type: 'GET',
+                data: {
+                    'fed':selectedCat
+                },
+                url: "{{route('admin.laws-of-federation')}}",
+                success:function(data) {
+                    $('#fed_data').html(data);
+                }
+            });
         }
     </script>
 @endsection

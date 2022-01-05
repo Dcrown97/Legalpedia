@@ -20,31 +20,55 @@
                         <i class="fe fe-bell"></i> Laws of Federation
                         </a>
                     </li>
-                    <li class="nav-item" style="background: #f5f5f5">
-                        <a class="nav-link active"  href="{{url('admin/rules-of-court')}}">
-                        <i class="fe fe-bell"></i> Rules of Court
-                        </a>
-                    </li>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <li class="nav-item" style="background: #f5f5f5">
+                            <a class="nav-link active"  href="#cat" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="cat">
+                                <i class="fe fe-bell"></i> Rules of Court
+                            </a>
+                            <div class="collapse " id="cat">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item">
+                                        <a href="{{url('admin/rules-of-court')}}" class="nav-link ">
+                                            <i class="fe fe-bell"></i> All Rules of Court
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{url('admin/rules-of-court/categories')}}" class="nav-link ">
+                                            <i class="fe fe-bell"></i> Rule Categories
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        @else
+                        <li class="nav-item" style="background: #f5f5f5">
+                            <a class="nav-link active" href="{{url('admin/rules-of-court')}}">
+                                <i class="fe fe-bell"></i> Rules of Court
+                            </a>
+                        </li>
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link" href="{{url('admin/state-rules-of-court')}}">
                         <i class="fe fe-bell"></i> State Rules of Court
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/forms-and-precedences')}}">
-                        <i class="fe fe-bell"></i> Forms and Precedences
+                        <a class="nav-link" href="{{url('admin/forms-and-precedents')}}">
+                        <i class="fe fe-bell"></i> Forms and Precedents
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/categories')}}">
-                        <i class="fe fe-bell"></i> Categories
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/areas-of-laws')}}">
-                        <i class="fe fe-bell"></i> Areas of Laws
-                        </a>
-                    </li>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/categories')}}">
+                            <i class="fe fe-bell"></i> Categories
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/areas-of-laws')}}">
+                            <i class="fe fe-bell"></i> Areas of Laws
+                            </a>
+                        </li>
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link" href="{{url('admin/legal-articles')}}">
                         <i class="fe fe-bell"></i> Legal Articles
@@ -65,29 +89,36 @@
                         <i class="fe fe-bell"></i> Resources
                         </a>
                     </li>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/customers')}}">
+                                <i class="fe fe-users"></i> Customers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/subscriptions')}}">
+                                <i class="fe fe-bell"></i> Subscriptions
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/discount')}}">
+                                <i class="fe fe-bell"></i> Discount
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/messages')}}">
+                                <i class="fe fe-bell"></i> Messages
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('admin/licenses')}}">
+                                <i class="fe fe-bell"></i> License
+                            </a>
+                        </li>
+                    @endif
                     <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/customers')}}">
-                            <i class="fe fe-users"></i> Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/subscriptions')}}">
-                            <i class="fe fe-bell"></i> Subscriptions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/discount')}}">
-                            <i class="fe fe-bell"></i> Discount
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/messages')}}">
-                            <i class="fe fe-bell"></i> Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url('admin/licenses')}}">
-                            <i class="fe fe-bell"></i> License
+                        <a class="nav-link" href="{{url('admin/teams')}}">
+                            <i class="fe fe-users"></i> Teams
                         </a>
                     </li>
                 </ul>

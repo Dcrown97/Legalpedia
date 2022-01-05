@@ -67,7 +67,7 @@ body {
 .backg2 {
     background: url("{{asset('assets/images/frame1.svg')}}");
     position: absolute;
-    top: 183px;
+    top: 250px;
     left: 1174px;
     height: 222px;
     width: 260px;

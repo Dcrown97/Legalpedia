@@ -21,11 +21,13 @@
                             Legal Maxims
                         </h1>
                     </div>
-                    <div class="col-auto">
-                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="fe fe-plus"></i> Add Maxims
-                        </a>
-                    </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <i class="fe fe-plus"></i> Add Maxims
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -62,31 +64,35 @@
                                                     <span class="mr-2 text-color">{{Str::limit($maxim->title, 1, '')}}</span><span class="text-gray">{{$maxim->title}}</span>
                                                     <div class="">
                                                         <div class="collapse multi-collapse" id="multiCollapse{{$maxim->id}}">
-                                                            <div class="mt-2 p-3">{!! $maxim->content !!}</div>
+                                                            <div class="mt-2 p-3" style="line-height: 25px; font-weight: 400">
+                                                                <p>{!! $maxim->content !!}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </h4>
                                             </a>
                                         </div>
-                                        <div class="col-auto">
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="fe fe-more-vertical"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a href="{{route('edit.maxim', $maxim->id)}}" class="dropdown-item">
-                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
+                                        @if(Auth::user()->role->name == 'Admin')
+                                            <div class="col-auto">
+                                                <div class="dropdown">
+                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fe fe-more-vertical"></i>
                                                     </a>
-                                                    <form action="/admin/legal-maxims/{{$maxim->id}}" method="POST">
-                                                        {{ csrf_field() }}
-                                                        {{ method_field('DELETE') }}
-                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                            <i class="fe fe-trash mr-2"></i>Delete
-                                                        </button>
-                                                    </form>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                        <a href="{{route('edit.maxim', $maxim->id)}}" class="dropdown-item">
+                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                        </a>
+                                                        <form action="/admin/legal-maxims/{{$maxim->id}}" method="POST">
+                                                            {{ csrf_field() }}
+                                                            {{ method_field('DELETE') }}
+                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                <i class="fe fe-trash mr-2"></i>Delete
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </li>
                             @endforeach

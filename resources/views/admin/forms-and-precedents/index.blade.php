@@ -1,7 +1,7 @@
-@extends('layouts.admin.forms-and-precedences')
+@extends('layouts.admin.forms-and-precedents')
 
 @section('title')
-    <title>Forms and Precedences - Legalpedia</title>
+    <title>Forms and Precedents - Legalpedia</title>
 @endsection
 
 @section('content')
@@ -23,15 +23,16 @@
                         <h6 class="header-pretitle">
                         </h6>
                         <h1 class="header-title">
-                            Forms and Precedences
+                            Forms and Precedents
                         </h1>
                     </div>
-                    {{-- <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button">New Project</a> --}}
-                    <div class="col-auto">
-                        <a href="#" class="btn text-white btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="fe fe-plus"></i> Add Forms
-                        </a>
-                    </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="#" class="btn text-white btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <i class="fe fe-plus"></i> Add Forms
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -43,35 +44,36 @@
                 <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
                         <h4 class="card-header-title">Forms</h4>
-                        <form class="me-3 w-20">
-                            <select class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                <option value="">Select Category</option>
+                        <form action="{{route('admin.forms')}}" method="GET" class="me-3 d-flex">
+                            <select name="category" class="form-select form-control-flush mr-8" data-choices='{"searchEnabled": true}'>
                                 @foreach($categories as $category)
-                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                    <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
                                 @endforeach
                             </select>
+                            <button type="submit" name="fetch_form" onclick="this.classList.toggle('button--loading')" class="btn ml-3 button_load text-white btn-sm btn-primary p-2">
+                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                            </button>
                         </form>
-                        <a href="#!" class="btn text-white btn-sm btn-primary p-2"><i class="mdi mdi-filter"></i> Filter</a>
                     </div>
                     <div class="card-header">
-                      <div class="row align-items-center">
-                        <div class="col">
-                          <form>
-                            <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                              <input class="form-control list-search" type="search" placeholder="Search">
-                              <span class="input-group-text">
-                                <i class="fe fe-search"></i>
-                              </span>
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <form>
+                                    <div class="input-group input-group-flush input-group-merge input-group-reverse">
+                                        <input class="form-control list-search" type="search" placeholder="Search">
+                                        <span class="input-group-text">
+                                            <i class="fe fe-search"></i>
+                                        </span>
+                                    </div>
+                                </form>
                             </div>
-                          </form>
+                            <div class="col-auto me-n3">
+                                <h4>{{$form_count}} records</h4>
+                            </div>
                         </div>
-                        <div class="col-auto me-n3">
-                            <h4>{{$form_count}} records</h4>
-                        </div>
-                      </div>
                     </div>
                     <div class="card-body">
-                        @if($forms)
+                        @if(count($forms) > 0)
                             <ul class="list-group list-group-lg list-group-flush list my-n4">
                                 @foreach($forms as $form)
                                     <li class="list-group-item">
@@ -87,38 +89,38 @@
                                                 </h4>
                                                 <p class="card-text text-muted small mb-1">Category: <span class="text-color">{{$form->category}}</span></p>
                                             </div>
-                                            <div class="col-auto">
-                                                <div class="dropdown">
-                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="{{route('edit.form', $form->id)}}" class="dropdown-item">
-                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                            @if(Auth::user()->role->name == 'Admin')
+                                                <div class="col-auto">
+                                                    <div class="dropdown">
+                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fe fe-more-vertical"></i>
                                                         </a>
-                                                        <form action="/admin/forms-and-precedences/{{$form->id}}" method="POST">
-                                                            {{ csrf_field() }}
-                                                            {{ method_field('DELETE') }}
-                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                <i class="fe fe-trash mr-2"></i>Delete
-                                                            </button>
-                                                        </form>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a href="{{route('edit.form', $form->id)}}" class="dropdown-item">
+                                                                <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                            </a>
+                                                            <form action="/admin/forms-and-precedents/{{$form->id}}" method="POST">
+                                                                {{ csrf_field() }}
+                                                                {{ method_field('DELETE') }}
+                                                                <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                    <i class="fe fe-trash mr-2"></i>Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     </li>
                                 @endforeach
                             </ul>
                             @else
                             <div class="text-center">
-                                <h1>No record found</h1>
+                                <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                             </div>
                         @endif
                     </div>
-                    <!-- Pagination -->
                     <div class="row g-0">
-                        <!-- Pagination (prev) -->
                         <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                             <li class="page-item">
                                 <a class="page-link" href="#">
@@ -126,9 +128,7 @@
                                 </a>
                             </li>
                         </ul>
-                        <!-- Pagination -->
                         <ul class="col list-pagination pagination pagination-tabs justify-content-center"></ul>
-                        <!-- Pagination (next) -->
                         <ul class="col list-pagination-next pagination pagination-tabs justify-content-end">
                             <li class="page-item">
                                 <a class="page-link" href="#">
@@ -146,7 +146,7 @@
         <div class="modal-dialog modal-fullscreen p-9">
             <div class="modal-content rounded">
                 <div class="modal-header">
-                    <div class="fs-1 fw-boldest">Add new Form and Precedence</div>
+                    <div class="fs-1 fw-boldest">Add new Form and Precedent</div>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
                         <span class="svg-icon svg-icon-2x">
                             <i class="mdi mdi-close"></i>

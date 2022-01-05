@@ -99,7 +99,7 @@
                                                 <a href="{{route('edit.form', $form->id)}}" class="dropdown-item">
                                                     <i class="mdi mdi-pencil mr-2"></i> Edit
                                                 </a>
-                                                <form action="/admin/forms-and-precedences/{{$form->id}}" method="POST">
+                                                <form action="/admin/forms-and-precedents/{{$form->id}}" method="POST">
                                                     {{ csrf_field() }}
                                                     {{ method_field('DELETE') }}
                                                     <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
@@ -173,3 +173,20 @@
                   </div>
             </div>
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

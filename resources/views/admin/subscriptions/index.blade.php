@@ -70,10 +70,10 @@
                                         <td class="text-end">
                                             <div class="dropdown">
                                                 <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fe fe-more-vertical"></i>
+                                                    <i class="fe fe-more-vertical"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-end">
-                                                    <a href="#!" class="dropdown-item">
+                                                    <a href="{{route('edit.package', $package->id)}}" class="dropdown-item">
                                                         <i class="mdi mdi-pencil mr-2"></i>Edit
                                                     </a>
                                                     <form action="/admin/subscriptions/{{$package->id}}" method="POST">
@@ -201,6 +201,17 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="form-label mb-1">
+                                        Category
+                                    </label>
+                                    <select multiple name="test[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                        <option value="">Select Category</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{$category->category}}">{{$category->category}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <div class="form-check mb-n2">
                                         <input class="form-check-input list-checkbox" name="judgement_feature" type="checkbox" id="judgementCheck">
                                         <h5 class="pt-2 pl-2">Judgements</h5>
@@ -262,24 +273,6 @@
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_lfn_content" style="display: none">
-                                        {{-- <div class="row">
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        From Year
-                                                    </label>
-                                                    <input type="number" min="1960" name="start_year" placeholder="1960" class="form-control">
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        To Year
-                                                    </label>
-                                                    <input type="number" max="2021" name="end_year" placeholder="2021" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div> --}}
                                         <div class="row">
                                             <div class="col-12 col-lg-6 col-xl-6">
                                                 <div class="form-group">

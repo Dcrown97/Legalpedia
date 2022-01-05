@@ -48,4 +48,9 @@ class AdminUserController extends Controller
         return back()->with('success', 'Profile updated');
 
     }
+    public function deleteCustomer($id){
+        $user = User::findOrFail($id);
+        $user->delete();
+        return back()->with('success', 'Customer deleted');
+    }
 }

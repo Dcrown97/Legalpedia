@@ -1,4 +1,4 @@
-@extends('layouts.admin.forms-and-precedences')
+@extends('layouts.admin.forms-and-precedents')
 
 @section('title')
     <title>Search results - Legalpedia</title>
@@ -20,9 +20,9 @@
             <div class="header-body">
                 <div class="row align-items-end">
                     <div class="col">
-                        <a href="{{url('admin/forms-and-precedences')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
+                        <a href="{{url('admin/forms-and-precedents')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
                         <h1 class="header-title">
-                            Search results for Forms and Precedences
+                            Search results for Forms and Precedents
                         </h1>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                                                         <a href="{{route('edit.form', $form->id)}}" class="dropdown-item">
                                                             <i class="mdi mdi-pencil mr-2"></i> Edit
                                                         </a>
-                                                        <form action="/admin/forms-and-precedences/{{$form->id}}" method="POST">
+                                                        <form action="/admin/forms-and-precedents/{{$form->id}}" method="POST">
                                                             {{ csrf_field() }}
                                                             {{ method_field('DELETE') }}
                                                             <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
