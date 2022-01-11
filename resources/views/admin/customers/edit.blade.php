@@ -5,7 +5,11 @@
 @endsection
 
 @section('content')
-
+<style>
+    .avatar-upload {
+        margin: 0px !important;
+    }
+</style>
 <div class="header">
     <div class="container-fluid">
         <div class="header-body">
@@ -59,39 +63,33 @@
                             </div>
                         </div>
                     </div>
-                    <form action="{{route('update.customer', Auth::user()->id)}}" method="POST">
+                    <form action="{{route('update.customer', Auth::user()->id)}}" method="POST" enctype="multipart/form-data">
                         {{ csrf_field() }}
                         {{ method_field('patch') }}
                         <div class="row justify-content-between align-items-center">
                             <div class="col">
                                 <div class="row align-items-center">
                                     <div class="col-auto mr-6">
-                                        <div class="avatar">
-                                            @if(Auth::user()->photo)
-                                                <img class="avatar-img rounded-circle w-8 h-8" src="{{Auth::user()->photo}}" alt="{{Auth::user()->name}}">
-                                                @else
-                                                <img class="avatar-img rounded-circle w-8 h-8" src="{{asset('assets/images/user-avatar.jpg')}}" alt="{{Auth::user()->name}}">
-                                            @endif
+                                        <div class="avatar-upload text-center">
+                                            <div class="avatar-edit">
+                                                <input type='file' name="photo" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                                                <label for="imageUpload"></label>
+                                            </div>
+                                            <div class="avatar-preview">
+                                                @if(Auth::user()->photo)
+                                                    <div id="imagePreview" style="background-image: url({{Auth::user()->photo ? Auth::user()->photo : 'assets/images/user-avatar.jpg'}});">
+                                                    </div>
+                                                    @else
+                                                    <div id="imagePreview" style="background-image: url({{asset('assets/images/user-avatar.jpg')}});">
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col ml-5">
-                                        <h4 class="mb-1">
-                                            Profile picture
-                                        </h4>
-                                        <small class="text-muted">
-                                            PNG or JPG format.
-                                        </small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-auto">
-                                <a class="btn text-white btn-sm btn-primary">
-                                    Upload
-                                </a>
-                            </div>
                         </div>
-                        <hr class="mt-6 mb-5">
-                        <div class="form-group">
+                        <div class="form-group mt-4">
                             <label class="form-label">Full name</label>
                             <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
                         </div>
@@ -119,106 +117,20 @@
                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary">
                             <span class="button__text"><i class="mdi mdi-check"></i> Save changes</span>
                         </button>
-                        {{-- <hr class="my-5"> --}}
-                        {{-- <div class="row">
-                            <div class="col-12 col-md-6">
-
-                            <!-- Public profile -->
-                            <div class="form-group">
-
-                                <!-- Label -->
-                                <label class="mb-1">
-                                Public profile
-                                </label>
-
-                                <!-- Form text -->
-                                <small class="form-text text-muted">
-                                Making your profile public means that anyone on the Dashkit network will be able to find you.
-                                </small>
-
-                                <div class="row">
-                                <div class="col-auto">
-
-                                    <!-- Switch -->
-                                    <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="switchOne" />
-                                    <label class="form-check-label" for="switchOne"></label>
-                                    </div>
-
-                                </div>
-                                <div class="col ms-n2">
-
-                                    <!-- Help text -->
-                                    <small class="text-muted">
-                                    You're currently invisible
-                                    </small>
-
-                                </div>
-                                </div> <!-- / .row -->
-                            </div>
-
-                            </div>
-                            <div class="col-12 col-md-6">
-
-                            <!-- Allow for additional Bookings -->
-                            <div class="form-group">
-
-                                <!-- Label -->
-                                <label class="mb-1">
-                                Allow for additional Bookings
-                                </label>
-
-                                <!-- Form text -->
-                                <small class="form-text text-muted">
-                                If you are available for hire outside of the current situation, you can encourage others to hire you.
-                                </small>
-
-                                <div class="row">
-                                <div class="col-auto">
-
-                                    <!-- Switch -->
-                                    <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="switchTwo" checked />
-                                    <label class="form-check-label" for="switchTwo"></label>
-                                    </div>
-
-                                </div>
-                                <div class="col ms-n2">
-
-                                    <!-- Help text -->
-                                    <small class="text-muted">
-                                    You're currently available
-                                    </small>
-
-                                </div>
-                                </div> <!-- / .row -->
-                            </div>
-
-                            </div>
-                        </div> --}}
                         <hr class="mt-4 mb-5">
-
                         <div class="row justify-content-between">
                             <div class="col-12 col-md-6">
-
-                            <!-- Heading -->
-                            <h4>
-                                Delete your account
-                            </h4>
-
-                            <!-- Text -->
-                            <p class="small text-muted mb-md-0">
-                                Please note, deleting your account is a permanent action and will no be recoverable once completed.
-                            </p>
-
+                                <h4>
+                                    Delete your account
+                                </h4>
+                                <p class="small text-muted mb-md-0">
+                                    Please note, deleting your account is a permanent action and will no be recoverable once completed.
+                                </p>
                             </div>
                             <div class="col-auto">
-
-                            <!-- Button -->
-                            <a class="btn text-white btn-danger">
-                                <i class="fe fe-trash"></i> Delete
-                            </a>
-
+                                <a class="btn text-white btn-danger">
+                                    <i class="fe fe-trash"></i> Delete
+                                </a>
                             </div>
                         </div>
                     </form>
@@ -228,4 +140,20 @@
         </div>
     </div>
 </div>
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                $('#imagePreview').hide();
+                $('#imagePreview').fadeIn(650);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    $("#imageUpload").change(function() {
+        readURL(this);
+    });
+</script>
 @endsection

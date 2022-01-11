@@ -10,7 +10,7 @@ class Maxim extends Model
     use HasFactory;
 
     protected $fillable = [
-        'version_no', 'content', 'title'
+        'version_no', 'content', 'title', 'category', 'area_of_law'
     ];
 
     protected $table = 'maxims';

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\PackageController;
@@ -49,7 +50,7 @@ Route::get('/admin/laws-of-federation/create', [AdminController::class, 'createF
 Route::post('/admin/laws-of-federation', [AdminController::class, 'storeFed'])->name('store.fed');
 Route::get('/admin/laws-of-federation/edit-fed/{id}', [AdminController::class, 'editFed'])->name('edit.fed');
 Route::get('/admin/laws-of-federation/{id}', [AdminController::class, 'showFed'])->name('show.fed');
-Route::patch('/admin/laws-of-federation', [AdminController::class, 'updateFed'])->name('update.fed');
+Route::patch('/admin/laws-of-federation/edit-fed/{id}', [AdminController::class, 'updateFed'])->name('update.fed');
 Route::delete('/admin/laws-of-federation/{id}', [AdminController::class, 'deleteFed'])->name('delete.fed');
 
 Route::get('/admin/areas-of-laws', [AdminController::class, 'area_of_law']);
@@ -75,6 +76,8 @@ Route::get('/admin/legal-articles/edit-article/{id}', [AdminController::class, '
 Route::get('/admin/legal-articles/{id}', [AdminController::class, 'showArticle'])->name('show.article');
 Route::patch('/admin/legal-articles/edit-article/{id}', [AdminController::class, 'updateArticle'])->name('update.article');
 Route::delete('/admin/legal-articles/{id}', [AdminController::class, 'deleteArticle'])->name('delete.article');
+Route::post('/admin/legal-articles/{id}', [AdminController::class, 'shareArticle'])->name('share.article');
+Route::get('/articles/{id}', [ArticleController::class, 'viewArticle'])->name('articles');
 
 Route::get('/admin/law-dictionary', [AdminController::class, 'dictionary'])->name('admin.law-dictionary');
 Route::post('/admin/law-dictionary', [AdminController::class, 'storeDictionary'])->name('store.dictionary');
@@ -107,9 +110,12 @@ Route::patch('/admin/subscriptions', [AdminController::class, 'updatePackage'])-
 Route::get('/admin/subscriptions/edit-package/{id}', [AdminController::class, 'editPackage'])->name('edit.package');
 Route::delete('/admin/subscriptions/{id}', [AdminController::class, 'deletePackage'])->name('delete.package');
 Route::get('/admin/transactions', [AdminController::class, 'transaction'])->name('admin.transaction');
+Route::patch('/admin/transactions', [AdminController::class, 'updateTransaction'])->name('update.transaction');
+Route::delete('/admin/transactions/{id}', [AdminController::class, 'deleteTransaction'])->name('delete.transaction');
 
 Route::get('/subscription-package', [PackageController::class, 'sub_pack'])->name('subscription');
 Route::get('/checkout/{id}', [AdminController::class, 'checkout'])->name('checkout');
+Route::get('/checkout/discount/{id}', [AdminController::class, 'checkoutDiscount'])->name('checkout.discount');
 Route::get('/subscription-package/{slug}', [PackageController::class, 'subPack'])->name('sub.pack');
 Route::post('/subscription-package/pay', [PaymentController::class, 'redirectToGateway'])->name('sub.pay');
 Route::get('/subscription-package/payment/callback/{reference}', [PaymentController::class, 'handleGatewayCallback'])->name('sub.paid');
@@ -119,20 +125,41 @@ Route::get('/admin/discount', [AdminController::class, 'discount'])->name('admin
 Route::post('/admin/discount', [AdminController::class, 'storeDiscount'])->name('store.discount');
 Route::patch('/admin/discount', [AdminController::class, 'updateDiscount'])->name('update.discount');
 Route::delete('/admin/discount/{id}', [AdminController::class, 'deleteDiscount'])->name('delete.discount');
+Route::patch('/checkout/{id}', [AdminController::class, 'useDiscount'])->name('use.discount');
+
+Route::post('/admin/teams/comment', [AdminController::class, 'comment'])->name('post.comment');
+Route::post('/admin/teams/reply', [AdminController::class, 'reply'])->name('reply.comment');
+Route::delete('/admin/teams/comment/{id}', [AdminController::class, 'deleteComment'])->name('delete.comment');
+Route::delete('/admin/teams/reply/{id}', [AdminController::class, 'deleteReply'])->name('delete.reply');
 
 Route::get('/admin/teams', [AdminController::class, 'team'])->name('admin.teams');
 Route::post('/admin/teams', [AdminController::class, 'storeTeam'])->name('store.team');
 Route::patch('/admin/teams', [AdminController::class, 'updateTeam'])->name('update.team');
+Route::patch('/admin/teams/{id}', [AdminController::class, 'settingsTeam'])->name('settings.team');
 Route::get('/admin/teams/{id}', [AdminController::class, 'showTeam'])->name('show.team');
 Route::post('/admin/teams/send-request', [AdminController::class, 'sendRequest'])->name('send.request');
-Route::post('/admin/teams/approve', [AdminController::class, 'approveRequest'])->name('approve.request');
+Route::get('/admin/teams/member/approve', [AdminController::class, 'approveMember'])->name('approve.member');
+Route::patch('/admin/teams/approve/{id}', [AdminController::class, 'approveRequest'])->name('approve.request');
+Route::patch('/admin/teams/decline/{id}', [AdminController::class, 'declineRequest'])->name('decline.request');
+Route::delete('/admin/teams/remove/{id}', [AdminController::class, 'remove'])->name('remove.member');
+Route::delete('/admin/teams/leave/{id}', [AdminController::class, 'leave'])->name('leave.member');
 Route::post('/admin/teams/{id}', [InviteController::class, 'sendInvite'])->name('send.invite');
 Route::get('/invite/register/{token}', [InviteController::class, 'registration_view'])->name('registration');
 Route::post('/invite/register', [RegisterController::class, 'register'])->name('accept');
 Route::delete('/admin/teams/{id}', [AdminController::class, 'deleteTeam'])->name('delete.team');
 
+Route::get('/admin/search', [AdminController::class, 'search'])->name('search');
+Route::get('autocomplete-search', [AdminController::class, 'autocomplete'])->name('autocomplete');
+
+Route::post('/admin/annotations', [AdminController::class, 'anote'])->name('store.anote');
+
 Route::get('/admin/messages', [AdminController::class, 'message'])->name('admin.messages');
+
+
 Route::get('/admin/licenses', [AdminController::class, 'license'])->name('admin.licenses');
+Route::post('/admin/licenses', [AdminController::class, 'storeLicense'])->name('store.license');
+Route::patch('/admin/licenses', [AdminController::class, 'updateLicense'])->name('update.license');
+Route::delete('/admin/licenses/{id}', [AdminController::class, 'deleteLicense'])->name('delete.license');
 
 
 

@@ -53,7 +53,7 @@
                                 <small class="form-text text-muted">
                                     This is the body of the resource
                                 </small>
-                                <textarea name="Description" rows="5" placeholder="Enter description">{{$resource->Description}}</textarea>
+                                <textarea name="Description" rows="5" class="form-control" placeholder="Enter description">{{$resource->Description}}</textarea>
                             </div>
                             <div class="form-group">
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

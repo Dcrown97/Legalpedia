@@ -69,13 +69,26 @@
         tinymce.init({
             selector: 'textarea',
         });
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-  <script>
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
         $(document).ready(function(){
             $('.toast').toast('show');
         });
-  </script>
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+    <script type="text/javascript">
+        var route = "{{ url('autocomplete-search') }}";
 
+        $('#search').typeahead({
+            source: function (query, process) {
+                return $.get(route, {
+                    query: query
+                }, function (data) {
+                    return process(data);
+                });
+            }
+        });
+    </script>
   </body>
 </html>

@@ -15,7 +15,8 @@ class Package extends Model
     protected $fillable = [
         'name', 'description', 'price', 'features', 'permalink', 'validity', 'recur_date',
         'judgement_feature', 'lfn_feature', 'roc_feature', 'sroc_feature', 'form_feature', 'article_feature', 'maxim_feature', 'dict_feature',
-        'resource_feature', 'slug', 'judg_start_year', 'judg_end_year', 'test'
+        'resource_feature', 'slug', 'judg_start_year', 'judg_end_year', 'judg_single_year', 'lfn_single_year', 'lfn_start_year', 'lfn_end_year',
+        'judg_cat', 'judg_court', 'lfn_cat', 'roc_cat', 'sroc_state', 'form_cat', 'article_cat', 'maxim_cat', 'dict_cat', 'resource_cat', 'team', 'note', 'share', 'bookmark'
     ];
 
     protected $table = 'packages';
@@ -30,15 +31,15 @@ class Package extends Model
         ];
     }
 
-    public function setTestAttribute($value)
-    {
-        // $this->attributes['test'] = json_encode($value);
-        return $this->attributes['test'] = implode(',', $value);
-    }
+    // public function setTestAttribute($value)
+    // {
+    //     // $this->attributes['test'] = json_encode($value);
+    //     return $this->attributes['test'] = implode(',', $value);
+    // }
 
-    public function getTestAttribute($value)
-    {
-        // return $this->attributes['test'] = json_decode($value);
-        return $this->attributes['test'] = $value;
-    }
+    // public function getTestAttribute($value)
+    // {
+    //     // return $this->attributes['test'] = json_decode($value);
+    //     return $this->attributes['test'] = $value;
+    // }
 }

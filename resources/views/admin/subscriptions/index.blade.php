@@ -149,7 +149,7 @@
                                     <label class="form-label mb-1">
                                         Description
                                     </label>
-                                    <textarea name="description" rows="5" placeholder="Enter description"></textarea>
+                                    <textarea name="description" rows="5" class="form-control" placeholder="Enter description"></textarea>
                                 </div>
                                 <div class="form-group priceamount">
                                     <label class="form-label mb-1">
@@ -186,7 +186,7 @@
                                         <button class="btn btn-white" type="reset">Cancel</button>
                                     </div>
                                     <div class="col text-center">
-                                        <h6 class="text-uppercase text-muted mb-0">Step 1 of 2</h6>
+                                        <h6 class="text-uppercase text-muted mb-0">Step 1 of 3</h6>
                                     </div>
                                     <div class="col-auto">
                                         <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepTwo">Next <i class="mdi mdi-arrow-right"></i></a>
@@ -201,38 +201,49 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label mb-1">
-                                        Category
-                                    </label>
-                                    <select multiple name="test[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                        <option value="">Select Category</option>
-                                        @foreach($categories as $category)
-                                            <option value="{{$category->category}}">{{$category->category}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" name="judgement_feature" type="checkbox" id="judgementCheck">
+                                        <input class="form-check-input list-checkbox" name="judgement_feature" type="checkbox" id="judgementCheck" value="judgement">
                                         <h5 class="pt-2 pl-2">Judgements</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_judgement_content" style="display: none">
-                                        <div class="row">
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        From Year
-                                                    </label>
-                                                    <input type="number" min="1960" name="judg_start_year" placeholder="1960" class="form-control">
-                                                </div>
+                                        <div class="select_type">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Year type
+                                                </label>
+                                                <select class="form-select" id="year_type" onchange="showDiv('single', 'range', this)">
+                                                    <option value="single">Single Year</option>
+                                                    <option value="range">Year range</option>
+                                                </select>
                                             </div>
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        To Year
-                                                    </label>
-                                                    <input type="number" max="2021" name="judg_end_year" placeholder="2021" class="form-control">
+                                        </div>
+                                        <div id="single">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Year
+                                                </label>
+                                                <input type="number" min="1960" name="judg_single_year" placeholder="1960" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div id="range" style="display: none">
+                                            <div class="row">
+                                                <div class="col-12 col-lg-6 col-xl-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            From Year
+                                                        </label>
+                                                        <input type="number" min="1960" name="judg_start_year" placeholder="1960" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-lg-6 col-xl-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            To Year
+                                                        </label>
+                                                        <?php $current_year = date("Y"); ?>
+                                                        <input type="number" max="{{$current_year}}" name="judg_end_year" placeholder="{{$current_year}}" class="form-control">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -253,12 +264,12 @@
                                             <div class="col-12 col-lg-6 col-xl-6">
                                                 <div class="form-group">
                                                     <label class="form-label mb-1">
-                                                        Area of Law
+                                                        Courts
                                                     </label>
-                                                    <select multiple name="judg_area_of_law[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                        <option value="">Select Area of Law</option>
-                                                        @foreach($area_of_laws as $area_of_law)
-                                                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                                    <select multiple name="judg_court[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                        <option value="">Select Court</option>
+                                                        @foreach($courts as $court)
+                                                            <option value="{{$court->court}}">{{$court->court}}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -268,56 +279,78 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" name="lfn_feature" type="checkbox" id="lfnCheck">
+                                        <input class="form-check-input list-checkbox" name="lfn_feature" type="checkbox" id="lfnCheck" value="lfn">
                                         <h5 class="pt-2 pl-2">Law of Federation</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_lfn_content" style="display: none">
-                                        <div class="row">
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        Category
-                                                    </label>
-                                                    <select name="lfn_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                        <option value="">Select Category</option>
-                                                        @foreach($categories as $category)
-                                                            <option value="{{$category->category}}">{{$category->category}}</option>
-                                                        @endforeach
-                                                    </select>
+                                        <div class="select_type">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Year type
+                                                </label>
+                                                <select class="form-select" id="year" onchange="showYear('single_year', 'year_range', this)">
+                                                    <option value="single_year">Single Year</option>
+                                                    <option value="year_range">Year range</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div id="single_year">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Year
+                                                </label>
+                                                <input type="number" name="lfn_single_year" min="1960" placeholder="1960" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div id="year_range" style="display: none">
+                                            <div class="row">
+                                                <div class="col-12 col-lg-6 col-xl-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            From Year
+                                                        </label>
+                                                        <input type="number" min="1960" name="lfn_start_year" placeholder="1960" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-lg-6 col-xl-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            To Year
+                                                        </label>
+                                                        <input type="number" max="{{$current_year}}" name="lfn_end_year" placeholder="{{$current_year}}" class="form-control">
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        Area of Law
-                                                    </label>
-                                                    <select multiple name="lfn_area_of_law[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                        <option value="">Select Area of Law</option>
-                                                        @foreach($area_of_laws as $area_of_law)
-                                                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Category
+                                            </label>
+                                            <select name="lfn_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="roc_feature" id="rocCheck">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="roc_feature" id="rocCheck" value="rule of court">
                                         <h5 class="pt-2 pl-2">Rule of Court</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_roc_content" style="display: none">
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Category
+                                                Rule Category
                                             </label>
                                             <select name="roc_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Category</option>
-                                                @foreach($categories as $category)
-                                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                                <option value="">Select rule category</option>
+                                                @foreach($rule_categories as $category)
+                                                    <option value="{{$category->name}}">{{$category->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -325,19 +358,19 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" name="sroc_feature" type="checkbox" id="srocCheck">
+                                        <input class="form-check-input list-checkbox" name="sroc_feature" type="checkbox" id="srocCheck" value="state rule of court">
                                         <h5 class="pt-2 pl-2">State Rule of Court</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_sroc_content" style="display: none">
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Category
+                                                State
                                             </label>
-                                            <select name="sroc_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Category</option>
-                                                @foreach($categories as $category)
-                                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                            <select name="sroc_state[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select State</option>
+                                                @foreach($states as $state)
+                                                    <option value="{{$state->name}}">{{$state->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -345,7 +378,7 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="form_feature" id="formCheck">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="form_feature" id="formCheck" value="forms">
                                         <h5 class="pt-2 pl-2">Forms and Precedence</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
@@ -365,56 +398,39 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="article_feature" id="articleCheck">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="article_feature" id="articleCheck" value="article">
                                         <h5 class="pt-2 pl-2">Legal Articles</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_article_content" style="display: none">
-                                        <div class="row">
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        Category
-                                                    </label>
-                                                    <select name="article_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                        <option value="">Select Category</option>
-                                                        @foreach($categories as $category)
-                                                            <option value="{{$category->category}}">{{$category->category}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-lg-6 col-xl-6">
-                                                <div class="form-group">
-                                                    <label class="form-label mb-1">
-                                                        Area of Law
-                                                    </label>
-                                                    <select name="article_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                        <option value="">Select Area of Law</option>
-                                                        @foreach($area_of_laws as $area_of_law)
-                                                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Category
+                                            </label>
+                                            <select name="article_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="maxim_feature" id="maximCheck">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="maxim_feature" id="maximCheck" value="maxim">
                                         <h5 class="pt-2 pl-2">Legal Maxims</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_maxim_content" style="display: none">
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Area of Law
+                                                Category
                                             </label>
-                                            <select name="maxim_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Area of Law</option>
-                                                @foreach($area_of_laws as $area_of_law)
-                                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                            <select name="maxim_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -422,19 +438,19 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="dict_feature" id="dictCheck">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="dict_feature" id="dictCheck" value="dictionary">
                                         <h5 class="pt-2 pl-2">Legal Dictionary</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_dict_content" style="display: none">
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Area of Law
+                                                Category
                                             </label>
-                                            <select name="dict_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Area of Law</option>
-                                                @foreach($area_of_laws as $area_of_law)
-                                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                            <select name="dict_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -442,19 +458,19 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="resource_feature" id="resourceCheck">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="resource_feature" id="resourceCheck" value="resource">
                                         <h5 class="pt-2 pl-2">Foreign Resources</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_resource_content" style="display: none">
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Area of Law
+                                                Category
                                             </label>
-                                            <select name="resource_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Area of Law</option>
-                                                @foreach($area_of_laws as $area_of_law)
-                                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                            <select name="resource_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -466,11 +482,57 @@
                                         <a class="btn btn-white" data-toggle="wizard" href="#wizardStepOne">Back</a>
                                     </div>
                                     <div class="col text-center">
-                                        <h6 class="text-uppercase text-muted mb-0">Step 2 of 2</h6>
+                                        <h6 class="text-uppercase text-muted mb-0">Step 2 of 3</h6>
+                                    </div>
+                                    <div class="col-auto">
+                                        <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepThree">Next <i class="mdi mdi-arrow-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="wizardStepThree" role="tabpanel" aria-labelledby="wizardTabThree">
+                                <div class="row justify-content-center">
+                                    <div class="text-center">
+                                        <h1 class="mb-3">More Features</h1>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check mb-n2">
+                                        <input class="form-check-input list-checkbox" name="team" type="checkbox" value="team">
+                                        <h5 class="pt-2 pl-2">Can create Teams</h5>
+                                        <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check mb-n2">
+                                        <input class="form-check-input list-checkbox" name="note" type="checkbox" value="note">
+                                        <h5 class="pt-2 pl-2">Can add Notes</h5>
+                                        <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check mb-n2">
+                                        <input class="form-check-input list-checkbox" name="bookmark" type="checkbox" value="bookmark">
+                                        <h5 class="pt-2 pl-2">Can add Bookmarks</h5>
+                                        <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check mb-n2">
+                                        <input class="form-check-input list-checkbox" name="share" type="checkbox" value="share">
+                                        <h5 class="pt-2 pl-2">Can share Articles</h5>
+                                        <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                    </div>
+                                </div>
+                                <div class="nav row align-items-center">
+                                    <div class="col-auto">
+                                        <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>
+                                    </div>
+                                    <div class="col text-center">
+                                        <h6 class="text-uppercase text-muted mb-0">Step 3 of 3</h6>
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
-                                            <span class="button__text"><i class="mdi mdi-check"></i> Save</span>
+                                            <span class="button__text"><i class="mdi mdi-check"></i> Create</span>
                                         </button>
                                     </div>
                                 </div>
@@ -488,6 +550,18 @@
         if(!confirm("Are you sure you want to delete this package?"))
         event.preventDefault();
     }
+
+    function showDiv(single, range, element)
+    {
+        document.getElementById(single).style.display = element.value == 'single' ? 'block' : 'none';
+        document.getElementById(range).style.display = element.value == 'range' ? 'block' : 'none';
+    }
+    function showYear(single_year, year_range, element_type)
+    {
+        document.getElementById(single_year).style.display = element_type.value == 'single_year' ? 'block' : 'none';
+        document.getElementById(year_range).style.display = element_type.value == 'year_range' ? 'block' : 'none';
+    }
+
 
     $(function () {
         $("#judgementCheck").click(function () {

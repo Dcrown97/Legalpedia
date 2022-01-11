@@ -10,7 +10,7 @@ class Dictionary extends Model
     use HasFactory;
 
     protected $fillable = [
-        'version_no', 'content', 'title', 'area_of_law'
+        'version_no', 'content', 'title', 'area_of_law', 'category'
     ];
 
     protected $table = 'dictionaries';

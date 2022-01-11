@@ -48,6 +48,7 @@
                             My Teams
                         </a>
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="false">
                             All Teams
@@ -108,7 +109,8 @@
                                                     <div class="col">
                                                         <div class="row align-items-center g-0">
                                                             <div class="col-auto">
-                                                                <div class="small me-2">10 Members</div>
+                                                                <?php $my_team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->count(); ?>
+                                                                <div class="small me-2">{{$my_team_member_count}} Members</div>
                                                             </div>
                                                             <div class="col text-center">
                                                                 <div class="me-2 text-color"><a href="" class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</a></div>
@@ -138,7 +140,7 @@
                                 @endforeach
                                 @else
                                 <div class="text-center mt-8">
-                                    <h3 class="text-muted"><i class="fe fe-users"></i> You have no Teams</h3>
+                                    <h3 class="text-muted"><i class="fe fe-users"></i> You don't own a team</h3>
                                     <div class="col-auto mt-2">
                                         <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
                                             <i class="fe fe-plus"></i> Create Team
@@ -200,11 +202,17 @@
                                                                     <div class="col">
                                                                         <div class="row align-items-center g-0">
                                                                             <div class="col-auto">
-                                                                                <div class="small me-2">10 Members</div>
+                                                                                <?php $all_team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $team->id)->count(); ?>
+                                                                                <div class="small me-2">{{$all_team_member_count}} Members</div>
                                                                             </div>
                                                                             <div class="col text-center">
-                                                                                @if(Auth::user()->id == $team->user_id)
-                                                                                    <div class="me-2 text-color"><span class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</span></div>
+                                                                                <?php $approved_member = App\Models\UserTeam::where('user_id', Auth::user()->id)->where('approve_request', 1)->where('team_id', $team->id)->first(); ?>
+                                                                                @if($approved_member)
+                                                                                    @if(Auth::user()->id == $team->user_id || $approved_member->approve_request == 1)
+                                                                                        <div class="me-2 text-color"><span class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</span></div>
+                                                                                        @else
+                                                                                        <div class="me-2 text-color"><a href="{{route('show.team', $team->id)}}" class="text-color"><i class="mdi mdi-plus"></i> Join Team</a></div>
+                                                                                    @endif
                                                                                     @else
                                                                                     <div class="me-2 text-color"><a href="{{route('show.team', $team->id)}}" class="text-color"><i class="mdi mdi-plus"></i> Join Team</a></div>
                                                                                 @endif
@@ -246,540 +254,56 @@
                                     </div>
                                     <div class="tab-pane fade" id="tabPaneTwo" role="tabpanel">
                                         <div class="row list">
-                                            <div class="col-12">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar -->
-                                                    <a href="project-overview.html" class="avatar avatar-lg avatar-4by3">
-                                                        <img src="assets/img/avatars/projects/project-1.jpg" alt="..." class="avatar-img rounded">
-                                                    </a>
-
-                                                    </div>
-                                                    <div class="col ms-n2">
-
-                                                    <!-- Title -->
-                                                    <h4 class="mb-1 name">
-                                                        <a href="project-overview.html">Homepage Redesign</a>
-                                                    </h4>
-
-                                                    <!-- Text -->
-                                                    <p class="card-text small text-muted mb-1">
-                                                        <time datetime="2018-06-21">Updated 2hr ago</time>
-                                                    </p>
-
-                                                    <!-- Progress -->
-                                                    <div class="row align-items-center g-0">
-                                                        <div class="col-auto">
-
-                                                        <!-- Value -->
-                                                        <div class="small me-2">29%</div>
-
-                                                        </div>
-                                                        <div class="col">
-
-                                                        <!-- Progress -->
-                                                        <div class="progress progress-sm">
-                                                            <div class="progress-bar" role="progressbar" style="width: 29%" aria-valuenow="29" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-
-                                                        </div>
-                                                    </div> <!-- / .row -->
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar group -->
-                                                    <div class="avatar-group d-none d-md-inline-flex">
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                        <img src="assets/img/avatars/profiles/avatar-2.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                        <img src="assets/img/avatars/profiles/avatar-3.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                        <img src="assets/img/avatars/profiles/avatar-4.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                        <img src="assets/img/avatars/profiles/avatar-5.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                    </div>
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Dropdown -->
-                                                    <div class="dropdown">
-                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="#!" class="dropdown-item">
-                                                            Action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Another action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Something else here
-                                                        </a>
+                                            @if(count($teams) > 0)
+                                                @foreach ($teams as $team)
+                                                    <div class="col-12">
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <div class="row align-items-center">
+                                                                    <div class="col-auto">
+                                                                        <a href="{{route('show.team', $team->id)}}" class="avatar avatar-lg avatar-4by3">
+                                                                            <img src="{{$team->photo}}" alt="{{$team->name}}" class="avatar-img rounded">
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="col ms-n2">
+                                                                        <h4 class="mb-1 name">
+                                                                            <a href="{{route('show.team', $team->id)}}">{{$team->name}}</a>
+                                                                        </h4>
+                                                                        <p class="card-text small text-muted">
+                                                                            Created {{\Carbon\Carbon::parse($team->created_at)->toFormattedDateString()}}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <div class="avatar-group d-none d-md-inline-flex">
+                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
+                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
+                                                                            </a>
+                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
+                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
+                                                                            </a>
+                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
+                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
+                                                                            </a>
+                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
+                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-
-                                                    </div>
-                                                </div> <!-- / .row -->
-                                                </div> <!-- / .card-body -->
-                                            </div>
-
-                                            </div>
-                                            <div class="col-12">
-
-                                            <div class="card">
-                                                <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar -->
-                                                    <a href="project-overview.html" class="avatar avatar-lg avatar-4by3">
-                                                        <img src="assets/img/avatars/projects/project-2.jpg" alt="..." class="avatar-img rounded">
-                                                    </a>
-
-                                                    </div>
-                                                    <div class="col ms-n2">
-
-                                                    <!-- Title -->
-                                                    <h4 class="mb-1 name">
-                                                        <a href="project-overview.html">Travels &amp; Time</a>
-                                                    </h4>
-
-                                                    <!-- Text -->
-                                                    <p class="card-text small text-muted mb-1">
-                                                        <time datetime="2018-06-21">Updated 5hr ago</time>
-                                                    </p>
-
-                                                    <!-- Progress -->
-                                                    <div class="row align-items-center g-0">
-                                                        <div class="col-auto">
-
-                                                        <!-- Value -->
-                                                        <div class="small me-2">77%</div>
-
-                                                        </div>
-                                                        <div class="col">
-
-                                                        <!-- Progress -->
-                                                        <div class="progress progress-sm">
-                                                            <div class="progress-bar" role="progressbar" style="width: 77%" aria-valuenow="77" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-
-                                                        </div>
-                                                    </div> <!-- / .row -->
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar group -->
-                                                    <div class="avatar-group d-none d-md-inline-flex">
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                        <img src="assets/img/avatars/profiles/avatar-2.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                        <img src="assets/img/avatars/profiles/avatar-3.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                        <img src="assets/img/avatars/profiles/avatar-4.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                        <img src="assets/img/avatars/profiles/avatar-5.jpg" class="avatar-img rounded-circle" alt="...">
+                                                @endforeach
+                                                @else
+                                                <div class="text-center mt-8 mb-8">
+                                                    <h3 class="text-muted"><i class="fe fe-users"></i> There are currently no teams</h3>
+                                                    <div class="col-auto mt-2">
+                                                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                                            <i class="fe fe-plus"></i> Create Team
                                                         </a>
                                                     </div>
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Dropdown -->
-                                                    <div class="dropdown">
-                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="#!" class="dropdown-item">
-                                                            Action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Another action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Something else here
-                                                        </a>
-                                                        </div>
-                                                    </div>
-
-                                                    </div>
-                                                </div> <!-- / .row -->
-                                                </div> <!-- / .card-body -->
-                                            </div>
-
-                                            </div>
-                                            <div class="col-12">
-
-                                            <div class="card">
-                                                <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar -->
-                                                    <a href="project-overview.html" class="avatar avatar-lg avatar-4by3">
-                                                        <img src="assets/img/avatars/projects/project-3.jpg" alt="..." class="avatar-img rounded">
-                                                    </a>
-
-                                                    </div>
-                                                    <div class="col ms-n2">
-
-                                                    <!-- Title -->
-                                                    <h4 class="mb-1 name">
-                                                        <a href="project-overview.html">Safari Exploration</a>
-                                                    </h4>
-
-                                                    <!-- Text -->
-                                                    <p class="card-text small text-muted mb-1">
-                                                        <time datetime="2018-06-21">Updated 1hr ago</time>
-                                                    </p>
-
-                                                    <!-- Progress -->
-                                                    <div class="row align-items-center g-0">
-                                                        <div class="col-auto">
-
-                                                        <!-- Value -->
-                                                        <div class="small me-2">100%</div>
-
-                                                        </div>
-                                                        <div class="col">
-
-                                                        <!-- Progress -->
-                                                        <div class="progress progress-sm">
-                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-
-                                                        </div>
-                                                    </div> <!-- / .row -->
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar group -->
-                                                    <div class="avatar-group d-none d-md-inline-flex">
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                        <img src="assets/img/avatars/profiles/avatar-2.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                        <img src="assets/img/avatars/profiles/avatar-3.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                        <img src="assets/img/avatars/profiles/avatar-4.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                        <img src="assets/img/avatars/profiles/avatar-5.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                    </div>
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Dropdown -->
-                                                    <div class="dropdown">
-                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="#!" class="dropdown-item">
-                                                            Action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Another action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Something else here
-                                                        </a>
-                                                        </div>
-                                                    </div>
-
-                                                    </div>
-                                                </div> <!-- / .row -->
-                                                </div> <!-- / .card-body -->
-                                            </div>
-
-                                            </div>
-                                            <div class="col-12">
-
-                                            <div class="card">
-                                                <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar -->
-                                                    <a href="project-overview.html" class="avatar avatar-lg avatar-4by3">
-                                                        <img src="assets/img/avatars/projects/project-4.jpg" alt="..." class="avatar-img rounded">
-                                                    </a>
-
-                                                    </div>
-                                                    <div class="col ms-n2">
-
-                                                    <!-- Title -->
-                                                    <h4 class="mb-1 name">
-                                                        <a href="project-overview.html">Personal Site</a>
-                                                    </h4>
-
-                                                    <!-- Text -->
-                                                    <p class="card-text small text-muted mb-1">
-                                                        <time datetime="2018-06-21">Updated 2d ago</time>
-                                                    </p>
-
-                                                    <!-- Progress -->
-                                                    <div class="row align-items-center g-0">
-                                                        <div class="col-auto">
-
-                                                        <!-- Value -->
-                                                        <div class="small me-2">12%</div>
-
-                                                        </div>
-                                                        <div class="col">
-
-                                                        <!-- Progress -->
-                                                        <div class="progress progress-sm">
-                                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 12%" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-
-                                                        </div>
-                                                    </div> <!-- / .row -->
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar group -->
-                                                    <div class="avatar-group d-none d-md-inline-flex">
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                        <img src="assets/img/avatars/profiles/avatar-2.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                        <img src="assets/img/avatars/profiles/avatar-3.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                        <img src="assets/img/avatars/profiles/avatar-4.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                        <img src="assets/img/avatars/profiles/avatar-5.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                    </div>
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Dropdown -->
-                                                    <div class="dropdown">
-                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="#!" class="dropdown-item">
-                                                            Action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Another action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Something else here
-                                                        </a>
-                                                        </div>
-                                                    </div>
-
-                                                    </div>
-                                                </div> <!-- / .row -->
-                                                </div> <!-- / .card-body -->
-                                            </div>
-
-                                            </div>
-                                            <div class="col-12">
-
-                                            <div class="card">
-                                                <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar -->
-                                                    <a href="project-overview.html" class="avatar avatar-lg avatar-4by3">
-                                                        <img src="assets/img/avatars/projects/project-5.jpg" alt="..." class="avatar-img rounded">
-                                                    </a>
-
-                                                    </div>
-                                                    <div class="col ms-n2">
-
-                                                    <!-- Title -->
-                                                    <h4 class="mb-1 name">
-                                                        <a href="project-overview.html">Wander (iOS)</a>
-                                                    </h4>
-
-                                                    <!-- Text -->
-                                                    <p class="card-text small text-muted mb-1">
-                                                        <time datetime="2018-06-21">Updated 4hr ago</time>
-                                                    </p>
-
-                                                    <!-- Progress -->
-                                                    <div class="row align-items-center g-0">
-                                                        <div class="col-auto">
-
-                                                        <!-- Value -->
-                                                        <div class="small me-2">80%</div>
-
-                                                        </div>
-                                                        <div class="col">
-
-                                                        <!-- Progress -->
-                                                        <div class="progress progress-sm">
-                                                            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-
-                                                        </div>
-                                                    </div> <!-- / .row -->
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar group -->
-                                                    <div class="avatar-group d-none d-md-inline-flex">
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                        <img src="assets/img/avatars/profiles/avatar-2.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                        <img src="assets/img/avatars/profiles/avatar-3.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                        <img src="assets/img/avatars/profiles/avatar-4.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                        <img src="assets/img/avatars/profiles/avatar-5.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                    </div>
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Dropdown -->
-                                                    <div class="dropdown">
-                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="#!" class="dropdown-item">
-                                                            Action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Another action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Something else here
-                                                        </a>
-                                                        </div>
-                                                    </div>
-
-                                                    </div>
-                                                </div> <!-- / .row -->
-                                                </div> <!-- / .card-body -->
-                                            </div>
-
-                                            </div>
-                                            <div class="col-12">
-
-                                            <div class="card">
-                                                <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar -->
-                                                    <a href="project-overview.html" class="avatar avatar-lg avatar-4by3">
-                                                        <img src="assets/img/avatars/projects/project-6.jpg" alt="..." class="avatar-img rounded">
-                                                    </a>
-
-                                                    </div>
-                                                    <div class="col ms-n2">
-
-                                                    <!-- Title -->
-                                                    <h4 class="mb-1 name">
-                                                        <a href="project-overview.html">Wander (Web)</a>
-                                                    </h4>
-
-                                                    <!-- Text -->
-                                                    <p class="card-text small text-muted mb-1">
-                                                        <time datetime="2018-06-21">Updated 18hr ago</time>
-                                                    </p>
-
-                                                    <!-- Progress -->
-                                                    <div class="row align-items-center g-0">
-                                                        <div class="col-auto">
-
-                                                        <!-- Value -->
-                                                        <div class="small me-2">65%</div>
-
-                                                        </div>
-                                                        <div class="col">
-
-                                                        <!-- Progress -->
-                                                        <div class="progress progress-sm">
-                                                            <div class="progress-bar" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-
-                                                        </div>
-                                                    </div> <!-- / .row -->
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Avatar group -->
-                                                    <div class="avatar-group d-none d-md-inline-flex">
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                        <img src="assets/img/avatars/profiles/avatar-2.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                        <img src="assets/img/avatars/profiles/avatar-3.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                        <img src="assets/img/avatars/profiles/avatar-4.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                        <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                        <img src="assets/img/avatars/profiles/avatar-5.jpg" class="avatar-img rounded-circle" alt="...">
-                                                        </a>
-                                                    </div>
-
-                                                    </div>
-                                                    <div class="col-auto">
-
-                                                    <!-- Dropdown -->
-                                                    <div class="dropdown">
-                                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                        <a href="#!" class="dropdown-item">
-                                                            Action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Another action
-                                                        </a>
-                                                        <a href="#!" class="dropdown-item">
-                                                            Something else here
-                                                        </a>
-                                                        </div>
-                                                    </div>
-
-                                                    </div>
-                                                </div> <!-- / .row -->
-                                                </div> <!-- / .card-body -->
-                                            </div>
-
-                                            </div>
-
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -814,6 +338,9 @@
                                     </label>
                                     <input type="hidden" name="user_id" class="form-control" value="{{Auth::user()->id}}">
                                     <input type="hidden" name="team_owner" class="form-control" value="{{Auth::user()->name}}">
+                                    <input type="hidden" name="team_id" class="form-control">
+                                    <input type="hidden" name="send_request" class="form-control" value="1">
+                                    <input type="hidden" name="approve_request" class="form-control" value="1">
                                     <input type="text" name="name" class="form-control">
                                 </div>
                                 <div class="form-group">
@@ -823,7 +350,7 @@
                                     <small class="form-text text-muted">
                                         This is what others will see about your team
                                     </small>
-                                    <textarea name="description" id="description" rows="5" placeholder="Enter description"></textarea>
+                                    <textarea name="description" id="description" rows="5" class="form-control" placeholder="Enter description"></textarea>
                                 </div>
                                 <hr class="mt-4 mb-5">
                                 <div class="form-group">
@@ -888,7 +415,7 @@
                                     <small class="form-text text-muted">
                                         This is what others will see about your team
                                     </small>
-                                    <textarea class="textarea-1" name="description" id="descr" rows="5"></textarea>
+                                    <textarea class="textarea-1 form-control" name="description" id="descr" rows="5"></textarea>
                                 </div>
                                 <hr class="mt-4 mb-5">
                                 <div class="form-group">
@@ -922,7 +449,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const actualBtn = document.getElementById('actual-btn');
 

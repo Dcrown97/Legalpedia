@@ -15,16 +15,23 @@ class Team extends Model
 
     protected $table = 'teams';
 
-    protected $uploads = '/media/' ;
+    // protected $uploads = '/media/' ;
 
     public function getPhotoAttribute($value)
     {
-        return url('storage/'.$value);
+        if($value){
+            return url('storage/'.$value);
+        }
+        return null;
     }
 
-    public function user() {
-        return $this->hasMany(User::class);
+    public function users() {
+        return $this->belongsToMany(User::class);
     }
+
+    // public function user_teams() {
+    //     return $this->hasMany(UserTeam::class);
+    // }
 
     public function invite() {
         return $this->hasMany(Invite::class);

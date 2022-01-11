@@ -261,3 +261,88 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #f7c0b9;
 }
+
+.navbar-light {
+    background: transparent !important;
+    border: none !important;
+}
+
+.btn-primary {
+    background-color: #EC6959 !important;
+    border-color: #EC6959 !important;
+    color: #fff !important;
+}
+.btn {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
+    border-radius: 3px !important;
+}
+
+.toast {
+    background: #20D489 !important;
+    top: 5% !important;
+    left: 70%;
+    position: fixed !important;
+    z-index: 999 !important;
+    padding: 0 !important;
+    transform-origin: right;
+    -webkit-animation: notify 3s ease-out;
+    animation: notify 3s ease-out;
+    box-shadow: 0 0.55rem 0.5rem rgb(18 38 63 / 3%) !important;
+}
+.toast-error {
+    background: #F41919 !important;
+    top: 5% !important;
+    left: 70%;
+    position: fixed !important;
+    z-index: 999 !important;
+    padding: 0 !important;
+    transform-origin: right;
+    -webkit-animation: notify 3s ease-out;
+    animation: notify 3s ease-out;
+    box-shadow: 0 0.5rem 0.5rem rgb(18 38 63 / 3%) !important;
+}
+@-webkit-keyframes notify {
+    0% {transform: scaleX(0);}
+    10% {transform: scaleX(0.5);}
+    13% {transform: scale(1);}
+    16% {transform: scale(1);}
+    55% {transform: scaleX(1);}
+    65% {transform: scaleX(1);}
+    95% {transform: scaleX(1);}
+    100% {transform: scaleX(1);}
+}
+
+@keyframes notify {
+    0% {transform: scaleX(0);}
+    10% {transform: scaleX(0.5);}
+    13% {transform: scale(1);}
+    16% {transform: scale(1);}
+    55% {transform: scaleX(1);}
+    65% {transform: scaleX(1);}
+    95% {transform: scaleX(1);}
+    100% {transform: scaleX(1);}
+}
+.toast-header {
+    background-color: transparent !important;
+    border-bottom: none !important;
+    /* background-color: rgba(255,255,255,.85) !important; */
+}
+.toast-body {
+    /* background-color: rgba(255,255,255,.85) !important; */
+    background-color: none !important;
+}
+
+@media screen and (min-width: 280px) and (max-width: 1000px) {
+    .toast {
+        left: 30% !important;
+        top: 10% !important;
+    }
+
+    .toast-error {
+        left: 30% !important;
+        top: 10% !important;
+    }
+    .modal-content {
+        width: 100% !important;
+    }
+}

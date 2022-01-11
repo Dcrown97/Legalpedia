@@ -10,8 +10,17 @@ class Article extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'content', 'user_id', 'version_no'
+        'title', 'description', 'content', 'user_id', 'article_type', 'display_type', 'link', 'photo', 'area_of_law', 'references',
+        'authur', 'category'
     ];
+
+    public function getPhotoAttribute($value)
+    {
+        if($value){
+            return url('storage/'.$value);
+        }
+        return null;
+    }
 
     public function user() {
         return $this->belongsTo(User::class);

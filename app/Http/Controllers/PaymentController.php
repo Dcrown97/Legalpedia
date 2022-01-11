@@ -74,14 +74,17 @@ class PaymentController extends Controller
     public function savePayment(Request $request, $reference) {
         $input = [
             'name'=> $request->name,
+            'user_id'=> $request->user_id,
             'email'=> $request->email,
             'reference'=> $reference,
             'amount'=> $request->amount,
             'package'=> $request->package,
+            'package_id'=> $request->package_id,
             'status'=> $request->status,
+            'discounted_price'=> $request->discounted_price,
         ];
         Transaction::create($input);
-        return view('admin.dashboard');
+        return view('admin.dashboard'); 
         // $paymentDetails = Paystack::getPaymentData();
     }
 }

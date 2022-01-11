@@ -40,7 +40,7 @@
                                     <label class="form-label mb-1">
                                         Description
                                     </label>
-                                    <textarea name="description" rows="5" placeholder="Enter description">{{$package->description}}</textarea>
+                                    <textarea name="description" class="form-control" rows="5" placeholder="Enter description">{{$package->description}}</textarea>
                                 </div>
                                 <div class="form-group priceamount">
                                     <label class="form-label mb-1">

@@ -31,21 +31,32 @@
                             {{ method_field('patch') }}
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Title
+                                    Word
                                 </label>
                                 <input type="text" name="title" class="form-control" value="{{$word->title}}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Version No.
+                                    Meaning
                                 </label>
-                                <input type="number" name="version_no" class="form-control" value="{{$word->version_no}}">
+                                <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$word->content}}</textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Content
+                                    Category
                                 </label>
-                                <textarea name="content" rows="5" placeholder="Enter description">{{$word->content}}</textarea>
+                                <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                    <option value="{{$word->category}}" selected>{{$word->category}}</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{$category->category}}">{{$category->category}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label mb-1">
+                                    Area of Law
+                                </label>
+                                <textarea name="area_of_law" class="form-control" rows="5" placeholder="Enter area(s) of law">{{$word->area_of_law}}</textarea>
                             </div>
                             <div class="form-group">
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

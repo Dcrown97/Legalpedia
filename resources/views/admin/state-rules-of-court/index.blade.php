@@ -742,7 +742,7 @@
                                         <label class="form-label mb-1">
                                             Content
                                         </label>
-                                        <textarea name="content" rows="5" placeholder="Enter description"></textarea>
+                                        <textarea name="content" class="form-control" rows="5" placeholder="Enter description"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

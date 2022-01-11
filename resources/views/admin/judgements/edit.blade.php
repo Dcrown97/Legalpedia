@@ -81,44 +81,44 @@
                                     <label class="form-label mb-1">
                                         Summary of Facts
                                     </label>
-                                    <textarea name="summary_of_facts" rows="5" placeholder="Enter summary">{{$judgement_summary->summary_of_facts}}</textarea>
+                                    <textarea name="summary_of_facts" rows="5" class="form-control" placeholder="Enter summary">{{$judgement_summary->summary_of_facts}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Held
                                     </label>
-                                    <textarea name="held" rows="5" placeholder="Enter Held">{{$judgement_summary->held}}</textarea>
+                                    <textarea name="held" rows="5" class="form-control" placeholder="Enter Held">{{$judgement_summary->held}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Issues
                                     </label>
-                                    <textarea name="issues" rows="5" placeholder="Enter Issues">{{$judgement_summary->issues}}</textarea>
+                                    <textarea name="issues" rows="5" class="form-control" placeholder="Enter Issues">{{$judgement_summary->issues}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Cases Cited
                                     </label>
-                                    <textarea name="cases_cited" rows="5" placeholder="Enter Cases Cited">{{$judgement_summary->cases_cited}}</textarea>
+                                    <textarea name="cases_cited" rows="5" class="form-control" placeholder="Enter Cases Cited">{{$judgement_summary->cases_cited}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Statutes Cited
                                     </label>
-                                    <textarea name="statutes_cited" rows="5" placeholder="Enter Statutes Cited">{{$judgement_summary->statutes_cited}}</textarea>
+                                    <textarea name="statutes_cited" rows="5" class="form-control" placeholder="Enter Statutes Cited">{{$judgement_summary->statutes_cited}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Other Citations
                                     </label>
-                                    <textarea name="other_citations" rows="5" placeholder="Enter Citations">{{$judgement_summary->other_citations}}</textarea>
+                                    <textarea name="other_citations" rows="5" class="form-control" placeholder="Enter Citations">{{$judgement_summary->other_citations}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Area of Law
                                     </label>
                                     <input type="text" name="area_of_law" class="form-control">
-                                    <textarea name="area_of_law" rows="5" placeholder="Enter Area of Law">{{$judgement_summary->area_of_law}}</textarea>
+                                    <textarea name="area_of_law" rows="5" class="form-control" placeholder="Enter Area of Law">{{$judgement_summary->area_of_law}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
@@ -155,25 +155,25 @@
                                         Corams
                                     </label>
                                     <input type="hidden" name="suit_no">
-                                    <textarea name="name" rows="5" placeholder="Enter Corams"></textarea>
+                                    <textarea name="name" rows="5" class="form-control" placeholder="Enter Corams"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Counsels
                                     </label>
-                                    <textarea name="counsels" rows="5" placeholder="Enter Counsels"></textarea>
+                                    <textarea name="counsels" rows="5" class="form-control" placeholder="Enter Counsels"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Party A Names
                                     </label>
-                                    <textarea name="party_a_names" rows="5" placeholder="Enter names"></textarea>
+                                    <textarea name="party_a_names" rows="5" class="form-control" placeholder="Enter names"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Party B Names
                                     </label>
-                                    <textarea name="party_b_names" rows="5" placeholder="Enter names"></textarea>
+                                    <textarea name="party_b_names" rows="5" class="form-control" placeholder="Enter names"></textarea>
                                 </div>
                                 <hr class="my-5">
                                 <div class="nav row align-items-center">
@@ -199,7 +199,7 @@
                                         <label class="form-label mb-1">
                                             Add full Judgement
                                         </label>
-                                        <textarea name="judgement" rows="5" placeholder=""></textarea>
+                                        <textarea name="judgement" rows="5" class="form-control" placeholder=""></textarea>
                                     </div>
                                 </div>
                                 <hr class="my-5">

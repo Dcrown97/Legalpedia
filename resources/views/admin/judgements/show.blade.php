@@ -16,22 +16,19 @@
                 <div class="row align-items-end">
                     <a href="{{url('admin/judgements')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
                     <div class="col text-center">
-                        {{-- <div class="card">
-                            <div class="card-body p-5"> --}}
-                                <h1 class="header-title text-center mb-2" style="color: #990033">
-                                    {{$judgement_summary->title}}
-                                </h1>
-                                <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" class="mb-2" style="height: 150px;">
-                                <h3 class="text-green mb-2">{{$judgement_summary->lp_citation}}</h3>
-                                <?php $court = App\Models\Court::where('id', $judgement_summary->court_id)->first();?>
-                                <h3 class="card-text text-color mb-2">{{$court->court}}</h3>
-                                <h3 class="card-text text-color mb-2">HOLDEN AT BENIN</h3>
-                                <h3 class="card-text text-color mb-2">
-                                    {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->toFormattedDateString()}}
-                                </h3>
-                                <h3 class="text-green mb-2">Suit Number: <span class="text-black">{{$judgement_summary->suit_no}}</span></h3>
-                            {{-- </div>
-                        </div> --}}
+                        <h1 class="header-title text-center mb-2" style="color: #990033">
+                            {{$judgement_summary->title}}
+                        </h1>
+                        <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" class="mb-2" style="height: 150px;">
+                        <h3 class="text-green mb-2">{{$judgement_summary->lp_citation}}</h3>
+                        <?php $court = App\Models\Court::where('id', $judgement_summary->court_id)->first();?>
+                        <h3 class="card-text text-color mb-2">{{$court->court}}</h3>
+                        <?php $holden = App\Models\Holden::where('id', $judgement_summary->holden_at_id)->first() ;?>
+                        <h3 class="card-text text-color mb-2">{{$holden ? $holden->holden_at : ''}}</h3>
+                        <h3 class="card-text text-color mb-2">
+                            {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->toFormattedDateString()}}
+                        </h3>
+                        <h3 class="text-green mb-2">Suit Number: <span class="text-black">{{$judgement_summary->suit_no}}</span></h3>
                     </div>
                     @include('elements.notifications')
                 </div>
@@ -42,7 +39,7 @@
     <div class="container mx-auto">
         <div class="row">
             <div class="col-12 col-lg-12 col-xl-12">
-                <div class="card">
+                <div class="card" id="content">
                     <div class="p-5">
                         <h3 class="text-muted">CORAMS</h3>
                         <hr class="my-4">
@@ -78,7 +75,15 @@
                         <hr class="my-4">
                         <h3 class="text-muted">RATIONEES</h3>
                         <hr class="my-4">
-                        <p class="card-text mb-1"></p>
+                        <?php $ratios = App\Models\SummaryRatio::where('suit_no', $judgement_summary->suit_no)->get() ;?>
+                        @if($ratios)
+                            @foreach($ratios as $ratio)
+                                <h4 class="text-muted" id="ratio">{{$ratio->heading}}</h4>
+                                <hr class="my-4">
+                                <p class="card-text mb-1">{{$ratio->body}}</p>
+                                <hr class="my-4">
+                            @endforeach
+                        @endif
                         <hr class="my-4">
                         <h3 class="text-muted">STATUTES REFERRED TO</h3>
                         <hr class="my-4">
@@ -106,6 +111,7 @@
     </div>
 
     <script>
+        var data = null;
         function readFunction() {
             document.getElementById('hide').style.display = 'none'
             document.getElementById('show').style.display = 'block'
@@ -114,5 +120,163 @@
             document.getElementById('hide').style.display = 'block'
             document.getElementById('show').style.display = 'none'
         }
+
+    //   $('.r60-btns').click(function(e){
+    //         e.preventDefault();
+    //         function saveAnnotation() {
+    //             var userId = "{{Auth::user()->id}}";
+    //             var contentId = "{{$judgement_summary ? $judgement_summary->suit_no : ''}}";
+    //             var data = {
+    //                 user_id: userId,
+    //                 note_id: annote.id,
+    //                 content_id: contentId,
+    //                 content_type: annote.type,
+    //                 content: annote.body,
+    //             }
+    //             $.ajax({
+    //                 type: 'POST',
+    //                 url: "/admin/annotation"
+    //                 data: {
+    //                     "_token": "{{ csrf_token() }}",
+    //                     user_id: userId,
+    //                     note_id: annote.id,
+    //                     content_id: contentId,
+    //                     content_type: annote.type,
+    //                     content: annote.body,
+    //                     // comment: comment,
+    //                     // replies: replies,
+    //                     // text_target: text_target,
+    //                     // tags: tags
+    //                 },
+    //                 success: function (annote) {
+    //                     console.log(annote);
+    //                     swal({
+    //                         title: "Error!",
+    //                         text: 'Annotation saved',
+    //                         icon: "success",
+    //                     });
+    //                 }
+    //             });
+    //             return data;
+    //         }
+    //     });
+
+        // function saveAnnotation() {
+        //     var userId = "{{Auth::user()->id}}";
+        //     var contentId = "{{$judgement_summary ? $judgement_summary->suit_no : ''}}";
+        //     var data = {
+        //         user_id: userId,
+        //         note_id: annote.id,
+        //         content_id: contentId,
+        //         content_type: annote.type,
+        //         content: annote.body,
+        //     }
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: "/admin/annotation"
+        //         data: {
+        //             "_token": "{{ csrf_token() }}",
+        //             user_id: userId,
+        //             note_id: annote.id,
+        //             content_id: contentId,
+        //             content_type: annote.type,
+        //             content: annote.body,
+        //             // comment: comment,
+        //             // replies: replies,
+        //             // text_target: text_target,
+        //             // tags: tags
+        //         },
+        //         success: function (annote) {
+        //             console.log(annote);
+        //             swal({
+        //                 title: "Error!",
+        //                 text: 'Annotation saved',
+        //                 icon: "success",
+        //             });
+        //         }
+        //     });
+        //     return data;
+        // }
+
+      (function() {
+        // Intialize Recogito
+        var r = Recogito.init({
+          content: 'content', // Element id or DOM node to attach to
+          locale: 'auto',
+      	  widgets: [
+            { widget: 'COMMENT' },
+            { widget: 'TAG', vocabulary: [ 'Place', 'Person', 'Event', 'Organization', 'Animal' ] }
+          ],
+          relationVocabulary: [ 'isRelated', 'isPartOf', 'isSameAs ']
+        });
+
+        r.loadAnnotations('annotations.w3c.json');
+
+        r.on('selectAnnotation', function(a) {
+          console.log('selected', a);
+        });
+
+
+
+        r.on('createAnnotation', function(annote) {
+
+            // data = annote;
+            // console.log(annote.id);
+
+
+
+            // alert(annote.body)
+            // alert(saveAnnotation());
+
+        });
+
+        r.on('updateAnnotation', function(annotation, previous) {
+          console.log('updated', previous, 'with', annotation);
+        });
+
+        // Wire the Add/Update/Remove buttons
+        document.getElementById('add-annotation').addEventListener('click', function() {
+          r.addAnnotation(myAnnotation);
+        });
+
+        document.getElementById('update-annotation').addEventListener('click', function() {
+          r.addAnnotation(Object.assign({}, myAnnotation, {
+            'body': [{
+              'type': 'TextualBody',
+              'value': 'This annotation was added via JS, and has been updated now.'
+            }],
+            'target': {
+              'selector': [{
+                'type': 'TextQuoteSelector',
+                'exact': 'ingenious hero who'
+              }, {
+                'type': 'TextPositionSelector',
+                'start': 43,
+                'end': 61
+              }]
+            }
+          }));
+        });
+
+        document.getElementById('remove-annotation').addEventListener('click', function() {
+          r.removeAnnotation(myAnnotation);
+        });
+
+        // Switch annotation mode (annotation/relationships)
+        var annotationMode = 'ANNOTATION'; // or 'RELATIONS'
+
+        var toggleModeBtn = document.getElementById('toggle-mode');
+        toggleModeBtn.addEventListener('click', function() {
+          if (annotationMode === 'ANNOTATION') {
+            toggleModeBtn.innerHTML = 'MODE: RELATIONS';
+            annotationMode = 'RELATIONS';
+          } else  {
+            toggleModeBtn.innerHTML = 'MODE: ANNOTATION';
+            annotationMode = 'ANNOTATION';
+          }
+
+          r.setMode(annotationMode);
+        });
+      })();
     </script>
 @endsection

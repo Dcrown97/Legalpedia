@@ -107,7 +107,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$order->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$order->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -168,7 +168,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$schedule->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$schedule->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -229,7 +229,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$form->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$form->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -290,7 +290,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$part->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$part->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -351,7 +351,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$probate_form->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$probate_form->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -412,7 +412,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$civil_form->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$civil_form->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -473,7 +473,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" placeholder="Enter description">{{$appendix->content}}</textarea>
+                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$appendix->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

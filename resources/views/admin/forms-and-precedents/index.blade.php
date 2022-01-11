@@ -175,7 +175,7 @@
                                         <label class="form-label mb-1">
                                             Content
                                         </label>
-                                        <textarea name="content" rows="5" placeholder="Enter content"></textarea>
+                                        <textarea name="content" rows="5" class="form-control" placeholder="Enter content"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">

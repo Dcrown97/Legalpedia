@@ -254,7 +254,11 @@
 
                       <!-- Avatar -->
                       <div class="avatar avatar-sm">
-                        <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="{{Auth::user()->name}}" class="avatar-img rounded-circle">
+                        @if(Auth::user()->photo)
+                            <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                            @else
+                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                        @endif
                       </div>
 
                     </div>

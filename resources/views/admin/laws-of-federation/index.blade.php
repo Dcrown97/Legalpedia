@@ -78,6 +78,7 @@
                                                     <a href="{{route('show.fed', $fed->id)}}">{{$fed->title}}</a>
                                                 </h4>
                                                 <p class="card-text text-muted small mb-1">Category: <span class="text-color">{{$fed->category}}</span></p>
+                                                <p class="card-text text-muted small mb-1">Law no: <span class="text-color">{{$fed->law_no}}</span></p>
                                             </div>
                                             @if(Auth::user()->role->name == 'Admin')
                                                 <div class="col-auto">
@@ -172,7 +173,7 @@
                                                 <label class="form-label mb-1">
                                                     Law No.
                                                 </label>
-                                                <input type="number" name="law_no" class="form-control">
+                                                <input type="text" name="law_no" class="form-control">
                                             </div>
                                         </div>
                                         <div class="col-12 col-lg-6 col-xl-6">
@@ -188,41 +189,30 @@
                                         <label class="form-label mb-1">
                                             Description
                                         </label>
-                                        <textarea name="description" rows="5" placeholder="Enter description"></textarea>
+                                        <textarea name="description" class="form-control" rows="5" placeholder="Enter description"></textarea>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-12 col-lg-6 col-xl-6">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Category
-                                                </label>
-                                                <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                    <option value="">Select Category</option>
-                                                    @foreach($categories as $category)
-                                                        <option value="{{$category->category}}">{{$category->category}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-lg-6 col-xl-6">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Area of Law
-                                                </label>
-                                                <select name="area_of_law" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                                    <option value="">Select Area of Law</option>
-                                                    @foreach($area_of_laws as $area_of_law)
-                                                        <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Category
+                                        </label>
+                                        <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <option value="">Select Category</option>
+                                            @foreach($categories as $category)
+                                                <option value="{{$category->category}}">{{$category->category}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Area of Law
+                                        </label>
+                                        <textarea name="area_of_law" class="form-control" rows="5" placeholder="Enter area(s) of Law"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Subsidiary Legislation
                                         </label>
-                                        <textarea name="subsidiary_legislation" rows="5" placeholder=""></textarea>
+                                        <textarea name="subsidiary_legislation" class="form-control" rows="5" placeholder=""></textarea>
                                     </div>
                                     <hr class="my-5">
                                     <div class="nav row align-items-center">
@@ -275,13 +265,13 @@
                                             <label class="form-label mb-1">
                                                 1. Section Header
                                             </label>
-                                            <input type="text" name="section_header" class="form-control">
+                                            <input type="text" name="section[0][]" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label mb-1">
                                                 Section Body
                                             </label>
-                                            <textarea name="section_body" rows="5"></textarea>
+                                            <textarea class="form-control" name="section[0][]" rows="5"></textarea>
                                         </div>
                                     </div>
                                     <hr class="my-5">
@@ -295,11 +285,49 @@
                                             <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>
                                         </div>
                                         <div class="col text-center">
-                                            <h6 class="text-uppercase text-muted mb-0">Step 3 of 3</h6>
+                                            <h6 class="text-uppercase text-muted mb-0">Step 3 of 4</h6>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepFour">Next <i class="mdi mdi-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="wizardStepFour" role="tabpanel" aria-labelledby="wizardTabFour">
+                                    <div class="row justify-content-center">
+                                        <div class="text-center">
+                                            <h1 class="mb-3">Add Schedule</h1>
+                                        </div>
+                                    </div>
+                                    <div class="add_more">
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                1. Schedule Header
+                                            </label>
+                                            <input type="text" name="sched[0][]" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Schedule Body
+                                            </label>
+                                            <textarea class="form-control" name="sched[0][]" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <hr class="my-5">
+                                    <div id="add_sched"></div>
+                                    <div class="justify-content-end">
+                                        <a type="button" id="more_scheds" class="text-color" onclick="addScheds()"><i class="mdi mdi-plus"></i> Add Schedule</a>
+                                    </div>
+                                    <hr class="my-5">
+                                    <div class="nav row align-items-center">
+                                        <div class="col-auto">
+                                            <a class="btn btn-white" data-toggle="wizard" href="#wizardStepThree">Back</a>
+                                        </div>
+                                        <div class="col text-center">
+                                            <h6 class="text-uppercase text-muted mb-0">Step 4 of 4</h6>
                                         </div>
                                         <div class="col-auto">
                                             <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
-                                                <span class="button__text"><i class="mdi mdi-check"></i> Save</span>
+                                                <span class="button__text"><i class="mdi mdi-plus"></i> Create</span>
                                             </button>
                                         </div>
                                     </div>
@@ -319,30 +347,24 @@
             var objTo = document.getElementById('add_field')
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_no +
-            '. Section Header</label><input type="text" name="section_header" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="section_body" rows="5"></textarea></div><hr class="my-5">';
+            '. Section Header</label><input type="text" name="section['+ section_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="section['+ section_no +'][]" rows="5"></textarea></div><hr class="my-5">';
+            objTo.appendChild(divcreate);
+        }
+
+        var sched_no = 1;
+        function addScheds() {
+            sched_no++;
+            var objTo = document.getElementById('add_sched')
+            var divcreate = document.createElement("div");
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + sched_no +
+            '. Schedule Header</label><input type="text" name="sched['+ sched_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Schedule Body</label> <textarea class="form-control" name="sched['+ sched_no +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
         }
 
         function deleteFunction() {
             if(!confirm("Are you sure you want to delete this law of federation?"))
             event.preventDefault();
-        }
-        $('#fed').on('change', function() {
-            getFed();
-        });
 
-        function getFed() {
-            var selectedCat = $('#fed option:selected').val();
-            $.ajax({
-                type: 'GET',
-                data: {
-                    'fed':selectedCat
-                },
-                url: "{{route('admin.laws-of-federation')}}",
-                success:function(data) {
-                    $('#fed_data').html(data);
-                }
-            });
         }
     </script>
 @endsection

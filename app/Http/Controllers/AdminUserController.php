@@ -15,7 +15,8 @@ class AdminUserController extends Controller
 
     public function index() {
         $users = User::orderBy('name', 'ASC')->get();
-        return view('admin.customers.index', compact('users'));
+        $user_count = $users->count();
+        return view('admin.customers.index', compact('users', 'user_count'));
     }
 
     public function show($id) {
@@ -39,10 +40,12 @@ class AdminUserController extends Controller
         }
         if($file = $request->file('photo')) {
             $name = time() . $file->getClientOriginalName();
-            // $file->store('images', $name);
             $path = $file->store('media', 'public', $name);
             $input['photo'] = $path;
         }
+        // $file = $request->file('photo');
+        // $path = $file->store('media', 'public');
+        // $input['photo'] = $path;
         $user->update($input);
 
         return back()->with('success', 'Profile updated');

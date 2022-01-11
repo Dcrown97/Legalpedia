@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function storeArticles() {
-        $articles = Article::paginate(10);
-        dd($articles);
+    public function viewArticle($id) {
+        $article = Article::findOrFail($id);
+        return view('articles', compact('article'));
     }
 }

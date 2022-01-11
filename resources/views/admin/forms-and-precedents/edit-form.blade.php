@@ -45,7 +45,7 @@
                                 <label class="form-label mb-1">
                                     Content
                                 </label>
-                                <textarea name="content" rows="5" placeholder="Enter description">{{$form->content}}</textarea>
+                                <textarea name="content" class="form-control" rows="5" placeholder="Enter description">{{$form->content}}</textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">

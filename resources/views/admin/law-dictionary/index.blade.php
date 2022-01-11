@@ -58,15 +58,15 @@
                                                         <span class="recent-link">
                                                             <span class="mr-2 text-color">{{Str::limit($word->title, 1, '')}}</span>{{$word->title}}
                                                         </span>
-                                                        <div class="">
-                                                            <div class="collapse multi-collapse" id="multiCollapse{{$word->id}}">
-                                                                <div class="mt-2 p-3" style="line-height: 25px; font-weight: 400">
-                                                                    <p>{!! $word->content !!}</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </h4>
                                                 </a>
+                                                <div class="">
+                                                    <div class="collapse multi-collapse" id="multiCollapse{{$word->id}}">
+                                                        <div class="mt-2 p-3" style="line-height: 25px; font-weight: 400">
+                                                            <p>{!! $word->content !!}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             @if(Auth::user()->role->name == 'Admin')
                                                 <div class="col-auto">
@@ -143,24 +143,33 @@
                                     @csrf
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Title
+                                            Word
                                         </label>
                                         <input type="text" name="title" class="form-control">
                                     </div>
+
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Version No.
+                                            Meaning
                                         </label>
-                                        <input type="number" name="version_no" class="form-control">
+                                        <textarea name="content" rows="5" class="form-control" placeholder="Enter content"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Content
+                                            Category
                                         </label>
-                                        {{-- <small class="form-text text-muted">
-                                            This is the body of the maxim
-                                        </small> --}}
-                                        <textarea name="content" rows="5" placeholder="Enter content"></textarea>
+                                        <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <option value="">Select Category</option>
+                                            @foreach($categories as $category)
+                                                <option value="{{$category->category}}">{{$category->category}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Area of Law
+                                        </label>
+                                        <textarea name="area_of_law" class="form-control" rows="5" placeholder="Enter area(s) of law"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

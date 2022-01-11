@@ -17,6 +17,16 @@
         .text-4xl {
             font-size: 30px;
         }
+        .typeahead {
+            background: #fff;
+            position: absolute;
+            width: 100%;
+            /* padding: 20px; */
+        }
+        .typeahead li {
+            padding: 10px;
+            border-bottom: 1px solid #f5f5f5;
+        }
     </style>
     <div class="header">
         <div class="container-fluid">

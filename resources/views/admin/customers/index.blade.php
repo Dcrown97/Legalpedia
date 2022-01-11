@@ -25,21 +25,24 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card" data-list='{"valueNames": ["orders-order", "orders-product", "orders-date", "orders-total", "orders-status", "orders-method"]}'>
+            <div class="card" data-list='{"valueNames": ["orders-order", "orders-product", "orders-date", "orders-total", "orders-status", "orders-method"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                 <div class="card-header">
-                <form>
-                    <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                    <input class="form-control list-search" type="search" placeholder="Search">
-                    <span class="input-group-text">
-                        <i class="fe fe-search"></i>
-                    </span>
+                    <form>
+                        <div class="input-group input-group-flush input-group-merge input-group-reverse">
+                        <input class="form-control list-search" type="search" placeholder="Search">
+                        <span class="input-group-text">
+                            <i class="fe fe-search"></i>
+                        </span>
+                        </div>
+                    </form>
+                    <div class="col-auto">
+                        <h4>{{number_format($user_count)}} customers</h4>
                     </div>
-                </form>
-                <div class="col-auto">
-                    <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                        <i class="mdi mdi-download"></i> Export
-                    </a>
-                </div>
+                    <div class="col-auto">
+                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                            <i class="mdi mdi-download"></i> Export
+                        </a>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm table-nowrap card-table">
@@ -64,6 +67,9 @@
                                 {{-- <th colspan="2"><a href="#" class="text-muted list-sort" data-sort="orders-method">Payment method</a></th> --}}
                             </tr>
                         </thead>
+                        @php
+                            $user_no = 1
+                        @endphp
                         @if($users)
                             <tbody class="list">
                                 @foreach($users as $user)
@@ -74,10 +80,17 @@
                                                 <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                             </div>
                                         </td>
-                                        <td class="orders-order">1</td>
+                                        <td class="orders-order">{{$user_no}}</td>
+                                        @php
+                                            $user_no++
+                                        @endphp
                                         <td class="orders-product">
                                             <div class="avatar avatar-sm avatar-online mr-2">
-                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
+                                                @if($user->photo)
+                                                    <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                    @else
+                                                    <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                @endif
                                             </div>
                                             <span>{{$user->name}}</span>
                                         </td>
@@ -157,41 +170,6 @@
                 <div class="stepper stepper-links d-flex flex-column" id="kt_modal_create_project_stepper">
                     <div class="container">
                         <div class="stepper-nav justify-content-center py-2">
-                            <!--begin::Step 1-->
-                            <div class="stepper-item me-5 me-md-15 current" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Project Type</h3>
-                            </div>
-                            <!--end::Step 1-->
-                            <!--begin::Step 2-->
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Project Settings</h3>
-                            </div>
-                            <!--end::Step 2-->
-                            <!--begin::Step 3-->
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Budget</h3>
-                            </div>
-                            <!--end::Step 3-->
-                            <!--begin::Step 4-->
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Build A Team</h3>
-                            </div>
-                            <!--end::Step 4-->
-                            <!--begin::Step 5-->
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Set First Target</h3>
-                            </div>
-                            <!--end::Step 5-->
-                            <!--begin::Step 6-->
-                            <div class="stepper-item me-5 me-md-15" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Upload Files</h3>
-                            </div>
-                            <!--end::Step 6-->
-                            <!--begin::Step 7-->
-                            <div class="stepper-item" data-kt-stepper-element="nav">
-                                <h3 class="stepper-title">Completed</h3>
-                            </div>
-                            <!--end::Step 7-->
                         </div>
                     </div>
                 </div>

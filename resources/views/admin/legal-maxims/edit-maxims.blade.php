@@ -32,24 +32,32 @@
                             {{ method_field('patch') }}
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Maxim Title
+                                    Maxim
                                 </label>
                                 <input type="text" name="title" class="form-control" value="{{$maxim->title}}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Maxim Version No.
+                                    Meaning
                                 </label>
-                                <input type="number" name="version_no" class="form-control" value="{{$maxim->version_no}}">
+                                <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$maxim->content}}</textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Maxim Content
+                                    Category
                                 </label>
-                                <small class="form-text text-muted">
-                                    This is the body of the maxim
-                                </small>
-                                <textarea name="content" rows="5" placeholder="Enter description">{{$maxim->content}}</textarea>
+                                <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                    <option value="{{$maxim->category}}" selected>{{$maxim->category}}</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{$category->category}}">{{$category->category}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label mb-1">
+                                    Area of Law
+                                </label>
+                                <textarea name="area_of_law" class="form-control" placeholder="Enter area(s) of law">{{$maxim->area_of_law}}</textarea>
                             </div>
                             <div class="form-group">
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

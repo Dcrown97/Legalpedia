@@ -16,8 +16,10 @@ class CreateMaximsTable extends Migration
         Schema::create('maxims', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->string('content')->nullable();
+            $table->text('content')->nullable();
             $table->integer('version_no')->nullable();
+            $table->text('category')->nullable();
+            $table->text('area_of_law')->nullable();
             $table->timestamps();
         });
     }

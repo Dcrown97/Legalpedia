@@ -12,4 +12,8 @@ class UserTeam extends Model
     protected $fillable = [
         'user_id', 'team_id', 'send_request', 'approve_request', 'token'
     ];
+
+    // public function users() {
+    //     return $this->belongsToMany(User::class);
+    // }
 }

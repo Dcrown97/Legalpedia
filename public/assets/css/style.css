@@ -120,7 +120,7 @@
 
 .modal-content {
     overflow-y:scroll;
-    height: 500px;
+    /* height: 500px; */
 }
 
 .modal-width {
@@ -528,4 +528,31 @@ a:hover{
 .header-img-top {
     height: 300px !important;
     object-fit: cover !important;
+}
+
+.h-2{
+    height: 25px;
+}
+.w-2{
+    width: 25px;
+}
+.cursor {
+    cursor: pointer;
+}
+.custom-button {
+    background: none !important;
+    border: none !important;
+}
+.typeahead {
+    background: #fff;
+    position: absolute;
+    width: 100%;
+    /* padding: 20px; */
+}
+.typeahead li {
+    padding: 10px;
+    border-bottom: 1px solid #f5f5f5;
+}
+.form-inline .input-group {
+    width: 100% !important;
 }

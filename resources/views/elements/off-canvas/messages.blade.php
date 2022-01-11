@@ -110,7 +110,11 @@
                         <div class="dropup">
                         <a href="#" id="sidebarIconCopy" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <div class="avatar avatar-sm avatar-online">
-                                <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
+                                @if(Auth::user()->photo)
+                                    <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                    @else
+                                    <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                @endif
                             </div>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="sidebarIconCopy">

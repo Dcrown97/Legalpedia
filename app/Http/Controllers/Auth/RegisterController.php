@@ -74,14 +74,6 @@ class RegisterController extends Controller
         if(Invite::where('token', $data['token'])->first() !==null) {
             $invite = Invite::where('token', $data['token'])->first();
 
-            UserTeam::create([
-                'token' => $data['token'],
-                // 'user_id' => $data['user_id'],
-                'team_id' => $data['team_id'],
-                'send_request' => $data['send_request'],
-                'approve_request' => $data['approve_request'],
-            ]);
-
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
@@ -91,6 +83,14 @@ class RegisterController extends Controller
                 'dob' => $data['dob'],
                 'call_to_bar_year' => $data['call_to_bar_year'],
                 'password' => Hash::make($data['password']),
+            ]);
+
+            UserTeam::create([
+                'token' => $data['token'],
+                'user_id' => $user->id,
+                'team_id' => $data['team_id'],
+                'send_request' => $data['send_request'],
+                'approve_request' => $data['approve_request'],
             ]);
             return $user;
 

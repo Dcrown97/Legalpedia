@@ -14,7 +14,7 @@ class Discount extends Model
 
 
     protected $fillable = [
-        'name', 'validity_start_date', 'validity_end_date', 'discount_code', 'usage', 'percentage', 'package', 'slug'
+        'name', 'validity_start_date', 'validity_end_date', 'discount_code', 'usage', 'percentage', 'package', 'slug', 'used'
     ];
 
     protected $table = 'discounts';

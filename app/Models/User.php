@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'phone',
+        'photo',
         'bio',
         'dob',
         'role_id',
@@ -50,8 +51,27 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    // protected $uploads = '/media/' ;
+
+
+    public function getPhotoAttribute($value)
+    {
+        if($value){
+            return url('storage/'.$value);
+        }
+        return null;
+    }
+
 
     public function role() {
         return $this->belongsTo(Role::class);
     }
+
+    public function teams() {
+        return $this->belongsToMany(Team::class, 'user_team');
+    }
+
+    // public function user_teams() {
+    //     return $this->belongsToMany(UserTeam::class);
+    // }
 }

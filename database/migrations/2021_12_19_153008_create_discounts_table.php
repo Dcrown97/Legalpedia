@@ -23,6 +23,7 @@ class CreateDiscountsTable extends Migration
             $table->integer('percentage');
             $table->string('package');
             $table->string('slug');
+            $table->string('used');
             $table->timestamps();
         });
     }

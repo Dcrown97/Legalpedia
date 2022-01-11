@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{asset('assets/css/libs.bundle.css')}}" />
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.1.95/css/materialdesignicons.min.css">
+    <link rel="stylesheet/less" type="text/css" href="{{ asset('assets/css/upload-group.scss') }}" />
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -25,6 +26,8 @@
     <link rel="stylesheet" href="{{asset('assets/css/theme-dark.bundle.css')}}" id="stylesheetDark" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" type="text/css">
 
+    <link href="{{asset('assets/css/recogito.min.css')}}" rel="stylesheet">
+    <script src="{{asset('assets/js/recogito.min.js')}}"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -32,6 +35,7 @@
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.jsdelivr.net/npm/less@4.1.1" ></script>
 
 
     <style>body { display: none; }</style>
@@ -67,7 +71,7 @@
             $('.loader-bg').fadeOut();
         });
         tinymce.init({
-            selector: 'textarea',
+            selector: '.description',
         });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -76,6 +80,19 @@
             $('.toast').toast('show');
         });
   </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript">
+    var route = "{{ url('autocomplete-search') }}";
 
+    $('#search').typeahead({
+        source: function (query, process) {
+            return $.get(route, {
+                query: query
+            }, function (data) {
+                return process(data);
+            });
+        }
+    });
+</script>
   </body>
 </html>

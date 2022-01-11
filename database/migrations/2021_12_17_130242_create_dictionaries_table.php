@@ -15,6 +15,11 @@ class CreateDictionariesTable extends Migration
     {
         Schema::create('dictionaries', function (Blueprint $table) {
             $table->id();
+            $table->text('title')->nullable();
+            $table->text('content')->nullable();
+            $table->integer('version_no')->nullable();
+            $table->text('category')->nullable();
+            $table->text('area_of_law')->nullable();
             $table->timestamps();
         });
     }

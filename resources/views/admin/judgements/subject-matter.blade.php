@@ -110,8 +110,8 @@
                                         <li class="list-group-item">
                                             <div class="row align-items-center">
                                                 <div class="col-auto">
-                                                    <a href="#!" class="avatar text-color avatar-lg">
-                                                        <i class="fe fe-file"></i>
+                                                    <a class="avatar text-color avatar-lg">
+                                                        <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary->title}}" class="card-img-top">
                                                     </a>
                                                 </div>
                                                 <div class="col">
@@ -240,31 +240,31 @@
                                         <label class="form-label mb-1">
                                             Summary of Facts
                                         </label>
-                                        <textarea name="summary_of_facts" rows="5" placeholder="Enter summary"></textarea>
+                                        <textarea name="summary_of_facts" rows="5" class="form-control" placeholder="Enter summary"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Held
                                         </label>
-                                        <textarea name="held" rows="5" placeholder="Enter Held"></textarea>
+                                        <textarea name="held" rows="5" class="form-control" placeholder="Enter Held"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Issues
                                         </label>
-                                        <textarea name="issues" rows="5" placeholder="Enter Issues"></textarea>
+                                        <textarea name="issues" rows="5" class="form-control" placeholder="Enter Issues"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Cases Cited
                                         </label>
-                                        <textarea name="cases_cited" rows="5" placeholder="Enter Cases Cited"></textarea>
+                                        <textarea name="cases_cited" rows="5" class="form-control" placeholder="Enter Cases Cited"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Statuses Cited
                                         </label>
-                                        <textarea name="statuses_cited" rows="5" placeholder="Enter Statuses Cited"></textarea>
+                                        <textarea name="statuses_cited" rows="5" class="form-control" placeholder="Enter Statuses Cited"></textarea>
                                     </div>
                                     <div class="row">
                                         <div class="col-12 col-lg-6 col-xl-6">
@@ -320,25 +320,25 @@
                                         </label>
                                         <input type="hidden" name="law_of_federation_id">
                                         <input type="hidden" name="law_of_fed_part_id">
-                                        <textarea name="name" rows="5" placeholder="Enter Corams"></textarea>
+                                        <textarea name="name" rows="5" class="form-control" placeholder="Enter Corams"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Counsels
                                         </label>
-                                        <textarea name="counsels" rows="5" placeholder="Enter Counsels"></textarea>
+                                        <textarea name="counsels" rows="5" class="form-control" placeholder="Enter Counsels"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Party A Names
                                         </label>
-                                        <textarea name="party_a_names" rows="5" placeholder="Enter names"></textarea>
+                                        <textarea name="party_a_names" rows="5" class="form-control" placeholder="Enter names"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Party B Names
                                         </label>
-                                        <textarea name="party_b_names" rows="5" placeholder="Enter names"></textarea>
+                                        <textarea name="party_b_names" rows="5" class="form-control" placeholder="Enter names"></textarea>
                                     </div>
                                     <hr class="my-5">
                                     <div class="nav row align-items-center">
@@ -364,7 +364,7 @@
                                             <label class="form-label mb-1">
                                                 Add full Judgement
                                             </label>
-                                            <textarea name="judgement" rows="5" placeholder=""></textarea>
+                                            <textarea name="judgement" rows="5" class="form-control" placeholder="Enter Full judgement"></textarea>
                                         </div>
                                     </div>
                                     <hr class="my-5">
