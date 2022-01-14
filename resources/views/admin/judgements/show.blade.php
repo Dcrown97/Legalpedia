@@ -110,6 +110,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         var data = null;
         function readFunction() {
@@ -121,82 +122,6 @@
             document.getElementById('show').style.display = 'none'
         }
 
-    //   $('.r60-btns').click(function(e){
-    //         e.preventDefault();
-    //         function saveAnnotation() {
-    //             var userId = "{{Auth::user()->id}}";
-    //             var contentId = "{{$judgement_summary ? $judgement_summary->suit_no : ''}}";
-    //             var data = {
-    //                 user_id: userId,
-    //                 note_id: annote.id,
-    //                 content_id: contentId,
-    //                 content_type: annote.type,
-    //                 content: annote.body,
-    //             }
-    //             $.ajax({
-    //                 type: 'POST',
-    //                 url: "/admin/annotation"
-    //                 data: {
-    //                     "_token": "{{ csrf_token() }}",
-    //                     user_id: userId,
-    //                     note_id: annote.id,
-    //                     content_id: contentId,
-    //                     content_type: annote.type,
-    //                     content: annote.body,
-    //                     // comment: comment,
-    //                     // replies: replies,
-    //                     // text_target: text_target,
-    //                     // tags: tags
-    //                 },
-    //                 success: function (annote) {
-    //                     console.log(annote);
-    //                     swal({
-    //                         title: "Error!",
-    //                         text: 'Annotation saved',
-    //                         icon: "success",
-    //                     });
-    //                 }
-    //             });
-    //             return data;
-    //         }
-    //     });
-
-        // function saveAnnotation() {
-        //     var userId = "{{Auth::user()->id}}";
-        //     var contentId = "{{$judgement_summary ? $judgement_summary->suit_no : ''}}";
-        //     var data = {
-        //         user_id: userId,
-        //         note_id: annote.id,
-        //         content_id: contentId,
-        //         content_type: annote.type,
-        //         content: annote.body,
-        //     }
-        //     $.ajax({
-        //         type: 'POST',
-        //         url: "/admin/annotation"
-        //         data: {
-        //             "_token": "{{ csrf_token() }}",
-        //             user_id: userId,
-        //             note_id: annote.id,
-        //             content_id: contentId,
-        //             content_type: annote.type,
-        //             content: annote.body,
-        //             // comment: comment,
-        //             // replies: replies,
-        //             // text_target: text_target,
-        //             // tags: tags
-        //         },
-        //         success: function (annote) {
-        //             console.log(annote);
-        //             swal({
-        //                 title: "Error!",
-        //                 text: 'Annotation saved',
-        //                 icon: "success",
-        //             });
-        //         }
-        //     });
-        //     return data;
-        // }
 
       (function() {
         // Intialize Recogito
@@ -210,23 +135,122 @@
           relationVocabulary: [ 'isRelated', 'isPartOf', 'isSameAs ']
         });
 
-        r.loadAnnotations('annotations.w3c.json');
+        // r.loadAnnotations('annotations.w3c.json');
+        var jid = {{$judgement_summary->id}};
+        r.loadAnnotations('fetch-annotations/' + jid).then(function() {
+            var anotes =
 
-        r.on('selectAnnotation', function(a) {
-          console.log('selected', a);
+            [
+                {
+                    "@context": "http://www.w3.org/ns/anno.jsonld",
+                    "id": "#13e491af-2bff-4f97-86fb-f4d9c3e4b619",
+                    "type": "Annotation",
+                    "body": [{
+                        "type": "TextualBody",
+                        "value": "This is a something",
+                        "purpose": "commenting"
+                    }],
+                    "target": {
+                        "selector": [{
+                            "type": "TextQuoteSelector",
+                            "exact": "eard the matter and placed under its Undefended List and after considering, the affidavits of the parties"
+                        }],
+                        "0": [{
+                            "type": "TextPositionSelector",
+                            "start":1253,
+                            "end":1358
+                        }]
+                    }
+                }
+            ];
+
+            // return anotes;
+
+            console.log(anotes)
+            // var id = {{$judgement_summary->id}};
+            // $.ajax({
+            //     type: 'GET',
+            //     url: "/admin/judgements/fetch-annotations/" + id,
+            //     dataType: 'json',
+            //     success: function (response) {
+            //         console.log(response.anotes);
+            //         // var myAnnotation = {
+            //         //     'id': 'https://www.example.com/recogito-js-example/foo',
+            //         //     'type': 'Annotation',
+            //         //     'body': [{
+            //         //     'type': 'TextualBody',
+            //         //     'value': 'This annotation was added via JS.'
+            //         //     }],
+            //         //     'target': {
+            //         //     'selector': [{
+            //         //         'type': 'TextQuoteSelector',
+            //         //         'exact': 'that ingenious hero'
+            //         //     }, {
+            //         //         'type': 'TextPositionSelector',
+            //         //         'start': 38,
+            //         //         'end': 57
+            //         //     }]
+            //         //     }
+            //         // };
+            //         $.each(response.anotes, function (key, item) {
+            //             console.log(item);
+            //             // $('#content').append(
+            //             //     myAnnotation = {
+            //             //         'id': item.note_id,
+            //             //         'type': item.content_type,
+            //             //         'body': [{
+            //             //             'type': item.comment.type,
+            //             //             'value': item.comment.value,
+            //             //         }],
+            //             //         'target': {
+            //             //             'selector': [{
+            //             //                 'type': item.content.type,
+            //             //                 'exact': item.content.exact,
+            //             //             }, {
+            //             //                 'type': item.content.type,
+            //             //                 'start': item.content.start,
+            //             //                 'end': item.content.end,
+            //             //             }]
+            //             //         }
+            //             //     }
+            //             // );
+            //             // anotes.push(myAnnotation())
+            //         });
+            //     }
+            // });
+
+
         });
 
-
+        r.on('selectAnnotation', function(annote) {
+          console.log(annote);
+        });
 
         r.on('createAnnotation', function(annote) {
-
-            // data = annote;
-            // console.log(annote.id);
-
-
-
-            // alert(annote.body)
-            // alert(saveAnnotation());
+            var userId = "{{Auth::user()->id}}";
+            var contentId = "{{$judgement_summary ? $judgement_summary->suit_no : ''}}";
+            $.ajax({
+                type: 'POST',
+                url: "/admin/annotations",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    user_id: userId,
+                    note_id: annote.id,
+                    content_id: contentId,
+                    content_type: annote.type,
+                    content: annote.target,
+                    comment: annote.body,
+                },
+                success: function (response) {
+                    console.log(response);
+                    swal({
+                        title: "Success",
+                        text: 'Annotation saved',
+                        icon: "success",
+                    });
+                }
+                
+            });
 
         });
 
@@ -234,49 +258,49 @@
           console.log('updated', previous, 'with', annotation);
         });
 
-        // Wire the Add/Update/Remove buttons
-        document.getElementById('add-annotation').addEventListener('click', function() {
-          r.addAnnotation(myAnnotation);
-        });
+        // // Wire the Add/Update/Remove buttons
+        // document.getElementById('add-annotation').addEventListener('click', function() {
+        //   r.addAnnotation(myAnnotation);
+        // });
 
-        document.getElementById('update-annotation').addEventListener('click', function() {
-          r.addAnnotation(Object.assign({}, myAnnotation, {
-            'body': [{
-              'type': 'TextualBody',
-              'value': 'This annotation was added via JS, and has been updated now.'
-            }],
-            'target': {
-              'selector': [{
-                'type': 'TextQuoteSelector',
-                'exact': 'ingenious hero who'
-              }, {
-                'type': 'TextPositionSelector',
-                'start': 43,
-                'end': 61
-              }]
-            }
-          }));
-        });
+        // document.getElementById('update-annotation').addEventListener('click', function() {
+        //   r.addAnnotation(Object.assign({}, myAnnotation, {
+        //     'body': [{
+        //       'type': 'TextualBody',
+        //       'value': 'This annotation was added via JS, and has been updated now.'
+        //     }],
+        //     'target': {
+        //       'selector': [{
+        //         'type': 'TextQuoteSelector',
+        //         'exact': 'ingenious hero who'
+        //       }, {
+        //         'type': 'TextPositionSelector',
+        //         'start': 43,
+        //         'end': 61
+        //       }]
+        //     }
+        //   }));
+        // });
 
-        document.getElementById('remove-annotation').addEventListener('click', function() {
-          r.removeAnnotation(myAnnotation);
-        });
+        // document.getElementById('remove-annotation').addEventListener('click', function() {
+        //   r.removeAnnotation(myAnnotation);
+        // });
 
-        // Switch annotation mode (annotation/relationships)
-        var annotationMode = 'ANNOTATION'; // or 'RELATIONS'
+        // // Switch annotation mode (annotation/relationships)
+        // var annotationMode = 'ANNOTATION'; // or 'RELATIONS'
 
-        var toggleModeBtn = document.getElementById('toggle-mode');
-        toggleModeBtn.addEventListener('click', function() {
-          if (annotationMode === 'ANNOTATION') {
-            toggleModeBtn.innerHTML = 'MODE: RELATIONS';
-            annotationMode = 'RELATIONS';
-          } else  {
-            toggleModeBtn.innerHTML = 'MODE: ANNOTATION';
-            annotationMode = 'ANNOTATION';
-          }
+        // var toggleModeBtn = document.getElementById('toggle-mode');
+        // toggleModeBtn.addEventListener('click', function() {
+        //   if (annotationMode === 'ANNOTATION') {
+        //     toggleModeBtn.innerHTML = 'MODE: RELATIONS';
+        //     annotationMode = 'RELATIONS';
+        //   } else  {
+        //     toggleModeBtn.innerHTML = 'MODE: ANNOTATION';
+        //     annotationMode = 'ANNOTATION';
+        //   }
 
-          r.setMode(annotationMode);
-        });
+        //   r.setMode(annotationMode);
+        // });
       })();
     </script>
 @endsection

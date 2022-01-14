@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Paystack;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Transaction;
+use App\Models\Package;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Paystack;
 
 class PaymentController extends Controller
 {
@@ -68,7 +72,30 @@ class PaymentController extends Controller
         //     'response'=>$response,
         // ]);
         $new_data = json_decode($response);
+
+        $transact = Transaction::where('reference', $reference)->first();
+        $transact->status = 'paid';
+        $transact->save();
+
+        $package = Package::where('id', $transact->package_id)->first();
+
+        $day = $package->recur_date;
+        $transact_date = $transact->created_at;
+        $expiry_date =  $transact->created_at->addDays($day);
+
+        $user = User::find(auth()->id());
+        $user->package_id = $transact->package_id;
+        $user->active_date = $transact_date;
+        $user->expiry_date = $expiry_date;
+        if($transact->status == 'paid') {
+            $user->status = 'active';
+        } else {
+            $user->status = 'inactive';
+        }
+        $user->save();
+
         return $new_data;
+
     }
 
     public function savePayment(Request $request, $reference) {
@@ -83,8 +110,13 @@ class PaymentController extends Controller
             'status'=> $request->status,
             'discounted_price'=> $request->discounted_price,
         ];
+
         Transaction::create($input);
-        return view('admin.dashboard'); 
+
+        return response()->json([
+            'status' => 'success',
+            'data', 'Payment successful'
+        ]);
         // $paymentDetails = Paystack::getPaymentData();
     }
 }

@@ -2,54 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Annotation;
-use App\Models\User;
-use App\Models\Article;
-use App\Models\Resource;
-use App\Models\Maxim;
-use App\Models\Dictionary;
-use App\Models\FormsPrecedence;
-use App\Models\AreaOfLaw;
-use App\Models\Category;
-use App\Models\Package;
-use App\Models\Discount;
-use App\Models\Judgement;
-use App\Models\JudgementSummary;
-use App\Models\LawOfFederation;
-use App\Models\LawOfFedPart;
-use App\Models\Transaction;
-use App\Models\LawOfFedSection;
-use App\Models\LawOfFedSched;
+use Carbon\Carbon;
+use App\Models\Role;
 use App\Models\Rule;
-use App\Models\Court;
+use App\Models\Team;
+use App\Models\User;
 use App\Models\Coram;
+use App\Models\Court;
+use App\Models\Maxim;
+use App\Models\State;
+use App\Models\Article;
+use App\Models\Comment;
+use App\Models\License;
+use App\Models\Message;
+use App\Models\Package;
+use App\Models\Category;
+use App\Models\Discount;
+use App\Models\Resource;
+use App\Models\UserTeam;
+use Whoops\RunInterface;
+use App\Models\AreaOfLaw;
+use App\Models\Judgement;
+use App\Models\Principle;
+use App\Models\Annotation;
+use App\Models\Dictionary;
+use App\Models\MailMessage;
+use App\Models\Transaction;
+use App\Models\CommentReply;
+use App\Models\LawOfFedPart;
+use App\Models\RuleCategory;
+use App\Models\SummaryRatio;
+use Illuminate\Http\Request;
+use App\Models\LawOfFedSched;
 use App\Models\JudgementCoram;
-use App\Models\JudgementCounsel;
+use App\Models\FormsPrecedence;
 use App\Models\JudgementPartyA;
 use App\Models\JudgementPartyB;
+use App\Models\LawOfFederation;
+use App\Models\LawOfFedSection;
+use App\Models\JudgementCounsel;
+use App\Models\JudgementSummary;
+use App\Notifications\MemberLeft;
 use App\Models\JudgementPrinciple;
-use App\Models\Principle;
-use App\Models\RuleCategory;
-use App\Models\State;
 use App\Models\SubjectMatterIndex;
-use App\Models\Team;
-use App\Models\UserTeam;
-use App\Models\Comment;
-use App\Models\CommentReply;
-use App\Models\License;
-use App\Models\SummaryRatio;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use App\Notifications\TeamRequest;
+use Illuminate\Support\Facades\DB;
+use App\Notifications\MemberRemoval;
+use Illuminate\Support\Facades\Auth;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
-use App\Notifications\MemberRemoval;
-use App\Notifications\MemberLeft;
-use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\session;
-use Whoops\RunInterface;
+use App\Notifications\LicenseCredentials;
+use Illuminate\Support\Facades\Validator;
 
 // use NunoMaduro\Collision\Adapters\Phpunit\State;
 
@@ -69,6 +73,7 @@ class AdminController extends Controller
         $dict_count = Dictionary::count();
         $maxim_count = Maxim::count();
         $resource_count = Resource::count();
+        $pop_message = Message::where('type', 'normal')->orderBy('created_at', 'DESC')->first();
         return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count'));
     }
 
@@ -1747,54 +1752,110 @@ class AdminController extends Controller
         if($request->input('search')) {
             $search = $request->input('search');
 
-            $query['table'] = 'ratio';
-            $query['search'] = SummaryRatio::query()->where('heading', 'LIKE', "%{$search}%")
-                        ->orWhere('body', 'LIKE', "%{$search}%")
-                        ->orderBy('heading', 'ASC')
-                        ->get();
+
             //             ->withQueryString();
             // $query['count'] = SummaryRatio::query()->where('heading', 'LIKE', "%{$search}%")
             //             ->orWhere('body', 'LIKE', "%{$search}%")
             //             ->orderBy('heading', 'ASC')
             //             ->count();
 
-            $query['subject'] = SummaryRatio::query()->where('heading', 'LIKE', "%{$search}%")
-                            ->orWhere('body', 'LIKE', "%{$search}%")
-                            ->orderBy('heading', 'ASC')
-                            ->get();
+            $query['table'] = 'judgement_summary';
+            $query['search'] = JudgementSummary::query()
+            ->where('title', 'LIKE', "%{$search}%")
+            ->orWhere('summary_of_facts', 'LIKE', "%{$search}%")
+            ->orWhere('issues', 'LIKE', "%{$search}%")
+            ->orderBy('judgement_date', 'DESC')
+            ->simplePaginate(3)
+            ->withQueryString();
+            // ->get();
 
-            if($query['search']->count() < 1){
-                $query['table'] = 'judgement_summary';
-                $query['search'] = JudgementSummary::query()
-                        ->where('title', 'LIKE', "%{$search}%")
-                        ->orWhere('summary_of_facts', 'LIKE', "%{$search}%")
-                        ->orWhere('issues', 'LIKE', "%{$search}%")
-                        ->orderBy('judgement_date', 'DESC')
-                        ->get();
-                //         ->withQueryString();
-                // $query['count'] = JudgementSummary::query()
-                //         ->where('title', 'LIKE', "%{$search}%")
-                //         ->orWhere('summary_of_facts', 'LIKE', "%{$search}%")
-                //         ->orWhere('issues', 'LIKE', "%{$search}%")
-                //         ->orderBy('judgement_date', 'DESC')
-                //         ->count();
-            }
+            $query['count'] = JudgementSummary::query()
+            ->where('title', 'LIKE', "%{$search}%")
+            ->orWhere('summary_of_facts', 'LIKE', "%{$search}%")
+            ->orWhere('issues', 'LIKE', "%{$search}%")
+            ->count();
 
-            if($query['search']->count() < 1){
-                $query['table'] = 'judgement';
-                $query['search'] = Judgement::query()
-                        ->where('judgement', 'LIKE', "%{$search}%")
-                        ->orderBy('judgement', 'DESC')
-                        ->get();
-                //         ->withQueryString();
-                // $query['count'] = Judgement::query()
-                //         ->where('judgement', 'LIKE', "%{$search}%")
-                //         ->orderBy('judgement', 'DESC')
-                //         ->count();
 
-                // dd($query['search']);
-            }
-            return view('admin.search', compact('query'));
+            $query['table'] = 'judgement';
+            $query['search'] = Judgement::query()
+            ->where('judgement', 'LIKE', "%{$search}%")
+            ->orderBy('judgement', 'DESC')
+            ->simplePaginate(3)
+            ->withQueryString();
+            // ->get();
+
+            $query['count'] = Judgement::query()
+            ->where('judgement', 'LIKE', "%{$search}%")
+            ->count();
+
+            $query['table'] = 'ratio';
+            $query['search'] = SummaryRatio::query()->where('heading', 'LIKE', "%{$search}%")
+            ->orWhere('body', 'LIKE', "%{$search}%")
+            ->orderBy('heading', 'ASC')
+            ->simplePaginate(3)
+            ->withQueryString();
+            // ->get();
+
+
+            // $query['count'] = SummaryRatio::query()
+            // ->where('heading', 'LIKE', "%{$search}%")
+            // ->orWhere('body', 'LIKE', "%{$search}%")
+            // ->count();
+
+
+            // $query_count = $query_ratio + $query_summary + $query_judg;
+            // dd($query_count);
+
+            $query['table'] = 'lfn';
+            $query_law['search'] = LawOfFederation::query()
+            ->where('title', 'LIKE', "%{$search}%")
+            ->orWhere('description', 'LIKE', "%{$search}%")
+            ->orWhere('subsidiary_legislation', 'LIKE', "%{$search}%")
+            ->orderBy('law_date', 'DESC')
+            ->simplePaginate(5)
+            ->withQueryString();
+            // ->get();
+
+
+            // $query_law['count'] = LawOfFederation::query()
+            // ->where('title', 'LIKE', "%{$search}%")
+            // ->orWhere('description', 'LIKE', "%{$search}%")
+            // ->orWhere('subsidiary_legislation', 'LIKE', "%{$search}%")
+            // ->count();
+
+            $query_law['search'] = LawOfFedSched::query()
+            ->where('sched_header', 'LIKE', "%{$search}%")
+            ->orWhere('sched_body', 'LIKE', "%{$search}%")
+            ->orderBy('sched_header', 'ASC')
+            ->simplePaginate(5)
+            ->withQueryString();
+            // ->get();
+
+            // $query_law['count'] = LawOfFedSched::query()
+            // ->where('sched_header', 'LIKE', "%{$search}%")
+            // ->orWhere('sched_body', 'LIKE', "%{$search}%")
+            // ->count();
+
+            $query_law['search'] = LawOfFedSection::query()
+            ->where('section_header', 'LIKE', "%{$search}%")
+            ->orWhere('section_body', 'LIKE', "%{$search}%")
+            ->orderBy('section_header', 'ASC')
+            ->simplePaginate(5)
+            ->withQueryString();
+            // ->get();
+
+            // dd($query_law);
+
+            // $query_law['search'] = LawOfFedSection::query()
+            // ->where('section_header', 'LIKE', "%{$search}%")
+            // ->orWhere('section_body', 'LIKE', "%{$search}%")
+            // ->count();
+
+            // dd($query_law['search']);
+
+
+
+            return view('admin.search', compact('query', 'search', 'query_law'));
         }
     }
 
@@ -1811,56 +1872,222 @@ class AdminController extends Controller
 
     // annotations
     public function anote(Request $request) {
+        // dd($request->all());
         $input = [
             'user_id'=> $request->user_id,
             'note_id'=> $request->note_id,
             'content_id'=> $request->content_id,
             'content_type'=> $request->content_type,
-            'content'=> $request->content,
-            'comment'=> $request->comment,
+            'content'=> json_encode($request->content),
+            'comment'=> json_encode($request->comment),
             'replies'=> $request->replies,
             'text_target'=> $request->text_target,
             'tags'=> $request->tags,
         ];
         Annotation::create($input);
-        return back()->with('success', 'Annotation added');
+        return response()->json(['success', 'Annotation added']);
     }
 
+    // public function fetchAnote($id) {
+    //     $judgement_summary = JudgementSummary::whereId($id)->first();
+    //     // dd($judgement_summary);
+    //     $suit_no = substr($judgement_summary->suit_no, 1);
+    //     // $anotes = Annotation::where('content_id', $suit_no)->get();
+    //     // dd($anotes);
+    //     return $anotes = [
+
+    //         [
+    //             '@context'=> 'http://www.w3.org/ns/anno.jsonld',
+    //             "id"=> "#ce0ed291-766b-4763-8e91-90ce1d04e706",
+    //             "type"=> "Annotation",
+    //             'body'=> [
+    //               'type'=> 'TextualBody',
+    //               'value'=> 'This annotation was added via JS.'
+    //             ],
+    //             'target'=> [
+    //               'selector'=> [
+    //                 'type'=> 'TextQuoteSelector',
+    //                 'exact'=> 'MITCHELL'
+    //               ],
+    //               '0'=>[
+    //                 'type'=> 'TextPositionSelector',
+    //                 'start'=> 1,
+    //                 'end'=> 15
+    //               ]
+    //             ]
+    //         ]
+
+    //     ];
+    //     // return response()->json([
+    //     //     'anotes'=>$anotes,
+    //     // ]);
+    // }
 
 
 
-    public function message() {
-        return view('admin.messages.index');
+
+    public function message(Request $request) {
+        $messages = Message::where('type', 'normal')->orderBy('created_at', 'DESC')->get();
+        $all_messages = Message::orderBy('created_at', 'DESC')->get();
+        $message_count = $all_messages->count();
+        $packages = Package::orderBy('name', 'ASC')->get();
+        if($request->has('fetch_user')) {
+            $user = User::query();
+            if($request->filled('end_date')) {
+                $start_date = Carbon::parse($request->start_date)->toDateTimeString();
+                $end_date = Carbon::parse($request->end_date)->toDateTimeString();
+                $users = $user->whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->get();
+            }
+            if( $request->filled('status')) {
+                $users = $user->where('status', $request->status)->orderBy('active_date', 'DESC')->get();
+            }
+            if( $request->filled('package')) {
+                $package = Package::where('name', $request->package)->first();
+                $users = $user->where('package_id', $package->id)->orderBy('active_date', 'DESC')->get();
+            }
+            $user_count = $user->count();
+            $active_user_count = $user->where('status', 'active')->count();
+            $inactive_user_count = $user->where('status', '!=', 'active')->count();
+            $selected_status = [];
+            $selected_status['status'] = $request->status;
+            $selected_package = [];
+            $selected_package['package'] = $request->package;
+            return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+        }
+        $users = User::orderBy('created_at', 'DESC')->get();
+        $user_count = $users->count();
+        $active_user_count = $users->where('status', 'active')->count();
+        $inactive_user_count = $users->where('status', '!=', 'active')->count();
+        $selected_status = [];
+        $selected_status['status'] = '';
+        $selected_package = [];
+        $selected_package['package'] = '';
+        return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+    }
+
+    public function createMessage() {
+        return view('admin.messages.create');
+    }
+    public function storeMessage(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required',
+            'subject' => 'required',
+            'body' => 'required',
+            'type' => 'required',
+            // 'receipient' => 'required',
+            // 'receipient_type' => 'required',
+        ]);
+        $input = $request->all();
+        // dd($input);
+        Message::create($input);
+        return back()->with('success', 'Message created');
+    }
+    public function sendMessage(Request $request) {
+        if($request->has('send_message') && !empty($request->checkBoxArray)) {
+            // foreach($request->checkBoxArray as $user) {
+                $message = Message::where('id', $request->message_id)->first();
+                $input = [
+                    'users' => json_encode($request->checkBoxArray),
+                    'message_id' => $request->message_id,
+                    'content' => json_encode([$message->name, $message->subject, $message->body])
+                ];
+                // dd($input);
+                MailMessage::create($input);
+            // }
+            return back()->with('success', 'Message sent!');
+        }
+    }
+    public function editMessage($id) {
+        $message = Message::findOrFail($id);
+        return view('admin.messages.edit', ['message'=>$message]);
+    }
+    public function updateMessage(Request $request, $id) {
+        $message = Message::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'required',
+            'subject' => 'required',
+            'body' => 'required',
+            'type' => 'required',
+            // 'receipient' => 'required',
+            // 'receipient_type' => 'required',
+        ]);
+        $input = $request->all();
+        // dd($input);
+        $message->update($input);
+        return back()->with('success', 'Message updated');
     }
 
     public function license() {
+        // $ses = $_SESSION['last_login_timestamp'] = time();
+        // if($ses > 1500) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
+        // dd($ses);
         $licenses = License::orderBy('license_name', 'asc')->get();
         $packages = Package::orderBy('name', 'ASC')->get();
-        $license_code = $this->generateLicenseCode(21);
-        return view('admin.licenses.index', compact('licenses', 'packages', 'license_code'));
+        // $license_code = $this->generateLicenseCode(21);
+        return view('admin.licenses.index', compact('licenses', 'packages'));
     }
-    public function generateLicenseCode($length = 32) {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
+    // public function generateLicenseCode($length = 32) {
+    //     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    //     $charactersLength = strlen($characters);
+    //     $randomString = '';
+    //     for ($i = 0; $i < $length; $i++) {
+    //         $randomString .= $characters[rand(0, $charactersLength - 1)];
+    //     }
+    //     return $randomString;
+    // }
     public function storeLicense(Request $request) {
         $validated = $request->validate([
             'license_name' => 'required',
             'license_days' => 'required',
-            'license_organisation' => 'required',
+            'licensed_organisation' => 'required',
+            'licensed_email' => 'required|email',
             'license_code' => 'required',
             'active_users' => 'required',
-            // 'package_id' => 'required',
+            'package_id' => 'required',
             'package' => 'required',
         ]);
-        $input = $request->all();
-        dd($input);
-        License::create($input);
+        if(User::where('email', $request->licensed_email)->first()) {
+            return back()->withErrors('This email already exists');
+        }
+
+        $input = [
+          'license_name'=> $request->license_name,
+          'license_days'=> $request->license_days,
+          'licensed_organisation'=> $request->licensed_organisation,
+          'licensed_email'=> $request->licensed_email,
+          'license_code'=> $request->license_code,
+          'active_users'=> $request->active_users,
+          'package'=> $request->package,
+          'package_id'=> $request->package_id,
+        ];
+        // dd($input);
+        $license = License::create($input);
+        $role = Role::where('name', 'Customer')->first();
+        $user_input = [
+            'name' => $license->licensed_organisation,
+            'password' => bcrypt($license->license_code),
+            'email' => $license->licensed_email,
+            'license_code' => $license->license_code,
+            'package_id' => $license->package_id,
+            'role_id'=> $role->id,
+            'active_date'=> $license->created_at,
+            'expiry_date'=> $license->created_at->addDays($license->license_days),
+        ];
+        $exp = $license->created_at->addDays($license->license_days);
+        if($exp > now()) {
+            $user_input['status'] = 'active';
+        } else {
+            $user_input['status'] = 'inactive';
+        }
+        $user_creds = User::create($user_input);
+        $licensed_user = User::where('license_code', $license->license_code)->first();
+            if($licensed_user) {
+                $licensed_user->notify(new LicenseCredentials($user_creds, $licensed_user));
+            }
         return back()->with('success', 'License created');
     }
     public function updateLicense(Request $request) {
@@ -1868,15 +2095,17 @@ class AdminController extends Controller
             'license_name' => 'required',
             'license_days' => 'required',
             'license_organisation' => 'required',
+            'licensed_email' => 'required',
             'license_code' => 'required',
             'active_users' => 'required',
-            // 'package_id' => 'required',
+            'package_id' => 'required',
             'package' => 'required',
         ]);
         $input = [
           'license_name'=> $request->license_name,
           'license_days'=> $request->license_days,
-          'license_organisation'=> $request->license_organisation,
+          'licensed_organisation'=> $request->licensed_organisation,
+          'licensed_email'=> $request->licensed_email,
           'license_code'=> $request->license_code,
           'active_users'=> $request->active_users,
           'package'=> $request->package,

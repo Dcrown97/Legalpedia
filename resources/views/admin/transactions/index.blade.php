@@ -281,7 +281,6 @@
                                                 $expiry_date = date('M d, Y', $added_date);
                                             @endphp
                                             <td class="orders-date">{{$expiry_date}}</td>
-                                            {{-- <td class="orders-date">--</td> --}}
                                             @else
                                             <td class="orders-status">
                                                 <div class="badge bg-secondary-soft">

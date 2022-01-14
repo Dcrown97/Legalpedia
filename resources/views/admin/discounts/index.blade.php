@@ -79,7 +79,7 @@
                                         <td class="text-end">
                                             <div class="dropdown">
                                                 <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fe fe-more-vertical"></i>
+                                                    <i class="fe fe-more-vertical"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-end">
                                                     <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditDiscountModal('{{$discount->name}}', '{{$discount->validity_start_date}}', '{{$discount->validity_end_date}}', '{{$discount->discount_code}}', '{{$discount->usage}}', '{{$discount->percentage}}', '{{$discount->package}}', '{{$discount->id}}')" class="dropdown-item">
@@ -303,7 +303,7 @@
                                                 Package
                                             </label>
                                             <input type="hidden" name="slug" class="form-control">
-                                            <input type="hidden" id="discount-id" name="discount-id" class="form-control">
+                                            <input type="hidden" id="discount-id" name="discount_id" class="form-control">
                                             <select name="package" id="package-input" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="">Select Package</option>
                                                 @foreach($packages as $package)
@@ -375,8 +375,8 @@
         // select.appendChild(opt);
 
         $('#package-input').append($('<option>', {
-            value: 1,
-            text: 'Option Text'
+            value: package_name,
+            text: package_name
         }));
 
         document.getElementById("discount-id").value = discount_id;

@@ -31,6 +31,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'referrer',
         'license_code',
         'last_seen',
+        'package_id',
+        'active_date',
+        'expiry_date',
+        'status',
     ];
 
     /**

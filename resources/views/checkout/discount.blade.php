@@ -308,6 +308,7 @@
                         <input type="hidden" name="package_id" value="{{$package->id}}">
                         <input type="hidden" name="user_id" value="{{Auth::user() ? Auth::user()->id : ''}}">
                         <input type="hidden" name="status" value="pending">
+                        <input type="hidden" name="recur_date" value="{{$package->recur_date}}">
                         {{-- <input type="hidden" name="quantity" value="1"> --}}
                         <input type="hidden" name="currency" value="NGN">
                         {{-- <input type="hidden" name="metadata" value="{{ json_encode($array = ['key_name' => 'value',]) }}" > For other necessary things you want to add to your payload. it is optional though --}}
@@ -339,6 +340,7 @@
         var package = "{{$package->name}}";
         var packageId = "{{$package->id}}";
         var discounted_price = "{{$discounted_price}}";
+        var recur_date = {{$package->recur_date}};
 
         var handler = PaystackPop.setup({
             key: "{{env('PAYSTACK_PUBLIC_KEY')}}",
@@ -352,6 +354,31 @@
 
             // verify payment reference with paystack
             callback: function (response) {
+
+                /// initialise payment and set status to pending
+                $.ajax({
+                    type: 'POST',
+                    url: "/subscription-package/payment/" + response.reference,
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        reference: response.reference,
+                        user_id: userId,
+                        amount: amount,
+                        name: name,
+                        email: user_email,
+                        package: package,
+                        package_id: packageId,
+                        recur_date: recur_date,
+                        discounted_price: discounted_price,
+                        status: 'pending'
+                    },
+                    success: function (response) {
+                        console.log(response);
+                    }
+
+                });
+
+                /// verify the payment then update status to paid
                 $.ajax({
                     type: 'GET',
                     url: "/subscription-package/payment/callback/" + response.reference,
@@ -375,42 +402,6 @@
                     }
                 });
 
-                /// store transaction and redirect customer to dashboard
-                $.ajax({
-                    type: 'POST',
-                    url: "/subscription-package/payment/" + response.reference,
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        reference: response.reference,
-                        user_id: userId,
-                        amount: amount,
-                        name: name,
-                        email: user_email,
-                        package: package,
-                        package_id: packageId,
-                        discounted_price: discounted_price,
-                        status: 'paid'
-                    },
-                    success: function (response) {
-                        console.log(response);
-                        if (response.status == false) {
-                            swal({
-                                title: "Error!",
-                                text: response.message,
-                                icon: "error",
-                            });
-                        }
-                        if (response.status == true) {
-                            swal({
-                                title: "Success!",
-                                text: response.message,
-                                icon: "success",
-                            });
-                            window.location.href = 'admin/dashboard';
-                        }
-
-                    }
-                });
             },
             onClose: function () {
                 swal({

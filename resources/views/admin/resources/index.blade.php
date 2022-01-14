@@ -154,14 +154,9 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Area of Law
+                                            Area of Law(s)
                                         </label>
-                                        <select name="area_of_law" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                            <option value="">Select Area of Law</option>
-                                            @foreach($area_of_laws as $area_of_law)
-                                                <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
-                                            @endforeach
-                                        </select>
+                                        <textarea name="area_of_law" rows="5" placeholder="Enter Law"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">

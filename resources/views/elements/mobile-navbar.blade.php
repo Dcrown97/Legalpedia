@@ -2,7 +2,7 @@
     <div class="container-fluid">
       <form action="{{route('search')}}" method="GET" class="me-4 d-none d-md-flex w-100" style="background: #f9fbfd; border-radius: 4px;">
             <div class="input-group-flush input-group-merge input-group-reverse w-100">
-            <input type="text" name="search" id="search" class="form-control dropdown-toggle list-search" data-bs-toggle="dropdown" placeholder="Search for Judgement cases" aria-label="Search" />
+            <input type="text" name="search" id="search" class="form-control dropdown-toggle list-search" data-bs-toggle="dropdown" placeholder="Search Legalpedia" aria-label="Search" />
             <div class="input-group-text ml-4">
                 <i class="fe fe-search"></i>
             </div>

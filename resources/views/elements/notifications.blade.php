@@ -1,4 +1,9 @@
-@if($errors->any())
+<style>
+    .swal-modal .swal-text {
+        text-align: center;
+    }
+ </style>
+{{-- @if($errors->any())
     @foreach ($errors->all() as $error)
         <div class="toast toast-error" data-autohide="false">
             <div class="toast-body">
@@ -7,7 +12,7 @@
             </div>
         </div>
     @endforeach
-@endif
+@endif --}}
 @if(session()->has('success'))
     <div class="toast" data-autohide="false">
         <div class="toast-body">
@@ -16,3 +21,39 @@
         </div>
     </div>
 @endif
+ <script type="text/javascript">
+
+    //  @if(Session::has('success'))
+    //      swal({
+    //          title: "Success!",
+    //          text: "{{Session::get('success')}}",
+    //          icon: "success",
+    //      });
+    //  @endif
+
+    @if($errors->any())
+        @foreach ($errors->all() as $error)
+            swal({
+                title: "Sorry!",
+                text: "{{$error}}",
+                icon: "warning",
+            });
+        @endforeach
+    @endif
+
+    //  @if(Session::has('warning'))
+    //      swal({
+    //          title: "Atention!",
+    //          text: "{{Session::get('warning')}}",
+    //          icon: "warning",
+    //      });
+    //  @endif
+
+    //  @if(Session::has('info'))
+    //      swal({
+    //          title: "OK!",
+    //          text: "{{Session::get('info')}}",
+    //          icon: "info",
+    //      });
+    //  @endif
+ </script>

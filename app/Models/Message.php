@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class License extends Model
+class Message extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'package', 'package_id', 'license_code', 'licensed_organisation', 'license_name', 'licensed_email', 'license_days', 'active_users'
+        'name', 'subject', 'body', 'type', 'receipient', 'receipient_type'
     ];
 }

@@ -22,7 +22,7 @@
                         <i class="fe fe-plus"></i> Add License
                     </a>
                 </div>
-                @include('elements.notifications')
+                {{-- @include('elements.notifications') --}}
             </div>
         </div>
     </div>
@@ -56,7 +56,8 @@
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-order">s/n</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-product">License Name</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-product">License Organization</a></th>
-                                <th><a href="#" class="text-muted list-sort" data-sort="orders-date">Package</a></th>
+                                <th><a href="#" class="text-muted list-sort" data-sort="orders-product">License Email</a></th>
+                                <th><a href="#" class="text-muted list-sort" data-sort="orders-total">Package</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-total">Licensed Days</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">License Code</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Active Users</a></th>
@@ -65,32 +66,33 @@
                             </tr>
                             </thead>
                             <tbody class="list">
-                                <tr>
-                                    <td>
-                                        <div class="form-check mb-n2">
-                                            <input class="form-check-input list-checkbox" type="checkbox" name="ordersSelect" id="ordersSelectOne">
-                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
-                                        </div>
-                                    </td>
-                                    <td class="orders-order">{{$license_no}}</td>
-                                    <?php $license_no++ ; ?>
-                                    <td class="orders-product">
-                                        {{$license->license_name}}
-                                    </td>
-                                    <td class="orders-date">{{$license->license_organisation}}</td>
-                                    <td class="orders-total">{{$license->package}}</td>
-                                    <td class="orders-total">{{$license->license_days}}</td>
-                                    <td class="orders-total">{{$license->license_code}}</td>
-                                    <td class="orders-total">{{$license->active_users}}</td>
-                                    <td class="orders-total">{{\Carbon\Carbon::parse($license->created_at)->toFormattedDateString()}}</td>
-                                    <td class="text-end">
-                                        <div class="dropdown">
-                                            <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fe fe-more-vertical"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
+                                @foreach($licenses as $license)
+                                    <tr>
+                                        <td>
+                                            <div class="form-check mb-n2">
+                                                <input class="form-check-input list-checkbox" type="checkbox" name="ordersSelect" id="ordersSelectOne">
+                                                <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                            </div>
+                                        </td>
+                                        <td class="orders-order">{{$license_no}}</td>
+                                        <?php $license_no++ ; ?>
+                                        <td class="orders-product">
+                                            {{$license->license_name}}
+                                        </td>
+                                        <td class="orders-product">{{$license->licensed_organisation}}</td>
+                                        <td class="orders-product">{{$license->licensed_email}}</td>
+                                        <td class="orders-total">{{$license->package}}</td>
+                                        <td class="orders-total">{{$license->license_days}}</td>
+                                        <td class="orders-total">{{$license->license_code}}</td>
+                                        <td class="orders-total">{{$license->active_users}}</td>
+                                        <td class="orders-total">{{\Carbon\Carbon::parse($license->created_at)->toFormattedDateString()}}</td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fe fe-more-vertical"></i>
+                                                </a>
                                                 <div class="dropdown-menu dropdown-menu-end">
-                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditLicenseModal('{{$license->license_name}}', '{{$license->license_organisation}}', '{{$license->package}}', '{{$license->license_days}}', '{{$license->license_code}}', '{{$license->active_users}}', '{{$license->id}}')" class="dropdown-item">
+                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditLicenseModal('{{$license->license_name}}', '{{$license->licensed_organisation}}', '{{$license->licensed_email}}', '{{$license->package}}', '{{$license->license_days}}', '{{$license->license_code}}', '{{$license->active_users}}', '{{$license->id}}')" class="dropdown-item">
                                                         <i class="mdi mdi-pencil mr-2"></i> Edit
                                                     </a>
                                                     <form action="/admin/licenses/{{$license->id}}" method="POST">
@@ -102,9 +104,9 @@
                                                     </form>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                         @else
@@ -149,18 +151,25 @@
                                     <label class="form-label mb-1">
                                         License Organization
                                     </label>
-                                    <input type="text" name="license_organisation" class="form-control">
+                                    <input type="text" name="licensed_organisation" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label mb-1">
+                                        License Email
+                                    </label>
+                                    <input type="email" name="licensed_email" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Package
                                     </label>
-                                    <select name="package" class="form-select" data-choices='{"searchEnabled": true}'>
+                                    <select name="package_id" class="form-select" id="select-package" data-choices='{"searchEnabled": true}'>
                                         <option value="">Select Package</option>
                                         @foreach($packages as $package)
-                                            <option value="{{$package->name}}">{{$package->name}}</option>
+                                            <option value="{{$package->id}}">{{$package->name}}</option>
                                         @endforeach
                                     </select>
+                                    <input type="hidden" name="package" id="package-name">
                                 </div>
                                 <div class="row">
                                     <div class="col-12 col-lg-6 col-xl-6">
@@ -190,12 +199,12 @@
                                             </div>
                                             <div class="col-auto">
                                                 <small class="text-muted">
-                                                    <a onclick="genCode(32)" class="custom-button cursor text-color"> Generate license code</a>
+                                                    <a onclick="genCode(8)" class="custom-button cursor text-color"> Generate license code</a>
                                                 </small>
                                             </div>
                                         </div>
                                     </label>
-                                    <input type="text" name="license_code" id="code" class="form-control" disabled>
+                                    <input type="text" name="license_code" id="code" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -242,13 +251,16 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
+                                        License Email
+                                    </label>
+                                    <input type="email" name="licensed_email" id="license-email" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label mb-1">
                                         Package
                                     </label>
-                                    <select name="package" class="form-select" data-choices='{"searchEnabled": true}'>
-                                        <option value="">Select Package</option>
-                                        @foreach($packages as $package)
-                                            <option value="{{$package->name}}">{{$package->name}}</option>
-                                        @endforeach
+                                    <select name="package" id="package-input" class="form-select" data-choices='{"searchEnabled": true}'>
+
                                     </select>
                                 </div>
                                 <div class="row">
@@ -279,13 +291,13 @@
                                             </div>
                                             <div class="col-auto">
                                                 <small class="text-muted">
-                                                    <a onclick="regenCode(32)" class="custom-button cursor text-color"> Generate license code</a>
+                                                    <a onclick="regenCode(8)" class="custom-button cursor text-color"> Generate license code</a>
                                                 </small>
                                             </div>
                                         </div>
                                     </label>
-                                    <input type="text" name="license_id" id="license-code" class="form-control code-input">
-                                    <input type="text" name="license_code" id="new-code" class="form-control code-input" disabled>
+                                    <input type="hidden" name="license_id" id="license-id">
+                                    <input type="text" name="license_code" id="new-code" class="form-control code-input">
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -300,6 +312,7 @@
         </div>
     </div>
 </div>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
     function deleteFunction() {
         if(!confirm("Are you sure you want to delete this license?"))
@@ -327,16 +340,37 @@
 
     }
 
-    function showEditDiscountModal(name, start, end, code, usage, percent, package_name, discount_id){
-        document.getElementById("name-input").value = name;
-        document.getElementById("start-input").value = start;
-        document.getElementById("end-input").value = end;
+    function showEditLicenseModal(name, org, email, package_name, days, code, active, id){
+        document.getElementById("license-name").value = name;
+        document.getElementById("license-oragnisation").value = org;
+        document.getElementById("license-email").value = email;
+
+        $('#package-input').append($('<option>', {
+            value: package_name,
+            text: package_name
+        }));
+
+        // document.getElementById("package-input").value = package_name;
+        document.getElementById("license-days").value = days;
         document.querySelector(".code-input").value = code;
-        document.getElementById("usage-input").value = usage;
-        document.getElementById("percent-input").value = percent;
-        document.getElementById("package-input").value = package_name;
-        document.getElementById("discount-id").value = discount_id;
-        $('#editDiscountModal').modal('show')
+        document.getElementById("active-users").value = active;
+        document.getElementById("license-id").value = id;
+        $('#editLicenseModal').modal('show')
+
     }
+
+    $(document).ready(function () {
+        toggleFields();
+        $("#select-package").change(function () {
+            toggleFields();
+        });
+
+    });
+
+    function toggleFields() {
+        document.getElementById('package-name').value =  $("#select-package option:selected").text();
+    }
+
+
 </script>
 @endsection

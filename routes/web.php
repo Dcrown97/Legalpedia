@@ -152,9 +152,15 @@ Route::get('/admin/search', [AdminController::class, 'search'])->name('search');
 Route::get('autocomplete-search', [AdminController::class, 'autocomplete'])->name('autocomplete');
 
 Route::post('/admin/annotations', [AdminController::class, 'anote'])->name('store.anote');
+Route::get('/admin/judgements/fetch-annotations/{id}', [AdminController::class, 'fetchAnote'])->name('fetch.anote');
 
 Route::get('/admin/messages', [AdminController::class, 'message'])->name('admin.messages');
-
+Route::get('/admin/messages/create', [AdminController::class, 'createMessage'])->name('create.message');
+Route::post('/admin/messages', [AdminController::class, 'storeMessage'])->name('store.message');
+Route::get('/admin/messages/edit/{id}', [AdminController::class, 'editMessage'])->name('edit.message');
+Route::patch('/admin/messages/{id}', [AdminController::class, 'updateMessage'])->name('update.message');
+Route::delete('/admin/messages/{id}', [AdminController::class, 'deleteMessage'])->name('delete.message');
+Route::post('/admin/messages/send', [AdminController::class, 'sendMessage'])->name('send.message');
 
 Route::get('/admin/licenses', [AdminController::class, 'license'])->name('admin.licenses');
 Route::post('/admin/licenses', [AdminController::class, 'storeLicense'])->name('store.license');
