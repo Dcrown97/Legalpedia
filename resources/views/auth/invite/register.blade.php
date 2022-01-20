@@ -93,7 +93,7 @@
                             </span>
                         @enderror
                     </div>
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <label for="license_code">License code</label>
                         <input id="license_code" type="text" class="form-control @error('license_code') is-invalid @enderror" placeholder="License code" name="license_code">
                         @error('license_code')
@@ -101,7 +101,7 @@
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                    </div>
+                    </div> --}}
                     <div class="form-group">
                         <label for="link">Referrer</label>
                         <input id="referrer" type="text" class="form-control @error('referrer') is-invalid @enderror" placeholder="Referral Link" name="referrer">

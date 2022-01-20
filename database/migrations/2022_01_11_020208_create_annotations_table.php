@@ -24,6 +24,7 @@ class CreateAnnotationsTable extends Migration
             $table->text('replies')->nullable();
             $table->text('text_target')->nullable();
             $table->text('tags')->nullable();
+            $table->text('display')->nullable();
             $table->timestamps();
         });
     }

@@ -70,7 +70,7 @@
                                         <div class="row align-items-center">
                                             <div class="col-auto">
                                                 <a href="{{route('show.fed', $fed->id)}}" class="avatar text-color avatar-lg">
-                                                    <i class="fe fe-file"></i>
+                                                    <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$fed->title}}" class="card-img-top">
                                                 </a>
                                             </div>
                                             <div class="col">

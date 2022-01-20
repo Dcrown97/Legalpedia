@@ -9,6 +9,10 @@
         .text-green {
             color: #009900 !important;
         }
+        .modal-content {
+            width: 100% !important;
+            height: auto !important;
+        }
     </style>
     <div class="header">
         <div class="container-fluid">
@@ -30,6 +34,13 @@
                         </h3>
                         <h3 class="text-green mb-2">Suit Number: <span class="text-black">{{$judgement_summary->suit_no}}</span></h3>
                     </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="{{route('edit.judgement', $judgement_summary->id)}}" class="btn text-white btn-primary">
+                                <i class="mdi mdi-pencil"></i> Edit Judgement
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -53,17 +64,10 @@
                         <hr class="my-4">
                         <h3 class="text-muted">AREA(S) OF LAW</h3>
                         <hr class="my-4">
-                        {{-- <?php $sum_area_of_laws = App\Models\SumAreaOfLaw::where('suit_no', $judgement_summary->suit_no)->get();?>
-                        @if($sum_area_of_laws)
-                            @foreach($sum_area_of_laws as $area_of_law)
-                                <?php $area_of_law = App\Models\AreaOfLaw::where('id', $area_of_law->area_of_law_id)->first();?>
-                                <p class="card-text mb-1">{{$area_of_law->area_of_law}}</p>
-                            @endforeach
-                        @endif --}}
-                        <p class="card-text mb-1">{{$judgement_summary->area_of_law}}</p>
+                        <p class="card-text mb-1">{!! $judgement_summary->area_of_law !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">SUMMARY OF FACTS</h3>
-                        <p class="card-text mb-1">{!! $judgement_summary->summary_of_facts !!}</p>
+                        <p class="card-text mb-1">{!! nl2br(e(strip_tags($judgement_summary->summary_of_facts))) !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">HELD</h3>
                         <hr class="my-4">
@@ -80,11 +84,10 @@
                             @foreach($ratios as $ratio)
                                 <h4 class="text-muted" id="ratio">{{$ratio->heading}}</h4>
                                 <hr class="my-4">
-                                <p class="card-text mb-1">{{$ratio->body}}</p>
+                                <p class="card-text mb-1">{!! nl2br(e(strip_tags($ratio->body))) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
-                        <hr class="my-4">
                         <h3 class="text-muted">STATUTES REFERRED TO</h3>
                         <hr class="my-4">
                         <p class="card-text mb-1">{!! $judgement_summary->statutes_cited !!}</p>
@@ -96,20 +99,60 @@
                         <div class="">
                             <div class="collapse multi-collapse" id="multiCollapse">
                                 <?php $full_judgement = App\Models\Judgement::where('suit_no', 'LIKE', '%'.$judgement_summary->suit_no. '%')->first() ;?>
-                                <p class="card-text mb-1 mt-4" style="line-height: 25px; font-weight: 400">{!! $full_judgement ? $full_judgement->judgement : '' !!}</p>
+                                <p class="card-text mb-1 mt-4" style="line-height: 25px; font-weight: 400">{!! nl2br(e(strip_tags($full_judgement ? $full_judgement->judgement : ''))) !!}</p>
                             </div>
                         </div>
                         <hr class="my-4">
                         <h3 class="text-muted">COUNSELS</h3>
                         <hr class="my-4">
                         <?php $counsels = App\Models\JudgementCounsel::where('suit_no', $judgement_summary->suit_no)->first() ;?>
-                        <p class="card-text mb-1">{{$counsels ? $counsels->counsels : ''}}</p>
+                        <p class="card-text mb-1">{!! $counsels ? $counsels->counsels : '' !!}</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <div class="modal fade" id="save_public" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="fs-1 fw-boldest">Make your notes public or private</div>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-2x">
+                            <i class="mdi mdi-close"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mt-4">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                          <div class="col-12">
+                            <form class="tab-content pb-4" id="wizardSteps" action="{{route('update.anote')}}" method="POST">
+                                {{ csrf_field() }}
+                                {{ method_field('patch') }}
+                                <div class="row justify-content-center">
+                                    <div class="text-center">
+                                        <p class="mb-5 text-muted">Save note to public or private</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <select name="display" class="form-select">
+                                        <option value="public">Public</option>
+                                        <option value="private">Private</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" name="note_id" id="note-id">
+                                <button type="submit" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white w-100 btn-primary">
+                                    <span class="button__text"><i class="mdi mdi-check"></i> Save Note</span>
+                                </button>
+                            </form>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         var data = null;
@@ -243,13 +286,15 @@
                 },
                 success: function (response) {
                     console.log(response);
-                    swal({
-                        title: "Success",
-                        text: 'Annotation saved',
-                        icon: "success",
-                    });
+                    document.getElementById('note-id').value = annote.id;
+                    $('#save_public').modal('show')
+                    // swal({
+                    //     title: "Success",
+                    //     text: 'Annotation saved',
+                    //     icon: "success",
+                    // });
                 }
-                
+
             });
 
         });

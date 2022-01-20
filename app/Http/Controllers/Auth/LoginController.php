@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use App\Models\LicensedUserSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\License;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\session;
@@ -54,59 +56,49 @@ class LoginController extends Controller
         if(Auth::check()) {
             $user = Auth::user();
             if(!empty($user->license_code)) {
-                $_SESSION['name'] =  $user->name;
-                $_SESSION['key'] =  $user->name;
-                $_SESSION['last_login_timestamp'] = time();
+                $license = LicensedUserSession::where('user_id', $user->id)->first();
+
+                if($license) {
+                    $license_count = $license->count();
+                    $licensed_users = License::where('license_code', $user->license_code)->first();
+                    $allowed_users = $licensed_users->active_users + 1;
+                    if($license_count < $allowed_users) {
+                        // $license->increment('session_no');
+                        LicensedUserSession::create([
+                            'license_id' => $license->id,
+                            'user_id' => $user->id,
+                            'session_no' => time(),
+                        ]);
+
+                    } if($license_count >= $allowed_users) {
+
+                        foreach($license as $login) {
+                            // dd($login);
+                            if ($login->session_no < time() - 300) {
+                                $logged_out_user = LicensedUserSession::where('id', $login->id)->orderBy('session_no', 'ASC')->first();
+                                $logged_out_user->delete();
+                                $request->session()->flush();
+                                Auth::logout();
+                                Session::flash('error', 'Time expired');
+                                return redirect('/login')->withErrors('Time expired');
+                            }
+                        }
+                        Auth::logout();
+                        Session::flash('error', 'Maximmum number of users reached');
+                        return redirect('/login')->withErrors('Maximmum number of users reached');
+                    }
+                } else {
+                    $license = License::where('license_code', $user->license_code)->first();
+                    LicensedUserSession::create([
+                        'license_id' => $license->id,
+                        'user_id' => $user->id,
+                        'session_no' => time(),
+                    ]);
+
+                    // dd($_SESSION);
+                }
             }
         }
-
-        // { //check if the user is logged in or not
-        //     $user = Auth::user();
-        //   //  $login = Session::where('user_id', Auth::id())->count();
-        //   $login = DB::table('sessions')->where('user_id', Auth::id())->count();
-        //    // dd($login);
-        //     if ($user->isBasic())
-        //     {
-        //         if ($login > 0)
-        //         {
-        //             Auth::logout();
-        //             session()->flash('logout', "You are Logged in on other devices");
-        //             return redirect('login');
-        //         }
-
-        //         return redirect(route('welcome'));
-        //     }
-
-        //     elseif ($user->isCouple())
-        //     {
-        //         if ($login > 1)
-        //         {
-        //             Auth::logout();
-        //             session()->flash('logout', "You are Logged in on other devices");
-        //             return redirect('login');
-        //         }
-
-        //         return redirect(route('welcome'));
-        //     }
-
-        //     elseif ($user->isFamily())
-        //     {
-        //         if ($login > 5)
-        //         {
-        //             Auth::logout();
-        //             session()->flash('logout', "You are Logged in on other devices");
-        //             return redirect('login');
-        //         }
-
-        //         return redirect(route('welcome'));
-
-        //         }
-        //     }
-
-        //     else
-        //     {
-        //         return redirect(route('welcome'));
-        // }
-
     }
+
 }

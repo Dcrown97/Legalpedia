@@ -3,12 +3,24 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\License;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\LicensedUserSession;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Session\Store;
 
 class LicensedUser
 {
+    protected $session;
+    protected $timeout = 1200;
+
+    public function __construct(Store $session)
+    {
+        $this->session = $session;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -21,23 +33,36 @@ class LicensedUser
         if(Auth::user()) {
             $user = Auth::user();
             if(!empty($user->license_code)) {
+                $license = LicensedUserSession::where('user_id', $user->id)->first();
+                if($license) {
 
-                // $expiresAt = now()->addMinutes(15); /* keep logged in user for 15 min */
-                if (isset($_SESSION["name"])) {
-                    // only if user is logged in perform this check
-                    if ((time() - $_SESSION['last_login_timestamp']) > 100) {
-                        $logged_user = DB::table('sessions')->where('user_id', Auth::user()->id)->first();
-                        $logged_user->delete();
+
+
+                    $is_logged_in = $request->path() != '/logout';
+
+                    if(!session('last_active')) {
+                        $this->session->put('last_active', time());
+                    } elseif(time() - $this->session->get('last_active') > $this->timeout) {
+
+                        $this->session->forget('last_active');
+
+                        $cookie = cookie('intend', $is_logged_in ? url()->current() : 'admin/dashboard');
+
+                        $logged_out_user = LicensedUserSession::where('id', $license->id)->first();
+                        $logged_out_user->delete();
+
                         Auth::logout();
-                        return redirect('/login');
-                    } else {
-                      $_SESSION['last_login_timestamp'] = time();
-                      
                     }
+
+                    $is_logged_in ? $this->session->put('last_active', time()) : $this->session->forget('last_active');
+
+                    return $next($request);
                 }
             }
-
+            return $next($request);
         }
+        // return redirect('/login');
         return $next($request);
+
     }
 }

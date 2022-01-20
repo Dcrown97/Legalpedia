@@ -32,10 +32,20 @@
                                 <option value="{{$state->name}}" {{ $state->name == $selected_name['name'] ? 'selected' : '' }}>{{$state->name}}</option>
                             @endforeach
                         </select>
-                        <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
+                        <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
                             <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
                         </button>
+                        <a href="{{url('admin/state-rules-of-court')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
                     </form>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <a href="{{url('admin/state-rules-of-court')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -109,7 +119,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$order_count}} records</h4>
+                                        <h4>{{number_format($order_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +131,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $order->id)}}">{{$order->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $order->id)}}">{{$order->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
@@ -192,7 +202,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$part_count}} records</h4>
+                                        <h4>{{number_format($part_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -204,7 +214,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $part->id)}}">{{$part->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $part->id)}}">{{$part->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
@@ -275,7 +285,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$schedule_count}} records</h4>
+                                        <h4>{{number_format($schedule_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -287,7 +297,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $schedule->id)}}">{{$schedule->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $schedule->id)}}">{{$schedule->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
@@ -358,7 +368,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$form_count}} records</h4>
+                                        <h4>{{number_format($form_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -370,7 +380,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $form->id)}}">{{$form->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $form->id)}}">{{$form->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
@@ -441,7 +451,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$probate_count}} records</h4>
+                                        <h4>{{number_format($probate_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -453,7 +463,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $probate_form->id)}}">{{$probate_form->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $probate_form->id)}}">{{$probate_form->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
@@ -524,7 +534,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$civil_count}} records</h4>
+                                        <h4>{{number_format($civil_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -536,7 +546,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $civil_form->id)}}">{{$civil_form->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $civil_form->id)}}">{{$civil_form->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
@@ -607,7 +617,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$appendix_count}} records</h4>
+                                        <h4>{{number_format($appendix_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -619,7 +629,7 @@
                                                 <div class="row align-items-center">
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.rule', $appendix->id)}}">{{$appendix->title}}</a>
+                                                            <i class="fe fe-file mr-1"></i><a href="{{route('show.state-rule', $appendix->id)}}">{{$appendix->title}}</a>
                                                         </h4>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')

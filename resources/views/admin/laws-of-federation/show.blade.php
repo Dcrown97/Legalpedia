@@ -16,6 +16,13 @@
                         </h1>
                         <h3 class="card-text text-center text-color mt-2 mb-2">{{$fed->law_no}}</h3>
                     </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="{{route('edit.fed', $fed->id)}}" class="btn text-white btn-primary">
+                                <i class="mdi mdi-pencil"></i> Edit Law
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -46,7 +53,7 @@
                             @foreach($fed_sections as $fed_section)
                                 <h3 class="text-muted">{{$fed_section_no}}. {{$fed_section->section_header}}</h3>
                                 <?php $fed_section_no++; ?>
-                                <p class="card-text mb-1">{!! $fed_section->section_body !!}</p>
+                                <p class="card-text mb-1">{!! nl2br(e($fed_section->section_body)) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif

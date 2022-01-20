@@ -384,7 +384,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Make article Public
+                                            Make article public or private
                                         </label>
                                         @if(Auth::user()->role->name == 'Admin')
                                             <input type="hidden" name="article_type" value="legalpedia">

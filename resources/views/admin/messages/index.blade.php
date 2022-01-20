@@ -453,11 +453,4 @@
           </div>
         </div>
     </div>
-    <script>
-        function showDiv(subject, body, id, element)
-        {
-            document.getElementById(subject).value = element.value == '{{$message}}';
-            document.getElementById(body).value = element.value == 'automated' ? 'block' : 'none';
-        }
-    </script>
 @endsection

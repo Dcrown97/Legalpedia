@@ -134,9 +134,23 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url('admin/subscriptions')}}">
+                    <a class="nav-link" href="#sub" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sub">
                         <i class="fe fe-bell"></i> Subscriptions
                     </a>
+                    <div class="collapse" id="sub">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{url('admin/subscriptions')}}" class="nav-link ">
+                                    <i class="fe fe-bell"></i> Packages
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{url('admin/transactions')}}" class="nav-link ">
+                                    <i class="fe fe-bell"></i> Transactions
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{url('admin/discount')}}">
@@ -159,6 +173,23 @@
                     <i class="fe fe-users"></i> Teams
                 </a>
             </li>
+            @if(!Auth::user()->package_id && Auth::user()->expiry_date < now())
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url('admin/pricing')}}">
+                        <span class="btn w-100 button_load text-white btn-sm btn-warning p-2" onclick="this.classList.toggle('button--loading')">
+                            <span class="button__text"><i class="mdi mdi-crown"></i> Subscribe</span>
+                        </span>
+                    </a>
+                </li>
+                @else
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url('admin/pricing')}}" class="text-color">
+                        <span class="btn w-100 button_load text-color btn-sm btn-custom p-2" onclick="this.classList.toggle('button--loading')">
+                            <span class="button__text"><i class="mdi mdi-crown"></i> Upgrade Package</span>
+                        </span>
+                    </a>
+                </li>
+            @endif
         </ul>
         <div class="mt-auto"></div>
             <div class="navbar-user d-none d-md-flex" id="sidebarUser">

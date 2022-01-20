@@ -13,6 +13,14 @@
         </div>
     @endforeach
 @endif --}}
+@if(session()->has('error1'))
+    <div class="toast toast-error" data-autohide="false">
+        <div class="toast-body">
+            <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button>
+            <p class="text-white"><i class="mdi mdi-information-outline mr-1"></i>{{ session()->get('error1') }}</p>
+        </div>
+    </div>
+@endif
 @if(session()->has('success'))
     <div class="toast" data-autohide="false">
         <div class="toast-body">
@@ -39,6 +47,14 @@
                 icon: "warning",
             });
         @endforeach
+    @endif
+
+    @if(session()->has('error'))
+        swal({
+            title: "Sorry!",
+            text: "{{session()->get('error')}}",
+            icon: "warning",
+        });
     @endif
 
     //  @if(Session::has('warning'))

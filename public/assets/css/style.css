@@ -556,3 +556,12 @@ a:hover{
 .form-inline .input-group {
     width: 100% !important;
 }
+.btn-custom {
+    background: transparent !important;
+    border-color: #f3dad7 !important;
+    box-shadow: none !important;
+    color: #EC6959 !important;
+}
+.navbar-user-link-0 {
+    display: none !important;
+}

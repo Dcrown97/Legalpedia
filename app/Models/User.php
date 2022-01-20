@@ -35,6 +35,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'active_date',
         'expiry_date',
         'status',
+        'city',
+        'state',
+        'country'
     ];
 
     /**
@@ -69,6 +72,20 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function role() {
         return $this->belongsTo(Role::class);
+    }
+
+    // public function licensedUser() {
+    //     if(!empty($this->license_code)) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
+    public function subscribedUser() {
+        if($this->package_id !== '' && $this->expiry_date > now()) {
+            return true;
+        }
+        return false;
     }
 
     public function teams() {

@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Country;
+use App\Models\Package;
+use App\Models\State;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminUserController extends Controller
 {
@@ -26,7 +31,11 @@ class AdminUserController extends Controller
 
     public function edit($id) {
         $user = User::where('id', Auth::user()->id)->first();
-        return view('admin.customers.edit', compact('user'));
+        $states = State::orderBy('name', 'ASC')->get();
+        $countries = Country::orderBy('name', 'ASC')->get();
+        $package = Package::where('id', $user->package_id)->first();
+        $transactions = Transaction::where('user_id', $user->id)->get();
+        return view('admin.customers.edit', compact('user', 'states', 'countries', 'package', 'transactions'));
     }
 
     public function update(Request $request) {
@@ -46,7 +55,9 @@ class AdminUserController extends Controller
         // $file = $request->file('photo');
         // $path = $file->store('media', 'public');
         // $input['photo'] = $path;
+        // dd($input);
         $user->update($input);
+
 
         return back()->with('success', 'Profile updated');
 

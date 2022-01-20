@@ -18,6 +18,7 @@ class CreateLicensesTable extends Migration
             $table->foreignId('package_id')->nullable()->references('id')->on('packages')->onDelete('cascade');
             $table->string('package')->nullable();
             $table->string('license_code')->nullable();
+            $table->string('licensed_email')->nullable();
             $table->string('licensed_organisation')->nullable();
             $table->string('license_name')->nullable();
             $table->integer('license_days')->nullable();

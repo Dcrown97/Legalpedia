@@ -27,6 +27,9 @@
             padding: 10px;
             border-bottom: 1px solid #f5f5f5;
         }
+        .h-90 {
+            height: 90px;
+        }
     </style>
     <div class="header">
         <div class="container-fluid">
@@ -43,6 +46,7 @@
                             @endif
                         </h1>
                     </div>
+                    @include('elements.notifications')
                 </div>
             </div>
         </div>
@@ -50,24 +54,33 @@
 
     <div class="container-fluid">
         <div class="alert alert-primary alert-dismissible fade show" role="alert">
-            <i class="mdi mdi-message mr-2 text-green-0"></i><strong>Welcome back {{Str::words(Auth::user()->name, 1, '')}}</strong> You can now access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more!
+            <i class="mdi mdi-message mr-2 text-green-0"></i><strong>Welcome back {{Str::words(Auth::user()->name, 1, '')}}</strong> You can access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more!
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
         <div class="row">
-            <div class="col-12 col-lg-6 col-xl">
+            <div class="col-12 col-xl-4">
                 <a href="{{url('admin/judgements')}}" class="link_item">
                     <div class="card">
                         <div class="card-body">
                             <div class="row align-items-center gx-0">
                                 <div class="col">
                                     <h6 class="text-uppercase text-muted mb-3">
-                                        Judgements
+                                        Legalpedia Resources
                                     </h6>
                                     <span class="h2 mb-0">
-                                        <img class="h-4 w-4 mr-1" src="{{asset('assets/images/balance.png')}}" alt=" Latest Judgments">
-                                        <span class="text-4xl">{{number_format($judgement_count)}}</span> <span class="text-muted">Cases</span>
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <a href="{{url('admin/judgements')}}">
+                                                    <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="Legalpedia resources" class="card-img-top h-90">
+                                                </a>
+                                            </div>
+                                            <div class="col">
+                                                <span class="text-4xl">{{number_format($all_count)}}</span> <span class="text-muted">Resources</span>
+                                            </div>
+                                            <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{url('admin/judgements')}}"><i class="mdi mdi-arrow-right"></i> View Judgements</a>
+                                        </div>
                                     </span>
                                 </div>
                             </div>
@@ -75,37 +88,27 @@
                     </div>
                 </a>
             </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/laws-of-federation')}}" class="link_item">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-3">
-                                Laws
-                                </h6>
-                                <span class="h2 mb-0">
-                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Laws of Federation">
-                                    <span class="text-4xl">{{number_format($fed_count)}}</span> <span class="text-muted">Laws</span>
-                                </span>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/rules-of-court')}}" class="link_item">
+            <div class="col-12 col-xl-4">
+                <a href="{{url('admin/teams')}}" class="link_item">
                     <div class="card">
                         <div class="card-body">
                             <div class="row align-items-center gx-0">
                                 <div class="col">
                                     <h6 class="text-uppercase text-muted mb-3">
-                                    Rules
+                                        Legalpedia Teams
                                     </h6>
                                     <span class="h2 mb-0">
-                                        <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="State Rules of Court">
-                                        <span class="text-4xl">{{number_format($rule_count)}}</span> <span class="text-muted">Rules</span>
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <a href="">
+                                                    <img src="{{asset('assets/images/conversation.png')}}" alt="Legalpedia Teams" class="card-img-top h-90">
+                                                </a>
+                                            </div>
+                                            <div class="col">
+                                                <span class="text-4xl"> {{number_format($team_count)}}</span> <span class="text-muted">Teams created</span>
+                                            </div>
+                                            <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{url('admin/teams')}}"><i class="mdi mdi-arrow-right"></i> Create Teams</a>
+                                        </div>
                                     </span>
                                 </div>
                             </div>
@@ -113,20 +116,29 @@
                     </div>
                 </a>
             </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/forms-and-precedents')}}" class="link_item">
+            <div class="col-12 col-xl-4">
+                <a href="{{url('admin/articles')}}" class="link_item">
                     <div class="card">
                         <div class="card-body">
                             <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-3">
-                                    Forms
-                                </h6>
-                                <span class="h2 mb-0">
-                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/balance.png')}}" alt="Forms & Precedences">
-                                    <span class="text-4xl">{{number_format($form_count)}}</span> <span class="text-muted">Forms</span>
-                                </span>
-                            </div>
+                                <div class="col">
+                                    <h6 class="text-uppercase text-muted mb-3">
+                                        Legalpedia Articles
+                                    </h6>
+                                    <span class="h2 mb-0">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <a href="">
+                                                    <img src="{{asset('assets/images/file.png')}}" alt="Legalpedia resources" class="card-img-top h-90">
+                                                </a>
+                                            </div>
+                                            <div class="col">
+                                                <span class="text-4xl"> {{number_format($article_count)}}</span> <span class="text-muted">Articles</span>
+                                            </div>
+                                            <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{url('admin/legal-articles')}}"><i class="mdi mdi-arrow-right"></i> Publish an Article</a>
+                                        </div>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -134,192 +146,158 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/judgements')}}" class="link_item">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center gx-0">
-                                <div class="col">
-                                    <h6 class="text-uppercase text-muted mb-3">
-                                        Legal Articles
-                                    </h6>
-                                    <span class="h2 mb-0">
-                                        <img class="h-4 w-4 mr-1" src="{{asset('assets/images/balance.png')}}" alt="Legal Articles">
-                                        <span class="text-4xl">{{number_format($article_count)}}</span> <span class="text-muted">Articles</span>
-                                    </span>
+            <div class="col-12 col-xl-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-header-title">
+                            Latest Judgements
+                        </h4>
+                        <a class="small" href="{{url('admin/judgements')}}">View all</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush list-group-activity my-n3">
+                            @if(count($latest_judgements) > 0)
+                                @foreach ($latest_judgements as $judgement)
+                                    <div class="list-group-item">
+                                        <div class="row">
+                                            <div class="col-auto">
+                                                <div class="avatar avatar-sm">
+                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                        <i class="fe fe-bell"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col ms-n2">
+                                                <h5 class="mb-1">
+                                                    <a href="{{route('show.judgement', $judgement->id)}}">
+                                                        {{ucwords(strtolower($judgement->title))}}
+                                                    </a>
+                                                </h5>
+                                                <p class="small text-gray-700 mb-0">
+                                                    {!! Str::words($judgement->summary_of_facts, 10) !!}
+                                                </p>
+                                                <p class="card-text text-color small mb-1">
+                                                    <?php $court = App\Models\Court::where('id', $judgement->court_id)->first();?>
+                                                    @if($court)
+                                                        {{$court->court}}
+                                                        @else
+                                                        In the Court of Appeal
+                                                    @endif
+                                                </p>
+                                                <p class="card-text small text-muted">
+                                                    {{\Carbon\Carbon::parse($judgement->judgement_date)->format('D')}}  {{\Carbon\Carbon::parse($judgement->judgement_date)->toFormattedDateString()}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @else
+                                <div class="text-center my-4">
+                                    <p class="text-muted"><i class="fe fe-file"></i> No recent Judgement found</p>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/laws-of-federation')}}" class="link_item">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-3">
-                                Law Dictionary
-                                </h6>
-                                <span class="h2 mb-0">
-                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Law Dictionary">
-                                    <span class="text-4xl">{{number_format($dict_count)}}</span> <span class="text-muted">Words</span>
-                                </span>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/rules-of-court')}}" class="link_item">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center gx-0">
-                                <div class="col">
-                                    <h6 class="text-uppercase text-muted mb-3">
-                                        Legal Maxims
-                                    </h6>
-                                    <span class="h2 mb-0">
-                                        <img class="h-4 w-4 mr-1" src="{{asset('assets/images/gavel.png')}}" alt="Legal Maxims">
-                                        <span class="text-4xl">{{number_format($maxim_count)}}</span> <span class="text-muted">Maxims</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a href="{{url('admin/forms-and-precedents')}}" class="link_item">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-3">
-                                    Resources
-                                </h6>
-                                <span class="h2 mb-0">
-                                    <img class="h-4 w-4 mr-1" src="{{asset('assets/images/balance.png')}}" alt="Resources">
-                                    <span class="text-4xl">{{number_format($resource_count)}}</span> <span class="text-muted">Resources</span>
-                                </span>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-        <hr>
-    </div>
-    <div class="container-fluid mt-6">
-        <div class="header-body mb-4 mt-n5 mt-md-n6">
-          <div class="row align-items-center">
-            <div class="col">
-                <ul class="nav nav-tabs nav-overflow header-tabs" id="myTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="year-tab" data-toggle="tab" href="#year" role="tab" aria-controls="year" aria-selected="true">
-                            LegalPedia Activities
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="subject-tab" data-toggle="tab" href="#subject" role="tab" aria-controls="subject" aria-selected="false">
-                            My Activities
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="legal-tab" data-toggle="tab" href="#legal" role="tab" aria-controls="legal" aria-selected="false">
-                            Team Activities
-                        </a>
-                    </li>
-                </ul>
-            </div>
-          </div>
-        </div>
-    </div>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="tab-content" id="wizardSteps">
-                    <div class="tab-pane fade show active" id="year" role="tabpanel" aria-labelledby="year-tab">
-                        <div class="card">
-                            <div class="card-body">
-                                <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                    <li class="list-group-item">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <a href="#!" class="avatar text-color avatar-lg">
-                                                    <i class="fe fe-file"></i>
-                                                </a>
-                                            </div>
-                                            <div class="col">
-                                                <h4 class="mb-1 item-name">
-                                                    <a href="">Some Content</a>
-                                                </h4>
-                                                <p class="card-text small text-muted">
-                                                    26th, December 2021
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="subject" role="tabpanel" aria-labelledby="subject-tab">
-                        <div class="card">
-                            <div class="card-body">
-                                <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                    <li class="list-group-item">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <a href="#!" class="avatar text-color avatar-lg">
-                                                    <i class="fe fe-file"></i>
-                                                </a>
-                                            </div>
-                                            <div class="col">
-                                                <h4 class="mb-1 item-name">
-                                                    <a href="">Some Content</a>
-                                                </h4>
-                                                <p class="card-text small text-muted">
-                                                    26th, December 2021
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="legal" role="tabpanel" aria-labelledby="legal-tab">
-                        <div class="card">
-                            <div class="card-body">
-                                <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                    <li class="list-group-item">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <a href="#!" class="avatar text-color avatar-lg">
-                                                    <i class="fe fe-file"></i>
-                                                </a>
-                                            </div>
-                                            <div class="col">
-                                                <h4 class="mb-1 item-name">
-                                                    <a href="">Some Content</a>
-                                                </h4>
-                                                <p class="card-text small text-muted">
-                                                    26th, December 2021
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-12 col-xl-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-header-title">
+                           My Notes
+                        </h4>
+                        <a class="small" href="{{url('admin/judgements')}}">View all</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush list-group-activity my-n3">
+                            @if(count($notes) > 0)
+                                @foreach ($notes as $note)
+                                    <div class="list-group-item">
+                                        <div class="row">
+                                            <div class="col-auto">
+                                                <div class="avatar avatar-sm">
+                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                        <i class="fe fe-file"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col ms-n2">
+                                                <h5 class="mb-1">
+                                                    <a href="{{route('show.judgement', $judgement->id)}}">
+                                                        @php
+                                                            $note->comment = json_decode($note->comment);
+                                                        @endphp
+                                                        @foreach ($note->comment as $comment_type)
+                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                        @endforeach
+                                                    </a>
+                                                </h5>
+                                                <p class="small text-gray-700 mb-0">
+                                                    @php
+                                                        $note->content = json_decode($note->content);
+                                                    @endphp
+                                                    {{Str::words(ucwords(strtolower($note->content->selector[0]->exact)), 20)}}
+                                                </p>
+                                                <p class="card-text small text-muted">
+                                                    {{$note->created_at->diffForHumans()}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @else
+                                <div class="text-center my-4">
+                                    <p class="text-muted"><i class="fe fe-file"></i> You have no recent notes</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-header-title">
+                           Recent Activities
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush list-group-activity my-n3">
+                            @if(count($recent_activities) > 0)
+                                @foreach ($recent_activities as $activity)
+                                    <div class="list-group-item">
+                                        <div class="row">
+                                            <div class="col-auto">
+                                                <div class="avatar avatar-sm">
+                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                        <i class="fe fe-file"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col ms-n2">
+                                                <h5 class="mb-1">
+                                                    {{$activity->name}}
+                                                </h5>
+                                                <p class="small text-gray-700 mb-0">
+                                                    {{$activity->description}}
+                                                </p>
+                                                <p class="card-text small text-muted">
+                                                    {{$activity->created_at->diffForHumans()}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @else
+                                <div class="text-center my-4">
+                                    <p class="text-muted"><i class="fe fe-file"></i> No recent activity</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

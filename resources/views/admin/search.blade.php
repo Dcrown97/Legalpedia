@@ -71,7 +71,7 @@
             <div class="col-12">
                 <div class="tab-content" id="wizardSteps">
                     <div class="tab-pane fade show active" id="judg" role="tabpanel" aria-labelledby="judg-tab">
-                        <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
+                        <div class="card" data-list='{"valueNames": ["item-name", "item-name1"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                             <div class="card-header">
                                 <h4 class="card-header-title">Judgements</h4>
                                 <span>
@@ -91,12 +91,12 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{number_format($query['count'])}} results found</h4>
+                                        <h4>{{number_format($query_case_count)}} results found</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                @if($query['search'])
+                                @if(count($query['search']) > 0)
                                     <ul class="list-group list-group-lg list-group-flush list my-n4">
                                         @foreach($query['search'] as $case)
                                             <li class="list-group-item">
@@ -123,7 +123,7 @@
                                                         <p class="card-text small mb-3 text-muted">
                                                             {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
                                                         </p>
-                                                        <h4 class="mb-1 item-name">
+                                                        <h4 class="mb-1 item-name1">
                                                             <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
                                                         </h4>
                                                     </div>
@@ -152,7 +152,7 @@
                                                         <p class="card-text small mb-3 text-muted">
                                                             {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
                                                         </p>
-                                                        <h4 class="mb-2 item-name">
+                                                        <h4 class="mb-2 item-name1">
                                                             <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
                                                         </h4>
                                                     </div>
@@ -183,7 +183,7 @@
                                                         <p class="card-text small mb-3 text-muted">
                                                             {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
                                                         </p>
-                                                        <h4 class="mb-2 item-name">
+                                                        <h4 class="mb-2 item-name1">
                                                             <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
                                                         </h4>
                                                     </div>
@@ -192,7 +192,7 @@
                                         @endforeach
                                     </ul>
                                     @else
-                                    <div class="text-center">
+                                    <div class="text-center my-4">
                                         <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                     </div>
                                 @endif
@@ -222,9 +222,12 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="law" role="tabpanel" aria-labelledby="law-tab">
-                        <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsLis">
+                        <div class="card" data-list='{"valueNames": ["item-name2", "item-name3"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsLis">
                             <div class="card-header">
                                 <h4 class="card-header-title">Law of Federation</h4>
+                                <span>
+                                    {{$query_law['search']->links()}}
+                                </span>
                             </div>
                             <div class="card-header">
                                 <div class="row align-items-center">
@@ -239,12 +242,12 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        {{-- <h4>{{number_format($query_law['count'])}} results found</h4> --}}
+                                        <h4>{{number_format($query_law_count)}} results found</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                @if($query_law['search'])
+                                @if(count($query_law['search']) > 0)
                                     <ul class="list-group list-group-lg list-group-flush list my-n4">
                                         @foreach($query_law['search'] as $section)
                                             <li class="list-group-item">
@@ -255,11 +258,11 @@
                                                             $fed = App\Models\LawOfFederation::where('id', $section->law_of_federation_id)->first();
                                                         @endphp
                                                         <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}">
-                                                            <img src="{{asset('assets/images/gavel.png')}}" alt="{{$section ? $section->section_header : ''}}" class="card-img-top w-4 h-8">
+                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$section ? $section->section_header : ''}}" class="card-img-top">
                                                         </a>
                                                     </div>
                                                     <div class="col">
-                                                        <p class="card-text mb-4 item-name">
+                                                        <p class="card-text mb-4 item-name2">
                                                             <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}" class="text-color">{{$section ? $section->section_header : ''}}</a>
                                                         </p>
                                                         <p class="card-text mb-4">
@@ -268,7 +271,64 @@
                                                         <p class="card-text small mb-3 text-muted">
                                                             {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->format('D')}}  {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->toFormattedDateString()}}
                                                         </p>
-                                                        <h4 class="mb-2 item-name">
+                                                        <h4 class="mb-2 item-name3">
+                                                            <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}" class="text-primary">{{$fed ? $fed->title : ''}}</a>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                        @foreach($query_law['search'] as $section)
+                                            <li class="list-group-item">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto hide-mobile">
+                                                        @php
+                                                            $sched = App\Models\LawOfFedSched::where('law_of_federation_id', $section ? $section->law_of_federation_id : '')->first();
+                                                            $fed = App\Models\LawOfFederation::where('id', $section ? $section->law_of_federation_id : '')->first();
+                                                        @endphp
+                                                        <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}">
+                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$sched ? $sched->sched_header : ''}}" class="card-img-top">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col">
+                                                        <p class="card-text mb-4 item-name2">
+                                                            <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}" class="text-color">{{$sched ? $sched->sched_header : ''}}</a>
+                                                        </p>
+                                                        <p class="card-text mb-4">
+                                                            {!! Str::words($sched ? $sched->sched_body : '', 100) !!}
+                                                        </p>
+                                                        <p class="card-text small mb-3 text-muted">
+                                                            {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->format('D')}}  {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->toFormattedDateString()}}
+                                                        </p>
+                                                        <h4 class="mb-2 item-name3">
+                                                            <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}" class="text-primary">{{$fed ? $fed->title : ''}}</a>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                        @foreach($query_law['search'] as $section)
+                                            <li class="list-group-item">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto hide-mobile">
+                                                        @php
+                                                            $fed = App\Models\LawOfFederation::where('id', $section ? $section->law_of_federation_id : '')->first();
+                                                        @endphp
+                                                        <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}">
+                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$fed ? $fed->title : ''}}" class="card-img-top">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col">
+                                                        <p class="card-text mb-4 item-name2">
+                                                            <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}" class="text-color">{{$fed ? $fed->title : ''}}</a>
+                                                        </p>
+                                                        <p class="card-text mb-4">
+                                                            {!! Str::words($fed ? $fed->description : '', 100) !!}
+                                                        </p>
+                                                        <p class="card-text small mb-3 text-muted">
+                                                            {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->format('D')}}  {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->toFormattedDateString()}}
+                                                        </p>
+                                                        <h4 class="mb-2 item-name3">
                                                             <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}" class="text-primary">{{$fed ? $fed->title : ''}}</a>
                                                         </h4>
                                                     </div>
@@ -277,14 +337,14 @@
                                         @endforeach
                                     </ul>
                                     @else
-                                    <div class="text-center">
+                                    <div class="text-center my-4">
                                         <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                     </div>
                                 @endif
                             </div>
                             <div class="row align-items-center">
                                 <div class="my-4 justify-content-center text-center">
-                                    {{$query['search']->links()}}
+                                    {{$query_law['search']->links()}}
                                 </div>
                             </div>
                             {{-- <div class="row g-0">
@@ -306,10 +366,13 @@
                             </div> --}}
                         </div>
                     </div>
-                    {{-- <div class="tab-pane fade" id="rule" role="tabpanel" aria-labelledby="rule-tab">
-                        <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsLi">
+                    <div class="tab-pane fade" id="rule" role="tabpanel" aria-labelledby="rule-tab">
+                        <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsL">
                             <div class="card-header">
-                                <h4 class="card-header-title">Year Index</h4>
+                                <h4 class="card-header-title">Rules</h4>
+                                <span>
+                                    {{$query_rule['search']->links()}}
+                                </span>
                             </div>
                             <div class="card-header">
                                 <div class="row align-items-center">
@@ -324,122 +387,43 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        @if($query['table'] == 'ratio')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                            @elseif($query['table'] == 'judgement_summary')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                            @elseif($query['table'] == 'judgement')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                        @endif
+                                        <h4>{{number_format($query_rule_count)}} results found</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                @if($query['table'] == 'ratio')
+                                @if(count($query_rule['search']) > 0)
                                     <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $case)
+                                        @foreach($query_rule['search'] as $rule)
                                             <li class="list-group-item">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $judgement_summary = App\Models\JudgementSummary::where('suit_no', $case->suit_no)->first();
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$case->heading}}" class="card-img-top">
-                                                        </a>
+                                                        {{-- <a href="{{route('show.rule', $rule->id)}}">
+                                                            <img src="{{asset('assets/images/gavel.png')}}" alt="{{$rule ? $rule->title : ''}}" class="card-img-top w-4 h-8">
+                                                        </a> --}}
+                                                        <i class="fe fe-file"></i>
                                                     </div>
                                                     <div class="col">
                                                         <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
+                                                            <a href="{{route('show.rule', $rule->id)}}">{{$rule ? $rule->title : ''}}</a>
                                                         </h4>
-                                                        <p class="card-text mb-1">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">{{$case->heading}}</a>
-                                                        </p>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($case->body, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
                                                     </div>
                                                 </div>
                                             </li>
                                         @endforeach
                                     </ul>
-                                    @elseif($query['table'] == 'judgement_summary')
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $judgement_summary)
-                                            <li class="list-group-item">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary->title}}" class="card-img-top">
-                                                        </a>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
-                                                        </h4>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($judgement_summary->summary_of_facts, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                    @elseif($query['table'] == 'judgement')
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $judgement)
-                                            <li class="list-group-item">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $judgement_summary = App\Models\JudgementSummary::where('suit_no', $judgement ? $judgement->suit_no : '')->first();
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary ? $judgement_summary->title : ''}}" class="card-img-top">
-                                                        </a>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
-                                                        </h4>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($judgement->judgement, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                    @else
-                                    <div class="text-center">
-                                        <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
-                                    </div>
-                                @endif
+                                @else
+                                <div class="text-center">
+                                    <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
+                                </div>
+                            @endif
                             </div>
-                            <div class="row g-0">
+                            <div class="row align-items-center">
+                                <div class="my-4 justify-content-center text-center">
+                                    {{$query_rule['search']->links()}}
+                                </div>
+                            </div>
+                            {{-- <div class="row g-0">
                                 <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                                     <li class="page-item">
                                         <a class="page-link" href="#">
@@ -455,13 +439,16 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                     <div class="tab-pane fade" id="form" role="tabpanel" aria-labelledby="form-tab">
                         <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsLi">
                             <div class="card-header">
-                                <h4 class="card-header-title">Year Index</h4>
+                                <h4 class="card-header-title">Forms and Precedents</h4>
+                                <span>
+                                    {{$query_form['search']->links()}}
+                                </span>
                             </div>
                             <div class="card-header">
                                 <div class="row align-items-center">
@@ -476,122 +463,48 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        @if($query['table'] == 'ratio')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                            @elseif($query['table'] == 'judgement_summary')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                            @elseif($query['table'] == 'judgement')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                        @endif
+                                        <h4>{{number_format($query_form_count)}} results found</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                @if($query['table'] == 'ratio')
+                                @if(count($query_form['search']) > 0)
                                     <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $case)
+                                        @foreach($query_form['search'] as $form)
                                             <li class="list-group-item">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $judgement_summary = App\Models\JudgementSummary::where('suit_no', $case->suit_no)->first();
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$case->heading}}" class="card-img-top">
+                                                        <a href="{{route('show.form', $form->id)}}">
+                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$form ? $form->title : ''}}" class="card-img-top">
                                                         </a>
                                                     </div>
                                                     <div class="col">
-                                                        <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
-                                                        </h4>
-                                                        <p class="card-text mb-1">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">{{$case->heading}}</a>
-                                                        </p>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($case->body, 100) !!}
+                                                        <p class="card-text mb-4 item-name">
+                                                            {!! Str::words($form ? $form->content : '', 50) !!}
                                                         </p>
                                                         <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
+                                                            {{$form ? $form->category : ''}}
                                                         </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                    @elseif($query['table'] == 'judgement_summary')
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $judgement_summary)
-                                            <li class="list-group-item">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary->title}}" class="card-img-top">
-                                                        </a>
-                                                    </div>
-                                                    <div class="col">
                                                         <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
+                                                            <a href="{{route('show.form', $form->id)}}" class="text-primary">{{$form ? $form->title : ''}}</a>
                                                         </h4>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($judgement_summary->summary_of_facts, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                    @elseif($query['table'] == 'judgement')
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $judgement)
-                                            <li class="list-group-item">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $judgement_summary = App\Models\JudgementSummary::where('suit_no', $judgement ? $judgement->suit_no : '')->first();
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary ? $judgement_summary->title : ''}}" class="card-img-top">
-                                                        </a>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
-                                                        </h4>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($judgement->judgement, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
                                                     </div>
                                                 </div>
                                             </li>
                                         @endforeach
                                     </ul>
                                     @else
-                                    <div class="text-center">
+                                    <div class="text-center my-4">
                                         <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                     </div>
                                 @endif
                             </div>
-                            <div class="row g-0">
+                            <div class="row align-items-center">
+                                <div class="my-4 justify-content-center text-center">
+                                    {{$query_form['search']->links()}}
+                                </div>
+                            </div>
+                            {{-- <div class="row g-0">
                                 <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                                     <li class="page-item">
                                         <a class="page-link" href="#">
@@ -607,13 +520,16 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                     <div class="tab-pane fade" id="article" role="tabpanel" aria-labelledby="article-tab">
                         <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsLi">
                             <div class="card-header">
-                                <h4 class="card-header-title">Year Index</h4>
+                                <h4 class="card-header-title">Articles</h4>
+                                <span>
+                                    {{$query_article['search']->links()}}
+                                </span>
                             </div>
                             <div class="card-header">
                                 <div class="row align-items-center">
@@ -628,122 +544,45 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        @if($query['table'] == 'ratio')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                            @elseif($query['table'] == 'judgement_summary')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                            @elseif($query['table'] == 'judgement')
-                                            <h4>{{number_format($query['search']->count())}} results found</h4>
-                                        @endif
+                                        <h4>{{number_format($query_article_count)}} results found</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                @if($query['table'] == 'ratio')
+                                @if(count($query_article['search']) > 0)
                                     <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $case)
+                                        @foreach($query_article['search'] as $article)
                                             <li class="list-group-item">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $judgement_summary = App\Models\JudgementSummary::where('suit_no', $case->suit_no)->first();
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$case->heading}}" class="card-img-top">
+                                                        <a href="{{route('show.article', $article->id)}}">
+                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$article ? $article->title : ''}}" class="card-img-top">
                                                         </a>
                                                     </div>
                                                     <div class="col">
+                                                        <p class="card-text mb-4 item-name">
+                                                            {!! Str::words($article ? $article->content : '', 50) !!}
+                                                        </p>
                                                         <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
+                                                            <a href="{{route('show.article', $article->id)}}" class="text-primary">{{$article ? $article->title : ''}}</a>
                                                         </h4>
-                                                        <p class="card-text mb-1">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">{{$case->heading}}</a>
-                                                        </p>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($case->body, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                    @elseif($query['table'] == 'judgement_summary')
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $judgement_summary)
-                                            <li class="list-group-item">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary->title}}" class="card-img-top">
-                                                        </a>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
-                                                        </h4>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($judgement_summary->summary_of_facts, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                    @elseif($query['table'] == 'judgement')
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
-                                        @foreach($query['search'] as $judgement)
-                                            <li class="list-group-item">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto hide-mobile">
-                                                        @php
-                                                            $judgement_summary = App\Models\JudgementSummary::where('suit_no', $judgement ? $judgement->suit_no : '')->first();
-                                                            $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
-                                                        @endphp
-                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
-                                                            <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary ? $judgement_summary->title : ''}}" class="card-img-top">
-                                                        </a>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-color">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
-                                                        </h4>
-                                                        <p class="card-text mb-4">
-                                                            {!! Str::words($judgement->judgement, 100) !!}
-                                                        </p>
-                                                        <p class="card-text mb-1 text-color">
-                                                            {{$court ? $court->court : ''}}
-                                                        </p>
-                                                        <p class="card-text small mb-1 text-muted">
-                                                            {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
-                                                        </p>
                                                     </div>
                                                 </div>
                                             </li>
                                         @endforeach
                                     </ul>
                                     @else
-                                    <div class="text-center">
+                                    <div class="text-center my-4">
                                         <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                     </div>
                                 @endif
                             </div>
-                            <div class="row g-0">
+                            <div class="row align-items-center">
+                                <div class="my-4 justify-content-center text-center">
+                                    {{$query_article['search']->links()}}
+                                </div>
+                            </div>
+                            {{-- <div class="row g-0">
                                 <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                                     <li class="page-item">
                                         <a class="page-link" href="#">
@@ -759,9 +598,9 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
-                    </div> --}}
+                    </div>
                 </div>
             </div>
         </div>

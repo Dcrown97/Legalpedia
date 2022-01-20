@@ -32,10 +32,20 @@
                                 <option value="{{$rule_category->name}}" {{ $rule_category->name == $selected_name['name'] ? 'selected' : '' }}>{{$rule_category->name}}</option>
                             @endforeach
                         </select>
-                        <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="btn ml-3 button_load text-white btn-sm btn-primary p-2">
+                        <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="btn ml-3 mr-3 button_load text-white btn-sm btn-primary p-2">
                             <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
                         </button>
+                        <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-mobile">
+                            <i class="mdi mdi-close"></i> Clear
+                        </a>
                     </form>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                            <i class="mdi mdi-close"></i> Clear
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -109,7 +119,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$order_count}} records</h4>
+                                        <h4>{{number_format($order_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -192,7 +202,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$part_count}} records</h4>
+                                        <h4>{{number_format($part_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -275,7 +285,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$schedule_count}} records</h4>
+                                        <h4>{{number_format($schedule_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -358,7 +368,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$form_count}} records</h4>
+                                        <h4>{{number_format($form_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -441,7 +451,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$probate_count}} records</h4>
+                                        <h4>{{number_format($probate_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -524,7 +534,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$civil_count}} records</h4>
+                                        <h4>{{number_format($civil_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
@@ -607,7 +617,7 @@
                                         </form>
                                     </div>
                                     <div class="col-auto me-n3">
-                                        <h4>{{$appendix_count}} records</h4>
+                                        <h4>{{number_format($appendix_count)}} records</h4>
                                     </div>
                                 </div>
                             </div>
