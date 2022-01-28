@@ -185,22 +185,28 @@
                                         <h1 class="mb-3">Subject Matter Index, Principles, Corams, Counsels and Party names</h1>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label mb-1">
-                                        Subject Matter Index
-                                    </label>
-                                    <select name="subject_matter_index" class="form-select" data-choices='{"searchEnabled": true}'>
-                                        <option value="">Select Subject Matter Index</option>
-                                        @foreach($subject_matters as $subject_matter)
-                                            <option value="{{$subject_matter->id}}">{{$subject_matter->subject_matter_index}}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="add_more">
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            1. Subject Matter Index
+                                        </label>
+                                        <select name="subject[0][]" class="form-select" data-choices='{"searchEnabled": true}'>
+                                            <option value="">Select Subject Matter Index</option>
+                                            @foreach($subject_matters as $subject_matter)
+                                                <option value="{{$subject_matter->id}}">{{$subject_matter->subject_matter_index}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Principles
+                                        </label>
+                                        <textarea name="subject[0][]" rows="5" class="form-control" placeholder="Enter Principle"></textarea>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label mb-1">
-                                        Principles
-                                    </label>
-                                    <textarea name="principle" rows="5" class="form-control" placeholder="Enter Principle"></textarea>
+                                <div id="add_sub"></div>
+                                <div class="justify-content-end">
+                                    <a type="button" id="more_subs" class="text-color" onclick="addSubs()"><i class="mdi mdi-plus"></i> Add Subject matter and principle</a>
                                 </div>
                                 <hr class="my-5">
                                 <div class="add_more">
@@ -321,6 +327,24 @@
         </div>
     </div>
     <script>
+        function initMCEall(){
+            tinymce.init({
+                mode: "textareas",
+                plugins: 'autolink lists link image'
+            });
+        }
+
+        var subject_no = 1;
+        function addSubs() {
+            subject_no++;
+            var objTo = document.getElementById('add_sub')
+            var divcreate = document.createElement("div");
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + subject_no +
+            '.  Subject Matter Index</label><select name="subject['+ subject_no +'][]" class="form-select" data-choices="{"searchEnabled": true}"><option value="">Select Subject Matter Index</option>@foreach($subject_matters as $subject_matter)<option value="{{$subject_matter->id}}">{{$subject_matter->subject_matter_index}}</option>@endforeach</select></div><div class="form-group"><label class="form-label mb-1">Principles</label><textarea name="subject['+ subject_no +'][]" rows="5" class="form-control" placeholder="Enter Principle"></textarea></div>';
+            objTo.appendChild(divcreate);
+            initMCEall();
+        }
+
         var coram_no = 1;
         function addFields() {
             coram_no++;
@@ -329,6 +353,7 @@
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + coram_no +
             '. Coram</label><input type="text" name="coram['+ coram_no +'][]" class="form-control"></div>';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         var ratio_no = 1;
@@ -339,6 +364,7 @@
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + ratio_no +
             '. Ratio Header</label><input type="text" name="ratio['+ ratio_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Ratio Body</label> <textarea class="form-control" name="ratio['+ ratio_no +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         function genCode(length) {

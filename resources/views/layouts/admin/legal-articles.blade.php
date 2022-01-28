@@ -72,6 +72,7 @@
         });
         tinymce.init({
             selector: '.description',
+            plugins: 'autolink lists link image'
         });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

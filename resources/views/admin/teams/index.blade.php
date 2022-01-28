@@ -118,19 +118,24 @@
                                                         </div>
                                                     </div>
                                                     <div class="col-auto">
+                                                        @php
+                                                            $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
+                                                        @endphp
                                                         <div class="avatar-group">
-                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                            </a>
-                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                            </a>
-                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                            </a>
-                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                            </a>
+                                                            @if($members)
+                                                                @foreach($members as $member)
+                                                                    @php
+                                                                        $user = App\Models\User::where('id', $member->user_id)->first();
+                                                                    @endphp
+                                                                    <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}}">
+                                                                        @if($user->photo)
+                                                                            <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
+                                                                            @else
+                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
+                                                                        @endif
+                                                                    </a>
+                                                                @endforeach
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -220,19 +225,24 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-auto">
+                                                                        @php
+                                                                            $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
+                                                                        @endphp
                                                                         <div class="avatar-group">
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                                            </a>
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                                            </a>
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                                            </a>
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
-                                                                            </a>
+                                                                            @if($members)
+                                                                                @foreach($members as $member)
+                                                                                    @php
+                                                                                        $user = App\Models\User::where('id', $member->user_id)->first();
+                                                                                    @endphp
+                                                                                    <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}}">
+                                                                                        @if($user->photo)
+                                                                                            <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
+                                                                                            @else
+                                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
+                                                                                        @endif
+                                                                                    </a>
+                                                                                @endforeach
+                                                                            @endif
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -274,19 +284,24 @@
                                                                         </p>
                                                                     </div>
                                                                     <div class="col-auto">
-                                                                        <div class="avatar-group d-none d-md-inline-flex">
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Ab Hadley">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
-                                                                            </a>
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Adolfo Hess">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
-                                                                            </a>
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Daniela Dewitt">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
-                                                                            </a>
-                                                                            <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="Miyah Myles">
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="...">
-                                                                            </a>
+                                                                        @php
+                                                                            $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
+                                                                        @endphp
+                                                                        <div class="avatar-group">
+                                                                            @if($members)
+                                                                                @foreach($members as $member)
+                                                                                    @php
+                                                                                        $user = App\Models\User::where('id', $member->user_id)->first();
+                                                                                    @endphp
+                                                                                    <a href="profile-posts.html" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}}">
+                                                                                        @if($user->photo)
+                                                                                            <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
+                                                                                            @else
+                                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" alt="..." class="avatar-img rounded-circle">
+                                                                                        @endif
+                                                                                    </a>
+                                                                                @endforeach
+                                                                            @endif
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -478,7 +493,6 @@
         });
 
         function showEditTeamModal(name, team_id, description, photo, user_id, team_owner){
-            // var myContent = tinymce.get("textarea-1").getContent({ format: "text" });
             document.getElementById("name").value = name;
             document.getElementById("team_id").value = team_id;
             document.getElementById("descr").value = description;

@@ -28,6 +28,28 @@
                     </div>
                     @include('elements.notifications')
                 </div>
+                <div class="row align-items-end justify-content-end mt-4 p-3">
+                    <form action="{{route('admin.articles')}}" method="GET" class="me-3 d-flex">
+                        <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                            @foreach($categories as $category)
+                                <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" name="fetch_category" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                        </button>
+                        <a href="{{url('admin/legal-articles')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <a href="{{url('admin/legal-articles')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -64,12 +86,12 @@
                         <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                             <div class="card-header">
                                 <h4 class="card-header-title">Legalpedia Articles</h4>
-                                <h4>{{$article_count}} records</h4>
+                                <h4>{{number_format($article_count)}} records</h4>
                             </div>
                             <div class="card-header">
                                 <form>
                                 <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                    <input class="form-control list-search" type="search" placeholder="Search">
+                                    <input class="form-control list-search" type="search" placeholder="Search titles">
                                     <div class="input-group-text">
                                     <span class="fe fe-search"></span>
                                     </div>
@@ -145,12 +167,12 @@
                         <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsLists">
                             <div class="card-header">
                                 <h4 class="card-header-title">Public Articles</h4>
-                                <h4>{{$public_article_count}} records</h4>
+                                <h4>{{number_format($public_article_count)}} records</h4>
                             </div>
                             <div class="card-header">
                                 <form>
                                 <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                    <input class="form-control list-search" type="search" placeholder="Search">
+                                    <input class="form-control list-search" type="search" placeholder="Search titles">
                                     <div class="input-group-text">
                                     <span class="fe fe-search"></span>
                                     </div>
@@ -340,24 +362,28 @@
                                         <label class="form-label mb-1">
                                             Category
                                         </label>
-                                        <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                        <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
                                             <option value="">Select Category</option>
                                             @foreach($categories as $category)
                                                 <option value="{{$category->category}}">{{$category->category}}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label class="form-label mb-1">
                                             Area of Law
                                         </label>
                                         <textarea class="description form-control" name="area_of_law" rows="5" placeholder="Enter area(s) of Law"></textarea>
-                                    </div>
+                                    </div> --}}
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Authur
+                                            Author
                                         </label>
-                                        <input type="text" name="authur" class="form-control">
+                                        @if(Auth::user()->role->name == 'Admin')
+                                            <input type="text" name="authur" class="form-control" value="Legalpedia" readonly>
+                                            @else
+                                            <input type="text" name="authur" class="form-control" value="{{Auth::user()->name}}" readonly>
+                                        @endif
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">

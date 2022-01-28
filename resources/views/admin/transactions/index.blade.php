@@ -209,11 +209,6 @@
                     <div class="col-auto">
                         <h4>{{number_format($transaction_count)}} transactions</h4>
                     </div>
-                    <div class="col-auto">
-                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="mdi mdi-download"></i> Export
-                        </a>
-                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm table-nowrap card-table">

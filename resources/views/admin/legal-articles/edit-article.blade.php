@@ -55,24 +55,28 @@
                                 <label class="form-label mb-1">
                                     Category
                                 </label>
-                                <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
                                     <option value="{{$article->category}}">{{$article->category}}</option>
                                     @foreach($categories as $category)
                                         <option value="{{$category->category}}">{{$category->category}}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label class="form-label mb-1">
                                     Area of Law
                                 </label>
                                 <textarea class="description form-control" name="area_of_law" rows="5" placeholder="Enter area(s) of Law">{{$article->area_of_law}}</textarea>
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Authur
+                                    Author
                                 </label>
-                                <input type="text" name="authur" class="form-control" value="{{$article->authur}}">
+                                @if(Auth::user()->role->name == 'Admin')
+                                    <input type="text" name="authur" class="form-control" value="Legalpedia" readonly>
+                                    @else
+                                    <input type="text" name="authur" class="form-control" value="{{$article->authur}}" readonly>
+                                @endif
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
@@ -103,7 +107,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Make article Public
+                                    Make article Public or private
                                 </label>
                                 @if(Auth::user()->role->name == 'Admin')
                                     <input type="hidden" name="article_type" value="legalpedia">

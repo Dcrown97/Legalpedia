@@ -69,30 +69,30 @@
                                     <label class="form-label mb-1">
                                         Description
                                     </label>
-                                    <textarea name="description" rows="5" class="form-control" placeholder="Enter description">{{$fed->description}}</textarea>
+                                    <textarea name="description" rows="5" class="form-control custom-textarea" placeholder="Enter description">{{$fed->description}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Category
                                     </label>
-                                    <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                    <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
                                         <option value="{{$fed->category}}" selected>{{$fed->category}}</option>
                                         @foreach($categories as $category)
                                             <option value="{{$category->category}}">{{$category->category}}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Area of Law
                                     </label>
-                                    <textarea name="area_of_law" rows="5" class="form-control" placeholder="Enter area(s) of Law">{{$fed->area_of_law}}</textarea>
-                                </div>
+                                    <textarea name="area_of_law" rows="5" class="form-control custom-textarea" placeholder="Enter area(s) of Law">{{$fed->area_of_law}}</textarea>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Subsidiary Legislation
                                     </label>
-                                    <textarea name="subsidiary_legislation" rows="5" class="form-control" placeholder="">{{$fed->subsidiary_legislation}}</textarea>
+                                    <textarea name="subsidiary_legislation" rows="5" class="form-control custom-textarea" placeholder="">{{$fed->subsidiary_legislation}}</textarea>
                                 </div>
                                 <hr class="my-5">
                                 <div class="nav row align-items-center">
@@ -119,7 +119,7 @@
                                     </label>
                                     <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->first(); ?>
                                     <input type="hidden" name="law_of_federation_id" value="{{$fed->id}}">
-                                    <input type="hidden" name="law_of_fed_part_id" value="{{$fed_part->id}}">
+                                    <input type="hidden" name="law_of_fed_part_id" value="{{$fed_part ? $fed_part->id : ''}}">
                                     <input type="text" name="part_header" class="form-control" value="{{$fed_part ? $fed_part->part_header : ''}}">
                                 </div>
                                 <hr class="my-5">
@@ -158,7 +158,7 @@
                                                 <label class="form-label mb-1">
                                                     Section Body
                                                 </label>
-                                                <textarea name="section[{{$fed_section->id}}][]" rows="5" class="form-control">{{$fed_section->section_body}}</textarea>
+                                                <textarea name="section[{{$fed_section->id}}][]" rows="5" class="custom-textarea form-control">{{$fed_section->section_body}}</textarea>
                                             </div>
                                             <div class="form-roup mb-4">
                                                 <div class="justify-content-end">
@@ -209,7 +209,7 @@
                                                 <label class="form-label mb-1">
                                                     Schedule Body
                                                 </label>
-                                                <textarea name="sched[{{$fed_sched->id}}][]" class="form-control" rows="5">{{$fed_sched->sched_body}}</textarea>
+                                                <textarea name="sched[{{$fed_sched->id}}][]" class="custom-textarea form-control" rows="5">{{$fed_sched->sched_body}}</textarea>
                                             </div>
                                             <div class="form-roup mb-4">
                                                 <div class="justify-content-end">
@@ -247,6 +247,12 @@
         </div>
     </div>
     <script>
+        function initMCEall(){
+            tinymce.init({
+                mode: "textareas",
+                plugins: 'autolink lists link image'
+            });
+        }
         <?php $fed_section = App\Models\LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'DESC')->first(); ?>
         <?php $last_section = App\Models\LawOfFedSection::orderBy('id', 'DESC')->first(); ?>
         <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'DESC')->first(); ?>
@@ -258,8 +264,9 @@
             var objTo = document.getElementById('add_field')
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_no +
-            '. Section Header</label><input type="hidden" name="new_section['+ section_id +'][]" value="{{$fed->id}}"><input type="hidden" name="new_section['+ section_id +'][]" value="{{$fed_section ? $fed_section->law_of_fed_part_id : $fed_part->id}}"><input type="text" name="new_section['+ section_id +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="new_section['+ section_id +'][]" rows="5"></textarea></div><hr class="my-5">';
+            '. Section Header</label><input type="hidden" name="new_section['+ section_id +'][]" value="{{$fed->id}}"><input type="hidden" name="new_section['+ section_id +'][]" value="{{$fed_section ? $fed_section->law_of_fed_part_id : $fed_part->id}}"><input type="text" name="new_section['+ section_id +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control custom-textarea" name="new_section['+ section_id +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         <?php $fed_sched = App\Models\LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'DESC')->first(); ?>
@@ -272,8 +279,9 @@
             var objTo = document.getElementById('add_sched')
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + sched_no +
-            '. Schedule Header</label><input type="hidden" name="new_sched['+ sched_id +'][]" value="{{$fed->id}}"><input type="text" name="new_sched['+ sched_id +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Schedule Body</label> <textarea class="form-control" name="new_sched['+ sched_id +'][]" rows="5"></textarea></div><hr class="my-5">';
+            '. Schedule Header</label><input type="hidden" name="new_sched['+ sched_id +'][]" value="{{$fed->id}}"><input type="text" name="new_sched['+ sched_id +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Schedule Body</label> <textarea class="form-control custom-textarea" name="new_sched['+ sched_id +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         function deleteFunction() {

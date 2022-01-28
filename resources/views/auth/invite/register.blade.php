@@ -40,9 +40,18 @@
                         <input type="hidden" name="token" value="{{$invite->token}}">
                         <input type="hidden" name="send_request" value="1">
                         <input type="hidden" name="approve_request" value="1">
-                        <label for="name">Full Name <span class="text-color">*<span></label>
-                        <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" placeholder="Full Name" name="name" value="{{ old('name') }}" required autocomplete="full-name">
+                        <label for="name">First Name <span class="text-color">*<span></label>
+                        <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" placeholder="Full Name" name="name" value="{{ old('name') }}" required autocomplete="first-name">
                         @error('name')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="surname">Last Name <span class="text-color">*<span></label>
+                        <input id="surname" type="text" class="form-control @error('surname') is-invalid @enderror" placeholder="Last Name" name="surname" value="{{ old('surname') }}" required autocomplete="last-name">
+                        @error('surname')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
@@ -104,7 +113,7 @@
                     </div> --}}
                     <div class="form-group">
                         <label for="link">Referrer</label>
-                        <input id="referrer" type="text" class="form-control @error('referrer') is-invalid @enderror" placeholder="Referral Link" name="referrer">
+                        <input id="referrer" type="text" class="form-control @error('referrer') is-invalid @enderror" placeholder="Referrer" name="referrer">
                         @error('referrer')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>

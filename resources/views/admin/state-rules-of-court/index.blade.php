@@ -109,9 +109,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -192,9 +192,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -275,9 +275,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -358,9 +358,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -441,9 +441,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -524,9 +524,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -607,9 +607,9 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -709,7 +709,7 @@
                                                 <label class="form-label mb-1">
                                                     State
                                                 </label>
-                                                <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                     <option value="">Select state</option>
                                                     @foreach($states as $state)
                                                         <option value="{{Str::upper($state->name)}}">{{Str::upper($state->name)}}</option>
@@ -722,7 +722,7 @@
                                                 <label class="form-label mb-1">
                                                     Section
                                                 </label>
-                                                <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                     <option value="">Select section</option>
                                                     <option value="ORDERS">ORDERS</option>
                                                     <option value="PARTS">PARTS</option>
@@ -742,12 +742,12 @@
                                         <input type="hidden" name="type" value="State">
                                         <input type="text" name="title" class="form-control">
                                     </div>
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label class="form-label mb-1">
                                             Version No.
                                         </label>
                                         <input type="text" name="version_no" class="form-control">
-                                    </div>
+                                    </div> --}}
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Content

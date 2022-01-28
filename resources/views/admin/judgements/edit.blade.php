@@ -102,7 +102,7 @@
                                     @php
                                         $holden = App\Models\Holden::where('id', $judgement_summary ? $judgement_summary->holden_at_id : '')->first();
                                     @endphp
-                                    <input type="text" name="holden_at" class="form-control" placeholder="Holden at Abuja" value="{{$holden->holden_at}}">
+                                    <input type="text" name="holden_at" class="form-control" placeholder="Holden at Abuja" value="{{$holden ? $holden->holden_at : ''}}">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
@@ -112,7 +112,7 @@
                                         @php
                                             $party_a = App\Models\PartyAType::where('id', $judgement_summary ? $judgement_summary->party_a_type_id : '')->first();
                                         @endphp
-                                        <option value="{{$party_a ? $party->id : ''}}" selected>{{$party_a ? $party_a->party_a_type : 'Select Part A Type'}}</option>
+                                        <option value="{{$party_a ? $party_a->id : ''}}" selected>{{$party_a ? $party_a->party_a_type : 'Select Part A Type'}}</option>
                                         @foreach($party_a_types as $party_a_type)
                                             <option value="{{$party_a_type->id}}">{{$party_a_type->party_a_type}}</option>
                                         @endforeach
@@ -204,33 +204,55 @@
                                         <h1 class="mb-3">Subject Matter Index, Principles, Corams, Counsels and Party names</h1>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label mb-1">
-                                        Subject Matter Index
-                                    </label>
-                                    <select name="subject_matter_index" class="form-select" data-choices='{"searchEnabled": true}'>
-                                        @php
-                                            $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
-                                            $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->first();
-                                            $sbj = App\Models\SubjectMatterIndex::where('id', $principle ? $principle->subject_matter_index_id : '')->first();
-                                        @endphp
-                                        <option value="{{$sbj ? $sbj->id : ''}}" selected>{{$sbj ? $sbj->subject_matter_index : 'Select Subject Matter Index'}}</option>
-                                        @foreach($subject_matters as $subject_matter)
-                                            <option value="{{$subject_matter->id}}">{{$subject_matter->subject_matter_index}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label mb-1">
-                                        Principles
-                                    </label>
+                                @php
+                                    $judg_principles = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->get();
+                                    $principle_count = $judg_principles->count();
+                                @endphp
+                                @if($judg_principles)
                                     @php
-                                        $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
-                                        $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->first();
+                                        $principle_no = 1;
                                     @endphp
-                                    <input type="hidden" name="judg_principle_id" value="{{$judg_principle ? $judg_principle->id : ''}}">
-                                    <input type="hidden" name="principle_id" value="{{$principle ? $principle->id : ''}}">
-                                    <textarea name="principle" rows="5" class="form-control" placeholder="Enter Principle">{{$principle ? $principle->principle : ''}}</textarea>
+                                    @foreach($judg_principles as $judg_principle)
+                                        @php
+                                            $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->first();
+                                        @endphp
+                                        <div class="add_more">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    {{$principle_no}}. Subject Matter Index
+                                                    @php
+                                                        $principle_no++;
+                                                    @endphp
+                                                </label>
+                                                @php
+                                                    $subject = App\Models\SubjectMatterIndex::where('id', $principle ? $principle->subject_matter_index_id : '')->first();
+                                                @endphp
+                                                <select name="subject[{{$judg_principle->id}}][]" class="form-select" data-choices='{"searchEnabled": true}'>
+                                                    <option value="{{$principle ?  $principle->subject_matter_index_id : ''}}">{{$subject ? $subject->subject_matter_index : ''}}</option>
+                                                    @foreach($subject_matters as $subject_matter)
+                                                        <option value="{{$subject_matter->id}}">{{$subject_matter->subject_matter_index}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Principles
+                                                </label>
+                                                <textarea name="subject[{{$judg_principle->id}}][]" rows="5" class="form-control" placeholder="Enter Principle">{{$principle ? $principle->principle : ''}}</textarea>
+                                            </div>
+                                            <div class="form-roup mb-4">
+                                                <div class="justify-content-end">
+                                                    <input type="hidden" name="principle_id" value="{{$principle ? $principle->id : ''}}">
+                                                    <input type="hidden" name="judg_principle_id" value="{{$judg_principle ? $judg_principle->id : ''}}">
+                                                    <button type="submit" name="remove_principle" class="text-color custom-button"><i class="mdi mdi-close"></i> Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                                <div id="add_sub"></div>
+                                <div class="justify-content-end">
+                                    <a type="button" id="more_subs" class="text-color" onclick="addSubs()"><i class="mdi mdi-plus"></i> Add Subject matter and principle</a>
                                 </div>
                                 <hr class="my-5">
                                 @php
@@ -278,8 +300,8 @@
                                     @php
                                         $party_a_name = App\Models\JudgementPartyA::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                     @endphp
-                                    <input type="hidden" name="party_a_name_id" value="{{$party_a_name->id}}">
-                                    <textarea name="party_a_names" rows="5" class="form-control" placeholder="Enter names">{{$party_a_name->party_a_names}}</textarea>
+                                    <input type="hidden" name="party_a_name_id" value="{{$party_a_name ? $party_a_name->id : ''}}">
+                                    <textarea name="party_a_names" rows="5" class="form-control" placeholder="Enter names">{{$party_a_name ? $party_a_name->party_a_names : ''}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
@@ -288,18 +310,18 @@
                                     @php
                                         $party_b_name = App\Models\JudgementPartyB::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                     @endphp
-                                    <input type="hidden" name="party_b_name_id" value="{{$party_b_name->id}}">
-                                    <textarea name="party_b_names" rows="5" class="form-control" placeholder="Enter names">{{$party_b_name->party_b_names}}</textarea>
+                                    <input type="hidden" name="party_b_name_id" value="{{$party_b_name ? $party_b_name->id : ''}}">
+                                    <textarea name="party_b_names" rows="5" class="form-control" placeholder="Enter names">{{$party_b_name ? $party_b_name->party_b_names : ''}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        Counsels
+                                        Councel
                                     </label>
                                     @php
                                         $counsel = App\Models\JudgementCounsel::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                     @endphp
-                                    <input type="hidden" name="counsel_id" value="{{$counsel->id}}">
-                                    <textarea name="counsels" rows="5" class="form-control" placeholder="Enter Counsels">{{$counsel->counsels}}</textarea>
+                                    <input type="hidden" name="counsel_id" value="{{$counsel ? $counsel->id : ''}}">
+                                    <textarea name="counsels" rows="5" class="form-control" placeholder="Enter Councel">{{$counsel ? $counsel->counsels : ''}}</textarea>
                                 </div>
                                 <hr class="my-5">
                                 <div class="nav row align-items-center">
@@ -411,6 +433,27 @@
         </div>
     </div>
     <script>
+        function initMCEall(){
+            tinymce.init({
+                mode: "textareas",
+                plugins: 'autolink lists link image'
+            });
+        }
+        <?php $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first(); ?>
+        <?php $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->orderBy('id', 'DESC')->first(); ?>
+        <?php $last_principle = App\Models\Principle::orderBy('id', 'DESC')->first(); ?>
+        var subject_id = {{$principle ? $principle->id : $last_principle}};
+        var subject_no = {{$principle_count}};
+        function addSubs() {
+            subject_no++;
+            var objTo = document.getElementById('add_sub')
+            var divcreate = document.createElement("div");
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + subject_no +
+            '.  Subject Matter Index</label><select name="new_subject['+ subject_id +'][]" class="form-select" data-choices="{"searchEnabled": true}"><option value="">Select Subject Matter Index</option>@foreach($subject_matters as $subject_matter)<option value="{{$subject_matter->id}}">{{$subject_matter->subject_matter_index}}</option>@endforeach</select></div><div class="form-group"><label class="form-label mb-1">Principles</label><textarea name="new_subject['+ subject_id +'][]" rows="5" class="form-control" placeholder="Enter Principle"></textarea></div>';
+            objTo.appendChild(divcreate);
+            initMCEall();
+        }
+
         <?php $coram = App\Models\JudgementCoram::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->first(); ?>
         <?php $last_coram = App\Models\JudgementCoram::orderBy('id', 'DESC')->first(); ?>
         var coram_no = {{$coram_count}};
@@ -422,6 +465,7 @@
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + coram_no +
             '. Coram</label><input type="text" name="new_coram['+ coram_id +'][]" class="form-control"></div>';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         <?php $ratio = App\Models\SummaryRatio::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->first(); ?>
@@ -435,6 +479,7 @@
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + ratio_no +
             '. Ratio Header</label><input type="text" name="new_ratio['+ ratio_id +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Ratio Body</label> <textarea class="form-control" name="new_ratio['+ ratio_id +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         function genCode(length) {

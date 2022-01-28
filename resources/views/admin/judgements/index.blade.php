@@ -74,6 +74,7 @@
                                 <div class="row align-items-end justify-content-end">
                                     <form action="{{route('admin.judgement')}}" method="GET" class="me-3 d-flex">
                                         <select name="id" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                            <option value="">All Courts</option>
                                             @foreach($courts as $court)
                                                 <option value="{{$court->id}}" {{ $court->id == $selected_court['court_id'] ? 'selected' : '' }}>{{$court->court}}</option>
                                             @endforeach
@@ -81,11 +82,12 @@
                                         <span class="ml-4"></span>
                                         <?php $years = range(1960, strftime("%Y", time())); ?>
                                         <select name="year" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                            <option value="">All Years</option>
                                             @foreach($years as $year)
                                                 <option value="{{$year}}" {{ $year == $selected_year['judgement_date'] ? 'selected' : '' }}>{{$year}}</option>
                                             @endforeach
                                         </select>
-                                        <button type="submit" name="fetch_year" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
+                                        <button type="submit" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
                                             <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
                                         </button>
                                         <a href="{{url('admin/judgements')}}" onclick="this.classList.toggle('button--loading')" class="ml-2 button_load btn button_load text-white btn-sm btn-primary p-2">
@@ -99,7 +101,7 @@
                                     <div class="col">
                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
@@ -108,6 +110,9 @@
                                     </div>
                                     <div class="col-auto me-n3">
                                         <h4>{{number_format($judgement_count)}} records</h4>
+                                    </div>
+                                    <div class="col-auto">
+                                        {{$judgement_summaries->links()}}
                                     </div>
                                 </div>
                             </div>
@@ -127,12 +132,8 @@
                                                             <a href="{{route('show.judgement', $judgement_summary->id)}}">{{$judgement_summary->title}}</a>
                                                         </h4>
                                                         <p class="card-text text-color small mb-1">
-                                                            <?php $court = App\Models\Court::where('id', $judgement_summary->court_id)->first();?>
-                                                            @if($court)
-                                                                {{$court->court}}
-                                                                @else
-                                                                In the Court of Appeal
-                                                            @endif
+                                                            <?php $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();?>
+                                                            {{$court ? $court->court : ''}}
                                                         </p>
                                                         <p class="card-text small text-muted">
                                                             {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->toFormattedDateString()}}
@@ -169,7 +170,13 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="row g-0">
+                            <div class="row align-items-center">
+                                <div class="my-4 justify-content-center text-center">
+                                    {{-- {{$judgement_summaries->appends(request()->all())->links()}} --}}
+                                    {{$judgement_summaries->links()}}
+                                </div>
+                            </div>
+                            {{-- <div class="row g-0">
                                 <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                                     <li class="page-item">
                                         <a class="page-link" href="#">
@@ -185,7 +192,7 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -206,6 +213,7 @@
                                         @endphp
                                         @if($all_courts)
                                             <select name="id" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                                <option value="">All Courts</option>
                                                 @foreach($all_courts as $court)
                                                     @php
                                                         $main_court = App\Models\Court::where('court', $court)->first();
@@ -217,11 +225,12 @@
                                         <span class="ml-4"></span>
                                         <?php $year_range = range($years->judg_start_year, $years->judg_end_year); ?>
                                         <select name="year" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                            <option value="">All Years</option>
                                             @foreach($year_range as $year)
                                                 <option value="{{$year}}" {{ $year == $selected_year['judgement_date'] ? 'selected' : '' }}>{{$year}}</option>
                                             @endforeach
                                         </select>
-                                        <button type="submit" name="fetch_year" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
+                                        <button type="submit" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
                                             <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
                                         </button>
                                         <a href="{{url('admin/judgements')}}" onclick="this.classList.toggle('button--loading')" class="ml-2 button_load btn button_load text-white btn-sm btn-primary p-2">
@@ -233,17 +242,20 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <form>
+                                         <form>
                                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                                <input class="form-control list-search" type="search" placeholder="Search">
+                                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                                 <span class="input-group-text">
                                                     <i class="fe fe-search"></i>
                                                 </span>
                                             </div>
                                         </form>
                                     </div>
-                                    <div class="col-auto me-n3">
+                                    {{-- <div class="col-auto me-n3">
                                         <h4>{{number_format($judgement_count)}} records</h4>
+                                    </div> --}}
+                                    <div class="col-auto">
+                                        {{$judgement_summaries->links()}}
                                     </div>
                                 </div>
                             </div>
@@ -305,7 +317,12 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="row g-0">
+                            <div class="row align-items-center">
+                                <div class="my-4 justify-content-center text-center">
+                                    {{$judgement_summaries->links()}}
+                                </div>
+                            </div>
+                            {{-- <div class="row g-0">
                                 <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                                     <li class="page-item">
                                         <a class="page-link" href="#">
@@ -321,7 +338,7 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

@@ -11,6 +11,7 @@ use App\Models\Coram;
 use App\Models\Court;
 use App\Models\Maxim;
 use App\Models\State;
+use App\Models\Holden;
 use App\Models\Article;
 use App\Models\Comment;
 use App\Models\License;
@@ -39,7 +40,6 @@ use App\Models\LawOfFedSched;
 use App\Models\JudgementCoram;
 use App\Models\RecentActivity;
 use App\Models\FormsPrecedence;
-use App\Models\Holden;
 use App\Models\JudgementPartyA;
 use App\Models\JudgementPartyB;
 use App\Models\LawOfFederation;
@@ -53,6 +53,7 @@ use App\Notifications\TeamRequest;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\MemberRemoval;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
 use Illuminate\Support\Facades\session;
@@ -63,10 +64,11 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware(['auth', 'subscribedUser', 'verified']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('auth');
+        // $this->middleware(['auth', 'subscribedUser', 'verified']);
+    }
 
     public function index() {
         $judgement_count = JudgementSummary::count();
@@ -78,12 +80,16 @@ class AdminController extends Controller
         $maxim_count = Maxim::count();
         $resource_count = Resource::count();
         $team_count = Team::count();
-        $pop_message = Message::where('type', 'in-app')->orderBy('created_at', 'DESC')->first();
+        $pop_message = Message::where('type', 'in-app')->orderBy('created_at', 'DESC')->orderBy('created_at', 'DESC')->first();
+        // $pop_message = MailMessage::where('message_id', $message ? $message->id : '')->orderBy('created_at', 'DESC')->first();
+        // dd($pop_message);
         $latest_judgements = JudgementSummary::orderBy('judgement_date', 'DESC')->limit(5)->get();
-        $notes = Annotation::where('user_id', Auth::user()->id)->limit(5)->get();
-        $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->limit(5)->get();
+        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type','!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->get();
+        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
         $all_count = $judgement_count + $fed_count + $rule_count + $form_count + $article_count + $dict_count + $maxim_count + $resource_count;
-        return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'recent_activities'));
+        return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'admin_notes', 'recent_activities', 'teams', 'pop_message'));
     }
 
 
@@ -95,21 +101,39 @@ class AdminController extends Controller
             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
-            if($request->has('fetch_year')) {
-                $judgement_summary = JudgementSummary::query();
-                if($request->filled('id') && $request->filled('year')) {
-                    $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
-                }
-                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                $judgement_count = $judgement_summaries->count();
+            $judgement_summary = JudgementSummary::query();
+            if($request->filled('id') && !$request->filled('year')) {
+                $judge = $judgement_summary->where('court_id', $request->id);
+                $judgement_count = $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $selected_year = [];
+                $selected_year['judgement_date'] = '';
+                $selected_court = [];
+                $selected_court['court_id'] = $request->id;
+                return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+            }
+            if(!$request->filled('id') && $request->filled('year')){
+                $judge = $judgement_summary->where('judgement_date','LIKE', '%'.$request->year.'%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $selected_year = [];
+                $selected_year['judgement_date'] = $request->year;
+                $selected_court = [];
+                $selected_court['court_id'] = '';
+                return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+            }
+            if($request->filled('id') && $request->filled('year')){
+                $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $selected_year = [];
                 $selected_year['judgement_date'] = $request->year;
                 $selected_court = [];
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-            $judgement_count = $judgement_summaries->count();
+            $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+            $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
             $selected_court = [];
             $selected_court['court_id'] = '';
             $selected_year = [];
@@ -122,23 +146,39 @@ class AdminController extends Controller
                 $years = Package::where('id', Auth::user()->package_id)->first();
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
-                if($request->has('fetch_year')) {
-                    $judgement_summary = JudgementSummary::query();
-                    if($request->filled('id') && $request->filled('year')) {
-                        $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
-                    }
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                    $judgement_count = $judgement_summaries->count();
+                $judgement_summary = JudgementSummary::query();
+                if($request->filled('id') && !$request->filled('year')) {
+                    $judge = $judgement_summary->where('court_id', $request->id);
+                    $judgement_count = $judge->count();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $selected_year = [];
+                    $selected_year['judgement_date'] = '';
+                    $selected_court = [];
+                    $selected_court['court_id'] = $request->id;
+                    return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+                }
+                if(!$request->filled('id') && $request->filled('year')){
+                    $judge = $judgement_summary->where('judgement_date','LIKE', '%'.$request->year.'%');
+                    $judgement_count =  $judge->count();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $selected_year = [];
+                    $selected_year['judgement_date'] = $request->year;
+                    $selected_court = [];
+                    $selected_court['court_id'] = '';
+                    return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+                }
+                if($request->filled('id') && $request->filled('year')){
+                    $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
+                    $judgement_count =  $judge->count();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = $request->year;
                     $selected_court = [];
                     $selected_court['court_id'] = $request->id;
                     return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                 }
-                // $start_year = Carbon::parse($years->judg_start_year)->toDateTimeString();
-                // $end_year = Carbon::parse($years->judg_end_year)->toDateTimeString();
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-                $judgement_count = $judgement_summaries->count();
+                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
                 $selected_year = [];
@@ -157,22 +197,21 @@ class AdminController extends Controller
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-            if($request->has('fetch_subject')) {
-                $judgement_summary = JudgementSummary::query();
-                if($request->filled('subject_matter_index')) {
-                    $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
-                    $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
-                    $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
-                    $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
-                }
-                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                $judgement_count = $judgement_summaries->count();
+            $judgement_summary = JudgementSummary::query();
+            if($request->filled('subject_matter_index')) {
+                $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
+                $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
+                $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
+                $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
+                $judgement_count = $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $selected_subject_matter = [];
                 $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                 return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
             }
-            $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-            $judgement_count = $judgement_summaries->count();
+            $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
+            $judgement_count = $count->count();
+            $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
             $selected_subject_matter = [];
             $selected_subject_matter['subject_matter_index'] = '';
             return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
@@ -183,22 +222,21 @@ class AdminController extends Controller
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
                 $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-                if($request->has('fetch_subject')) {
-                    $judgement_summary = JudgementSummary::query();
-                    if($request->filled('subject_matter_index')) {
-                        $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
-                        $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
-                        $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
-                        $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
-                    }
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                    $judgement_count = $judgement_summaries->count();
+                $judgement_summary = JudgementSummary::query();
+                if($request->filled('subject_matter_index')) {
+                    $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
+                    $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
+                    $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
+                    $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
+                    $judgement_count = $judge->count();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                     return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
                 }
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-                $judgement_count = $judgement_summaries->count();
+                $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
+                $judgement_count = $count->count();
+                $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
                 $selected_subject_matter = [];
                 $selected_subject_matter['subject_matter_index'] = '';
                 return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
@@ -213,8 +251,8 @@ class AdminController extends Controller
             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
-            $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-            $judgement_count = $judgement_summaries->count();
+            $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+            $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
             return view('admin.judgements.legal-citation', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
         } else {
             if(Auth::user()->subscribedUser()) {
@@ -223,8 +261,8 @@ class AdminController extends Controller
                 $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-                $judgement_count = $judgement_summaries->count();
+                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                 return view('admin.judgements.legal-citation', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
@@ -245,15 +283,15 @@ class AdminController extends Controller
     public function storeJudgement(Request $request) {
         $validated = $request->validate([
             'title'=>'required',
-            'summary_of_facts'=>'required',
+            // 'summary_of_facts'=>'required',
             'suit_no'=>'required',
-            'held'=>'required',
+            // 'held'=>'required',
             'lp_citation'=>'required',
-            'issues'=>'required',
-            'cases_cited'=>'required',
-            'statutes_cited'=>'required',
+            // 'issues'=>'required',
+            // 'cases_cited'=>'required',
+            // 'statutes_cited'=>'required',
             // 'judgement_date'=>'required',
-            'other_citations'=>'required',
+            // 'other_citations'=>'required',
             // 'holden_at_id'=>'required',
             'court_id'=>'required',
             // 'party_a_type_id'=>'required',
@@ -261,6 +299,10 @@ class AdminController extends Controller
             // 'category'=>'required',
             // 'area_of_law'=>'required',
         ]);
+
+        if(JudgementSummary::where('suit_no', 'LIKE', '%'.$request->suit_no. '%')->first()) {
+            return back()->withErrors('A judgement with this suit no already exists');
+        }
 
         $holden_input = [
             'holden_at' => $request->holden_at,
@@ -286,16 +328,22 @@ class AdminController extends Controller
             'area_of_law'=>$request->area_of_law
         ];
         $judg = JudgementSummary::create($judg_input);
-        $principle_input = [
-            'subject_matter_index_id' => $request->subject_matter_index,
-            'principle' => $request->principle,
-        ];
-        $principle = Principle::create($principle_input);
-        $judg_principle_input = [
-            'principle_id' => $principle->id,
-            'suit_no' => $judg->suit_no
-        ];
-        JudgementPrinciple::create($judg_principle_input);
+
+        if($request->subject) {
+            foreach($request->subject as $subject_input) {
+                $principle_input = [
+                    'subject_matter_index_id'=>$subject_input[0],
+                    'principle' => $subject_input[1]
+                ];
+                $principle = Principle::create($principle_input);
+
+                $judg_principle_input = [
+                    'principle_id' => $principle->id,
+                    'suit_no' => $judg->suit_no,
+                ];
+                JudgementPrinciple::create($judg_principle_input);
+            }
+        }
 
         if($request->coram) {
             foreach($request->coram as $coram_input) {
@@ -352,15 +400,15 @@ class AdminController extends Controller
         $judg = JudgementSummary::findOrFail($id);
         $validated = $request->validate([
             'title'=>'required',
-            'summary_of_facts'=>'required',
+            // 'summary_of_facts'=>'required',
             'suit_no'=>'required',
-            'held'=>'required',
+            // 'held'=>'required',
             'lp_citation'=>'required',
-            'issues'=>'required',
-            'cases_cited'=>'required',
-            'statutes_cited'=>'required',
+            // 'issues'=>'required',
+            // 'cases_cited'=>'required',
+            // 'statutes_cited'=>'required',
             // 'judgement_date'=>'required',
-            'other_citations'=>'required',
+            // 'other_citations'=>'required',
             // 'holden_at_id'=>'required',
             'court_id'=>'required',
             // 'party_a_type_id'=>'required',
@@ -393,19 +441,47 @@ class AdminController extends Controller
             'area_of_law'=>$request->area_of_law
         ];
         $judg->update($judg_input);
-        $principle_input = [
-            'subject_matter_index_id' => $request->subject_matter_index,
-            'principle' => $request->principle,
-        ];
-        DB::table('principles')->where('id', $request->principle_id)->update($principle_input);
 
-        $judg_principle_input = [
-            'principle_id' => $request->principle_id,
-            'suit_no' => $judg->suit_no
-        ];
-        DB::table('judgement_principles')->where('id', $request->judg_principle_id)->update($judg_principle_input);
+        if($request->subject) {
+            foreach($request->subject as $key => $subject_input) {
+                $principle_input = [
+                    'subject_matter_index_id'=>$subject_input[0],
+                    'principle' => $subject_input[1]
+                ];
+                DB::table('principles')->where('id', $key)->update($principle_input);
 
-        // dd($request->coram);
+                $judg_principle_input = [
+                    'principle_id' => $request->principle_id,
+                    'suit_no' => $judg->suit_no,
+                ];
+                DB::table('judgement_principles')->where('id', $request->judg_principle_id)->update($judg_principle_input);
+
+                if($request->has('remove_principle')) {
+                    $judg_principle = JudgementPrinciple::where('id', $request->judg_principle_id);
+                    $judg_principle->delete();
+                    $principle = Principle::where('id', $request->principle_id);
+                    $principle->delete();
+                    return back()->with('success', 'Principle removed');
+                }
+            }
+        }
+
+        if($request->new_subject) {
+            foreach($request->new_subject as $subject_input) {
+                $principle_input = [
+                    'subject_matter_index_id'=>$subject_input[0],
+                    'principle' => $subject_input[1]
+                ];
+                $principle = Principle::create($principle_input);
+
+                $judg_principle_input = [
+                    'principle_id' => $principle->id,
+                    'suit_no' => $judg->suit_no,
+                ];
+                JudgementPrinciple::create($judg_principle_input);
+            }
+        }
+
 
         if($request->coram) {
             foreach($request->coram as $key => $coram_input) {
@@ -506,7 +582,7 @@ class AdminController extends Controller
     public function editJudgement($id) {
         if(Auth::user()->role->name == 'Admin') {
             $judgement_summary = JudgementSummary::findOrFail($id);
-            $courts = Court::orderBy('court', 'ASC')->get();
+            $courts = Court::orderBy('rank', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law','ASC')->get();
             $categories = Category::orderBy('category','ASC')->get();
             $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
@@ -519,7 +595,7 @@ class AdminController extends Controller
 
     public function showJudgement($id) {
         $judgement_summary = JudgementSummary::findOrFail($id);
-        $courts = Court::orderBy('court', 'ASC')->distinct()->get();
+        $courts = Court::orderBy('rank', 'ASC')->get();
         DB::statement("SET SQL_MODE=''");
         $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
         $judgement_coram = JudgementCoram::select('suit_no')->first();
@@ -527,7 +603,8 @@ class AdminController extends Controller
         $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
         $area_of_laws = AreaOfLaw::orderBy('area_of_law','ASC')->get();
         // dd($corams);
-        return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws'));
+        $notes = Annotation::where('resource_type', 'judgement')->where('user_id', Auth::user()->id)->where('content_id', $judgement_summary->suit_no)->get();
+        return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes'));
     }
     public function deleteJudgement($id) {
         $judgement_summary = JudgementSummary::findOrFail($id);
@@ -536,7 +613,81 @@ class AdminController extends Controller
     }
 
 
-    //rule categories
+
+    /////////////////////courts///////////////////////////////////////
+    public function court() {
+        $courts = Court::orderBy('rank', 'ASC')->get();
+        $court_count = Court::count();
+        return view('admin.judgements.courts', compact('courts', 'court_count'));
+    }
+    public function storeCourt(Request $request) {
+        $validated = $request->validate([
+            'court' => 'required',
+            'rank' => 'required',
+        ]);
+        if(Court::where('rank', $request->rank)->first()) {
+            return back()->withErrors('Court rank already exists, choose another rank');
+        }
+        $input = $request->all();
+        Court::create($input);
+        return back()->with('success', 'Court added');
+    }
+    public function updateCourt(Request $request) {
+        $validated = $request->validate([
+            'court' => 'required',
+            'rank' => 'required',
+        ]);
+        if(Court::where('rank', $request->rank)->first()) {
+            return back()->withErrors('Court rank already exists, choose another rank');
+        }
+        $input = [
+          'court'=> $request->court,
+          'rank'=> $request->rank,
+        ];
+        DB::table('courts')->where('id', $request->court_id)->update($input);
+        return back()->with('success', 'Court updated');
+    }
+    public function deleteCourt($id) {
+        $court = Court::findOrFail($id);
+        $court->delete();
+        return back()->with('success', 'Court deleted');
+    }
+
+
+
+    /////////////////////subject matter index///////////////////////////////////////
+    public function getSbj() {
+        $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+        $subject_count = SubjectMatterIndex::count();
+        return view('admin.judgements.subject-matter-index', compact('subject_matter_indices', 'subject_count'));
+    }
+    public function storeSbj(Request $request) {
+        $validated = $request->validate([
+            'subject_matter_index' => 'required',
+        ]);
+        $input = $request->all();
+        SubjectMatterIndex::create($input);
+        return back()->with('success', 'Subject Matter Index added');
+    }
+    public function updateSbj(Request $request) {
+        $validated = $request->validate([
+            'subject_matter_index' => 'required',
+        ]);
+        $input = [
+          'subject_matter_index'=> $request->subject_matter_index,
+        ];
+        DB::table('subject_matter_indices')->where('id', $request->subject_id)->update($input);
+        return back()->with('success', 'Subject Matter Index updated');
+    }
+    public function deleteSbj($id) {
+        $subject_matter_index = SubjectMatterIndex::findOrFail($id);
+        $subject_matter_index->delete();
+        return back()->with('success', 'Subject Matter Index deleted');
+    }
+
+
+
+    /////////////////////////////rule categories//////////////////////////////////////////
     public function ruleCat() {
         $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
         $rule_category_count = RuleCategory::count();
@@ -627,25 +778,32 @@ class AdminController extends Controller
     public function showRule($id){
         if(Rule::where('section', 'ORDERS')->first()) {
             $order = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('order'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
+            return view('admin.rules-of-court.show', compact('order', 'notes'));
         }elseif(Rule::where('section', 'SCHEDULES')->first()) {
             $schedule = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('schedule'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
+            return view('admin.rules-of-court.show', compact('schedule', 'notes'));
         }elseif(Rule::where('section', 'APPENDIX')->first()) {
             $appendix = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('appendix'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
+            return view('admin.rules-of-court.show', compact('appendix', 'notes'));
         }elseif(Rule::where('section', 'FORMS')->first()) {
             $form = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('form'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
+            return view('admin.rules-of-court.show', compact('form', 'notes'));
         }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
             $civil_form = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('civil_form'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
+            return view('admin.rules-of-court.show', compact('civil_form', 'notes'));
         }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
             $probate_form = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('probate_form'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
+            return view('admin.rules-of-court.show', compact('probate_form', 'notes'));
         }elseif(Rule::where('section', 'PARTS')->first()) {
             $part = Rule::findOrFail($id);
-            return view('admin.rules-of-court.show', compact('part'));
+            $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
+            return view('admin.rules-of-court.show', compact('part', 'notes'));
         }
     }
     public function storeRule(Request $request) {
@@ -834,25 +992,32 @@ class AdminController extends Controller
     public function showStateRule($id){
         if(Rule::where('section', 'ORDERS')->first()) {
             $order = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('order'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
+            return view('admin.state-rules-of-court.show', compact('order', 'notes'));
         }elseif(Rule::where('section', 'SCHEDULES')->first()) {
             $schedule = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('schedule'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
+            return view('admin.state-rules-of-court.show', compact('schedule', 'notes'));
         }elseif(Rule::where('section', 'APPENDIX')->first()) {
             $appendix = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('appendix'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
+            return view('admin.state-rules-of-court.show', compact('appendix', 'notes'));
         }elseif(Rule::where('section', 'FORMS')->first()) {
             $form = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('form'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
+            return view('admin.state-rules-of-court.show', compact('form', 'notes'));
         }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
             $civil_form = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('civil_form'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
+            return view('admin.state-rules-of-court.show', compact('civil_form', 'notes'));
         }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
             $probate_form = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('probate_form'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
+            return view('admin.state-rules-of-court.show', compact('probate_form', 'notes'));
         }elseif(Rule::where('section', 'PARTS')->first()) {
             $part = Rule::findOrFail($id);
-            return view('admin.state-rules-of-court.show', compact('part'));
+            $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
+            return view('admin.state-rules-of-court.show', compact('part', 'notes'));
         }
     }
     public function storeStateRule(Request $request) {
@@ -1081,7 +1246,8 @@ class AdminController extends Controller
         $fed = LawOfFederation::findOrFail($id);
         $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
         $categories = Category::orderBy('category', 'asc')->get();
-        return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories'));
+        $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
+        return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes'));
     }
     public function updateFed(Request $request, $id) {
         $fed = LawOfFederation::findOrFail($id);
@@ -1251,22 +1417,31 @@ class AdminController extends Controller
     // Forms and Precedents
     public function forms(Request $request) {
         $categories = Category::orderBy('category', 'ASC')->get();
-        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+
         if($request->has('fetch_form')) {
-            $form = FormsPrecedence::query();
-            if($request->filled('category')) {
-                $forms = $form->where('category', $request->category)->get();
-                $form_count = $form->where('category', $request->category)->count();
-                $selected_category = [];
-                $selected_category['category'] = $request->category;
-            }
-            return view('admin.forms-and-precedents.index', compact('area_of_laws', 'forms', 'categories', 'form_count', 'selected_category'));
+            $forms = FormsPrecedence::where( function($query) use($request){
+                return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
+            })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+            $my_forms = FormsPrecedence::where( function($query) use($request){
+                return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
+            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+            $public_forms = FormsPrecedence::where( function($query) use($request){
+                return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
+            })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
+            $form_count = $forms->count();
+            $public_form_count = $public_forms->count();
+            $selected_category = [];
+            $selected_category['category'] = $request->category;
+            return view('admin.forms-and-precedents.index', compact('forms', 'public_forms', 'my_forms', 'form_count', 'public_form_count', 'categories', 'selected_category'));
         } else {
-            $forms = FormsPrecedence::orderBy('title', 'ASC')->get();
-            $form_count = FormsPrecedence::count();
+            $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+            $form_count = $forms->count();
+            $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->get();
+            $public_form_count = $public_forms->count();
+            $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
             $selected_category = [];
             $selected_category['category'] = '';
-            return view('admin.forms-and-precedents.index', compact('area_of_laws', 'forms', 'categories', 'form_count', 'selected_category'));
+            return view('admin.forms-and-precedents.index', compact('forms', 'public_forms', 'my_forms', 'form_count', 'public_form_count', 'categories', 'selected_category'));
         }
     }
     public function storeForm(Request $request) {
@@ -1276,7 +1451,7 @@ class AdminController extends Controller
             // 'author' => 'required',
             // 'area_of_law' => 'required',
             'content' => 'required',
-            'category' => 'required',
+            // 'category' => 'required',
         ]);
         $input = $request->all();
         FormsPrecedence::create($input);
@@ -1301,7 +1476,7 @@ class AdminController extends Controller
             // 'author' => 'required',
             // 'area_of_law' => 'required',
             'content' => 'required',
-            'category' => 'required',
+            // 'category' => 'required',
         ]);
         $input = $request->all();
         $form->update($input);
@@ -1315,14 +1490,36 @@ class AdminController extends Controller
 
 
     //Legal Articles
-    public function articles() {
-        $articles = Article::where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-        $my_articles = Article::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-        $public_articles = Article::where('display_type', 'public')->orderBy('title', 'ASC')->get();
-        $article_count = $articles->count();
-        $public_article_count = $public_articles->count();
+    public function articles(Request $request) {
         $categories = Category::orderBy('category', 'ASC')->get();
-        return view('admin.legal-articles.index', compact('articles', 'article_count', 'my_articles', 'public_articles', 'categories', 'public_article_count'));
+        if($request->has('fetch_category')) {
+            $articles = Article::where( function($query) use($request){
+                return $request->category ? $query->from('articles')->where('category', $request->category) : '';
+            })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+            $my_articles = Article::where( function($query) use($request){
+                return $request->category ? $query->from('articles')->where('category', $request->category) : '';
+            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+            $public_articles = Article::where( function($query) use($request){
+                return $request->category ? $query->from('articles')->where('category', $request->category) : '';
+            })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
+
+            $article_count = $articles->count();
+            $public_article_count = $public_articles->count();
+            $selected_category = [];
+            $selected_category['category'] = $request->category;
+
+            return view('admin.legal-articles.index', compact('articles', 'article_count', 'my_articles', 'public_articles', 'categories', 'public_article_count', 'selected_category'));
+        } else {
+            $articles = Article::where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+            $my_articles = Article::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+            $public_articles = Article::where('display_type', 'public')->orderBy('title', 'ASC')->get();
+            $categories = Category::orderBy('category', 'ASC')->get();
+            $article_count = $articles->count();
+            $public_article_count = $public_articles->count();
+            $selected_category = [];
+            $selected_category['category'] = $request->category;
+            return view('admin.legal-articles.index', compact('articles', 'article_count', 'my_articles', 'public_articles', 'categories', 'public_article_count', 'selected_category'));
+        }
     }
     public function storeArticle(Request $request) {
         $validated = $request->validate([
@@ -1352,7 +1549,13 @@ class AdminController extends Controller
             'area_of_law' => $request->area_of_law,
             'references' => $request->references,
         ];
-        Article::create($input);
+        $article = Article::create($input);
+        RecentActivity::create([
+            'user_id' => Auth::user()->id,
+            'type' => 'article',
+            'name' => 'You recently published an article',
+            'description' => $article->title
+        ]);
         return back()->with('success', 'Article added');
 
     }
@@ -1378,6 +1581,7 @@ class AdminController extends Controller
             // 'area_of_law' => 'required',
             'references' => 'required',
         ]);
+
         if($file = $request->file('photo')) {
             $file = $request->file('photo');
             $path = $file->store('media', 'public');
@@ -1410,6 +1614,8 @@ class AdminController extends Controller
             'link' => $request->link,
             'references' => $request->references,
         ];
+        $article->update($input);
+
         return back()->with('success', 'Article updated');
     }
     public function deleteArticle($id) {
@@ -1432,6 +1638,12 @@ class AdminController extends Controller
                 ];
                 Comment::create($input);
             }
+            RecentActivity::create([
+                'user_id' => Auth::user()->id,
+                'type' => 'shared article',
+                'name' => 'You recently shared an article',
+                'description' => $article->title
+            ]);
             return back()->with('success', 'Article shared');
         }
         return back()->withErrors('Please select a team to share to');
@@ -1440,17 +1652,29 @@ class AdminController extends Controller
 
     //Legal Dictionary
 
-    public function dictionary() {
-        $words = Dictionary::orderBy('title', 'ASC')->get();
-        $word_count = Dictionary::count();
+    public function dictionary(Request $request) {
         $categories = Category::orderBy('category', 'ASC')->get();
-        return view('admin.law-dictionary.index', compact('words', 'word_count', 'categories'));
+        if($request->has('fetch_category')) {
+            $words = Dictionary::where( function($query) use($request){
+                return $request->category ? $query->from('dictionaries')->where('category', $request->category) : '';
+            })->orderBy('title', 'ASC')->get();
+            $word_count = $words->count();
+            $selected_category = [];
+            $selected_category['category'] = $request->category;
+            return view('admin.law-dictionary.index', compact('words', 'word_count', 'categories', 'selected_category'));
+        } else {
+            $words = Dictionary::orderBy('title', 'ASC')->get();
+            $word_count = Dictionary::count();
+            $selected_category = [];
+            $selected_category['category'] = '';
+            return view('admin.law-dictionary.index', compact('words', 'word_count', 'categories', 'selected_category'));
+        }
     }
     public function storeDictionary(Request $request) {
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
-            'area_of_law' => 'required',
+            // 'area_of_law' => 'required',
         ]);
         $input = $request->all();
         Dictionary::create($input);
@@ -1467,7 +1691,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
-            'area_of_law' => 'required',
+            // 'area_of_law' => 'required',
         ]);
         $input = $request->all();
         $word->update($input);
@@ -1483,18 +1707,30 @@ class AdminController extends Controller
 
     // Legal Maxims
 
-    public function maxim() {
-        $maxims = Maxim::orderBy('title', 'ASC')->get();
-        $maxim_count = Maxim::count();
-        $categories = Category::orderBy('category', 'asc')->get();
-        return view('admin.legal-maxims.index', compact('maxims', 'maxim_count', 'categories'));
+    public function maxim(Request $request) {
+        $categories = Category::orderBy('category', 'ASC')->get();
+        if($request->has('fetch_category')) {
+            $maxims = Maxim::where( function($query) use($request){
+                return $request->category ? $query->from('maxims')->where('category', $request->category) : '';
+            })->orderBy('title', 'ASC')->get();
+            $maxim_count = $maxims->count();
+            $selected_category = [];
+            $selected_category['category'] = $request->category;
+            return view('admin.legal-maxims.index', compact('maxims', 'maxim_count', 'categories', 'selected_category'));
+        } else {
+            $maxims = Maxim::orderBy('title', 'ASC')->get();
+            $maxim_count = Maxim::count();
+            $selected_category = [];
+            $selected_category['category'] = '';
+            return view('admin.legal-maxims.index', compact('maxims', 'maxim_count', 'categories', 'selected_category'));
+        }
     }
 
     public function storeMaxim(Request $request) {
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
-            'area_of_law' => 'required',
+            // 'area_of_law' => 'required',
         ]);
         $input = $request->all();
         Maxim::create($input);
@@ -1511,7 +1747,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
-            'area_of_law' => 'required',
+            // 'area_of_law' => 'required',
         ]);
         $input = $request->all();
         $maxim->update($input);
@@ -1526,18 +1762,30 @@ class AdminController extends Controller
 
     // Foreign resources
 
-    public function resource() {
-        $resources = Resource::OrderBy('title', 'ASC')->get();
-        $resource_count = Resource::count();
-        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-        return view('admin.resources.index', compact('resources', 'resource_count', 'area_of_laws'));
+    public function resource(Request $request) {
+        $categories = Category::orderBy('category', 'ASC')->get();
+        if($request->has('fetch_category')) {
+            $resources = Resource::where( function($query) use($request){
+                return $request->category ? $query->from('resources')->where('category', $request->category) : '';
+            })->orderBy('title', 'ASC')->get();
+            $resource_count = $resources->count();
+            $selected_category = [];
+            $selected_category['category'] = $request->category;
+            return view('admin.resources.index', compact('resources', 'resource_count', 'categories', 'selected_category'));
+        } else {
+            $resources = Resource::OrderBy('title', 'ASC')->get();
+            $resource_count = Resource::count();
+            $selected_category = [];
+            $selected_category['category'] = '';
+            return view('admin.resources.index', compact('resources', 'resource_count', 'categories', 'selected_category'));
+        }
     }
     public function storeResource(Request $request) {
         $validated = $request->validate([
             'title' => 'required',
             'url' => 'required',
             'description' => 'required',
-            'area_of_law' => 'required',
+            // 'area_of_law' => 'required',
         ]);
         $input = $request->all();
         Resource::create($input);
@@ -1546,14 +1794,15 @@ class AdminController extends Controller
     }
     public function editResource($id) {
         $resource = Resource::findOrFail($id);
-        return view('admin.resources.edit-resources', compact('resource'));
+        $categories = Category::orderBy('category', 'ASC')->get();
+        return view('admin.resources.edit-resources', compact('resource', 'categories'));
     }
     public function updateResource(Request $request, $id) {
         $resource = Resource::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
-            'Url' => 'required',
-            'Description' => 'required',
+            'url' => 'required',
+            'description' => 'required',
         ]);
         $input = $request->all();
         $resource->update($input);
@@ -1833,6 +2082,13 @@ class AdminController extends Controller
             'approve_request' => $request->approve_request,
         ];
         UserTeam::create($user_team_input);
+
+        RecentActivity::create([
+            'user_id' => Auth::user()->id,
+            'type' => 'team',
+            'name' => 'You recently created a team',
+            'description' => $team->name
+        ]);
         return redirect()->back()->with('success', 'Team created');
     }
     public function updateTeam(Request $request) {
@@ -1888,6 +2144,33 @@ class AdminController extends Controller
         $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
         $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
         return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources'));
+    }
+
+    public function joinTeam($id) {
+        $team = Team::findOrFail($id);
+        $user = Auth::user()->id;
+        $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->get();
+        $send_request = UserTeam::where('user_id', Auth::user()->id)->where('team_id', $team->id)->first();
+        $approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->get();
+        $some_approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->limit(4)->get();
+        $approved_member = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->first();
+        $approved_member_count = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->count();
+        $comments = Comment::with('comment_replies')->where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
+        $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
+        $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
+        // Session::put('join', 'Join this team');
+        return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources'));
+    }
+    public function joinedTeam(Request $request, $id) {
+        $team = Team::findOrFail($id);
+        $input = [
+            'user_id' => $request->user_id,
+            'team_id' => $request->team_id,
+            'send_request' => $request->send_request,
+            'approve_request' => $request->approve_request,
+        ];
+        UserTeam::create($input);
+        return redirect()->route('show.team', $team->id)->with('success', 'You have joined this team');
     }
     public function sendRequest(Request $request) {
         $input = [
@@ -1960,7 +2243,7 @@ class AdminController extends Controller
             $user_team->delete();
         }
         $team->delete();
-        return back()->with('success', 'Team deleted');
+        return redirect('admin/teams')->with('success', 'Team deleted');
     }
 
 
@@ -1985,14 +2268,17 @@ class AdminController extends Controller
                 'file_type' => $request->file_type,
                 'comment_body' => $request->comment_body
             ];
+            Comment::create($input);
+            return redirect()->back()->with('success', 'You just posted to this team');
+        } else {
+            $input = [
+                'user_id' => $request->user_id,
+                'team_id' => $request->team_id,
+                'comment_body' => $request->comment_body
+            ];
+            Comment::create($input);
+            return redirect()->back()->with('success', 'You just posted to this team');
         }
-        $input = [
-            'user_id' => $request->user_id,
-            'team_id' => $request->team_id,
-            'comment_body' => $request->comment_body
-        ];
-        Comment::create($input);
-        return redirect()->back()->with('success', 'You just posted to this team');
     }
     public function reply(Request $request) {
         if($request->has('reply')) {
@@ -2008,6 +2294,23 @@ class AdminController extends Controller
             return redirect()->back()->with('success', 'You just commented to this post');
         }
     }
+    public function updateComment(Request $request) {
+        $validated = $request->validate([
+            'comment_body' => 'required'
+        ]);
+        $input = [
+            'user_id' => $request->user_id,
+            'team_id' => $request->team_id,
+            'comment_body' => $request->comment_body
+        ];
+        DB::table('comments')->where('id', $request->comment_id)->update($input);
+        return redirect()->back()->with('success', 'Post reposted');
+    }
+    public function deleteComment($id) {
+        $comment = Comment::findorFail($id);
+        $comment->delete();
+        return redirect()->back()->with('success', 'Post deleted');
+    }
 
 
 
@@ -2017,96 +2320,107 @@ class AdminController extends Controller
 
             /////////////// Judgement search //////////////////////
 
-            $query['table'] = 'judgement_summary';
-            $query['search'] = JudgementSummary::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('summary_of_facts', 'LIKE', "%{$search}%")
-            ->orWhere('issues', 'LIKE', "%{$search}%")
-            ->orderBy('judgement_date', 'DESC')
-            ->simplePaginate(5)
-            ->withQueryString();
-            // ->get();
-
-            $query_sum_count = JudgementSummary::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('summary_of_facts', 'LIKE', "%{$search}%")
-            ->orWhere('issues', 'LIKE', "%{$search}%")
-            ->count();
-
-
-            $query['table'] = 'judgement';
-            $query['search'] = Judgement::query()
-            ->where('judgement', 'LIKE', "%{$search}%")
-            ->orderBy('judgement', 'DESC')
-            ->simplePaginate(5)
-            ->withQueryString();
-            // ->get();
-
-            $query_judg_count = Judgement::query()
-            ->where('judgement', 'LIKE', "%{$search}%")
-            ->count();
-
-            $query['table'] = 'ratio';
-            $query['search'] = SummaryRatio::query()->where('heading', 'LIKE', "%{$search}%")
-            ->orWhere('body', 'LIKE', "%{$search}%")
+            $query_case['table'] = 'ratio';
+            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
+            ->orWhere('body', 'LIKE', '%'.$search.'%')
             ->orderBy('heading', 'ASC')
-            ->simplePaginate(5)
+            ->simplePaginate(15)
             ->withQueryString();
             // ->get();
 
 
             $query_ratio_count = SummaryRatio::query()
-            ->where('heading', 'LIKE', "%{$search}%")
-            ->orWhere('body', 'LIKE', "%{$search}%")
+            ->where('heading', 'LIKE', '%'.$search.'%')
+            ->orWhere('body', 'LIKE', '%'.$search.'%')
             ->count();
 
-            $query_case_count = $query_ratio_count + $query_judg_count + $query_sum_count;
+            // if(count($query_case['search']) < 1) {
+            //     $query_case['table'] = 'sum';
+            //     $query_case['search'] = JudgementSummary::query()
+            //     ->where('title', 'LIKE', '%'.$search.'%')
+            //     ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+            //     ->orWhere('issues', 'LIKE', '%'.$search.'%')
+            //     ->orderBy('judgement_date', 'DESC')
+            //     ->simplePaginate(5)
+            //     ->withQueryString();
+            //     // ->get();
+            // }
+
+            // $query_sum_count = JudgementSummary::query()
+            //     ->where('title', 'LIKE', '%'.$search.'%')
+            //     ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+            //     ->orWhere('issues', 'LIKE','%'.$search.'%')
+            //     ->count();
+
+            // if(count($query_case['search']) < 1) {
+            //     $query_case['table'] = 'judgement';
+            //     $query_case['search'] = Judgement::query()
+            //     ->where('judgement', 'LIKE', '%'.$search.'%')
+            //     ->orderBy('judgement', 'DESC')
+            //     ->simplePaginate(5)
+            //     ->withQueryString();
+            //     // ->get();
+            // }
+
+            // $query_judg_count = Judgement::query()
+            // ->where('judgement', 'LIKE', '%'.$search.'%')
+            // ->count();
+
+            $query_case_count = $query_ratio_count;
 
 
 
             /////////////// Law of Federation search //////////////////////
 
-            $query['table'] = 'lfn';
+            $query_law['table'] = 'lfn';
             $query_law['search'] = LawOfFederation::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('description', 'LIKE', "%{$search}%")
-            ->orWhere('subsidiary_legislation', 'LIKE', "%{$search}%")
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
+            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
             ->orderBy('law_date', 'DESC')
             ->simplePaginate(5)
             ->withQueryString();
             // ->get();
 
+            // dd($query_law['search']);
             $query_fed_count = LawOfFederation::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('description', 'LIKE', "%{$search}%")
-            ->orWhere('subsidiary_legislation', 'LIKE', "%{$search}%")
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
+            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
             ->count();
 
-            $query_law['search'] = LawOfFedSched::query()
-            ->where('sched_header', 'LIKE', "%{$search}%")
-            ->orWhere('sched_body', 'LIKE', "%{$search}%")
-            ->orderBy('sched_header', 'ASC')
-            ->simplePaginate(5)
-            ->withQueryString();
-            // ->get();
+            if(count($query_law['search']) < 1) {
+                $query_law['table'] = 'sched';
+                $query_law['search'] = LawOfFedSched::query()
+                ->where('sched_header', 'LIKE', '%'.$search.'%')
+                ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
+                ->orderBy('sched_header', 'ASC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
 
             $query_sched_count = LawOfFedSched::query()
-            ->where('sched_header', 'LIKE', "%{$search}%")
-            ->orWhere('sched_body', 'LIKE', "%{$search}%")
+            ->where('sched_header', 'LIKE', '%'.$search.'%')
+            ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
             ->count();
 
-            $query_law['search'] = LawOfFedSection::query()
-            ->where('section_header', 'LIKE', "%{$search}%")
-            ->orWhere('section_body', 'LIKE', "%{$search}%")
-            ->orderBy('section_header', 'ASC')
-            ->simplePaginate(5)
-            ->withQueryString();
-            // ->get();
-
+            if(count($query_law['search']) < 1) {
+                $query_law['table'] = 'sec';
+                $query_law['search'] = LawOfFedSection::query()
+                ->where('section_header', 'LIKE', '%'.$search.'%')
+                ->orWhere('section_body', 'LIKE', '%'.$search.'%')
+                ->orderBy('section_header', 'ASC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
             $query_sec_count = LawOfFedSection::query()
-            ->where('section_header', 'LIKE', "%{$search}%")
-            ->orWhere('section_body', 'LIKE', "%{$search}%")
+            ->where('section_header', 'LIKE', '%'.$search.'%')
+            ->orWhere('section_body', 'LIKE', '%'.$search.'%')
             ->count();
+
+            // dd($query_sec_count);
 
             $query_law_count = $query_fed_count + $query_sched_count + $query_sec_count;
 
@@ -2115,58 +2429,284 @@ class AdminController extends Controller
             /////////////// Rules of court and state rules search //////////////////////
 
             $query_rule['search'] = Rule::query()
-            ->where('name', 'LIKE', "%{$search}%")
-            ->orWhere('title', 'LIKE', "%{$search}%")
-            ->orWhere('section', 'LIKE', "%{$search}%")
-            ->orWhere('content', 'LIKE', "%{$search}%")
-            ->orWhere('type', 'LIKE', "%{$search}%")
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('section', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('type', 'LIKE', '%'.$search.'%')
             ->orderBy('title', 'ASC')
             ->simplePaginate()
             ->withQueryString();
             // ->get();
 
             $query_rule_count = Rule::query()
-            ->where('name', 'LIKE', "%{$search}%")
-            ->orWhere('title', 'LIKE', "%{$search}%")
-            ->orWhere('section', 'LIKE', "%{$search}%")
-            ->orWhere('content', 'LIKE', "%{$search}%")
-            ->orWhere('type', 'LIKE', "%{$search}%")
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('section', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('type', 'LIKE', '%'.$search.'%')
             ->count();
 
 
             /////////////// forms and precedents search //////////////////////
 
             $query_form['search'] = FormsPrecedence::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('content', 'LIKE', "%{$search}%")
-            ->orWhere('category', 'LIKE', "%{$search}%")
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('category', 'LIKE', '%'.$search.'%')
             ->orderBy('title', 'ASC')
             ->simplePaginate()
             ->withQueryString();
             // ->get();
 
             $query_form_count = FormsPrecedence::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('content', 'LIKE', "%{$search}%")
-            ->orWhere('category', 'LIKE', "%{$search}%")
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('category', 'LIKE', '%'.$search.'%')
             ->count();
 
 
             /////////////// articles search //////////////////////
 
             $query_article['search'] = Article::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('content', 'LIKE', "%{$search}%")
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
             ->orderBy('title', 'ASC')
             ->simplePaginate()
             ->withQueryString();
             // ->get();
 
             $query_article_count = Article::query()
-            ->where('title', 'LIKE', "%{$search}%")
-            ->orWhere('content', 'LIKE', "%{$search}%")
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
             ->count();
-            return view('admin.search', compact('query', 'search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count'));
+
+
+
+            /////////////// public notes search //////////////////////
+            $query_note['search'] = Annotation::query()
+            ->where('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('comment', 'LIKE', '%'.$search.'%')
+            ->where('display', 'public')
+            ->where('resource_type', '!=', 'admin-note')
+            ->orderBy('comment', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_note_count = Annotation::query()
+            ->where('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('comment', 'LIKE', '%'.$search.'%')
+            ->where('resource_type', '!=', 'admin-note')
+            ->where('display', 'public')
+            ->count();
+
+
+            RecentActivity::create([
+                'user_id' => Auth::user()->id,
+                'type' => 'search',
+                'name' => 'You recently made a search',
+                'description' => $search,
+            ]);
+
+            return view('admin.search', compact('query_case', 'search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+        }
+
+        if($request->input('more_result')) {
+            $search = $request->input('more_result');
+
+            /////////////// Judgement search //////////////////////
+
+            $query_case['table'] = 'ratio';
+            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
+            ->orWhere('body', 'LIKE', '%'.$search.'%')
+            ->orderBy('heading', 'ASC')
+            ->simplePaginate(5)
+            ->withQueryString();
+            // ->get();
+
+
+            $query_ratio_count = SummaryRatio::query()
+            ->where('heading', 'LIKE', '%'.$search.'%')
+            ->orWhere('body', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            if(count($query_case['search']) < 1) {
+                $query_case['table'] = 'sum';
+                $query_case['search'] = JudgementSummary::query()
+                ->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+                ->orWhere('issues', 'LIKE', '%'.$search.'%')
+                ->orderBy('judgement_date', 'DESC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
+
+            $query_sum_count = JudgementSummary::query()
+                ->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+                ->orWhere('issues', 'LIKE','%'.$search.'%')
+                ->count();
+
+            if(count($query_case['search']) < 1) {
+                $query_case['table'] = 'judgement';
+                $query_case['search'] = Judgement::query()
+                ->where('judgement', 'LIKE', '%'.$search.'%')
+                ->orderBy('judgement', 'DESC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
+
+            $query_judg_count = Judgement::query()
+            ->where('judgement', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            $query_case_count = $query_ratio_count + $query_judg_count + $query_sum_count;
+
+
+
+            /////////////// Law of Federation search //////////////////////
+
+            $query_law['table'] = 'lfn';
+            $query_law['search'] = LawOfFederation::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
+            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
+            ->orderBy('law_date', 'DESC')
+            ->simplePaginate(5)
+            ->withQueryString();
+            // ->get();
+
+            // dd($query_law['search']);
+            $query_fed_count = LawOfFederation::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
+            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            if(count($query_law['search']) < 1) {
+                $query_law['table'] = 'sched';
+                $query_law['search'] = LawOfFedSched::query()
+                ->where('sched_header', 'LIKE', '%'.$search.'%')
+                ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
+                ->orderBy('sched_header', 'ASC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
+
+            $query_sched_count = LawOfFedSched::query()
+            ->where('sched_header', 'LIKE', '%'.$search.'%')
+            ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            if(count($query_law['search']) < 1) {
+                $query_law['table'] = 'sec';
+                $query_law['search'] = LawOfFedSection::query()
+                ->where('section_header', 'LIKE', '%'.$search.'%')
+                ->orWhere('section_body', 'LIKE', '%'.$search.'%')
+                ->orderBy('section_header', 'ASC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
+            $query_sec_count = LawOfFedSection::query()
+            ->where('section_header', 'LIKE', '%'.$search.'%')
+            ->orWhere('section_body', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            // dd($query_sec_count);
+
+            $query_law_count = $query_fed_count + $query_sched_count + $query_sec_count;
+
+
+
+            /////////////// Rules of court and state rules search //////////////////////
+
+            $query_rule['search'] = Rule::query()
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('section', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('type', 'LIKE', '%'.$search.'%')
+            ->orderBy('title', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_rule_count = Rule::query()
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('section', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('type', 'LIKE', '%'.$search.'%')
+            ->count();
+
+
+            /////////////// forms and precedents search //////////////////////
+
+            $query_form['search'] = FormsPrecedence::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('category', 'LIKE', '%'.$search.'%')
+            ->orderBy('title', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_form_count = FormsPrecedence::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('category', 'LIKE', '%'.$search.'%')
+            ->count();
+
+
+            /////////////// articles search //////////////////////
+
+            $query_article['search'] = Article::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orderBy('title', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_article_count = Article::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->count();
+
+
+
+            /////////////// public notes search //////////////////////
+            $query_note['search'] = Annotation::query()
+            ->where('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('comment', 'LIKE', '%'.$search.'%')
+            ->where('display', 'public')
+            ->where('resource_type', '!=', 'admin-note')
+            ->orderBy('comment', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_note_count = Annotation::query()
+            ->where('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('comment', 'LIKE', '%'.$search.'%')
+            ->where('display', 'public')
+            ->where('resource_type', '!=', 'admin-note')
+            ->count();
+
+
+            RecentActivity::create([
+                'user_id' => Auth::user()->id,
+                'type' => 'search',
+                'name' => 'You recently made a search',
+                'description' => $search,
+            ]);
+
+            return view('admin.search', compact('query_case', 'search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
         }
     }
 
@@ -2174,8 +2714,8 @@ class AdminController extends Controller
         // Get the search value from the request
         $search = $request->input('search');
         $cases = SummaryRatio::query()
-        ->where('heading', 'LIKE', "%{$search}%")
-        ->orWhere('body', 'LIKE', "%{$search}%")
+        ->where('heading', 'LIKE', '%'.$search.'%')
+        ->orWhere('body', 'LIKE', '%'.$search.'%')
         ->orderBy('heading', 'ASC')
         ->get();
         return response()->json($cases);
@@ -2194,9 +2734,17 @@ class AdminController extends Controller
             'replies'=> $request->replies,
             'text_target'=> $request->text_target,
             'tags'=> $request->tags,
+            'resource_type'=> $request->resource_type,
         ];
-        Annotation::create($input);
-        return response()->json(['success', 'Annotation added']);
+        $anote = Annotation::create($input);
+
+        RecentActivity::create([
+            'user_id' => Auth::user()->id,
+            'type' => 'note',
+            'name' => 'You recently made a note',
+            'description' => $anote->content
+        ]);
+        return response()->json(['success', 'Note added']);
     }
 
     public function updateAnote(Request $request) {
@@ -2206,8 +2754,68 @@ class AdminController extends Controller
         ];
         // Annotation::create($input);
         DB::table('annotations')->where('note_id', $request->note_id)->update($input);
-        return back()->with('success', 'Notation saved');
+        return back()->with('success', 'Note saved');
         // return response()->json(['success', 'Annotation added']);
+    }
+    public function shareAnote(Request $request) {
+        if($request->has('share_all') && !empty($request->checkBoxArray)) {
+            foreach($request->checkBoxArray as $team) {
+                $input = [
+                    'team_id' => $team,
+                    'user_id' => $request->user_id,
+                    'anote_id' => $request->anote_id,
+                    'comment_body' => $request->comment_body
+                ];
+                $comment = Comment::create($input);
+            }
+            RecentActivity::create([
+                'user_id' => Auth::user()->id,
+                'type' => 'shared noted',
+                'name' => 'You recently shared a note',
+                'description' => $comment->comment_body
+            ]);
+            return back()->with('success', 'Note shared');
+        }
+        return back()->withErrors('Please select a team to share to');
+    }
+    public function note() {
+        $public_notes = Annotation::where('display', 'public')->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->get();
+        $public_note_count = $public_notes->count();
+        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->get();
+        $note_count = $notes->count();
+        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->get();
+        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+        $admin_note_id = $this->generateAdminNoteId(21);
+        return view('admin.notes', compact('public_notes', 'notes', 'public_note_count', 'note_count', 'teams', 'admin_note_id', 'admin_notes'));
+    }
+    public function generateAdminNoteId($length = 32) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+    public function storeNote(Request $request) {
+        $validated = $request->validate([
+            'comment' => 'required',
+            'content' => 'required'
+        ]);
+        $input = $request->all();
+        // dd($input);
+        Annotation::create($input);
+        return back()->with('success', 'Note added');
+    }
+    public function updateNote(Request $request) {
+        $validated = $request->validate([
+            'comment' => 'required',
+            'content' => 'required'
+        ]);
+        $input = $request->all();
+        // dd($input);
+        DB::table('annotations')->where('id', $request->admin_note_id)->update($input);
+        return back()->with('success', 'Note updated');
     }
 
     // public function fetchAnote($id) {
@@ -2306,18 +2914,53 @@ class AdminController extends Controller
     }
     public function sendMessage(Request $request) {
         if($request->has('send_message') && !empty($request->checkBoxArray)) {
-            // foreach($request->checkBoxArray as $user) {
-                $message = Message::where('id', $request->message_id)->first();
-                $input = [
-                    'users' => json_encode($request->checkBoxArray),
-                    'message_id' => $request->message_id,
-                    'content' => json_encode([$message->name, $message->subject, $message->body])
-                ];
-                // dd($input);
-                MailMessage::create($input);
-            // }
+            $message = Message::where('id', $request->message_id)->first();
+            $input = [
+                'users' => json_encode($request->checkBoxArray),
+                'message_id' => $request->message_id,
+                'content' => json_encode([$message->name, $message->subject, $message->body])
+            ];
+            MailMessage::create($input);
+
+            // dd($this->sendEmail());
             return back()->with('success', 'Message sent!');
         }
+    }
+    public function sendEmail()
+    {
+
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS =>'{
+            "contact": {
+                "email": "akpanemmanueledidiong99@yahoo.com",
+                "firstName": "Edidiong",
+                "lastName": "Akpan",
+                "phone": "08127131208"
+            }
+        }',
+          CURLOPT_HTTPHEADER => array(
+            'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+            'Content-Type: application/json',
+            'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+          ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return $response;
+
     }
     public function editMessage($id) {
         $message = Message::findOrFail($id);
@@ -2340,13 +2983,6 @@ class AdminController extends Controller
     }
 
     public function license() {
-        // $ses = $_SESSION['last_login_timestamp'] = time();
-        // if($ses > 1500) {
-        //     return true;
-        // } else {
-        //     return false;
-        // }
-        // dd($ses);
         $licenses = License::orderBy('license_name', 'asc')->get();
         $packages = Package::orderBy('name', 'ASC')->get();
         // $license_code = $this->generateLicenseCode(21);

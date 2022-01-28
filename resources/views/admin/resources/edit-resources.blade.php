@@ -38,13 +38,24 @@
                                 <label class="form-label mb-1">
                                     Resource Title
                                 </label>
-                                <input type="text" name="Title" class="form-control" value="{{$resource->Title}}">
+                                <input type="text" name="title" class="form-control" value="{{$resource->title}}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
                                     Resource Link
                                 </label>
-                                <input type="text" name="Url" class="form-control" value="{{$resource->Url}}">
+                                <input type="text" name="url" class="form-control" value="{{$resource->url}}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label mb-1">
+                                    Category
+                                </label>
+                                <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
+                                    <option value="{{$resource->category}}" selected>{{$resource->category}}</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{$category->category}}">{{$category->category}}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
@@ -53,7 +64,7 @@
                                 <small class="form-text text-muted">
                                     This is the body of the resource
                                 </small>
-                                <textarea name="Description" rows="5" class="form-control" placeholder="Enter description">{{$resource->Description}}</textarea>
+                                <textarea name="description" rows="5" class="form-control" placeholder="Enter description">{{$resource->description}}</textarea>
                             </div>
                             <div class="form-group">
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

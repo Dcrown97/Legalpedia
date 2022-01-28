@@ -22,6 +22,7 @@ class CreateCommentsTable extends Migration
             $table->string('file_type')->nullable();
             $table->text('comment_body');
             $table->string('article_id');
+            $table->string('anote_id');
             $table->timestamps();
         });
     }

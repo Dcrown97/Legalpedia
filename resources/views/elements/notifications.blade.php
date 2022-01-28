@@ -3,7 +3,7 @@
         text-align: center;
     }
  </style>
-{{-- @if($errors->any())
+@if($errors->any())
     @foreach ($errors->all() as $error)
         <div class="toast toast-error" data-autohide="false">
             <div class="toast-body">
@@ -12,7 +12,7 @@
             </div>
         </div>
     @endforeach
-@endif --}}
+@endif
 @if(session()->has('error1'))
     <div class="toast toast-error" data-autohide="false">
         <div class="toast-body">
@@ -39,15 +39,15 @@
     //      });
     //  @endif
 
-    @if($errors->any())
-        @foreach ($errors->all() as $error)
-            swal({
-                title: "Sorry!",
-                text: "{{$error}}",
-                icon: "warning",
-            });
-        @endforeach
-    @endif
+    // @if($errors->any())
+    //     @foreach ($errors->all() as $error)
+    //         swal({
+    //             title: "Sorry!",
+    //             text: "{{$error}}",
+    //             icon: "warning",
+    //         });
+    //     @endforeach
+    // @endif
 
     @if(session()->has('error'))
         swal({

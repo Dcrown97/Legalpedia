@@ -82,12 +82,12 @@
                                                         </div>
                                                     @endif
                                                     <hr>
-                                                    @if($package->judg_court)
+                                                    @php
+                                                        $judg_court = json_decode($package->judg_court)
+                                                    @endphp
+                                                    @if($judg_court)
                                                         <div class="mt-3 ml-3">
                                                             <p><small >Courts</small></p>
-                                                            @php
-                                                                $judg_court = json_decode($package->judg_court)
-                                                            @endphp
                                                             @foreach ($judg_court as $court)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$court}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -96,12 +96,12 @@
                                                         </div>
                                                     @endif
                                                     <hr>
-                                                    @if($package->judg_cat)
+                                                    @php
+                                                        $judg_cat = json_decode($package->judg_cat)
+                                                    @endphp
+                                                    @if($judg_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small >Categories</small></p>
-                                                            @php
-                                                                $judg_cat = json_decode($package->judg_cat)
-                                                            @endphp
                                                             @foreach ($judg_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -133,12 +133,12 @@
                                                         </div>
                                                     @endif
                                                     <hr>
-                                                    @if($package->lfn_cat)
+                                                    @php
+                                                        $lfn_cat = json_decode($package->lfn_cat);
+                                                    @endphp
+                                                    @if($lfn_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small >Categories</small></p>
-                                                            @php
-                                                                $lfn_cat = json_decode($package->lfn_cat)
-                                                            @endphp
                                                             @foreach ($lfn_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -161,12 +161,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseRoc">
-                                                    @if($package->roc_cat)
+                                                    @php
+                                                        $roc_cat = json_decode($package->roc_cat)
+                                                    @endphp
+                                                    @if($roc_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small >Categories</small></p>
-                                                            @php
-                                                                $roc_cat = json_decode($package->roc_cat)
-                                                            @endphp
                                                             @foreach ($roc_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -189,12 +189,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseSroc">
-                                                    @if($package->sroc_state)
+                                                    @php
+                                                        $sroc_state = json_decode($package->sroc_state)
+                                                    @endphp
+                                                    @if($sroc_state)
                                                         <div class="mt-3 ml-3">
                                                             <p><small>States</small></p>
-                                                            @php
-                                                                $sroc_state = json_decode($package->sroc_state)
-                                                            @endphp
                                                             @foreach ($sroc_state as $state)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$state}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -217,12 +217,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseForm">
-                                                    @if($package->form_cat)
+                                                    @php
+                                                        $form_cat = json_decode($package->form_cat)
+                                                    @endphp
+                                                    @if($form_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small>Categories</small></p>
-                                                            @php
-                                                                $form_cat = json_decode($package->form_cat)
-                                                            @endphp
                                                             @foreach ($form_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -245,12 +245,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseArticle">
-                                                    @if($package->article_cat)
+                                                    @php
+                                                        $article_cat = json_decode($package->article_cat)
+                                                    @endphp
+                                                    @if($article_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small>Categories</small></p>
-                                                            @php
-                                                                $article_cat = json_decode($package->article_cat)
-                                                            @endphp
                                                             @foreach ($article_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -273,12 +273,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseDict">
-                                                    @if($package->dict_cat)
+                                                    @php
+                                                        $dict_cat = json_decode($package->dict_cat)
+                                                    @endphp
+                                                    @if($dict_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small>Categories</small></p>
-                                                            @php
-                                                                $dict_cat = json_decode($package->dict_cat)
-                                                            @endphp
                                                             @foreach ($dict_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -301,12 +301,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseMax">
-                                                    @if($package->maxim_cat)
+                                                    @php
+                                                        $maxim_cat = json_decode($package->maxim_cat)
+                                                    @endphp
+                                                    @if($maxim_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small>Categories</small></p>
-                                                            @php
-                                                                $maxim_cat = json_decode($package->maxim_cat)
-                                                            @endphp
                                                             @foreach ($maxim_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>
@@ -329,12 +329,12 @@
                                                     <i class="fe fe-check-circle text-success"></i>
                                                 </a>
                                                 <div class="collapse multi-collapse" id="multiCollapseResource">
-                                                    @if($package->resource_cat)
+                                                    @php
+                                                        $resource_cat = json_decode($package->resource_cat)
+                                                    @endphp
+                                                    @if($resource_cat)
                                                         <div class="mt-3 ml-3">
                                                             <p><small>Categories</small></p>
-                                                            @php
-                                                                $resource_cat = json_decode($package->resource_cat)
-                                                            @endphp
                                                             @foreach ($resource_cat as $cat)
                                                                 <p class="d-flex justify-content-between">
                                                                     <small>{{$cat}}</small> <i class="fe fe-check-circle text-success"></i>

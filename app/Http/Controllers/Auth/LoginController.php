@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
-use App\Models\LicensedUserSession;
+use App\Models\License;
+use App\Models\UserTeam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\LicensedUserSession;
 use App\Http\Controllers\Controller;
-use App\Models\License;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\session;
@@ -53,8 +54,16 @@ class LoginController extends Controller
 
     public function Authenticated (Request $request, User $user)
     {
+
         if(Auth::check()) {
+
+            // dd($join);
             $user = Auth::user();
+
+            Session::put('join', 1);
+            // Session::put('welcome', 1);
+            // dd(Session::get('welcome'));
+
             if(!empty($user->license_code)) {
                 $license = LicensedUserSession::where('user_id', $user->id)->first();
 

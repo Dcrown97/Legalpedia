@@ -13,11 +13,23 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 
-Auth::routes(['verify' => true]);
+Auth::routes();
+// Auth::routes(['verify' => true]);
 
-Route::group(['middleware'=>['auth', 'verified']], function(){
+// Route::group(['middleware'=>'auth'], function(){
+// Route::group(['middleware'=>['auth', 'verified']], function(){
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    Route::get('/admin/judgements/courts', [AdminController::class, 'court'])->name('admin.court');
+    Route::post('/admin/judgements/courts', [AdminController::class, 'storeCourt'])->name('store.court');
+    Route::patch('/admin/judgements/courts', [AdminController::class, 'updateCourt'])->name('update.court');
+    Route::delete('/admin/judgements/courts/{id}', [AdminController::class, 'deleteCourt'])->name('delete.court');
+
+    Route::get('/admin/judgements/subject-matter-index', [AdminController::class, 'getSbj'])->name('get.sbj');
+    Route::post('/admin/judgements/subject-matter-index', [AdminController::class, 'storeSbj'])->name('store.sbj');
+    Route::patch('/admin/judgements/subject-matter-index', [AdminController::class, 'updateSbj'])->name('update.sbj');
+    Route::delete('/admin/judgements/subject-matter-index/{id}', [AdminController::class, 'deleteSbj'])->name('delete.sbj');
 
     Route::get('/admin/judgements/create', [AdminController::class, 'create'])->name('judge.create');
     Route::get('/admin/judgements', [AdminController::class, 'judgement'])->name('admin.judgement');
@@ -34,6 +46,7 @@ Route::group(['middleware'=>['auth', 'verified']], function(){
     Route::post('/admin/rules-of-court/categories', [AdminController::class, 'storeRuleCat'])->name('store.rule_cat');
     Route::patch('/admin/rules-of-court/categories', [AdminController::class, 'updateRuleCat'])->name('update.rule_cat');
     Route::delete('/admin/rules-of-court/categories/{id}', [AdminController::class, 'deleteRuleCat'])->name('delete.rule_cat');
+
     Route::get('/admin/rules-of-court/{id}', [AdminController::class, 'showRule'])->name('show.rule');
     Route::post('/admin/rules-of-court', [AdminController::class, 'storeRule'])->name('store.rule');
     Route::get('/admin/rules-of-court/edit/{id}', [AdminController::class, 'editRule'])->name('edit.rule');
@@ -100,11 +113,14 @@ Route::group(['middleware'=>['auth', 'verified']], function(){
     Route::patch('/admin/resources/edit-resources/{id}', [AdminController::class, 'updateResource'])->name('update.resource');
     Route::delete('/admin/resources/{id}', [AdminController::class, 'deleteResource'])->name('delete.resource');
 
+    Route::get('/admin/user/profile/{id}', [AdminUserController::class, 'userProfile'])->name('user.profile');
     Route::get('/admin/customers', [AdminUserController::class, 'index'])->name('admin.customers');
     Route::get('/admin/customers/{id}', [AdminUserController::class, 'show'])->name('show.customer');
     Route::get('/admin/customers/{id}/profile', [AdminUserController::class, 'edit'])->name('edit.customer');
     Route::patch('/admin/customers/{id}/profile', [AdminUserController::class, 'update'])->name('update.customer');
-    Route::delete('/admin/customers/{id}', [AdminUserController::class, 'deleteCustomer'])->name('delete.customer   ');
+    Route::patch('/admin/customers', [AdminUserController::class, 'updateRole'])->name('update.role');
+    Route::delete('/admin/customers/{id}', [AdminUserController::class, 'deleteCustomer'])->name('delete.customer');
+    Route::post('/admin/customers/export', [AdminUserController::class, 'exportCustomer'])->name('export.customer');
 
     Route::get('/admin/subscriptions', [AdminController::class, 'subscription'])->name('admin.subscriptions');
     Route::post('/admin/subscriptions', [AdminController::class, 'storePackage'])->name('store.package');
@@ -131,6 +147,7 @@ Route::group(['middleware'=>['auth', 'verified']], function(){
     Route::patch('/checkout/{id}', [AdminController::class, 'useDiscount'])->name('use.discount');
 
     Route::post('/admin/teams/comment', [AdminController::class, 'comment'])->name('post.comment');
+    Route::patch('/admin/teams/comment', [AdminController::class, 'updateComment'])->name('update.comment');
     Route::post('/admin/teams/reply', [AdminController::class, 'reply'])->name('reply.comment');
     Route::delete('/admin/teams/comment/{id}', [AdminController::class, 'deleteComment'])->name('delete.comment');
     Route::delete('/admin/teams/reply/{id}', [AdminController::class, 'deleteReply'])->name('delete.reply');
@@ -140,6 +157,8 @@ Route::group(['middleware'=>['auth', 'verified']], function(){
     Route::patch('/admin/teams', [AdminController::class, 'updateTeam'])->name('update.team');
     Route::patch('/admin/teams/{id}', [AdminController::class, 'settingsTeam'])->name('settings.team');
     Route::get('/admin/teams/{id}', [AdminController::class, 'showTeam'])->name('show.team');
+    Route::get('/admin/teams/{id}/join', [AdminController::class, 'joinTeam'])->name('join.team');
+    Route::post('/admin/teams/{id}/join', [AdminController::class, 'joinedTeam'])->name('joined.team');
     Route::post('/admin/teams/send-request', [AdminController::class, 'sendRequest'])->name('send.request');
     Route::get('/admin/teams/member/approve', [AdminController::class, 'approveMember'])->name('approve.member');
     Route::patch('/admin/teams/approve/{id}', [AdminController::class, 'approveRequest'])->name('approve.request');
@@ -157,6 +176,12 @@ Route::group(['middleware'=>['auth', 'verified']], function(){
     Route::post('/admin/annotations', [AdminController::class, 'anote'])->name('store.anote');
     Route::patch('/admin/annotations', [AdminController::class, 'updateAnote'])->name('update.anote');
     Route::get('/admin/judgements/fetch-annotations/{id}', [AdminController::class, 'fetchAnote'])->name('fetch.anote');
+    Route::post('/admin/annotations/teams', [AdminController::class, 'shareAnote'])->name('share.anote');
+
+    Route::get('/admin/notes', [AdminController::class, 'note'])->name('admin.notes');
+    Route::post('/admin/notes', [AdminController::class, 'storeNote'])->name('store.note');
+    Route::patch('/admin/notes', [AdminController::class, 'updateNote'])->name('update.note');
+    Route::delete('/admin/notes/{id}', [AdminController::class, 'deleteNote'])->name('delete.note');
 
     Route::get('/admin/messages', [AdminController::class, 'message'])->name('admin.messages');
     Route::get('/admin/messages/create', [AdminController::class, 'createMessage'])->name('create.message');
@@ -170,7 +195,7 @@ Route::group(['middleware'=>['auth', 'verified']], function(){
     Route::post('/admin/licenses', [AdminController::class, 'storeLicense'])->name('store.license');
     Route::patch('/admin/licenses', [AdminController::class, 'updateLicense'])->name('update.license');
     Route::delete('/admin/licenses/{id}', [AdminController::class, 'deleteLicense'])->name('delete.license');
-});
+// });
 
 // Route::group(['middleware'=>'subscribedUser'], function(){
 //     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');

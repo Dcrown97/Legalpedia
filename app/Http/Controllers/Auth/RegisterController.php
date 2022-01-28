@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserTeam;
 use App\Models\Role;
 use App\Models\Invite;
+use App\Notifications\WelcomeOnboard;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -54,6 +55,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
+            'surname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
@@ -76,6 +78,7 @@ class RegisterController extends Controller
 
             $user = User::create([
                 'name' => $data['name'],
+                'surname' => $data['surname'],
                 'email' => $data['email'],
                 'role_id' => $role->id,
                 // 'license_code' => $data['license_code'],
@@ -92,11 +95,15 @@ class RegisterController extends Controller
                 'send_request' => $data['send_request'],
                 'approve_request' => $data['approve_request'],
             ]);
+
+            $user->notify(new WelcomeOnboard($user));
+
             return $user;
 
         } else {
             $user = User::create([
                 'name' => $data['name'],
+                'surname' => $data['surname'],
                 'email' => $data['email'],
                 'role_id' => $role->id,
                 // 'license_code' => $data['license_code'],
@@ -105,6 +112,8 @@ class RegisterController extends Controller
                 'call_to_bar_year' => $data['call_to_bar_year'],
                 'password' => Hash::make($data['password']),
             ]);
+
+            $user->notify(new WelcomeOnboard($user));
 
             return $user;
         }

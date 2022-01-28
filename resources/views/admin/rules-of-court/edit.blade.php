@@ -1,4 +1,4 @@
-@extends('layouts.admin.state-rules-of-court')
+@extends('layouts.admin.rules-of-court')
 
 @section('title')
     @if($order)
@@ -22,9 +22,13 @@
     <div class="header">
         <div class="container-fluid">
             <div class="header-body">
-                <div class="row align-items-end">
+                <div class="row align-items-end mb-4">
                     <div class="col">
                         <a href="{{url('admin/rules-of-court')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
+                    </div>
+                </div>
+                <div class="row align-items-end">
+                    <div class="col">
                         <h1 class="header-title">
                             @if($order)
                                 {{$order->title}}
@@ -64,7 +68,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$order->name}}" selected>{{$order->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -77,7 +81,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$order->section}}" selected>{{$order->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -92,17 +96,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule Title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$order->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$order->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content
@@ -125,7 +129,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$schdeule->name}}" selected>{{$schedule->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -138,7 +142,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$schedule->section}}" selected>{{$schedule->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -153,17 +157,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$schedule->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$schedule->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content
@@ -186,7 +190,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$form->name}}" selected>{{$form->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -199,7 +203,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$form->section}}" selected>{{$form->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -214,17 +218,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$form->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$form->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content
@@ -247,7 +251,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$part->name}}" selected>{{$part->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -260,7 +264,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$part->section}}" selected>{{$part->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -275,17 +279,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$part->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$part->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content
@@ -308,7 +312,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$probate->name}}" selected>{{$probate->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -321,7 +325,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$probate_form->section}}" selected>{{$probate_form->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -336,17 +340,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$probate_form->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$probate_form->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content
@@ -369,7 +373,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$civil_form->name}}" selected>{{$civil_form->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -382,7 +386,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$civil_form->section}}" selected>{{$civil_form->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -397,17 +401,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$civil_form->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$civil_form->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content
@@ -430,7 +434,7 @@
                                             <label class="form-label mb-1">
                                                 Rule Category
                                             </label>
-                                            <select name="name" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$appendix->name}}" selected>{{$appendix->name}}</option>
                                                 @foreach($rule_categories as $rule_category)
                                                     <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
@@ -443,7 +447,7 @@
                                             <label class="form-label mb-1">
                                                 Section
                                             </label>
-                                            <select name="section" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="{{$appendix->section}}" selected>{{$appendix->section}}</option>
                                                 <option value="ORDERS">ORDERS</option>
                                                 <option value="PARTS">PARTS</option>
@@ -458,17 +462,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
-                                        State Rule Title
+                                        Rule title
                                     </label>
                                     <input type="hidden" name="type" value="State">
                                     <input type="text" name="title" class="form-control" value="{{$appendix->title}}">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label class="form-label mb-1">
                                         Version No.
                                     </label>
                                     <input type="text" name="version_no" class="form-control" value="{{$appendix->version_no}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Content

@@ -129,7 +129,7 @@
                                                 <a class="text-reset me-3" style="cursor: pointer; display:none" id="remove" onclick="removeFile()" data-bs-toggle="tooltip" title="Remove file">
                                                     <i class="mdi mdi-close"></i>
                                                 </a>
-                                                <button type="submit" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary">
+                                                <button type="submit" onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
                                                     <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
                                                 </button>
                                             </div>
@@ -179,6 +179,9 @@
                                                     <h2 class="text-lg" id="file-chosen">No file chosen</h2>
                                                 </label>
                                             </div>
+                                            <button type="submit" onclick="this.classList.toggle('button--loading')" id="show-1" style="display: none; float: right" class="btn button_load text-white btn-primary">
+                                                <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -201,7 +204,7 @@
                                                         <a class="text-reset me-3" style="cursor: pointer; display:none" id="remove" onclick="removeFile()" data-bs-toggle="tooltip" title="Remove file">
                                                             <i class="mdi mdi-close"></i>
                                                         </a>
-                                                        <button type="submit" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary">
+                                                        <button type="submit" onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
                                                             <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
                                                         </button>
                                                     </div>
@@ -251,6 +254,9 @@
                                                             <h2 class="text-lg" id="file-chosen">No file chosen</h2>
                                                         </label>
                                                     </div>
+                                                    <button type="submit" onclick="this.classList.toggle('button--loading')" id="show-1" style="display: none; float: right" class="btn button_load text-white btn-primary">
+                                                        <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -280,28 +286,35 @@
                                                     </h4>
                                                    <p class="card-text small text-muted">
                                                        <span class="fe fe-clock"></span>
-                                                        Posted {{\Carbon\Carbon::parse($comment->created_at)->toFormattedDateString()}}
+                                                       @if($comment->created_at < $comment->updated_at)
+                                                            Edited {{\Carbon\Carbon::parse($comment->updated_at)->toFormattedDateString()}}
+                                                            @else
+                                                            Posted {{\Carbon\Carbon::parse($comment->created_at)->toFormattedDateString()}}
+                                                        @endif
                                                     </p>
                                                 </div>
-                                                @if($comment->user_id == $user->id)
-                                                    <div class="col-auto">
-                                                        <div class="dropdown">
-                                                            <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <i class="fe fe-more-vertical"></i>
-                                                            </a>
-                                                            <div class="dropdown-menu dropdown-menu-end">
-                                                            <a href="#!" class="dropdown-item">
-                                                                Action
-                                                            </a>
-                                                            <a href="#!" class="dropdown-item">
-                                                                Another action
-                                                            </a>
-                                                            <a href="#!" class="dropdown-item">
-                                                                Something else here
-                                                            </a>
+                                                @if($comment->user_id == Auth::user()->id)
+                                                    @if(empty($comment->article_id))
+                                                        <div class="col-auto">
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditPost('{{$comment->comment_body}}', '{{$comment->id}}')" class="dropdown-item">
+                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                    </a>
+                                                                    <form action="/admin/teams/comment/{{$comment->id}}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{ method_field('DELETE') }}
+                                                                        <button type="submit" name="submit" onclick="return deletePost();" class="dropdown-item">
+                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
@@ -310,11 +323,11 @@
                                                 @php
                                                     $body = json_decode($comment->comment_body)
                                                 @endphp
-                                                <p>{{$body[0]}}</p>
+                                                <p>{!! $body[0] !!}</p>
                                                 <p>{!! $body[1] !!}</p>
                                                 <p><a href="{{$body[2]}}" class="text-color"><u>View full article <i class="fe fe-arrow-right"></i></u></a></p>
                                                 @else
-                                                {{$comment->comment_body}}
+                                                {!! $comment->comment_body !!}
                                             @endif
                                         </p>
                                         <p class="mb-4 text-center">
@@ -832,7 +845,7 @@
                                                     </div>
                                                     <div class="col ms-n2">
                                                         <h4 class="mb-1">
-                                                            {{$user->name}}
+                                                            <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
                                                         </h4>
                                                         <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
                                                         <p class="card-text small">
@@ -888,8 +901,8 @@
                                                         <li class="list-group-item">
                                                             <div class="row align-items-center">
                                                                 <div class="col-auto">
-                                                                    <a href="profile-posts.html" class="avatar avatar-lg">
-                                                                        <?php $user = App\Models\User::where('id', $approved_member->user_id)->first(); ?>
+                                                                    <?php $user = App\Models\User::where('id', $approved_member->user_id)->first(); ?>
+                                                                    <a href="{{route('user.profile', $user->id)}}" class="avatar avatar-lg">
                                                                         @if($user->photo)
                                                                             <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                                             @else
@@ -899,7 +912,7 @@
                                                                 </div>
                                                                 <div class="col ms-n2">
                                                                     <h4 class="mb-1 item-name">
-                                                                        <a href="profile-posts.html">{{$user->name}}</a>
+                                                                        <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
                                                                     </h4>
                                                                     <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
                                                                     <p class="card-text small">
@@ -953,7 +966,7 @@
                                                                 </div>
                                                                 <div class="col ms-n2">
                                                                     <h4 class="mb-1 name">
-                                                                        <a href="profile-posts.html">{{$user->name}}</a>
+                                                                        <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
                                                                     </h4>
                                                                     <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
                                                                     <p class="card-text small">
@@ -1463,9 +1476,6 @@
         </div>
     </div>
 
-    {{-- <div class="modal fade" id="add_member" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen p-9">
-            <div class="modal-content rounded"> --}}
     <div class="modal fade" id="add_member" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -1499,6 +1509,95 @@
                                     <span class="button__text"><i class="mdi mdi-message"></i> Send invite</span>
                                 </button>
                             </form>
+                            <div class="row justify-content-center">
+                                <div class="text-center">
+                                    <p class="text-muted">OR</p>
+                                </div>
+                            </div>
+                            <a class="btn mb-5 button_load btn-custom w-100">
+                                <i class="fe fe-paperclip mr-2"></i><input type="button" class="custom-button" id="hide-copy" value="Copy invite Link" onclick="Copy();" style="margin-top: -8px;">
+                                <span class="text-color" id="show-status" style="display: none;">Link copied!</span>
+                            </a>
+                            <div class="row justify-content-center">
+                                <span><input type="text" style="position: absolute; opacity: 0;" id="paste-box"></span>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="join_team" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="fs-1 fw-boldest">Join this Team</div>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-2x">
+                            <i class="mdi mdi-close"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mt-4">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                          <div class="col-12">
+                            <form class="tab-content pb-4" id="wizardSteps" action="{{route('joined.team', $team->id)}}" method="POST">
+                                @csrf
+                                <div class="row justify-content-center">
+                                    <div class="text-center">
+                                        <p class="mb-5 text-muted">You were invited to join this team</p>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="send_request" value="1">
+                                <input type="hidden" name="approve_request" value="1">
+                                <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                <input type="hidden" name="team_id" value="{{$team->id}}">
+                                <button type="submit" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white w-100 btn-primary">
+                                    <span class="button__text"><i class="mdi mdi-check"></i> Join Team</span>
+                                </button>
+                            </form>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="editPost" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="fs-1 fw-boldest">Edit Post</div>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-2x">
+                            <i class="mdi mdi-close"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mt-4">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                          <div class="col-12">
+                            <form action="{{route('update.comment')}}" method="POST">
+                                {{ csrf_field() }}
+                                {{ method_field('patch') }}
+                                <div class="input-group input-group-lg input-group-flush input-group-merge">
+                                    <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                    <input type="hidden" name="team_id" value="{{$team->id}}">
+                                    <input type="hidden" name="comment_id" id="comment-id">
+                                    <textarea name="comment_body" id="comment-input" class="form-control form-control-flush" data-autosize rows="1" placeholder="Create posts and share files to this team"></textarea>
+                                    <div class="input-group-text">
+                                        <button type="submit" onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
+                                            <span class="button__text"><i class="mdi mdi-check"></i> Repost</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                           </div>
                         </div>
                     </div>
@@ -1508,6 +1607,27 @@
     </div>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
+
+        $(document ).ready(function() {
+            @php
+            $routeName = request()->route()->named("join.team");
+            $join_team = App\Models\UserTeam::where('user_id', Auth::user()->id)->where('send_request', 1)->where('approve_request', 1)->first();
+            @endphp
+            @if(!$join_team)
+                @if(Session::has('join') && Session::get('join') == 1 && $routeName == 'join.team')
+                    $('#join_team').modal('show');
+                    {{Session::forget('join')}};
+                @endif
+                @else
+                @if($join_team->team_id !== $team->id)
+                    @if(Session::has('join') && Session::get('join') == 1 && $routeName == 'join.team')
+                        $('#join_team').modal('show');
+                        {{Session::forget('join')}};
+                    @endif
+                @endif
+            @endif
+        });
+
         function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
@@ -1526,6 +1646,10 @@
             if(!confirm("Are you sure you want to delete this Team?"))
             event.preventDefault();
         }
+        function deletePost() {
+            if(!confirm("Are you sure you want to delete this Post?"))
+            event.preventDefault();
+        }
         const actualBtn = document.getElementById('actual-btn');
 
         const fileChosen = document.getElementById('file-chosen');
@@ -1534,14 +1658,19 @@
             fileChosen.textContent = this.files[0].name
         })
         function showFile() {
-            document.getElementById('file_input').style.display = 'block'
-            document.getElementById('attach').style.display = 'none'
-            document.getElementById('remove').style.display = 'block'
+            document.getElementById('file_input').style.display = 'block';
+            document.getElementById('attach').style.display = 'none';
+            document.getElementById('remove').style.display = 'block';
+            document.getElementById('remove-1').style.display = 'none';
+            document.getElementById('show-1').style.display = 'block';
         }
         function removeFile() {
-            document.getElementById('file_input').style.display = 'none'
-            document.getElementById('attach').style.display = 'block'
-            document.getElementById('remove').style.display = 'none'
+            document.getElementById('file_input').style.display = 'none';
+            document.getElementById('attach').style.display = 'block';
+            document.getElementById('remove').style.display = 'none';
+            document.getElementById('remove').style.display = 'none';
+            document.getElementById('remove-1').style.display = 'block';
+            document.getElementById('show-1').style.display = 'none';
         }
 
         function showDiv(PDF, DOC, ZIP, RAR, element)
@@ -1558,6 +1687,25 @@
                 text: "You need to join this team to get access to files",
                 icon: "error",
             });
+        }
+
+        function showEditPost(comment, id){
+            document.getElementById("comment-input").value = comment;
+            document.getElementById("comment-id").value = id;
+            $('#editPost').modal('show')
+        }
+
+        function Copy()
+        {
+            var Url = document.getElementById("paste-box");
+            // Url.value = window.location.href;
+            Url.value = "{{route('join.team', $team->id)}}";
+            Url.focus();
+            Url.select();
+            document.execCommand("Copy");
+
+            document.getElementById('hide-copy').style.display = 'none';
+            document.getElementById('show-status').style.display = 'inline-block';
         }
 
     </script>

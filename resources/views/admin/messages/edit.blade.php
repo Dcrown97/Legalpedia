@@ -44,7 +44,7 @@
                             Type of Message
                         </label>
                         <select name="type" id="message_type" class="form-select" onchange="showDiv('normal', 'auto', this)">
-                            <option value="{{$message->type}}" selected>Normal Message</option>
+                            <option value="{{$message->type}}" selected>Email Message</option>
                             <option value="in-app">In-app Message</option>
                             <option value="automated">Automated Message</option>
                         </select>
@@ -80,7 +80,7 @@
                         <select name="type" id="message_type" class="form-select" onchange="showDiv('normal', 'auto', this)">
                             <option value="{{$message->type}}" selected>Automated Message</option>
                             <option value="in-app">In-app Message</option>
-                            <option value="normal">Normal Message</option>
+                            <option value="normal">Email Message</option>
                         </select>
                     </div>
                     <div id="normal" style="display: none">
@@ -113,7 +113,7 @@
                         </label>
                         <select name="type" id="message_type" class="form-select" onchange="showDiv('normal', 'auto', this)">
                             <option value="{{$message->type}}" selected>In-app message</option>
-                            <option value="normal">Normal Message</option>
+                            <option value="normal">Email Message</option>
                             <option value="automated">Automated Message</option>
                         </select>
                     </div>

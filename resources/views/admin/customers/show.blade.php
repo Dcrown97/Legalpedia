@@ -34,7 +34,7 @@
                             </h2>
                             <div class="avatar">
                                 @if($user->photo)
-                                    <img class="avatar-img rounded-circle w-8 h-8" src="{{$user->photo}}" alt="{{$user->name}}">
+                                    <img class="avatar-img rounded-circle w-8 h-8" src="{{$user ? $user->photo : ''}}" alt="{{$user->name}}">
                                     @else
                                     <img class="avatar-img rounded-circle w-8 h-8" src="{{asset('assets/images/user-avatar.jpg')}}" alt="{{$user->name}}">
                                 @endif

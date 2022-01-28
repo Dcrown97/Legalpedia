@@ -94,9 +94,19 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group mt-4">
-                                    <label class="form-label">Full name</label>
-                                    <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">First name</label>
+                                            <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Last name</label>
+                                            <input type="text" name="surname" value="{{Auth::user()->surname}}" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="mb-1">Email address</label>
@@ -184,8 +194,8 @@
                                     <div class="col-12 col-md-6">
                                         <div class="form-group">
                                             <label class="form-label">State</label>
-                                            <select name="state" class="form-select" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select State</option>
+                                            <select name="state" class="form-select">
+                                                <option value="{{Auth::user()->state}}" selected>{{Auth::user()->state}}</option>
                                                 @foreach($states as $state)
                                                     <option value="{{$state->name}}">{{$state->name}}</option>
                                                 @endforeach
@@ -195,8 +205,8 @@
                                     <div class="col-12 col-md-6">
                                         <div class="form-group">
                                             <label class="form-label">Country</label>
-                                            <select name="country" class="form-select" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Country</option>
+                                            <select name="country" class="form-select">
+                                                <option value="{{Auth::user()->country}}" selected>{{Auth::user()->country}}</option>
                                                 @foreach($countries as $country)
                                                     <option value="{{$country->name}}">{{$country->name}}</option>
                                                 @endforeach
@@ -204,11 +214,92 @@
                                         </div>
                                     </div>
                                 </div>
+                                <hr class="mt-4 mb-5">
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label"><i class="mdi mdi-facebook"></i> Facebook</label>
+                                            <input type="text" name="facebook" value="{{Auth::user()->facebook}}" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label"><i class="mdi mdi-instagram"></i> Instagram</label>
+                                            <input type="text" name="instagram" value="{{Auth::user()->instagram}}" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label"><i class="mdi mdi-twitter"></i> Twitter</label>
+                                            <input type="text" name="twitter" value="{{Auth::user()->twitter}}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label"><i class="fe fe-globe"></i> Website Link</label>
+                                            <input type="text" name="web_link" value="{{Auth::user()->web_link}}" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
                                 <button type="submit" name="save_bio" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary">
                                     <span class="button__text"><i class="mdi mdi-check"></i> Save changes</span>
                                 </button>
+                                <hr class="mt-4 mb-5">
+                                <div class="row justify-content-between">
+                                    <div class="col-12 col-md-6">
+                                        <h4>
+                                            Make your profile Public
+                                        </h4>
+                                        <p class="small text-muted mb-md-0">
+                                            You can set your profile fields to public or private
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="form-check mt-2 mb-n2">
+                                            <input class="form-check-input list-checkbox" name="email_display" type="checkbox" value="public" {{ Auth::user()->email_display !==NULL ? 'checked' : '' }}>
+                                            <h5 class="pt-2 pl-2">Email</h5>
+                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check mt-2 mb-n2">
+                                            <input class="form-check-input list-checkbox" name="phone_display" type="checkbox" value="public" {{ Auth::user()->phone_display !==NULL ? 'checked' : '' }}>
+                                            <h5 class="pt-2 pl-2">Phone</h5>
+                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check mt-2 mb-n2">
+                                            <input class="form-check-input list-checkbox" name="dob_display" type="checkbox" value="public" {{ Auth::user()->dob_display !==NULL ? 'checked' : '' }}>
+                                            <h5 class="pt-2 pl-2">Date of birth</h5>
+                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check mt-2 mb-n2">
+                                            <input class="form-check-input list-checkbox" name="ctb_display" type="checkbox" value="public" {{ Auth::user()->ctb_display !==NULL ? 'checked' : '' }}>
+                                            <h5 class="pt-2 pl-2">Call to bar year</h5>
+                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check mt-2 mb-n2">
+                                            <input class="form-check-input list-checkbox" name="social_display" type="checkbox" value="public" {{ Auth::user()->social_display !==NULL ? 'checked' : '' }}>
+                                            <h5 class="pt-2 pl-2">Social handles</h5>
+                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check mt-2 mb-n2">
+                                            <input class="form-check-input list-checkbox" name="web_display" type="checkbox" value="public" {{ Auth::user()->web_display !==NULL ? 'checked' : '' }}>
+                                            <h5 class="pt-2 pl-2">Website</h5>
+                                            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" name="save_bio" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary">
+                                    <span class="button__text"><i class="mdi mdi-check"></i> Save</span>
+                                </button>
+                                <br><br>
                             </form>
-                            <br><br>
                         </div>
                         <div class="tab-pane fade" id="transact" role="tabpanel" aria-labelledby="transact-tab">
                             <div class="row">

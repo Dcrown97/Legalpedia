@@ -44,7 +44,7 @@
                     <select name="type" id="message_type" class="form-select" onchange="showDiv('normal', 'auto', this)">
                         <option value="">Select Type</option>
                         <option value="in-app">In-app Message</option>
-                        <option value="normal">Normal Message</option>
+                        <option value="normal">Email Message</option>
                         <option value="automated">Automated Message</option>
                     </select>
                 </div>

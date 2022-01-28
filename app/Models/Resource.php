@@ -10,7 +10,7 @@ class Resource extends Model
     use HasFactory;
 
     protected $fillable = [
-        'url', 'title', 'description', 'area_of_law'
+        'url', 'title', 'description', 'area_of_law', 'category'
     ];
 
     protected $table = 'resources';

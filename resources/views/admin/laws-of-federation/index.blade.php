@@ -25,6 +25,28 @@
                     @endif
                     @include('elements.notifications')
                 </div>
+                <div class="row align-items-end justify-content-end mt-4 p-3">
+                    <form action="{{route('admin.laws-of-federation')}}" method="GET" class="me-3 d-flex">
+                        <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                            @foreach($categories as $category)
+                                <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" name="fetch_fed" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                        </button>
+                        <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -34,23 +56,14 @@
                 <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
                         <h4 class="card-header-title">Laws</h4>
-                        <form action="{{route('admin.laws-of-federation')}}" method="GET" class="me-3 d-flex">
-                            <select name="category" class="form-select form-control-flush mr-8" data-choices='{"searchEnabled": true}'>
-                                @foreach($categories as $category)
-                                    <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
-                                @endforeach
-                            </select>
-                            <button type="submit" name="fetch_fed" onclick="this.classList.toggle('button--loading')" class="btn ml-3 button_load text-white btn-sm btn-primary p-2">
-                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
-                            </button>
-                        </form>
+
                     </div>
                     <div class="card-header">
                       <div class="row align-items-center">
                         <div class="col">
                           <form>
                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                              <input class="form-control list-search" type="search" placeholder="Search">
+                              <input class="form-control list-search" type="search" placeholder="Search titles">
                               <span class="input-group-text">
                                 <i class="fe fe-search"></i>
                               </span>
@@ -195,19 +208,19 @@
                                         <label class="form-label mb-1">
                                             Category
                                         </label>
-                                        <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                        <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
                                             <option value="">Select Category</option>
                                             @foreach($categories as $category)
                                                 <option value="{{$category->category}}">{{$category->category}}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label class="form-label mb-1">
                                             Area of Law
                                         </label>
                                         <textarea name="area_of_law" class="form-control" rows="5" placeholder="Enter area(s) of Law"></textarea>
-                                    </div>
+                                    </div> --}}
                                     <div class="form-group">
                                         <label class="form-label mb-1">
                                             Subsidiary Legislation
@@ -341,6 +354,13 @@
         </div>
     </div>
     <script>
+        function initMCEall(){
+            tinymce.init({
+                mode: "textareas",
+                plugins: 'autolink lists link image'
+            });
+        }
+
         var section_no = 1;
         function addFields() {
             section_no++;
@@ -349,6 +369,7 @@
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_no +
             '. Section Header</label><input type="text" name="section['+ section_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="section['+ section_no +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         var sched_no = 1;
@@ -359,6 +380,7 @@
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + sched_no +
             '. Schedule Header</label><input type="text" name="sched['+ sched_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Schedule Body</label> <textarea class="form-control" name="sched['+ sched_no +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initMCEall();
         }
 
         function deleteFunction() {

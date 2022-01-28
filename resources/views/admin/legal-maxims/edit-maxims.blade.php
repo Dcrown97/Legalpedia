@@ -45,19 +45,19 @@
                                 <label class="form-label mb-1">
                                     Category
                                 </label>
-                                <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
                                     <option value="{{$maxim->category}}" selected>{{$maxim->category}}</option>
                                     @foreach($categories as $category)
                                         <option value="{{$category->category}}">{{$category->category}}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label class="form-label mb-1">
                                     Area of Law
                                 </label>
                                 <textarea name="area_of_law" class="form-control" placeholder="Enter area(s) of law">{{$maxim->area_of_law}}</textarea>
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
                                     <span class="button__text"><i class="mdi mdi-check"></i> Save</span>

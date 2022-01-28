@@ -378,14 +378,24 @@
                                                 <?php $message_no++; ?>
                                                 <td class="orders-product">{{Str::words($message->name, 3)}}</td>
                                                 <td class="orders-product">{{Str::words($message->subject, 3)}}</td>
-                                                <td class="orders-product">{{Str::words($message->body, 5)}}</td>
-                                                <td class="orders-total">{{$message->type}}</td>
+                                                <td class="orders-product">{!! Str::words($message->body, 5) !!}</td>
+                                                <td class="orders-total">
+                                                    @if($message->type == 'normal')
+                                                        Email
+                                                        @elseif($message->type == 'in-app')
+                                                        In-app
+                                                        @elseif($message->type == 'automated')
+                                                        Automated
+                                                    @endif
+                                                </td>
                                                 <td class="orders-total">{{$message->receipient}}</td>
                                                 @php
-                                                    $receipient = App\Models\MailMessage::where('message_id', $message->id)->first();
-                                                    $receipient_count = $receipient->count();
-                                                    $receipient_users['user_id'] = json_decode($receipient->users);
-                                                    $receipient_no = count($receipient_users);
+                                                    $receipient = App\Models\MailMessage::where('message_id', $message ? $message->id : '')->first();
+                                                    if($receipient) {
+                                                        $receipient_count = $receipient->count();
+                                                        $receipient_users['user_id'] = json_decode($receipient->users);
+                                                        $receipient_no = count($receipient_users);
+                                                    }
                                                 @endphp
                                                 @if($receipient)
                                                     <td class="orders-total">{{$receipient_no}}</td>

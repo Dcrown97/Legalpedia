@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="{{asset('assets/css/theme-dark.bundle.css')}}" id="stylesheetDark" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" type="text/css">
 
+    <link href="{{asset('assets/css/recogito.min.css')}}" rel="stylesheet">
+    <script src="{{asset('assets/js/recogito.min.js')}}"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -68,6 +70,7 @@
         });
         tinymce.init({
             selector: 'textarea',
+            plugins: 'autolink lists link image'
         });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

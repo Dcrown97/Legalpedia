@@ -30,6 +30,28 @@
                     @endif
                     @include('elements.notifications')
                 </div>
+                <div class="row align-items-end justify-content-end mt-4 p-3">
+                    <form action="{{route('admin.resources')}}" method="GET" class="me-3 d-flex">
+                        <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                            @foreach($categories as $category)
+                                <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" name="fetch_category" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                        </button>
+                        <a href="{{url('admin/resources')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <a href="{{url('admin/resources')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -39,12 +61,12 @@
                 <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
                         <h4 class="card-header-title">Resources</h4>
-                        <h4>{{$resource_count}} records</h4>
+                        <h4>{{number_format($resource_count)}} records</h4>
                     </div>
                     <div class="card-header">
                         <form>
                             <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                <input class="form-control list-search" type="search" placeholder="Search">
+                                <input class="form-control list-search" type="search" placeholder="Search titles">
                                 <div class="input-group-text">
                                 <span class="fe fe-search"></span>
                                 </div>
@@ -52,7 +74,7 @@
                         </form>
                     </div>
                     <div class="card-body">
-                        @if($resources)
+                        @if(count($resources) > 0)
                             <ul class="list-group list-group-lg list-group-flush list my-n4">
                                 @foreach ($resources as $resource)
                                     <li class="list-group-item">
@@ -93,7 +115,7 @@
                             </ul>
                             @else
                             <div class="text-center">
-                                <h1>No record found</h1>
+                                <h3 class="text-muted"><i class="fe fe-file"></i> No records found</h3>
                             </div>
                         @endif
                     </div>
@@ -154,9 +176,14 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">
-                                            Area of Law(s)
+                                            Category
                                         </label>
-                                        <textarea name="area_of_law" rows="5" placeholder="Enter Law"></textarea>
+                                        <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
+                                            <option value="">Select Category</option>
+                                            @foreach($categories as $category)
+                                                <option value="{{$category->category}}">{{$category->category}}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label mb-1">

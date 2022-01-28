@@ -65,7 +65,7 @@
                             <div class="col">
                                 <form>
                                     <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                    <input class="form-control list-search" type="search" placeholder="Search">
+                                    <input class="form-control list-search" type="search" placeholder="Search titles">
                                     <span class="input-group-text">
                                         <i class="fe fe-search"></i>
                                     </span>

@@ -10,7 +10,7 @@ class Court extends Model
     use HasFactory;
 
     protected $fillable = [
-        'court'
+        'court', 'rank'
     ];
 
     protected $table = 'courts';

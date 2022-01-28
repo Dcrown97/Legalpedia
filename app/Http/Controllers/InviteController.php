@@ -20,7 +20,7 @@ class InviteController extends Controller
     //
     public function __construct()
     {
-        $this->middleware(['auth', 'verified'])->except('registration_view');
+        $this->middleware('auth')->except('registration_view');
         // $this->middleware('auth')
     }
 

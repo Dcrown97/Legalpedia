@@ -41,9 +41,13 @@ class TeamRequest extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->line('Hi Team Admin, this user '. $this->user_request->email .' is requesting to join your Team')
-                    ->action('Approve user', url('admin/teams/member/approve'));
+        // return (new MailMessage)
+        //             ->line('Hi Team Admin, this user '. $this->user_request->email .' is requesting to join your Team')
+        //             ->action('Approve user', url('admin/teams/member/approve'));
+
+        return (new MailMessage)->view(
+            'emails.welcomeOnboard', ['user'=> $this->user]
+        )->subject('Welcome to Legalpedia');
     }
 
     /**

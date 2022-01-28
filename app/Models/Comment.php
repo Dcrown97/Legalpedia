@@ -19,7 +19,8 @@ class Comment extends Model
         'zip_name',
         'rar_name',
         'comment_body',
-        'article_id'
+        'article_id',
+        'anote_id',
     ];
 
     public function getFileAttribute($value)

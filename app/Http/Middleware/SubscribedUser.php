@@ -19,13 +19,15 @@ class SubscribedUser
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::user()) {
-            $user = Auth::user();
-            if(Auth::user()->subscribedUser()) {
-                return $next($request);
-            }
-            return redirect('admin/dashboard');
-        }
-        return redirect('/');
+        // if(Auth::user()) {
+        //     $user = Auth::user();
+        //     if(Auth::user()->subscribedUser()) {
+        //         return $next($request);
+        //     }
+        //     return redirect('admin/dashboard');
+        // }
+        // // return redirect('/');
+        // return $next($request);
+
     }
 }

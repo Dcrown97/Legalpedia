@@ -33,13 +33,8 @@
                                 <label class="form-label mb-1">
                                     Title
                                 </label>
+                                <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                 <input type="text" name="title" class="form-control" value="{{$form->title}}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label mb-1">
-                                    Version No.
-                                </label>
-                                <input type="number" name="version_no" class="form-control" value="{{$form->version_no}}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
@@ -51,7 +46,7 @@
                                 <label class="form-label mb-1">
                                     Category
                                 </label>
-                                <select name="category" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
                                     <option value="{{$form->category}}" selected>{{$form->category}}</option>
                                     @foreach($categories as $category)
                                         <option value="{{$category->category}}">{{$category->category}}</option>
@@ -60,20 +55,28 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Area of Law
+                                    Author
                                 </label>
-                                <select name="area_of_law" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
-                                    <option value="{{$form->area_of_law}}" selected>{{$form->area_of_law}}</option>
-                                    @foreach($area_of_laws as $area_of_law)
-                                        <option value="{{$area_of_law->id}}">{{$area_of_law->AreaOfLaw}}</option>
-                                    @endforeach
-                                </select>
+                                @if(Auth::user()->role->name == 'Admin')
+                                    <input type="text" name="author" class="form-control" value="Legalpedia" readonly>
+                                    @else
+                                    <input type="text" name="author" class="form-control" value="{{$form->author}}" readonly>
+                                @endif
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
-                                    Author
+                                    Make Form public or private
                                 </label>
-                                <input type="text" name="author" class="form-control" value="{{$form->author}}">
+                                @if(Auth::user()->role->name == 'Admin')
+                                    <input type="hidden" name="form_type" value="legalpedia">
+                                    @else
+                                    <input type="hidden" name="form_type" value="user">
+                                @endif
+                                <select name="display_type" class="form-select">
+                                    <option value="{{$form->display_type}}" selected>{{$form->display_type}}</option>
+                                    <option value="Public">Make Public</option>
+                                    <option value="Private">Keep Private</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">

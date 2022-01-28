@@ -20,7 +20,7 @@ class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next, ...$guards)
     {
-        Session::put('oldUrl', $request->url());
+        // Session::put('oldUrl', $request->url());
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {

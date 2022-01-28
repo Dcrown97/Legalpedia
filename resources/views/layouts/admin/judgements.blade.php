@@ -43,6 +43,11 @@
 
   </head>
   <body>
+      <!--- Preloader -->
+    <div class="fh5co-loader" id="search-loader">
+        <div class="loader"></div>
+    </div>
+    <!-- Preloader End -->
     <div class="loader-bg">
 		<div class="loader-bar"></div>
     </div>
@@ -64,12 +69,23 @@
     <script src="{{asset('assets/js/theme.bundle.js')}}"></script>
 
     <script>
+
+        $(document).ready(function(){
+            var $window=$(window);
+            $('.fh5co-loader').fadeOut();
+        });
+        $(document).ready(function(){
+            var $window=$(window);
+            $('.loader-bg').fadeOut();
+        });
+
         $(document).ready(function(){
             var $window=$(window);
             $('.loader-bg').fadeOut();
         });
         tinymce.init({
             selector: 'textarea',
+            plugins: 'autolink lists link image'
         });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -79,6 +95,7 @@
         });
   </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script type="text/javascript">
     var route = "{{ url('autocomplete-search') }}";
 

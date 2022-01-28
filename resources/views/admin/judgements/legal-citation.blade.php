@@ -67,24 +67,29 @@
         <div class="row">
             <div class="col-12">
                 <div class="tab-content" id="wizardSteps">
-                    <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
+                    <div class="card" data-list='{"valueNames": ["item-name", "item-name1"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                         <div class="card-header">
-                            <h4 class="card-header-title">Legalpedia Citation   Index</h4>
+                            <h4 class="card-header-title">Legalpedia Citation Index</h4>
                         </div>
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col">
                                     <form>
                                         <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                            <input class="form-control list-search" type="search" placeholder="Search">
+                                            <input class="form-control list-search" type="search" placeholder="Search titles">
                                             <span class="input-group-text">
                                                 <i class="fe fe-search"></i>
                                             </span>
                                         </div>
                                     </form>
                                 </div>
-                                <div class="col-auto me-n3">
-                                    <h4>{{number_format($judgement_count)}} records</h4>
+                                @if(Auth::user()->role->name == 'Admin')
+                                    <div class="col-auto me-n3">
+                                        <h4>{{number_format($judgement_count)}} records</h4>
+                                    </div>
+                                @endif
+                                <div class="col-auto">
+                                    {{$judgement_summaries->links()}}
                                 </div>
                             </div>
                         </div>
@@ -103,8 +108,8 @@
                                                     <h4 class="mb-1 item-name">
                                                         <a href="{{route('show.judgement', $judgement_summary->id)}}">{{$judgement_summary->title}}</a>
                                                     </h4>
-                                                    <p class="card-text text-color small mb-1">
-                                                        In Court of Appeal
+                                                    <p class="card-text text-color small item-name1 mb-1">
+                                                        {{$judgement_summary->lp_citation}}
                                                     </p>
                                                     <p class="card-text small text-muted">
                                                         {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary->judgement_date)->toFormattedDateString()}}
@@ -141,7 +146,12 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="row g-0">
+                        <div class="row align-items-center">
+                            <div class="my-4 justify-content-center text-center">
+                                {{$judgement_summaries->links()}}
+                            </div>
+                        </div>
+                        {{-- <div class="row g-0">
                             <ul class="col list-pagination-prev pagination pagination-tabs justify-content-start">
                                 <li class="page-item">
                                     <a class="page-link" href="#">
@@ -157,7 +167,7 @@
                                     </a>
                                 </li>
                             </ul>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
