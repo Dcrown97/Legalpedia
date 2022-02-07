@@ -215,7 +215,7 @@
                             <i class="fas fa-times-circle text-secondary"></i> <span>State Rules of Court</span>
                         </div>
                     @endif
-                    @if($package->bookmark)
+                    {{-- @if($package->bookmark)
                         <div class="col-md-6 pad_bot">
                             <i class="fas fa-check-circle text-secondary"></i> <span>Bookmarks</span>
                         </div>
@@ -223,9 +223,7 @@
                         <div class="col-md-6 pad_bot">
                             <i class="fas fa-times-circle text-secondary"></i> <span>Bookmarks</span>
                         </div>
-                    @endif
-                </div>
-                <div class="row">
+                    @endif --}}
                     @if($package->maxim_feature)
                         <div class="col-md-6 pad_bot">
                             <a class="custom-feature" data-toggle="collapse" href="#multiCollapseMaxim" role="button" aria-expanded="false" aria-controls="multiCollapseMaxim">
@@ -248,30 +246,6 @@
                         @else
                         <div class="col-md-6 pad_bot">
                             <i class="fas fa-times-circle text-secondary"></i> <span>Legal Maxims</span>
-                        </div>
-                    @endif
-                    @if($package->dict_feature)
-                        <div class="col-md-6 pad_bot">
-                            <a class="custom-feature" data-toggle="collapse" href="#multiCollapseDict" role="button" aria-expanded="false" aria-controls="multiCollapseDict">
-                                <i class="fas fa-check-circle text-success"></i> <span>Law Dictionary</span> <i class="mdi mdi-chevron-down"></i>
-                            </a>
-                            <div class="collapse multi-collapse" id="multiCollapseDict">
-                                @php
-                                    $dict_cat = json_decode($package->dict_cat)
-                                @endphp
-                                @if($dict_cat)
-                                    <div class="mt-3 ml-3">
-                                        <h6 class="text-color">Categories</h6>
-                                        @foreach ($dict_cat as $cat)
-                                            <p><i class="mdi mdi-check text-success"></i> {{$cat}}</p>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        @else
-                        <div class="col-md-6 pad_bot">
-                            <i class="fas fa-times-circle text-secondary"></i> <span>Law Dictionary</span>
                         </div>
                     @endif
                 </div>
@@ -300,13 +274,28 @@
                             <i class="fas fa-times-circle text-secondary"></i> <span>Foreign Resources</span>
                         </div>
                     @endif
-                    @if($package->team)
+                    @if($package->dict_feature)
                         <div class="col-md-6 pad_bot">
-                            <i class="fas fa-check-circle text-success"></i> <span>Teams</span>
+                            <a class="custom-feature" data-toggle="collapse" href="#multiCollapseDict" role="button" aria-expanded="false" aria-controls="multiCollapseDict">
+                                <i class="fas fa-check-circle text-success"></i> <span>Law Dictionary</span> <i class="mdi mdi-chevron-down"></i>
+                            </a>
+                            <div class="collapse multi-collapse" id="multiCollapseDict">
+                                @php
+                                    $dict_cat = json_decode($package->dict_cat)
+                                @endphp
+                                @if($dict_cat)
+                                    <div class="mt-3 ml-3">
+                                        <h6 class="text-color">Categories</h6>
+                                        @foreach ($dict_cat as $cat)
+                                            <p><i class="mdi mdi-check text-success"></i> {{$cat}}</p>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                         @else
                         <div class="col-md-6 pad_bot">
-                            <i class="fas fa-times-circle text-secondary"></i> <span>Teams</span>
+                            <i class="fas fa-times-circle text-secondary"></i> <span>Law Dictionary</span>
                         </div>
                     @endif
                 </div>
@@ -333,6 +322,15 @@
                         @else
                         <div class="col-md-6 pad_bot">
                             <i class="fas fa-times-circle text-secondary"></i> <span>Forms and Precedents</span>
+                        </div>
+                    @endif
+                    @if($package->team)
+                        <div class="col-md-6 pad_bot">
+                            <i class="fas fa-check-circle text-success"></i> <span>Teams</span>
+                        </div>
+                        @else
+                        <div class="col-md-6 pad_bot">
+                            <i class="fas fa-times-circle text-secondary"></i> <span>Teams</span>
                         </div>
                     @endif
                 </div>

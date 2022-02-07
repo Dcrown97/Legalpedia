@@ -9,6 +9,8 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Package;
+use App\Models\Role;
+use App\Notifications\NewSubscriber;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
@@ -79,9 +81,21 @@ class PaymentController extends Controller
 
         $package = Package::where('id', $transact->package_id)->first();
 
-        $day = $package->recur_date;
-        $transact_date = $transact->created_at;
-        $expiry_date =  $transact->created_at->addDays($day);
+        if($package->validity == 'Days'){
+            $day = $package->recur_date;
+            $transact_date = $transact->created_at;
+            $expiry_date =  $transact->created_at->addDays($day);
+        }
+        if($package->validity == 'Months'){
+            $month = $package->recur_date;
+            $transact_date = $transact->created_at;
+            $expiry_date =  $transact->created_at->addMonths($month);
+        }
+        if($package->validity == 'Years'){
+            $year = $package->recur_date;
+            $transact_date = $transact->created_at;
+            $expiry_date =  $transact->created_at->addYears($year);
+        }
 
         $user = User::find(auth()->id());
         $user->package_id = $transact->package_id;
@@ -94,7 +108,45 @@ class PaymentController extends Controller
         }
         $user->save();
 
+        $user->notify(new NewSubscriber($transact, $user));
+
+        $this->addSubscriber($user);
+
+
         return $new_data;
+
+    }
+
+    public function addSubscriber($user) {
+        $data['contact'] =  [
+            "email" => $user->email,
+            "firstName" => $user->name,
+            "lastName"=> $user->surname,
+            "phone" => $user ? $user->phone : ''
+        ];
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => json_encode($data),
+          CURLOPT_HTTPHEADER => array(
+            'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+            'Content-Type: application/json',
+            'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+          ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        info($response);
+        // return $response;
 
     }
 

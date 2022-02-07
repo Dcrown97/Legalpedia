@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use App\Models\User;
-use App\Models\UserTeam;
 use App\Models\Role;
+use App\Models\Team;
+use App\Models\User;
 use App\Models\Invite;
-use App\Notifications\WelcomeOnboard;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Models\UserTeam;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\WelcomeOnboard;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\RegistersUsers;
 
 class RegisterController extends Controller
 {
@@ -96,6 +97,16 @@ class RegisterController extends Controller
                 'approve_request' => $data['approve_request'],
             ]);
 
+            $role = Role::where('name','Admin')->first();
+            $admin_user = User::where('role_id', $role->id)->first();
+            $team = Team::where('user_id', $admin_user->id)->first();
+            UserTeam::create([
+                'user_id' => $user->id,
+                'team_id' => $team ? $team->id : NULL,
+                'send_request' => 1,
+                'approve_request' => 1,
+            ]);
+
             $user->notify(new WelcomeOnboard($user));
 
             return $user;
@@ -112,6 +123,19 @@ class RegisterController extends Controller
                 'call_to_bar_year' => $data['call_to_bar_year'],
                 'password' => Hash::make($data['password']),
             ]);
+
+            $role = Role::where('name','Admin')->first();
+            $admin_user = User::where('role_id', $role->id)->first();
+            $team = Team::where('user_id', $admin_user->id)->first();
+            UserTeam::create([
+                'user_id' => $user->id,
+                'team_id' => $team ? $team->id : NULL,
+                'send_request' => 1,
+                'approve_request' => 1,
+            ]);
+
+
+
 
             $user->notify(new WelcomeOnboard($user));
 

@@ -61,7 +61,7 @@ class LoginController extends Controller
             $user = Auth::user();
 
             Session::put('join', 1);
-            // Session::put('welcome', 1);
+            Session::put('welcome', 1);
             // dd(Session::get('welcome'));
 
             if(!empty($user->license_code)) {

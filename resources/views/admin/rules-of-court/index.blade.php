@@ -25,28 +25,63 @@
                     @endif
                     @include('elements.notifications')
                 </div>
-                <div class="row align-items-end justify-content-end mt-4 p-3">
-                    <form action="{{route('admin.rules-of-court')}}" method="GET" class="me-3 d-flex">
-                        <select name="name" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
-                            @foreach($rule_categories as $rule_category)
-                                <option value="{{$rule_category->name}}" {{ $rule_category->name == $selected_name['name'] ? 'selected' : '' }}>{{$rule_category->name}}</option>
-                            @endforeach
-                        </select>
-                        <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="btn ml-3 mr-3 button_load text-white btn-sm btn-primary p-2">
-                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
-                        </button>
-                        <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-mobile">
-                            <i class="mdi mdi-close"></i> Clear
-                        </a>
-                    </form>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-desk show-mobile">
-                            <i class="mdi mdi-close"></i> Clear
-                        </a>
+                @if(Auth::user()->role->name == 'Admin')
+                    <div class="row align-items-end justify-content-end mt-4 p-3">
+                        <form action="{{route('admin.rules-of-court')}}" method="GET" class="me-3 d-flex">
+                            <select name="name" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                                @foreach($rule_categories as $rule_category)
+                                    <option value="{{$rule_category->name}}" {{ $rule_category->name == $selected_name['name'] ? 'selected' : '' }}>{{$rule_category->name}}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="btn ml-3 mr-3 button_load text-white btn-sm btn-primary p-2">
+                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                            </button>
+                            <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-mobile">
+                                <i class="mdi mdi-close"></i> Clear
+                            </a>
+                        </form>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                                <i class="mdi mdi-close"></i> Clear
+                            </a>
+                        </div>
+                    </div>
+                    @else
+                    @if($rule_categories->roc_cat)
+                        <div class="row align-items-end justify-content-end mt-4 p-3">
+                            <form action="{{route('admin.rules-of-court')}}" method="GET" class="me-3 d-flex">
+                                @php
+                                    $all_rule_categories = json_decode($rule_categories->roc_cat);
+                                @endphp
+                                @if($all_rule_categories)
+                                    <select name="name" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                                        @foreach($all_rule_categories as $rule_category)
+                                            @php
+                                                $main_category = App\Models\RuleCategory::where('name', $rule_category)->first();
+                                            @endphp
+                                            <option value="{{$main_category->name}}" {{ $main_category->name == $selected_name['name'] ? 'selected' : '' }}>{{$main_category->name}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                                <button type="submit" name="fetch_rule" onclick="this.classList.toggle('button--loading')" class="btn ml-3 mr-3 button_load text-white btn-sm btn-primary p-2">
+                                    <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                                </button>
+                                <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-mobile">
+                                    <i class="mdi mdi-close"></i> Clear
+                                </a>
+                            </form>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <a href="{{url('admin/rules-of-court')}}" class="btn text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                                    <i class="mdi mdi-close"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
         </div>
     </div>
@@ -686,87 +721,90 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen p-9">
-            <div class="modal-content rounded">
-                <div class="modal-header">
-                    <div class="fs-1 fw-boldest">Create Rule of Court</div>
-                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <span class="svg-icon svg-icon-2x">
-                            <i class="mdi mdi-close"></i>
-                        </span>
+
+    @if(Auth::user()->role->name == 'Admin')
+        <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen p-9">
+                <div class="modal-content rounded">
+                    <div class="modal-header">
+                        <div class="fs-1 fw-boldest">Create Rule of Court</div>
+                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                            <span class="svg-icon svg-icon-2x">
+                                <i class="mdi mdi-close"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-body scroll-y m-5">
-                    <div class="stepper stepper-links d-flex flex-column" id="kt_modal_create_project_stepper">
-                        <div class="container">
-                            <div class="stepper-nav justify-content-center py-2">
-                                <form action="{{route('store.rule')}}" method="POST">
-                                    @csrf
-                                    <div class="row">
-                                        <div class="col-12 col-lg-6 col-xl-6">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Rule Category
-                                                </label>
-                                                <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
-                                                    <option value="">Select Category</option>
-                                                    @foreach($rule_categories as $rule_category)
-                                                        <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
-                                                    @endforeach
-                                                </select>
+                    <div class="modal-body scroll-y m-5">
+                        <div class="stepper stepper-links d-flex flex-column" id="kt_modal_create_project_stepper">
+                            <div class="container">
+                                <div class="stepper-nav justify-content-center py-2">
+                                    <form action="{{route('store.rule')}}" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-12 col-lg-6 col-xl-6">
+                                                <div class="form-group">
+                                                    <label class="form-label mb-1">
+                                                        Rule Category
+                                                    </label>
+                                                    <select name="name" class="form-select" data-choices='{"searchEnabled": true}'>
+                                                        <option value="">Select Category</option>
+                                                        @foreach($rule_categories as $rule_category)
+                                                            <option value="{{$rule_category->name}}">{{$rule_category->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-6 col-xl-6">
+                                                <div class="form-group">
+                                                    <label class="form-label mb-1">
+                                                        Section
+                                                    </label>
+                                                    <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
+                                                        <option value="">Select section</option>
+                                                        <option value="ORDERS">ORDERS</option>
+                                                        <option value="PARTS">PARTS</option>
+                                                        <option value="SCHEDULES">SCHEDULES</option>
+                                                        <option value="FORMS">FORMS</option>
+                                                        <option value="PROBATE FORMS">PROBATE FORMS</option>
+                                                        <option value="CIVIL FORMS">CIVIL FORMS</option>
+                                                        <option value="APPENDIX">APPENDIX</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-lg-6 col-xl-6">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Section
-                                                </label>
-                                                <select name="section" class="form-select" data-choices='{"searchEnabled": true}'>
-                                                    <option value="">Select section</option>
-                                                    <option value="ORDERS">ORDERS</option>
-                                                    <option value="PARTS">PARTS</option>
-                                                    <option value="SCHEDULES">SCHEDULES</option>
-                                                    <option value="FORMS">FORMS</option>
-                                                    <option value="PROBATE FORMS">PROBATE FORMS</option>
-                                                    <option value="CIVIL FORMS">CIVIL FORMS</option>
-                                                    <option value="APPENDIX">APPENDIX</option>
-                                                </select>
-                                            </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Rule Title
+                                            </label>
+                                            <input type="hidden" name="type" value="Other">
+                                            <input type="text" name="title" class="form-control">
                                         </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Rule Title
-                                        </label>
-                                        <input type="hidden" name="type" value="Other">
-                                        <input type="text" name="title" class="form-control">
-                                    </div>
-                                    {{-- <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Version No.
-                                        </label>
-                                        <input type="text" name="version_no" class="form-control">
-                                    </div> --}}
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Content
-                                        </label>
-                                        <textarea name="content" rows="5" class="form-control" placeholder="Enter description"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
-                                            <span class="button__text"><i class="mdi mdi-plus"></i> Add State Rule</span>
-                                        </button>
-                                    </div>
-                                </form>
+                                        {{-- <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Version No.
+                                            </label>
+                                            <input type="text" name="version_no" class="form-control">
+                                        </div> --}}
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Content
+                                            </label>
+                                            <textarea name="content" rows="5" class="form-control" placeholder="Enter description"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
+                                                <span class="button__text"><i class="mdi mdi-plus"></i> Add State Rule</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
     <script>
         function deleteOrderFunction() {
             if(!confirm("Are you sure you want to delete this Rule order?"))

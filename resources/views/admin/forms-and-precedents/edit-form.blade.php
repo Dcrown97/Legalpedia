@@ -42,17 +42,39 @@
                                 </label>
                                 <textarea name="content" class="form-control" rows="5" placeholder="Enter description">{{$form->content}}</textarea>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label mb-1">
-                                    Category
-                                </label>
-                                <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
-                                    <option value="{{$form->category}}" selected>{{$form->category}}</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{$category->category}}">{{$category->category}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            @if(Auth::user()->role->name == 'Admin')
+                                <div class="form-group">
+                                    <label class="form-label mb-1">
+                                        Category
+                                    </label>
+                                    <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
+                                        <option value="{{$form->category}}">{{$form->category}}</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{$category->category}}">{{$category->category}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @else
+                                @if($categories->form_cat)
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Category
+                                        </label>
+                                        @php
+                                            $all_categories = json_decode($categories->form_cat);
+                                        @endphp
+                                        <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                                            <option value="{{$form->category}}">{{$form->category}}</option>
+                                            @foreach($all_categories as $category)
+                                                @php
+                                                    $main_category = App\Models\Category::where('category', $category)->first();
+                                                @endphp
+                                                <option value="{{$main_category->category}}">{{$main_category->category}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
+                            @endif
                             <div class="form-group">
                                 <label class="form-label mb-1">
                                     Author

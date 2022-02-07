@@ -42,7 +42,6 @@ class AdminUserController extends Controller
     public function userProfile($id) {
         $user = User::findOrFail($id);
         return view('admin.customers.profile', compact('user'));
-        return back();
     }
 
     public function edit($id) {
@@ -50,7 +49,7 @@ class AdminUserController extends Controller
         $states = State::orderBy('name', 'ASC')->get();
         $countries = Country::orderBy('name', 'ASC')->get();
         $package = Package::where('id', $user->package_id)->first();
-        $transactions = Transaction::where('user_id', $user->id)->get();
+        $transactions = Transaction::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
         return view('admin.customers.edit', compact('user', 'states', 'countries', 'package', 'transactions'));
     }
 

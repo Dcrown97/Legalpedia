@@ -57,6 +57,13 @@
                             Legalpedia Citation Index
                         </a>
                     </li>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <li class="nav-item">
+                            <a class="nav-link"  href="{{route('judgement.no-summary')}}">
+                                Cases without Summary
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
           </div>

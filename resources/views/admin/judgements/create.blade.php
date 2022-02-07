@@ -96,7 +96,7 @@
                                         Party A Type
                                     </label>
                                     <select name="party_a_type" class="form-select" data-choices='{"searchEnabled": true}'>
-                                        <option value="">Select Party A Type</option>
+                                        <option value="13">APPELLANTS</option>
                                         @foreach($party_a_types as $party_a_type)
                                             <option value="{{$party_a_type->id}}">{{$party_a_type->party_a_type}}</option>
                                         @endforeach
@@ -107,7 +107,7 @@
                                         Party B Type
                                     </label>
                                     <select name="party_b_type" class="form-select" data-choices='{"searchEnabled": true}'>
-                                        <option value="">Select Party B Type</option>
+                                        <option value="17">RESPONDENTS</option>
                                         @foreach($party_b_types as $party_b_type)
                                             <option value="{{$party_b_type->id}}">{{$party_b_type->party_b_type}}</option>
                                         @endforeach

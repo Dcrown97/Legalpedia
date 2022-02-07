@@ -43,6 +43,7 @@ class RequestApproved extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
+                    ->subject('Your request has been approved')
                     ->line('Hi '. $this->approve_user_request->name .' Your request has just been approved to join this team')
                     ->action('View team', url('admin/teams'));
     }

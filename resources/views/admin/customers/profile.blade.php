@@ -34,9 +34,11 @@
                             </h2>
                             <div class="avatar">
                                 @if($user->photo)
-                                    <img class="avatar-img rounded-circle w-8 h-8" src="{{$user->photo}}" alt="{{$user->name}}">
+                                    <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                     @else
-                                    <img class="avatar-img rounded-circle w-8 h-8" src="{{asset('assets/images/user-avatar.jpg')}}" alt="{{$user->name}}">
+                                    <div class="initials">
+                                        <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                    </div>
                                 @endif
                             </div>
                         </div>

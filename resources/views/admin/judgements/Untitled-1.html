@@ -1,0 +1,484 @@
+<div class="tab-pane fade" id="wizardStepTwo" role="tabpanel" aria-labelledby="wizardTabTwo">
+    <div class="row justify-content-center">
+        <div class="text-center">
+            <h1 class="mb-3">Features</h1>
+            <p class="mb-5 text-muted">Add features to subscription package</p>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" name="judgement_feature" type="checkbox" id="judgementCheck" {{ $package->judgement_feature !==NULL ? 'checked' : '' }}>
+            <h5 class="pt-2 pl-2">Judgements</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        {{-- @if($package->judgement_feature !==NULL) --}}
+            <div id="show_judgement_content">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                From Year
+                            </label>
+                            <input type="number" min="1960" name="judg_start_year" placeholder="1960" class="form-control" value="{{$package->judg_start_year}}">
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                To Year
+                            </label>
+                            <input type="number" max="2021" name="judg_end_year" placeholder="2021" class="form-control"  value="{{$package->judg_end_year}}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Category
+                            </label>
+                            <select multiple name="judg_cat[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="{{$package->judg_cat}}">{{$package->judg_cat}}</option>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Area of Law
+                            </label>
+                            <select multiple name="judg_area_of_law[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Area of Law</option>
+                                @foreach($area_of_laws as $area_of_law)
+                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- @else
+            <div id="show_judgement_content" style="display: none">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                From Year
+                            </label>
+                            <input type="number" min="1960" name="judg_start_year" placeholder="1960" class="form-control" value="{{$package->judg_start_year}}">
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                To Year
+                            </label>
+                            <input type="number" max="2021" name="judg_end_year" placeholder="2021" class="form-control"  value="{{$package->judg_end_year}}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Category
+                            </label>
+                            <select multiple name="judg_cat[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="{{$package->judg_cat}}">{{$package->judg_cat}}</option>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Area of Law
+                            </label>
+                            <select multiple name="judg_area_of_law[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Area of Law</option>
+                                @foreach($area_of_laws as $area_of_law)
+                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div> --}}
+        {{-- @endif --}}
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" name="lfn_feature" type="checkbox" id="lfnCheck" {{ $package->lfn_feature !==NULL ? 'checked' : '' }}>
+            <h5 class="pt-2 pl-2">Law of Federation</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->lfn_feature !==NULL)
+            <div id="show_lfn_content">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Category
+                            </label>
+                            <select name="lfn_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Category</option>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Area of Law
+                            </label>
+                            <select multiple name="lfn_area_of_law[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Area of Law</option>
+                                @foreach($area_of_laws as $area_of_law)
+                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @else
+            <div id="show_lfn_content" style="display: none">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Category
+                            </label>
+                            <select name="lfn_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Category</option>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Area of Law
+                            </label>
+                            <select multiple name="lfn_area_of_law[]" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Area of Law</option>
+                                @foreach($area_of_laws as $area_of_law)
+                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" type="checkbox" name="roc_feature" id="rocCheck" {{ $package->roc_feature !==NULL ? 'checked' : '' }}>
+            <h5 class="pt-2 pl-2">Rule of Court</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        {{-- @if($package->roc_feature !==NULL) --}}
+            <div id="show_roc_content">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Category
+                    </label>
+                    <select name="roc_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->category}}">{{$category->category}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @else
+            <div id="show_roc_content" style="display: none">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Category
+                    </label>
+                    <select name="roc_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->category}}">{{$category->category}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" name="sroc_feature" type="checkbox" id="srocCheck">
+            <h5 class="pt-2 pl-2">State Rule of Court</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->sroc_feature !==NULL)
+            <div id="show_sroc_content">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Category
+                    </label>
+                    <select name="sroc_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->category}}">{{$category->category}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @else
+            <div id="show_sroc_content" style="display: none">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Category
+                    </label>
+                    <select name="sroc_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->category}}">{{$category->category}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" type="checkbox" name="form_feature" id="formCheck">
+            <h5 class="pt-2 pl-2">Forms and Precedence</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->form_feature !==NULL)
+            <div id="show_form_content">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Category
+                    </label>
+                    <select name="form_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->category}}">{{$category->category}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @else
+            <div id="show_form_content" style="display: none">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Category
+                    </label>
+                    <select name="form_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Category</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->category}}">{{$category->category}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" type="checkbox" name="article_feature" id="articleCheck">
+            <h5 class="pt-2 pl-2">Legal Articles</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->article_feature !==NULL)
+            <div id="show_article_content">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Category
+                            </label>
+                            <select name="article_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Category</option>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Area of Law
+                            </label>
+                            <select name="article_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Area of Law</option>
+                                @foreach($area_of_laws as $area_of_law)
+                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @else
+            <div id="show_article_content" style="display: none">
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Category
+                            </label>
+                            <select name="article_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Category</option>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Area of Law
+                            </label>
+                            <select name="article_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                <option value="">Select Area of Law</option>
+                                @foreach($area_of_laws as $area_of_law)
+                                    <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" type="checkbox" name="maxim_feature" id="maximCheck">
+            <h5 class="pt-2 pl-2">Legal Maxims</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->maxim_feature !==NULL)
+            <div id="show_maxim_content">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Area of Law
+                    </label>
+                    <select name="maxim_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Area of Law</option>
+                        @foreach($area_of_laws as $area_of_law)
+                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @else
+            <div id="show_maxim_content" style="display: none">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Area of Law
+                    </label>
+                    <select name="maxim_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Area of Law</option>
+                        @foreach($area_of_laws as $area_of_law)
+                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" type="checkbox" name="dict_feature" id="dictCheck">
+            <h5 class="pt-2 pl-2">Legal Dictionary</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->dict_feature !==NULL)
+            <div id="show_dict_content">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Area of Law
+                    </label>
+                    <select name="dict_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Area of Law</option>
+                        @foreach($area_of_laws as $area_of_law)
+                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @else
+            <div id="show_dict_content" style="display: none">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Area of Law
+                    </label>
+                    <select name="dict_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Area of Law</option>
+                        @foreach($area_of_laws as $area_of_law)
+                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
+    </div>
+    <div class="form-group">
+        <div class="form-check mb-n2">
+            <input class="form-check-input list-checkbox" type="checkbox" name="resource_feature" id="resourceCheck">
+            <h5 class="pt-2 pl-2">Foreign Resources</h5>
+            <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+        </div>
+        @if($package->resource_feature !==NULL)
+            <div id="show_resource_content">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Area of Law
+                    </label>
+                    <select name="resource_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Area of Law</option>
+                        @foreach($area_of_laws as $area_of_law)
+                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @else
+            <div id="show_resource_content" style="display: none">
+                <div class="form-group">
+                    <label class="form-label mb-1">
+                        Area of Law
+                    </label>
+                    <select name="resource_area_of_law[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                        <option value="">Select Area of Law</option>
+                        @foreach($area_of_laws as $area_of_law)
+                            <option value="{{$area_of_law->area_of_law}}">{{$area_of_law->area_of_law}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        @endif
+    </div>
+    <hr class="my-5">
+    <div class="nav row align-items-center">
+        <div class="col-auto">
+            <a class="btn btn-white" data-toggle="wizard" href="#wizardStepOne">Back</a>
+        </div>
+        <div class="col text-center">
+            <h6 class="text-uppercase text-muted mb-0">Step 2 of 2</h6>
+        </div>
+        <div class="col-auto">
+            <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
+                <span class="button__text"><i class="mdi mdi-check"></i> Save</span>
+            </button>
+        </div>
+    </div>
+</div>

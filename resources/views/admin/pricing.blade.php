@@ -58,9 +58,17 @@
                                     @if($package->validity == 'Days')
                                         / {{$package->recur_date}} Days
                                         @elseif($package->validity == 'Months')
-                                        / {{$package->recur_date}} Months
+                                        /   @if($package->recur_date < 2)
+                                                Monthly
+                                                @elseif($package->recur_date > 1)
+                                                {{$package->recur_date}} Months
+                                            @endif
                                         @elseif($package->validity == 'Years')
-                                        / {{$package->recur_date}} Years
+                                        /   @if($package->recur_date < 2)
+                                                Yearly
+                                                @elseif($package->recur_date > 1)
+                                                {{$package->recur_date}} Years
+                                            @endif
                                     @endif
                                 </div>
                                 <div class="mb-3">
@@ -346,6 +354,45 @@
                                                 @else
                                                 <div class="d-flex justify-content-between">
                                                     <small>Resources</small>
+                                                     <i class="fe fe-x-circle text-secondary"></i>
+                                                </div>
+                                            @endif
+                                        </li>
+                                        <li class="list-group-item align-items-center justify-content-between px-0">
+                                            @if($package->team)
+                                                <a class="d-flex justify-content-between">
+                                                    <small>Create Teams</small>
+                                                    <i class="fe fe-check-circle text-success"></i>
+                                                </a>
+                                                @else
+                                                <div class="d-flex justify-content-between">
+                                                    <small>Create Teams</small>
+                                                     <i class="fe fe-x-circle text-secondary"></i>
+                                                </div>
+                                            @endif
+                                        </li>
+                                        <li class="list-group-item align-items-center justify-content-between px-0">
+                                            @if($package->note)
+                                                <a class="d-flex justify-content-between">
+                                                    <small>Share Notes</small>
+                                                    <i class="fe fe-check-circle text-success"></i>
+                                                </a>
+                                                @else
+                                                <div class="d-flex justify-content-between">
+                                                    <small>Share Notes</small>
+                                                     <i class="fe fe-x-circle text-secondary"></i>
+                                                </div>
+                                            @endif
+                                        </li>
+                                        <li class="list-group-item align-items-center justify-content-between px-0">
+                                            @if($package->share)
+                                                <a class="d-flex justify-content-between">
+                                                    <small>Share Articles</small>
+                                                    <i class="fe fe-check-circle text-success"></i>
+                                                </a>
+                                                @else
+                                                <div class="d-flex justify-content-between">
+                                                    <small>Share Articles</small>
                                                      <i class="fe fe-x-circle text-secondary"></i>
                                                 </div>
                                             @endif

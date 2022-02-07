@@ -40,9 +40,16 @@ class WelcomeOnboard extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)->view(
-            'emails.welcomeOnboard', ['user'=> $this->user]
-        )->subject('Welcome to Legalpedia');
+        return (new MailMessage)
+        ->subject('Welcome to Legalpedia')
+        ->line('Hi, '. $this->user->name)
+        ->line(' Welcome to Legalpedia')
+        ->line(' You can now access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more! Subscribe to Legalpedia packages to get started')
+        ->action('Get started', url('admin/dashboard'));
+
+        // return (new MailMessage)->view(
+        //     'emails.welcomeOnboard', ['user'=> $this->user]
+        // )->subject('Welcome to Legalpedia');
     }
 
     /**

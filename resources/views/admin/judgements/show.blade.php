@@ -38,6 +38,10 @@
             transition: .3s;
             box-shadow: 0 10px 35px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
         }
+        ol .nu::before {
+            color: #95aac9!important;
+            font-size: 10px;
+        }
     </style>
     <div class="header">
         <div class="container-fluid">
@@ -93,16 +97,16 @@
                         @endif
                         <hr class="my-4">
                         <h3 class="text-muted">PARTIES</h3>
-                        <hr class="my-4">
-                        <h4 class="text-muted" id="ratio">PARTY A</h4>
+                        {{-- <hr class="my-4">
+                        <h4 class="text-muted" id="ratio">PARTY A</h4> --}}
                         <hr class="my-4">
                         @php
                             $party_a_name  = App\Models\JudgementPartyA::where('suit_no', $judgement_summary->suit_no)->first();
                             $party_a_type  = App\Models\PartyAType::where('id', $judgement_summary->party_a_type_id)->first();
                         @endphp
                         <p class="card-text mb-1">{!! $party_a_name ? $party_a_name->party_a_names : '' !!} <span class="text-muted">{{$party_a_type ? $party_a_type->party_a_type : ''}}</span></p>
-                        <hr class="my-4">
-                        <h4 class="text-muted" id="ratio">PARTY B</h4>
+                        {{-- <hr class="my-4">
+                        <h4 class="text-muted" id="ratio">PARTY B</h4> --}}
                         <hr class="my-4">
                         @php
                             $party_b_name  = App\Models\JudgementPartyB::where('suit_no', $judgement_summary->suit_no)->first();
@@ -155,23 +159,15 @@
                         <div class="">
                             <div class="collapse multi-collapse" id="multiCollapse">
                                 <?php $full_judgement = App\Models\Judgement::where('suit_no', 'LIKE', '%'.$judgement_summary->suit_no. '%')->first() ;?>
-                                {{-- @php
-                                    $paragraphAfter = 4;
-                                    $no = 1;
-                                    $full = $full_judgement ? $full_judgement->judgement : '';
-                                    $full = explode("</p>", $full);
-                                    $new_content = '';
-                                        for ($i = 0; $i < count($full); $i++) {
-                                            if ($i == $paragraphAfter) {
-                                                $new_content.= $no++;
-                                            }
-                                        $new_content.= $full[$i] . "</p>";
-                                        }
-                                    wp_reset_postdata();
-                                    $new_content .= $no;
-                                    // return $new_content;
-                                @endphp --}}
-                                <p class="card-text mb-1 mt-4" style="line-height: 25px; font-weight: 400">{!! nl2br(e(strip_tags($full_judgement ? $full_judgement->judgement : ''))) !!}</p>
+                                @php
+                                    $list = explode("\n", $full_judgement ? $full_judgement->judgement : '');
+                                    $tlist = "<ol>";
+                                    foreach ($list as $num => $item) {
+                                    $tlist .= "<li class='nu'>" . strip_tags($item) . "</li>";
+                                    }
+                                    $tlist .= "</ol>";
+                                @endphp
+                                <p class="card-text mb-1 mt-4" style="line-height: 25px; font-weight: 400">{!! $tlist !!}</p>
                             </div>
                         </div>
                         <hr class="my-4">
@@ -259,9 +255,47 @@
                                         </div>
                                     </li>
                                 @endforeach
+                                @elseif(count($notes) < 1)
+                                @foreach($admin_notes as $note)
+                                    <div class="list-group-item">
+                                        <div class="row">
+                                            <div class="col-auto">
+                                                <div class="avatar avatar-sm">
+                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                        <i class="fe fe-file"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col ms-n2">
+                                                <h5 class="mb-1">
+                                                    <a href="{{url('admin/notes')}}">
+                                                        {{$note->comment}}
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-auto">
+                                                <div class="avatar avatar-sm" style="visibility: hidden">
+                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                        <i class="fe fe-file"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <p class="small text-gray-700 mb-0">
+                                                    {{Str::words(ucwords(strtolower($note->content)), 20)}}
+                                                </p>
+                                                {{-- <p class="card-text small text-muted">
+                                                    {{$note->created_at->diffForHumans()}}
+                                                </p> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                                 @else
-                                <div class="text-center my-4">
-                                    <h3 class="text-muted"><i class="fe fe-file"></i> No notes</h3>
+                                <div class="text-center">
+                                    <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                 </div>
                             @endif
                         </ul>

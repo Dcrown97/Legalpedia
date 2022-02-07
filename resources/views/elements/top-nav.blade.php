@@ -257,7 +257,9 @@
                         @if(Auth::user()->photo)
                             <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
                             @else
-                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                            <div class="initials">
+                                <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                            </div>
                         @endif
                       </div>
 
@@ -297,7 +299,12 @@
             <a href="profile-posts.html" class="dropdown-item">Profile</a>
             <a href="account-general.html" class="dropdown-item">Settings</a>
             <hr class="dropdown-divider">
-            <a href="sign-in.html" class="dropdown-item">Logout</a>
+            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <span class="mr-2" aria-hidden="true"><i class="mdi mdi-logout-variant"></i></span> Sign out
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
           </div>
 
         </div>

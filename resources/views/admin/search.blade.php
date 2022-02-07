@@ -197,12 +197,14 @@
                         <div class="card" data-list='{"valueNames": ["item-name", "item-name1"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                             <div class="card-header">
                                 <h4 class="card-header-title">Judgements</h4>
-                                <form action="{{route('search')}}" method="GET">
-                                    <input type="hidden" name="more_result" value="{{$search}}">
-                                    <button id="search-btn" class="custom-button text-color" onclick="this.classList.toggle('button--loading1')">
-                                        <span class="button__text">More results <i class="mdi mdi-chevron-right"></i></span>
-                                    </button>
-                                </form>
+                                @if($second_search == '')
+                                    <form action="{{route('search')}}" method="GET">
+                                        <input type="hidden" name="more_result" value="{{$search}}">
+                                        <button id="search-btn" class="custom-button text-color" onclick="this.classList.toggle('button--loading1')">
+                                            <span class="button__text">More results <i class="mdi mdi-chevron-right"></i></span>
+                                        </button>
+                                    </form>
+                                @endif
                                 <span>
                                     {{$query_case['search']->links()}}
                                 </span>
@@ -328,6 +330,16 @@
                                     @else
                                     <div class="text-center my-4">
                                         <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
+                                        @if($first_search !== '')
+                                            <div class="col-auto mt-2">
+                                                <form action="{{route('search')}}" method="GET">
+                                                    <input type="hidden" name="more_result" value="{{$search}}">
+                                                    <button id="search-btn" class="btn btn-primary text-white" onclick="this.classList.toggle('button--loading1')">
+                                                        <span class="button__text"><i class="fe fe-search"></i> Advanced search</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -969,7 +981,7 @@
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
                                                             @php
-                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', $note->content_id)->first();
+                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
                                                                 $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
                                                                 $rule = App\Models\Rule::where('id', $note->content_id)->first();
                                                                 $state_rule = App\Models\Rule::where('id', $note->content_id)->first();

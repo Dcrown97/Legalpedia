@@ -92,7 +92,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@legalpediaresources.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'support@legalpediaresources.com'),
         'name' => env('MAIL_FROM_NAME', 'Legalpedia'),
     ],
 

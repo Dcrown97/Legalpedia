@@ -25,28 +25,61 @@
                     @endif
                     @include('elements.notifications')
                 </div>
-                <div class="row align-items-end justify-content-end mt-4 p-3">
-                    <form action="{{route('admin.laws-of-federation')}}" method="GET" class="me-3 d-flex">
-                        <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
-                            @foreach($categories as $category)
-                                <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
-                            @endforeach
-                        </select>
-                        <button type="submit" name="fetch_fed" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
-                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
-                        </button>
-                        <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
-                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
-                        </a>
-                    </form>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
-                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
-                        </a>
+                @if(Auth::user()->role->name == 'Admin')
+                    <div class="row align-items-end justify-content-end mt-4 p-3">
+                        <form action="{{route('admin.laws-of-federation')}}" method="GET" class="me-3 d-flex">
+                            <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                                @foreach($categories as $category)
+                                    <option value="{{$category->category}}" {{ $category->category == $selected_category['category'] ? 'selected' : '' }}>{{$category->category}}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" name="fetch_fed" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                            </button>
+                            <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
+                                <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                            </a>
+                        </form>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                                <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                            </a>
+                        </div>
+                    </div>
+                    @else
+                    @if($categories->lfn_cat)
+                        <div class="row align-items-end justify-content-end mt-4 p-3">
+                            <form action="{{route('admin.laws-of-federation')}}" method="GET" class="me-3 d-flex">
+                                @php
+                                    $all_categories = json_decode($categories->lfn_cat);
+                                @endphp
+                                <select name="category" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
+                                    @foreach($all_categories as $category)
+                                        @php
+                                            $main_category = App\Models\Category::where('category', $category)->first();
+                                        @endphp
+                                        <option value="{{$main_category->category}}" {{ $main_category->category == $selected_category['category'] ? 'selected' : '' }}>{{$main_category->category}}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" name="fetch_fed" onclick="this.classList.toggle('button--loading')" class="ml-3 mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                                    <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                                </button>
+                                <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-mobile">
+                                    <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                                </a>
+                            </form>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <a href="{{url('admin/laws-of-federation')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2 hide-desk show-mobile">
+                                    <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
         </div>
     </div>
@@ -149,210 +182,211 @@
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen p-9">
-            <div class="modal-content rounded">
-                <div class="modal-header">
-                    <div class="fs-1 fw-boldest">Add Law of Federation</div>
-                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <span class="svg-icon svg-icon-2x">
-                            <i class="mdi mdi-close"></i>
-                        </span>
+    @if(Auth::user()->role->name == 'Admin')
+        <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen p-9">
+                <div class="modal-content rounded">
+                    <div class="modal-header">
+                        <div class="fs-1 fw-boldest">Add Law of Federation</div>
+                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                            <span class="svg-icon svg-icon-2x">
+                                <i class="mdi mdi-close"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-body scroll-y mt-4">
-                    <div class="container">
-                        <div class="row justify-content-center">
-                          <div class="col-12">
-                            <form class="tab-content pb-4" id="wizardSteps" action="{{route('store.fed')}}" method="POST">
-                                @csrf
-                                <div class="tab-pane fade show active" id="wizardStepOne" role="tabpanel" aria-labelledby="wizardTabOne">
-                                    <div class="row justify-content-center">
-                                        <div class="text-center">
-                                            <h1 class="mb-3">Create new Law</h1>
-                                            <p class="mb-5 text-muted">Add federation laws, parts and sections</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Title
-                                        </label>
-                                        <input type="text" name="title" class="form-control">
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12 col-lg-6 col-xl-6">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Law No.
-                                                </label>
-                                                <input type="text" name="law_no" class="form-control">
+                    <div class="modal-body scroll-y mt-4">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                            <div class="col-12">
+                                <form class="tab-content pb-4" id="wizardSteps" action="{{route('store.fed')}}" method="POST">
+                                    @csrf
+                                    <div class="tab-pane fade show active" id="wizardStepOne" role="tabpanel" aria-labelledby="wizardTabOne">
+                                        <div class="row justify-content-center">
+                                            <div class="text-center">
+                                                <h1 class="mb-3">Create new Law</h1>
+                                                <p class="mb-5 text-muted">Add federation laws, parts and sections</p>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-lg-6 col-xl-6">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Law Date.
-                                                </label>
-                                                <input type="date" name="law_date" class="form-control">
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Title
+                                            </label>
+                                            <input type="text" name="title" class="form-control">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 col-lg-6 col-xl-6">
+                                                <div class="form-group">
+                                                    <label class="form-label mb-1">
+                                                        Law No.
+                                                    </label>
+                                                    <input type="text" name="law_no" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-6 col-xl-6">
+                                                <div class="form-group">
+                                                    <label class="form-label mb-1">
+                                                        Law Date.
+                                                    </label>
+                                                    <input type="date" name="law_date" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Description
+                                            </label>
+                                            <textarea name="description" class="form-control" rows="5" placeholder="Enter description"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Category
+                                            </label>
+                                            <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        {{-- <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Area of Law
+                                            </label>
+                                            <textarea name="area_of_law" class="form-control" rows="5" placeholder="Enter area(s) of Law"></textarea>
+                                        </div> --}}
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Subsidiary Legislation
+                                            </label>
+                                            <textarea name="subsidiary_legislation" class="form-control" rows="5" placeholder=""></textarea>
+                                        </div>
+                                        <hr class="my-5">
+                                        <div class="nav row align-items-center">
+                                            <div class="col-auto">
+                                                <button class="btn btn-white" type="reset">Cancel</button>
+                                            </div>
+                                            <div class="col text-center">
+                                                <h6 class="text-uppercase text-muted mb-0">Step 1 of 3</h6>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepTwo">Continue</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Description
-                                        </label>
-                                        <textarea name="description" class="form-control" rows="5" placeholder="Enter description"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Category
-                                        </label>
-                                        <select name="category" class="form-select" data-choices='{"searchEnabled": true}'>
-                                            <option value="">Select Category</option>
-                                            @foreach($categories as $category)
-                                                <option value="{{$category->category}}">{{$category->category}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    {{-- <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Area of Law
-                                        </label>
-                                        <textarea name="area_of_law" class="form-control" rows="5" placeholder="Enter area(s) of Law"></textarea>
-                                    </div> --}}
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Subsidiary Legislation
-                                        </label>
-                                        <textarea name="subsidiary_legislation" class="form-control" rows="5" placeholder=""></textarea>
-                                    </div>
-                                    <hr class="my-5">
-                                    <div class="nav row align-items-center">
-                                        <div class="col-auto">
-                                            <button class="btn btn-white" type="reset">Cancel</button>
-                                        </div>
-                                        <div class="col text-center">
-                                            <h6 class="text-uppercase text-muted mb-0">Step 1 of 3</h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepTwo">Continue</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="wizardStepTwo" role="tabpanel" aria-labelledby="wizardTabTwo">
-                                    <div class="row justify-content-center">
-                                        <div class="text-center">
-                                            <h1 class="mb-3">Next, add a Part Header</h1>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label mb-1">
-                                            Part Title
-                                        </label>
-                                        <input type="hidden" name="law_of_federation_id">
-                                        <input type="hidden" name="law_of_fed_part_id">
-                                        <input type="text" name="part_header" class="form-control">
-                                    </div>
-                                    <hr class="my-5">
-                                    <div class="nav row align-items-center">
-                                        <div class="col-auto">
-                                            <a class="btn btn-white" data-toggle="wizard" href="#wizardStepOne">Back</a>
-                                        </div>
-                                        <div class="col text-center">
-                                            <h6 class="text-uppercase text-muted mb-0">Step 2 of 3</h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepThree">Next <i class="mdi mdi-arrow-right"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="wizardStepThree" role="tabpanel" aria-labelledby="wizardTabThree">
-                                    <div class="row justify-content-center">
-                                        <div class="text-center">
-                                            <h1 class="mb-3">Now create Section</h1>
-                                        </div>
-                                    </div>
-                                    <div class="add_more">
-                                        <div class="form-group">
-                                            <label class="form-label mb-1">
-                                                1. Section Header
-                                            </label>
-                                            <input type="text" name="section[0][]" class="form-control">
+                                    <div class="tab-pane fade" id="wizardStepTwo" role="tabpanel" aria-labelledby="wizardTabTwo">
+                                        <div class="row justify-content-center">
+                                            <div class="text-center">
+                                                <h1 class="mb-3">Next, add a Part Header</h1>
+                                            </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label mb-1">
-                                                Section Body
+                                                Part Title
                                             </label>
-                                            <textarea class="form-control" name="section[0][]" rows="5"></textarea>
+                                            <input type="hidden" name="law_of_federation_id">
+                                            <input type="hidden" name="law_of_fed_part_id">
+                                            <input type="text" name="part_header" class="form-control">
+                                        </div>
+                                        <hr class="my-5">
+                                        <div class="nav row align-items-center">
+                                            <div class="col-auto">
+                                                <a class="btn btn-white" data-toggle="wizard" href="#wizardStepOne">Back</a>
+                                            </div>
+                                            <div class="col text-center">
+                                                <h6 class="text-uppercase text-muted mb-0">Step 2 of 3</h6>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepThree">Next <i class="mdi mdi-arrow-right"></i></a>
+                                            </div>
                                         </div>
                                     </div>
-                                    <hr class="my-5">
-                                    <div id="add_field"></div>
-                                    <div class="justify-content-end">
-                                        <a type="button" id="more_fields" class="text-color" onclick="addFields()"><i class="mdi mdi-plus"></i> Add Section</a>
-                                    </div>
-                                    <hr class="my-5">
-                                    <div class="nav row align-items-center">
-                                        <div class="col-auto">
-                                            <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>
+                                    <div class="tab-pane fade" id="wizardStepThree" role="tabpanel" aria-labelledby="wizardTabThree">
+                                        <div class="row justify-content-center">
+                                            <div class="text-center">
+                                                <h1 class="mb-3">Now create Section</h1>
+                                            </div>
                                         </div>
-                                        <div class="col text-center">
-                                            <h6 class="text-uppercase text-muted mb-0">Step 3 of 4</h6>
+                                        <div class="add_more">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    1. Section Header
+                                                </label>
+                                                <input type="text" name="section[0][]" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Section Body
+                                                </label>
+                                                <textarea class="form-control" name="section[0][]" rows="5"></textarea>
+                                            </div>
                                         </div>
-                                        <div class="col-auto">
-                                            <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepFour">Next <i class="mdi mdi-arrow-right"></i></a>
+                                        <hr class="my-5">
+                                        <div id="add_field"></div>
+                                        <div class="justify-content-end">
+                                            <a type="button" id="more_fields" class="text-color" onclick="addFields()"><i class="mdi mdi-plus"></i> Add Section</a>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="wizardStepFour" role="tabpanel" aria-labelledby="wizardTabFour">
-                                    <div class="row justify-content-center">
-                                        <div class="text-center">
-                                            <h1 class="mb-3">Add Schedule</h1>
-                                        </div>
-                                    </div>
-                                    <div class="add_more">
-                                        <div class="form-group">
-                                            <label class="form-label mb-1">
-                                                1. Schedule Header
-                                            </label>
-                                            <input type="text" name="sched[0][]" class="form-control">
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label mb-1">
-                                                Schedule Body
-                                            </label>
-                                            <textarea class="form-control" name="sched[0][]" rows="5"></textarea>
-                                        </div>
-                                    </div>
-                                    <hr class="my-5">
-                                    <div id="add_sched"></div>
-                                    <div class="justify-content-end">
-                                        <a type="button" id="more_scheds" class="text-color" onclick="addScheds()"><i class="mdi mdi-plus"></i> Add Schedule</a>
-                                    </div>
-                                    <hr class="my-5">
-                                    <div class="nav row align-items-center">
-                                        <div class="col-auto">
-                                            <a class="btn btn-white" data-toggle="wizard" href="#wizardStepThree">Back</a>
-                                        </div>
-                                        <div class="col text-center">
-                                            <h6 class="text-uppercase text-muted mb-0">Step 4 of 4</h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
-                                                <span class="button__text"><i class="mdi mdi-plus"></i> Create</span>
-                                            </button>
+                                        <hr class="my-5">
+                                        <div class="nav row align-items-center">
+                                            <div class="col-auto">
+                                                <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>
+                                            </div>
+                                            <div class="col text-center">
+                                                <h6 class="text-uppercase text-muted mb-0">Step 3 of 4</h6>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepFour">Next <i class="mdi mdi-arrow-right"></i></a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
-                          </div>
+                                    <div class="tab-pane fade" id="wizardStepFour" role="tabpanel" aria-labelledby="wizardTabFour">
+                                        <div class="row justify-content-center">
+                                            <div class="text-center">
+                                                <h1 class="mb-3">Add Schedule</h1>
+                                            </div>
+                                        </div>
+                                        <div class="add_more">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    1. Schedule Header
+                                                </label>
+                                                <input type="text" name="sched[0][]" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Schedule Body
+                                                </label>
+                                                <textarea class="form-control" name="sched[0][]" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                        <hr class="my-5">
+                                        <div id="add_sched"></div>
+                                        <div class="justify-content-end">
+                                            <a type="button" id="more_scheds" class="text-color" onclick="addScheds()"><i class="mdi mdi-plus"></i> Add Schedule</a>
+                                        </div>
+                                        <hr class="my-5">
+                                        <div class="nav row align-items-center">
+                                            <div class="col-auto">
+                                                <a class="btn btn-white" data-toggle="wizard" href="#wizardStepThree">Back</a>
+                                            </div>
+                                            <div class="col text-center">
+                                                <h6 class="text-uppercase text-muted mb-0">Step 4 of 4</h6>
+                                            </div>
+                                            <div class="col-auto">
+                                                <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
+                                                    <span class="button__text"><i class="mdi mdi-plus"></i> Create</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
     <script>
         function initMCEall(){
             tinymce.init({

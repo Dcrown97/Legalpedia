@@ -172,12 +172,15 @@
 @endsection
 
 @section('content-1')
+<div class="fh5co-loader" id="reloader" style="display: none">
+    <div class="loader"></div>
+</div>
 <div class="text-center container cont">
     <div class="container">
         <h3 class="package">PROCEED TO PAYMENT</h3>
         <h2 class="package1">Checkout</h2>
     </div>
-    @include('elements.notifications')
+    {{-- @include('elements.notifications') --}}
 </div>
 @endsection
 
@@ -231,9 +234,9 @@
                                     @if($package->share)
                                         <li><i class="fas fa-check-circle text-success mr-2"></i> <span>Sharing</span></li>
                                     @endif
-                                    @if($package->bookmark)
+                                    {{-- @if($package->bookmark)
                                         <li><i class="fas fa-check-circle text-success mr-2"></i> <span>Bookmarks</span></li>
-                                    @endif
+                                    @endif --}}
                                     @if($package->team)
                                         <li><i class="fas fa-check-circle text-success mr-2"></i> <span>Teams</span></li>
                                     @endif
@@ -348,7 +351,7 @@
             // bearer: 'subaccount',
 
             callback: function (response) {
-
+                document.getElementById('reloader').style.display = 'block';
                 /// initialise payment and set status to pending
                 $.ajax({
                     type: 'POST',

@@ -276,13 +276,17 @@
                                                         @if($user->photo)
                                                             <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                             @else
-                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                            <div class="initials">
+                                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                            </div>
                                                         @endif
                                                     </span>
                                                 </div>
                                                 <div class="col ms-n2">
                                                     <h4 class="mb-1">
-                                                        {{$user->name}}
+                                                        <a href="{{route('user.profile', $user->id)}}">
+                                                            {{$user->name}}
+                                                        </a>
                                                     </h4>
                                                    <p class="card-text small text-muted">
                                                        <span class="fe fe-clock"></span>
@@ -301,7 +305,7 @@
                                                                     <i class="fe fe-more-vertical"></i>
                                                                 </a>
                                                                 <div class="dropdown-menu dropdown-menu-end">
-                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick="showEditPost('{{$comment->comment_body}}', '{{$comment->id}}')" class="dropdown-item">
+                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditPost("{{$comment->comment_body}}", "{{$comment->id}}")' class="dropdown-item">
                                                                         <i class="mdi mdi-pencil mr-2"></i> Edit
                                                                     </a>
                                                                     <form action="/admin/teams/comment/{{$comment->id}}" method="POST">
@@ -476,7 +480,9 @@
                                                             @if($user->photo)
                                                                 <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                                 @else
-                                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                <div class="initials">
+                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                </div>
                                                             @endif
                                                         </span>
                                                     </div>
@@ -485,7 +491,9 @@
                                                             <div class="row">
                                                                 <div class="col">
                                                                     <h5 class="comment-title">
-                                                                        {{$user->name}}
+                                                                        <a href="{{route('user.profile', $user->id)}}">
+                                                                            {{$user->name}}
+                                                                        </a>
                                                                     </h5>
                                                                 </div>
                                                                 <div class="col-auto">
@@ -510,7 +518,14 @@
                                                     <div class="row">
                                                         <div class="col-auto">
                                                             <div class="avatar avatar-sm">
-                                                                <img src="{{Auth::user()->photo}}" alt="{{Auth::user()->name}}" class="avatar-img rounded-circle">
+                                                                {{-- <img src="{{Auth::user()->photo}}" alt="{{Auth::user()->name}}" class="avatar-img rounded-circle"> --}}
+                                                                @if(Auth::user()->photo)
+                                                                    <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                                                    @else
+                                                                    <div class="initials">
+                                                                        <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         <div class="col ms-n2">
@@ -839,7 +854,9 @@
                                                             @if($user->photo)
                                                                 <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                                 @else
-                                                                <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                <div class="initials">
+                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                </div>
                                                             @endif
                                                         </span>
                                                     </div>
@@ -906,7 +923,9 @@
                                                                         @if($user->photo)
                                                                             <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                                             @else
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                            <div class="initials">
+                                                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                            </div>
                                                                         @endif
                                                                     </a>
                                                                 </div>
@@ -960,7 +979,9 @@
                                                                         @if($user->photo)
                                                                             <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                                             @else
-                                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                            <div class="initials">
+                                                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                            </div>
                                                                         @endif
                                                                     </span>
                                                                 </div>

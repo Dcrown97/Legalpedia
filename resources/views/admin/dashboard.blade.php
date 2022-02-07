@@ -35,7 +35,7 @@
             height: auto !important;
         }
         .backg {
-            background: url(http://legalpedia.test/assets/images/frame2.svg);
+            background: url("{{asset('assets/images/frame2.svg')}}");
             position: absolute;
             /* top: 183px; */
             /* left: 80px; */
@@ -82,12 +82,14 @@
 
     <div class="container-fluid">
         @if($pop_message)
-            <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                <i class="mdi mdi-message mr-2 text-green-0"></i><strong>Welcome back {{Str::words(Auth::user()->name, 1, '')}}</strong> {!! strip_tags(Str::words($pop_message->body, 20)) !!}    
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+            <a href="" data-bs-toggle="modal" data-bs-target="#popModal" id="kt_toolbar_primary_button">
+                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                    <i class="mdi mdi-message mr-2 text-green-0"></i><strong>Welcome back {{Str::words(Auth::user()->name, 1, '')}}</strong> {!! strip_tags(Str::words($pop_message->body, 20)) !!}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </a>
         @endif
         <div class="row">
             <div class="col-12 col-xl-4">
@@ -254,7 +256,7 @@
                                             <div class="col ms-n2">
                                                 <h5 class="mb-1">
                                                     @php
-                                                        $judgement_summary = App\Models\JudgementSummary::where('suit_no', $note->content_id)->first();
+                                                        $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
                                                         $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
                                                         $rule = App\Models\Rule::where('id', $note->content_id)->first();
                                                         $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
@@ -337,7 +339,7 @@
                                                 <div class="col-auto">
                                                     <div class="dropdown">
                                                         @if($note->content)
-                                                            <a data-bs-toggle="modal" onclick="showTeamModal('{{$note->content->selector[0]->exact}}', '{{$note->id}}')" class="dropdown-ellipses dropdown-toggle small cursor" style="font-size: .95rem">
+                                                            <a data-bs-toggle="modal" onclick='showTeamModal("{{$note->content->selector[0]->exact}}", "{{$note->id}}")' class="dropdown-ellipses dropdown-toggle small cursor" style="font-size: .95rem">
                                                                 <i class="mdi mdi-share-variant"></i> share
                                                             </a>
                                                         @endif
@@ -397,9 +399,9 @@
                                                 <p class="small text-gray-700 mb-0">
                                                     {{Str::words(ucwords(strtolower($note->content)), 20)}}
                                                 </p>
-                                                <p class="card-text small text-muted">
+                                                {{-- <p class="card-text small text-muted">
                                                     {{$note->created_at->diffForHumans()}}
-                                                </p>
+                                                </p> --}}
                                             </div>
                                         </div>
                                     </div>
@@ -440,12 +442,14 @@
                                                     </h5>
                                                     <p class="small text-gray-700 mb-0">
                                                         @php
-                                                            $activity->description = json_decode($activity->description);
+                                                            $active = is_array($activity->description) ? json_decode($activity->description) : $activity->description;
+                                                            // $final = is_array($active) ? $active->content->selector[0]->exact : $active;
+                                                            // dd(json_decode($active));
+                                                            $fin = json_decode($active);
+                                                            // dd($fin->selector[0]->exact);
                                                         @endphp
-                                                        @if($activity->description == json_decode($activity->description))
-                                                            {{Str::words(ucwords(strtolower($activity->description->selector[0]->exact)), 20)}}
-                                                            @else
-                                                            {{$activity->description}}
+                                                        @if(isset($fin->selector[0]->exact))
+                                                            {{Str::words(ucwords(strtolower($fin->selector[0]->exact)), 20)}}
                                                         @endif
                                                     </p>
                                                     @else
@@ -567,9 +571,9 @@
                             <img src="{{asset('assets/images/waving-hand.png')}}" alt="..." class="w-8 h-8">
                         </div>
                         <div class="card-body">
-                            <h1 class="text-color text-center">{{$pop_message->subject}}</h1>
+                            <h1 class="text-color text-center">{{$pop_message ? $pop_message->subject : 'Welcome to Legalpedia'}}</h1>
                             {{-- <p class="small text-color">You can access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more!</p> --}}
-                            <p class="">{!! $pop_message->body !!}</p>
+                            <p class="">{!! $pop_message ? $pop_message->body : 'You can access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more!' !!}</p>
                         </div>
                     </div>
                 </div>

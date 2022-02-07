@@ -29,7 +29,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
+            <div class="card" data-list='{"valueNames": ["name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                 <div class="card-header">
                     <form>
                         <div class="input-group input-group-flush input-group-merge input-group-reverse">
@@ -59,7 +59,7 @@
                                     <tr>
                                         <td class="orders-order">{{$package_no}}</td>
                                         <?php $package_no++ ;?>
-                                        <td class="orders-date item-name">{{$package->name}}</td>
+                                        <td class="orders-product name">{{$package->name}}</td>
                                         <td class="orders-total">₦{{number_format($package->price, 2)}}</td>
                                         <td class="orders-total">{{\Carbon\Carbon::parse($package->created_at)->toFormattedDateString()}}</td>
                                         @if($package->slug)
@@ -439,7 +439,7 @@
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
                                         <input class="form-check-input list-checkbox" type="checkbox" name="dict_feature" id="dictCheck" value="dictionary">
-                                        <h5 class="pt-2 pl-2">Legal Dictionary</h5>
+                                        <h5 class="pt-2 pl-2">Law Dictionary</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     <div id="show_dict_content" style="display: none">
@@ -509,13 +509,13 @@
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <div class="form-check mb-n2">
                                         <input class="form-check-input list-checkbox" name="bookmark" type="checkbox" value="bookmark">
                                         <h5 class="pt-2 pl-2">Can add Bookmarks</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
                                         <input class="form-check-input list-checkbox" name="share" type="checkbox" value="share">

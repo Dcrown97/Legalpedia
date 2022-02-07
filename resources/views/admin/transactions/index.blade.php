@@ -28,10 +28,6 @@
     }
 
 </style>
-{{-- <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" /> --}}
 <div class="header">
     <div class="container-fluid">
         <div class="header-body">
@@ -269,11 +265,27 @@
                                             </td>
                                             @php
                                                 $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
-                                                $date = $package_expiry->recur_date;
-                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                $get_date = strtotime($transaction_date);
-                                                $added_date = strtotime("+$date day", $get_date);
-                                                $expiry_date = date('M d, Y', $added_date);
+                                                if($package_expiry->validity == 'Days'){
+                                                    $date = $package_expiry->recur_date;
+                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                    $get_date = strtotime($transaction_date);
+                                                    $added_date = strtotime("+$date day", $get_date);
+                                                    $expiry_date = date('M d, Y', $added_date);
+                                                }
+                                                if($package_expiry->validity == 'Months'){
+                                                    $date = $package_expiry->recur_date;
+                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                    $get_date = strtotime($transaction_date);
+                                                    $added_date = strtotime("+$date month", $get_date);
+                                                    $expiry_date = date('M d, Y', $added_date);
+                                                }
+                                                if($package_expiry->validity == 'Years'){
+                                                    $date = $package_expiry->recur_date;
+                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                    $get_date = strtotime($transaction_date);
+                                                    $added_date = strtotime("+$date year", $get_date);
+                                                    $expiry_date = date('M d, Y', $added_date);
+                                                }
                                             @endphp
                                             <td class="orders-date">{{$expiry_date}}</td>
                                             @else

@@ -44,6 +44,7 @@ class LicenseCredentials extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
+                        ->subject('License Credentials')
                         ->line('Hi '. $this->license_user->name .' You now have access to Legalpedia resources. Below are your License credentials to sign in')
                         ->line('Licensed Email: '. $this->license_user->email)
                         ->line('License Code: '. $this->license_creds->license_code)

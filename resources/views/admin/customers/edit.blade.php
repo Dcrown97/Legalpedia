@@ -452,13 +452,21 @@
                                                                     </td>
                                                                     @php
                                                                         $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
-                                                                        $date = $package_expiry->recur_date;
-                                                                        $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                                        $get_date = strtotime($transaction_date);
-                                                                        $added_date = strtotime("+$date day", $get_date);
-                                                                        $expiry_date = date('M d, Y', $added_date);
+
+                                                                        if($package_expiry->validity == 'Days'){
+                                                                            $day = $package_expiry->recur_date;
+                                                                            $expiry_date =  $transaction->created_at->addDays($day);
+                                                                        }
+                                                                        if($package_expiry->validity == 'Months'){
+                                                                            $month = $package->recur_date;
+                                                                            $expiry_date =  $transaction->created_at->addMonths($month);
+                                                                        }
+                                                                        if($package_expiry->validity == 'Years'){
+                                                                            $year = $package->recur_date;
+                                                                            $expiry_date =  $transaction->created_at->addYears($year);
+                                                                        }
                                                                     @endphp
-                                                                    <td class="orders-date">{{$expiry_date}}</td>
+                                                                    <td class="orders-date">{{\Carbon\Carbon::parse($expiry_date)->toFormattedDateString()}}</td>
                                                                     @else
                                                                     <td class="orders-status">
                                                                         <div class="badge bg-secondary-soft">

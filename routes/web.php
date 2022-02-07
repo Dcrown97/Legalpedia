@@ -35,6 +35,7 @@ Auth::routes();
     Route::get('/admin/judgements', [AdminController::class, 'judgement'])->name('admin.judgement');
     Route::get('/admin/judgements/subject-matter', [AdminController::class, 'sbjMatter'])->name('judgement.sbj-matter');
     Route::get('/admin/judgements/legal-citation', [AdminController::class, 'legalCitation'])->name('judgement.citation');
+    Route::get('/admin/judgements/no-summary', [AdminController::class, 'noSummary'])->name('judgement.no-summary');
     Route::get('/admin/judgements/{id}', [AdminController::class, 'showJudgement'])->name('show.judgement');
     Route::post('/admin/judgements', [AdminController::class, 'storeJudgement'])->name('store.judgement');
     Route::get('/admin/judgements/edit/{id}', [AdminController::class, 'editJudgement'])->name('edit.judgement');
@@ -124,8 +125,8 @@ Auth::routes();
 
     Route::get('/admin/subscriptions', [AdminController::class, 'subscription'])->name('admin.subscriptions');
     Route::post('/admin/subscriptions', [AdminController::class, 'storePackage'])->name('store.package');
-    Route::patch('/admin/subscriptions', [AdminController::class, 'updatePackage'])->name('update.package');
     Route::get('/admin/subscriptions/edit-package/{id}', [AdminController::class, 'editPackage'])->name('edit.package');
+    Route::patch('/admin/subscriptions/edit-package/{id}', [AdminController::class, 'updatePackage'])->name('update.package');
     Route::delete('/admin/subscriptions/{id}', [AdminController::class, 'deletePackage'])->name('delete.package');
     Route::get('/admin/transactions', [AdminController::class, 'transaction'])->name('admin.transaction');
     Route::patch('/admin/transactions', [AdminController::class, 'updateTransaction'])->name('update.transaction');

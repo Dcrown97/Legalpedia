@@ -199,7 +199,9 @@
                                     @if(Auth::user()->photo)
                                         <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
                                         @else
-                                        <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                        <div class="initials">
+                                            <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                                        </div>
                                     @endif
                                 </div>
                             </a>

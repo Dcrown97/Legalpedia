@@ -31,13 +31,13 @@
 @endif
  <script type="text/javascript">
 
-    //  @if(Session::has('success'))
-    //      swal({
-    //          title: "Success!",
-    //          text: "{{Session::get('success')}}",
-    //          icon: "success",
-    //      });
-    //  @endif
+     @if(Session::has('success1'))
+         swal({
+             title: "Success!",
+             text: "{{Session::get('success1')}}",
+             icon: "success",
+         });
+     @endif
 
     // @if($errors->any())
     //     @foreach ($errors->all() as $error)

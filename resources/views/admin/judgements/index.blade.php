@@ -57,6 +57,13 @@
                             Legalpedia Citation Index
                         </a>
                     </li>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <li class="nav-item">
+                            <a class="nav-link"  href="{{route('judgement.no-summary')}}">
+                                Cases without Summary
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
           </div>
@@ -206,38 +213,52 @@
                         <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                             <div class="card-header">
                                 <h4 class="card-header-title">Year Index</h4>
-                                <div class="row align-items-end justify-content-end">
-                                    <form action="{{route('admin.judgement')}}" method="GET" class="me-3 d-flex">
-                                        @php
-                                            $all_courts = json_decode($courts->judg_court);
-                                        @endphp
-                                        @if($all_courts)
-                                            <select name="id" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
-                                                <option value="">All Courts</option>
-                                                @foreach($all_courts as $court)
-                                                    @php
-                                                        $main_court = App\Models\Court::where('court', $court)->first();
-                                                    @endphp
-                                                    <option value="{{$main_court->id}}" {{ $main_court->id == $selected_court['court_id'] ? 'selected' : '' }}>{{$court}}</option>
-                                                @endforeach
-                                            </select>
-                                        @endif
-                                        <span class="ml-4"></span>
-                                        <?php $year_range = range($years->judg_start_year, $years->judg_end_year); ?>
-                                        <select name="year" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
-                                            <option value="">All Years</option>
-                                            @foreach($year_range as $year)
-                                                <option value="{{$year}}" {{ $year == $selected_year['judgement_date'] ? 'selected' : '' }}>{{$year}}</option>
-                                            @endforeach
-                                        </select>
-                                        <button type="submit" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
-                                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
-                                        </button>
-                                        <a href="{{url('admin/judgements')}}" onclick="this.classList.toggle('button--loading')" class="ml-2 button_load btn button_load text-white btn-sm btn-primary p-2">
-                                            <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
-                                        </a>
-                                    </form>
-                                </div>
+                                @if($courts->judgement_feature)
+                                    <div class="row align-items-end justify-content-end">
+                                        <form action="{{route('admin.judgement')}}" method="GET" class="me-3 d-flex">
+                                            @php
+                                                $all_courts = json_decode($courts->judg_court);
+                                            @endphp
+                                            @if($all_courts)
+                                                <select name="id" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                                    <option value="">All Courts</option>
+                                                    @foreach($all_courts as $court)
+                                                        @php
+                                                            $main_court = App\Models\Court::where('court', $court)->first();
+                                                        @endphp
+                                                        <option value="{{$main_court->id}}" {{ $main_court->id == $selected_court['court_id'] ? 'selected' : '' }}>{{$court}}</option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
+                                            <span class="ml-4"></span>
+                                            @php
+                                                $single_year = $years->judg_single_year;
+                                                $year_range = range($years->judg_start_year, $years->judg_end_year);
+                                            @endphp
+                                            @if($years->judg_start_year && $years->judg_end_year)
+                                                <select name="year" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                                    <option value="">All Years</option>
+                                                    @foreach($year_range as $year)
+                                                        <option value="{{$year}}" {{ $year == $selected_year['judgement_date'] ? 'selected' : '' }}>{{$year}}</option>
+                                                    @endforeach
+                                                </select>
+                                                @elseif($single_year)
+                                                <select name="year" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                                    <option value="">All Years</option>
+                                                    @foreach($single as $year)
+                                                        <option value="{{$year}}" {{ $year == $selected_year['judgement_date'] ? 'selected' : '' }}>{{$year}}</option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
+                                            <button type="submit" onclick="this.classList.toggle('button--loading')" class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
+                                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                                            </button>
+                                            <a href="{{url('admin/judgements')}}" onclick="this.classList.toggle('button--loading')" class="ml-2 button_load btn button_load text-white btn-sm btn-primary p-2">
+                                                <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                                            </a>
+                                        </form>
+                                    </div>
+                                @endif
                             </div>
                             <div class="card-header">
                                 <div class="row align-items-center">

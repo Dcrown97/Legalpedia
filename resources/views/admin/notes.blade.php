@@ -91,7 +91,7 @@
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
                                                             @php
-                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', $note->content_id)->first();
+                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
                                                                 $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
                                                                 $rule = App\Models\Rule::where('id', $note->content_id)->first();
                                                                 $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
@@ -213,8 +213,8 @@
                                                     </div>
                                                     <div class="col-auto">
                                                         <div class="dropdown">
-                                                            @if($note->resource_type !== 'admin-note')
-                                                                <a data-bs-toggle="modal" onclick="showTeamModal('{{$note->content->selector[0]->exact}}', '{{$note->id}}')" class="dropdown-ellipses dropdown-toggle cursor">
+                                                            @if($note->resource_type <> 'admin-note')
+                                                                <a data-bs-toggle="modal" onclick='showTeamModal("{{$note->content->selector[0]->exact}}", "{{$note->id}}")' class="dropdown-ellipses dropdown-toggle cursor">
                                                                     <i class="mdi mdi-share-variant"></i>
                                                                 </a>
                                                                 @else
@@ -222,7 +222,7 @@
                                                                     <i class="fe fe-more-vertical"></i>
                                                                 </a>
                                                                 <div class="dropdown-menu dropdown-menu-end">
-                                                                    <a data-bs-toggle="modal" onclick="showEditNote('{{$note->comment}}', '{{$note->content}}', '{{$note->id}}')" class="dropdown-item cursor">
+                                                                    <a data-bs-toggle="modal" onclick='showEditNote("{{$note->comment}}", "{{$note->content}}", "{{$note->id}}")' class="dropdown-item cursor">
                                                                         <i class="mdi mdi-pencil mr-2"></i> Edit
                                                                     </a>
                                                                     <form action="/admin/notes/{{$note->id}}" method="POST">
@@ -271,9 +271,9 @@
                                                     <p class="small text-gray-700 mb-0">
                                                         {!! $note->content !!}
                                                     </p>
-                                                    <p class="card-text small text-muted">
+                                                    {{-- <p class="card-text small text-muted">
                                                         {{$note->created_at->diffForHumans()}}
-                                                    </p>
+                                                    </p> --}}
                                                 </div>
                                             </div>
                                         </div>
@@ -339,7 +339,7 @@
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
                                                             @php
-                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', $note->content_id)->first();
+                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
                                                                 $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
                                                                 $rule = App\Models\Rule::where('id', $note->content_id)->first();
                                                                 $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
@@ -459,18 +459,18 @@
                                                             @endif
                                                         </h4>
                                                     </div>
-                                                    {{-- <div class="col-auto">
+                                                    <div class="col-auto">
                                                         <div class="dropdown">
                                                             <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                                 <i class="fe fe-more-vertical"></i>
                                                             </a>
                                                             <div class="dropdown-menu dropdown-menu-end">
-                                                                <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="dropdown-item">
+                                                                <a data-bs-toggle="modal" onclick='showNoteDisplay("{{$note->note_id}}")' class="dropdown-item cursor">
                                                                     <i class="mdi mdi-pencil mr-2"></i> Edit
                                                                 </a>
                                                             </div>
                                                         </div>
-                                                    </div> --}}
+                                                    </div>
                                                 </div>
                                             </li>
                                         @endforeach
@@ -506,9 +506,9 @@
                                                     <p class="small text-gray-700 mb-0">
                                                         {!! $note->content  !!}
                                                     </p>
-                                                    <p class="card-text small text-muted">
+                                                    {{-- <p class="card-text small text-muted">
                                                         {{$note->created_at->diffForHumans()}}
-                                                    </p>
+                                                    </p> --}}
                                                 </div>
                                             </div>
                                         </div>
@@ -625,7 +625,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="kt_modal_create_project" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="noteDisplay" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -767,6 +767,11 @@
             document.getElementById("anote-content").value = content;
             document.getElementById("anote-id").value = id;
             $('#teamModal').modal('show')
+        }
+
+        function showNoteDisplay(id){
+            document.getElementById("note-id").value = id;
+            $('#noteDisplay').modal('show')
         }
 
         function showNoteModal(comment, content, id){

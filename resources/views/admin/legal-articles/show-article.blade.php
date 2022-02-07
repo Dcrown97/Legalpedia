@@ -56,38 +56,78 @@
                         <small class="text-muted">
                             Posted: <span class="text-color">{{\Carbon\Carbon::parse($article->created_at)->toFormattedDateString()}}</span>
                         </small>
-                        <div class="col-auto">
-                            <div class="dropdown">
-                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-share-variant"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <a data-bs-toggle="modal" data-bs-target="#share_articles" id="kt_toolbar_primary_button" class="cursor dropdown-item">
-                                        <i class="fe fe-users mr-2"></i> Share to teams
+                        @php
+                            $subscribed_package = App\Models\Package::where('id', Auth::user()->package_id)->first();
+                        @endphp
+                        @if(Auth::user()->role->name == 'Admin')
+                            <div class="col-auto">
+                                <div class="dropdown">
+                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-share-variant"></i>
                                     </a>
-                                    <a href="https://api.whatsapp.com/send?text={{route('articles', $article->id)}}" target="_blank" class="dropdown-item">
-                                        <i class="mdi mdi-whatsapp mr-2"></i> Share to Whatsapp
-                                    </a>
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{route('articles', $article->id)}}" target="_blank" class="dropdown-item">
-                                        <i class="mdi mdi-facebook mr-2"></i> Share to Facebook
-                                    </a>
-                                    <a class="dropdown-item d-flex">
-                                        <i class="fe fe-paperclip mr-2"></i><input type="button" class="custom-button dropdown-item" id="hide-copy" value="Copy Link" onclick="Copy();" style="margin-left: -20px; margin-top: -8px;">
-                                        <span class="text-color" id="show-status" style="display: none;">Link copied!</span>
-                                    </a>
-                                    <span><input type="text" style="position: absolute; opacity: 0;" id="paste-box"></span>
-                                    @if(Auth::user()->id == $article->user_id)
-                                        <form action="/admin/legal-articles/{{$article->id}}" method="POST">
-                                            {{ csrf_field() }}
-                                            {{ method_field('DELETE') }}
-                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                <i class="fe fe-trash mr-2"></i>Delete
-                                            </button>
-                                        </form>
-                                    @endif
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a data-bs-toggle="modal" data-bs-target="#share_articles" id="kt_toolbar_primary_button" class="cursor dropdown-item">
+                                            <i class="fe fe-users mr-2"></i> Share to teams
+                                        </a>
+                                        <a href="https://api.whatsapp.com/send?text={{route('articles', $article->id)}}" target="_blank" class="dropdown-item">
+                                            <i class="mdi mdi-whatsapp mr-2"></i> Share to Whatsapp
+                                        </a>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u={{route('articles', $article->id)}}" target="_blank" class="dropdown-item">
+                                            <i class="mdi mdi-facebook mr-2"></i> Share to Facebook
+                                        </a>
+                                        <a class="dropdown-item d-flex">
+                                            <i class="fe fe-paperclip mr-2"></i><input type="button" class="custom-button dropdown-item" id="hide-copy" value="Copy Link" onclick="Copy();" style="margin-left: -20px; margin-top: -8px;">
+                                            <span class="text-color" id="show-status" style="display: none;">Link copied!</span>
+                                        </a>
+                                        <span><input type="text" style="position: absolute; opacity: 0;" id="paste-box"></span>
+                                        @if(Auth::user()->id == $article->user_id)
+                                            <form action="/admin/legal-articles/{{$article->id}}" method="POST">
+                                                {{ csrf_field() }}
+                                                {{ method_field('DELETE') }}
+                                                <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                    <i class="fe fe-trash mr-2"></i>Delete
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            @else
+                            @if($subscribed_package->share)
+                                <div class="col-auto">
+                                    <div class="dropdown">
+                                        <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="mdi mdi-share-variant"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a data-bs-toggle="modal" data-bs-target="#share_articles" id="kt_toolbar_primary_button" class="cursor dropdown-item">
+                                                <i class="fe fe-users mr-2"></i> Share to teams
+                                            </a>
+                                            <a href="https://api.whatsapp.com/send?text={{route('articles', $article->id)}}" target="_blank" class="dropdown-item">
+                                                <i class="mdi mdi-whatsapp mr-2"></i> Share to Whatsapp
+                                            </a>
+                                            <a href="https://www.facebook.com/sharer/sharer.php?u={{route('articles', $article->id)}}" target="_blank" class="dropdown-item">
+                                                <i class="mdi mdi-facebook mr-2"></i> Share to Facebook
+                                            </a>
+                                            <a class="dropdown-item d-flex">
+                                                <i class="fe fe-paperclip mr-2"></i><input type="button" class="custom-button dropdown-item" id="hide-copy" value="Copy Link" onclick="Copy();" style="margin-left: -20px; margin-top: -8px;">
+                                                <span class="text-color" id="show-status" style="display: none;">Link copied!</span>
+                                            </a>
+                                            <span><input type="text" style="position: absolute; opacity: 0;" id="paste-box"></span>
+                                            @if(Auth::user()->id == $article->user_id)
+                                                <form action="/admin/legal-articles/{{$article->id}}" method="POST">
+                                                    {{ csrf_field() }}
+                                                    {{ method_field('DELETE') }}
+                                                    <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                        <i class="fe fe-trash mr-2"></i>Delete
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
                     </div>
                     <div class="card-body p-5">
                         <h3 class="text-muted">Category</h3>

@@ -62,7 +62,9 @@
                                                         @if($user->photo)
                                                             <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                             @else
-                                                            <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                            <div class="initials">
+                                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                            </div>
                                                         @endif
                                                     </span>
                                                 </div>

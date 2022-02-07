@@ -41,6 +41,7 @@ class MemberRemoval extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
+                    ->subject('You have been removed')
                     ->line('Hi '. $this->remove_user->name .' Sorry, you have been removed from this Team. Please join another Team')
                     ->action('Join Team', url('admin/teams'));
     }

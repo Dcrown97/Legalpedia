@@ -9,6 +9,16 @@
         color: #EC6959 !important;
     }
 
+    .initials {
+        color: #fff;
+        font-size: 20px;
+        padding: 5px 0 0 8px;
+        background: #EC6959 !important;
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+    }
+
     @media screen and (min-width: 280px) and (max-width: 767px) {
         .hide-mobile {
             display: none;
@@ -40,7 +50,9 @@
                 @if(Auth::user()->photo)
                     <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
                     @else
-                    <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                    <div class="initials">
+                        <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                    </div>
                 @endif
             </div>
           </a>
@@ -49,7 +61,12 @@
           <div class="dropdown-menu dropdown-menu-end" aria-labelledby="sidebarIcon">
             <a href="{{route('edit.customer', Auth::user()->id)}}" class="dropdown-item">Settings</a>
             <hr class="dropdown-divider">
-            <a href="sign-in.html" class="dropdown-item">Logout</a>
+            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <span class="mr-2" aria-hidden="true"><i class="mdi mdi-logout-variant"></i></span> Sign out
+            </a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
           </div>
 
         </div>
@@ -265,7 +282,9 @@
                             @if(Auth::user()->photo)
                                 <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
                                 @else
-                                <img src="{{asset('assets/images/user-avatar.jpg')}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                <div class="initials">
+                                    <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                                </div>
                             @endif
                         </div>
                     </a>

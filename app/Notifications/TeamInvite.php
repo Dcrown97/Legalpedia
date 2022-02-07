@@ -45,6 +45,7 @@ class TeamInvite extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
+                    ->subject('You have been Invited')
                     ->line('Hi there, ' . $this->user->name . ' is inviting you to join his team.')
                     ->action('Join Team', $this->notification_url)
                     ->line('Thank you for joining!');

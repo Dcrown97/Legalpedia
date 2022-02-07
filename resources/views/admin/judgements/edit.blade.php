@@ -408,7 +408,8 @@
                                         @php
                                             $judgement = App\Models\Judgement::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                         @endphp
-                                        <textarea name="judgement" rows="5" class="form-control" placeholder="">{{$judgement->judgement}}</textarea>
+                                        <input type="hidden" name="judgement_id" value="{{$judgement ? $judgement->id : ''}}">
+                                        <textarea name="judgement" rows="5" class="form-control" placeholder="">{{$judgement ? $judgement->judgement : ''}}</textarea>
                                     </div>
                                 </div>
                                 <hr class="my-5">

@@ -20,6 +20,9 @@
 
     @yield('links')
 
+    <link href="{{asset('assets/css/recogito.min.css')}}" rel="stylesheet">
+    <script src="{{asset('assets/js/recogito.min.js')}}"></script>
+
     <!-- Theme CSS -->
     <link rel="stylesheet" href="{{asset('assets/css/theme.bundle.css')}}" id="stylesheetLight" />
     <link rel="stylesheet" href="{{asset('assets/css/theme-dark.bundle.css')}}" id="stylesheetDark" />
@@ -53,6 +56,7 @@
     @include('elements.mobile-navbar')
     <div class="main-content">
         @include('elements.mobile-navbar')
+        @include('elements.searchbar')
         @yield('content')
     </div>
 

@@ -42,6 +42,7 @@ class RequestDeclined extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
+                    ->subject('Your request has been declined')
                     ->line('Hi '. $this->decline_user_request->name .' Sorry, your request was declined. Please join another team')
                     ->action('Join team', url('admin/teams'));
     }

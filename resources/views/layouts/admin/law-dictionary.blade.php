@@ -51,6 +51,7 @@
     @include('elements.mobile-navbar')
     <div class="main-content">
         @include('elements.mobile-navbar')
+        @include('elements.searchbar')
         @yield('content')
     </div>
 
