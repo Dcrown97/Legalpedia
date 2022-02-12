@@ -542,7 +542,7 @@ a:hover{
 .custom-button {
     background: none !important;
     border: none !important;
-    /* box-shadow: none; */
+    box-shadow: none;
 }
 .typeahead {
     background: #fff;

@@ -45,6 +45,7 @@
 		<div class="loader-bar"></div>
     </div>
     @include('elements.sidebar')
+    @include('elements.off-canvas-demo')
     @include('elements.off-canvas')
     @include('elements.small-sidebar')
     @include('elements.top-nav')
@@ -53,6 +54,7 @@
         @include('elements.mobile-navbar')
         @include('elements.searchbar')
         @yield('content')
+        @include('elements.chatbox')
     </div>
 
     <script src='../api.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>

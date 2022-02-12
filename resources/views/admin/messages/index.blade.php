@@ -224,7 +224,7 @@
                         </form>
                     </div>
                     <div class="card" data-list='{"valueNames": ["orders-order", "orders-product", "orders-date", "orders-total", "orders-status", "orders-method"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
-                        <form action="{{route('send.message')}}" method="POST">
+                        <form action="{{route('send.messages')}}" method="POST">
                             @csrf
                             <div class="card-header">
                                 <div class="input-group input-group-flush input-group-merge input-group-reverse">

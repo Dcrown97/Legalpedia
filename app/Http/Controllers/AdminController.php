@@ -13,6 +13,7 @@ use App\Models\Court;
 use App\Models\Maxim;
 use App\Models\State;
 use App\Models\Holden;
+use App\Models\Report;
 use App\Models\Article;
 use App\Models\Comment;
 use App\Models\License;
@@ -24,6 +25,7 @@ use App\Models\Resource;
 use App\Models\UserTeam;
 use Whoops\RunInterface;
 use App\Models\AreaOfLaw;
+use App\Models\ChMessage;
 use App\Models\Judgement;
 use App\Models\Principle;
 use App\Models\Annotation;
@@ -58,8 +60,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
+use App\Notifications\LegalpediaReport;
 use Illuminate\Support\Facades\Session;
 use App\Notifications\LicenseCredentials;
+use App\Notifications\NewReport;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
 
@@ -90,8 +94,9 @@ class AdminController extends Controller
         $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
         $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->get();
         $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+        $new_chat_count = ChMessage::where('to_id', Auth::user()->id)->where('seen', 0)->count();
         $all_count = $judgement_count + $fed_count + $rule_count + $form_count + $article_count + $dict_count + $maxim_count + $resource_count;
-        return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'admin_notes', 'recent_activities', 'teams', 'pop_message'));
+        return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'admin_notes', 'recent_activities', 'teams', 'pop_message', 'new_chat_count'));
     }
 
 
@@ -1498,7 +1503,7 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeFed(Request $requafest) {
+    public function storeFed(Request $request) {
         $validated = $request->validate([
             'title' => 'required',
             // 'area_of_law' => 'required',
@@ -2440,7 +2445,7 @@ class AdminController extends Controller
             'share' => $request->share,
             'note' => $request->note,
             'bookmark' => $request->bookamrk,
-
+            'is_active' => $request->is_active,
         ];
         if(!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
@@ -2521,6 +2526,7 @@ class AdminController extends Controller
             'share' => $request->share,
             'note' => $request->note,
             'bookmark' => $request->bookamrk,
+            'is_active' => $request->is_active,
         ];
         if(!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
@@ -2670,13 +2676,15 @@ class AdminController extends Controller
           'usage'=> $request->usage,
           'percentage'=> $request->percentage,
           'package'=> $request->package,
+          'package_id'=> $request->package_id,
         ];
         DB::table('discounts')->where('id', $request->discount_id)->update($input);
         return back()->with('success', 'Discount updated');
     }
     public function useDiscount(Request $request, $id) {
         $package = Package::findOrFail($id);
-        $discount = Discount::where('package_id', $package->id)->first();
+        $discount = Discount::where('package_id', $package->id)->where('discount_code', $request->used)->first();
+        // dd($discount);
         $validator = Validator::make(
             $request->all(),
             [
@@ -2686,30 +2694,37 @@ class AdminController extends Controller
         if($validator->fails()) {
             return back()->withErrors('Please enter a valid coupon');
         }
-        if($request->used == $discount->discount_code) {
-            if($discount->validity_end_date > now()) {
-                if($discount->used == null) {
-                    $input = [
-                        'used' => 1,
-                    ];
-                    $discount->update($input);
-                    $discounted_price = ($package->price * $discount->percentage) / 100;
-                    $new_price = $package->price - $discounted_price;
-                    Session::flash('success1', 'Discount applied');
-                    return view('checkout.discount', compact('new_price', 'package'));
+        if(isset($discount->package_id)) {
+            if($discount->package_id == $package->id) {
+                // dd($discount->discount_code);
+                if($request->used == $discount->discount_code) {
+                    if($discount->validity_end_date > now()) {
+                        if($discount->used == null) {
+                            $input = [
+                                'used' => 1,
+                            ];
+                            $discount->update($input);
+                            $discounted_price = ($package->price * $discount->percentage) / 100;
+                            $new_price = $package->price - $discounted_price;
+                            Session::flash('success1', 'Discount applied');
+                            return view('checkout.discount', compact('new_price', 'package'));
 
-                } elseif($discount->used < $discount->usage) {
-                    $data = 1 + $discount->used;
-                    $discount->used = $data;
-                    $discount->save();
-                    $discounted_price = ($package->price * $discount->percentage) / 100;
-                    $new_price = $package->price - $discounted_price;
-                    Session::flash('success1', 'Discount applied');
-                    return view('checkout.discount', compact('new_price', 'package'));
+                        } elseif($discount->used < $discount->usage) {
+                            $data = 1 + $discount->used;
+                            $discount->used = $data;
+                            $discount->save();
+                            $discounted_price = ($package->price * $discount->percentage) / 100;
+                            $new_price = $package->price - $discounted_price;
+                            Session::flash('success1', 'Discount applied');
+                            return view('checkout.discount', compact('new_price', 'package'));
+                        }
+                        return back()->with('error', 'Coupon already used');
+                    }
+                    return back()->with('error', 'Coupon has expired');
                 }
-                return back()->with('error', 'Coupon already used');
+                return back()->with('error', 'Invalid coupon');
             }
-            return back()->with('error', 'Coupon has expired');
+            return back()->with('error', 'Invalid coupon');
         }
         return back()->with('error', 'Invalid coupon');
     }
@@ -3043,10 +3058,16 @@ class AdminController extends Controller
 
     ///////////////////////////////////////Global search///////////////////////////////
     public function search(Request $request){
+        // $empty_search = $request->input('search');
+        // if($empty_search == '') {
+        //     return back()->with('error1', 'No search input found');
+        // }
         if($request->input('search')) {
             $search = $request->input('search');
             $first_search = $request->input('search');
             $second_search = '';
+
+
 
             /////////////// Judgement search //////////////////////
 
@@ -3641,7 +3662,7 @@ class AdminController extends Controller
         Message::create($input);
         return back()->with('success', 'Message created');
     }
-    public function sendMessage(Request $request) {
+    public function sendMessages(Request $request) {
         if($request->has('send_message') && !empty($request->checkBoxArray)) {
 
             $message = Message::where('id', $request->message_id)->first();
@@ -3821,10 +3842,35 @@ class AdminController extends Controller
 
 
 
+
     ///////////////////////////////////////pricing//////////////////////////////////
     public function pricing() {
-        $packages = Package::orderBy('price', 'ASC')->get();
+        $packages = Package::where('is_active', 1)->orderBy('price', 'ASC')->get();
         return view('admin.pricing', compact('packages'));
+    }
+
+    public function sendReport(Request $request) {
+        $user = Auth::user();
+        $validated = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'report_type' => 'required',
+        ]);
+        if(!isset($request->report_type)) {
+            return back()->withErrors('error', 'Please select a report type');
+        }
+        $input = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'report_type' => $request->report_type,
+            'report_message' => strip_tags($request->report_message),
+            'other_message' => strip_tags($request->other_message),
+        ];
+        $report = Report::create($input);
+        Notification::route('mail', $request->input('to_email'))->notify(new NewReport($report, $user));
+        $user->notify(new LegalpediaReport($user));
+
+        return back()->with('success', 'Report sent, We\'ll get to you shortly');
     }
 
 }

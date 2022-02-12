@@ -14,7 +14,6 @@
         }
         .notify-1 {
             position: absolute;
-            margin: -25px 0 0 0px;
             background: transparent;
             border-radius: 100%;
             padding: 5px 10px;
@@ -117,7 +116,7 @@
                                 Judgements
                                 @else
                                 <span class="icon-1 active">
-                                    <small class="notify-1">{{number_format($query_case_count)}}</small>
+                                    <small class="notify-1" style=" margin: -25px 0 0 40px;">{{number_format($query_case_count)}}</small>
                                     Judgements
                                 </span>
                             @endif
@@ -129,7 +128,7 @@
                                 Laws of Federation
                                 @else
                                 <span class="icon-1 active">
-                                    <small class="notify-1">{{number_format($query_law_count)}}</small>
+                                    <small class="notify-1" style=" margin: -25px 0 0 80px;">{{number_format($query_law_count)}}</small>
                                     Laws of Federation
                                 </span>
                             @endif
@@ -141,7 +140,7 @@
                                 Rules
                                 @else
                                 <span class="icon-1 active">
-                                    <small class="notify-1">{{number_format($query_rule_count)}}</small>
+                                    <small class="notify-1" style=" margin: -25px 0 0 2px;">{{number_format($query_rule_count)}}</small>
                                     Rules
                                 </span>
                             @endif
@@ -153,7 +152,7 @@
                                 Forms and Precedents
                                 @else
                                 <span class="icon-1 active">
-                                    <small class="notify-1">{{number_format($query_form_count)}}</small>
+                                    <small class="notify-1" style=" margin: -25px 0 0 120px;">{{number_format($query_form_count)}}</small>
                                     Forms and Precendents
                                 </span>
                             @endif
@@ -165,7 +164,7 @@
                                 Articles
                                 @else
                                 <span class="icon-1 active">
-                                    <small class="notify-1">{{number_format($query_article_count)}}</small>
+                                    <small class="notify-1" style=" margin: -25px 0 0 20px;">{{number_format($query_article_count)}}</small>
                                     Articles
                                 </span>
                             @endif
@@ -177,7 +176,7 @@
                                 Public Notes
                                 @else
                                 <span class="icon-1 active">
-                                    <small class="notify-1">{{number_format($query_note_count)}}</small>
+                                    <small class="notify-1" style=" margin: -25px 0 0 60px;">{{number_format($query_note_count)}}</small>
                                     Public Notes
                                 </span>
                             @endif
@@ -200,7 +199,7 @@
                                 @if($second_search == '')
                                     <form action="{{route('search')}}" method="GET">
                                         <input type="hidden" name="more_result" value="{{$search}}">
-                                        <button id="search-btn" class="custom-button text-color" onclick="this.classList.toggle('button--loading1')">
+                                        <button id="search-btn" class="btn btn-primary text-white mr-3" onclick="this.classList.toggle('button--loading1')">
                                             <span class="button__text">More results <i class="mdi mdi-chevron-right"></i></span>
                                         </button>
                                     </form>

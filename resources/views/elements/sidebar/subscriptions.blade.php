@@ -172,15 +172,14 @@
                 <i class="fe fe-bell"></i> Foreign Resources
                 </a>
             </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{url('admin/notes')}}">
-                    <i class="fe fe-file"></i> Notes
-                </a>
-            </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{url('admin/teams')}}">
                     <i class="fe fe-users"></i> Teams
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{route(config('chatify.routes.prefix'))}}">
+                    <i class="fe fe-message-square"></i> Chats
                 </a>
             </li>
             @if(Auth::user()->role->name == 'Admin')

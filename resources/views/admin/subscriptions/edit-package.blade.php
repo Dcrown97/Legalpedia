@@ -688,6 +688,25 @@
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="form-label mb-1">
+                                        Publish this package?
+                                    </label>
+                                    @if($package->is_active == 1)
+                                        <select name="is_active" id="report-type" class="form-select" onchange="showDiv('show_report', 'report_message', this)">
+                                            <option value="{{$package->is_active}}">Published</option>
+                                            <option value="1">Keep Published</option>
+                                            <option value="0">Don't publish</option>
+                                        </select>
+                                        @elseif($package->is_active == 0)
+                                        <select name="is_active" id="report-type" class="form-select" onchange="showDiv('show_report', 'report_message', this)">
+                                            <option value="{{$package->is_active}}">Not Published</option>
+                                            <option value="1">Publish now</option>
+                                            <option value="0">Don't publish</option>
+                                        </select>
+                                    @endif
+                                </div>
+                                <hr class="my-5">
                                 <div class="nav row align-items-center">
                                     <div class="col-auto">
                                         <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>

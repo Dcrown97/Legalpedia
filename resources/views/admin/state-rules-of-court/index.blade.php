@@ -16,13 +16,16 @@
                             State Rules of Court
                         </h1>
                     </div>
-                    @if(Auth::user()->role->name == 'Admin')
-                        <div class="col-auto">
+                    <div class="col-auto">
+                        @if(Auth::user()->role->name == 'Admin')
                             <a href="#" class="btn text-white btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
                                 <i class="fe fe-plus"></i> Add State Rules
                             </a>
-                        </div>
-                    @endif
+                        @endif
+                        <a href="#" class="custom-button text-color ml-3" style="border-bottom: 1px dotted !important" data-bs-toggle="modal" data-bs-target="#send_report" id="kt_toolbar_primary_button">
+                            <i class="fe fe-info"></i> Send a report?
+                        </a>
+                    </div>
                     @include('elements.notifications')
                 </div>
                 @if(Auth::user()->role->name == 'Admin')

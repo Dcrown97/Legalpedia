@@ -523,6 +523,16 @@
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="form-label mb-1">
+                                        Publish this package?
+                                    </label>
+                                    <select name="is_active" id="report-type" class="form-select" onchange="showDiv('show_report', 'report_message', this)">
+                                        <option value="1">Publish</option>
+                                        <option value="0">Don't publish</option>
+                                    </select>
+                                </div>
+                                <hr class="my-5">
                                 <div class="nav row align-items-center">
                                     <div class="col-auto">
                                         <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>

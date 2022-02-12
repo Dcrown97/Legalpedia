@@ -304,7 +304,7 @@
                         <div class="tab-pane fade" id="transact" role="tabpanel" aria-labelledby="transact-tab">
                             <div class="row">
                                 <div class="col-12 col-xl-4">
-                                    @if($package && $user->status == 'active')
+                                    @if($package && $user->expiry_date > now())
                                         <div class="card">
                                             <div class="card-header">
                                                 <h4 class="card-header-title">
@@ -342,7 +342,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @elseif($package && $user->status !== 'active')
+                                        @elseif($package && $user->expiry_date < now())
                                         <div class="card">
                                             <div class="card-header">
                                                 <h4 class="card-header-title">

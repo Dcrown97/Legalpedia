@@ -199,6 +199,11 @@
                     <i class="fe fe-users"></i> Teams
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{route(config('chatify.routes.prefix'))}}">
+                    <i class="fe fe-message-square"></i> Chats
+                </a>
+            </li>
             @if(Auth::user()->role->name == 'Admin')
                 <li class="nav-item">
                     <a class="nav-link" href="{{url('admin/categories')}}">
@@ -269,6 +274,11 @@
                 </li>
             @endif
         </ul>
+        {{-- <div class="mb-4" id="popoverDemo" title="Make Dashkit Your Own!" data-bs-content="Switch the demo to Dark Mode or adjust the navigation layout, icons, and colors!">
+            <a class="btn w-100 btn-primary" data-bs-toggle="offcanvas" href="#offcanvasDemo" aria-controls="offcanvasDemo">
+              <i class="fe fe-sliders me-2"></i> Customize
+            </a>
+          </div> --}}
         <div class="mt-auto">
             <div class="navbar-user d-none d-md-flex" id="sidebarUser">
                 {{-- <a class="navbar-user-link-0" data-bs-toggle="offcanvas" href="#sidebarOffcanvasActivity" aria-controls="sidebarOffcanvasActivity">

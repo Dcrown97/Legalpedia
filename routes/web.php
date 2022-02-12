@@ -190,12 +190,15 @@ Auth::routes();
     Route::get('/admin/messages/edit/{id}', [AdminController::class, 'editMessage'])->name('edit.message');
     Route::patch('/admin/messages/{id}', [AdminController::class, 'updateMessage'])->name('update.message');
     Route::delete('/admin/messages/{id}', [AdminController::class, 'deleteMessage'])->name('delete.message');
-    Route::post('/admin/messages/send', [AdminController::class, 'sendMessage'])->name('send.message');
+    Route::post('/admin/messages/send', [AdminController::class, 'sendMessages'])->name('send.messages');
 
     Route::get('/admin/licenses', [AdminController::class, 'license'])->name('admin.licenses');
     Route::post('/admin/licenses', [AdminController::class, 'storeLicense'])->name('store.license');
     Route::patch('/admin/licenses', [AdminController::class, 'updateLicense'])->name('update.license');
     Route::delete('/admin/licenses/{id}', [AdminController::class, 'deleteLicense'])->name('delete.license');
+
+
+    Route::post('/admin/reports', [AdminController::class, 'sendReport'])->name('send.report');
 // });
 
 // Route::group(['middleware'=>'subscribedUser'], function(){

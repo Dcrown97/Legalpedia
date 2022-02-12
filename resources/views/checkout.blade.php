@@ -332,6 +332,7 @@
     paymentForm.addEventListener('submit', payWithPaystack, false);
     function payWithPaystack(e) {
         e.preventDefault();
+
         var amount = {{$package->price}};
         var userId = "{{Auth::user() ? Auth::user()->id : ''}}";
         var name = "{{Auth::user() ? Auth::user()->name : ''}}";

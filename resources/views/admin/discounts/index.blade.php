@@ -203,10 +203,11 @@
                                                 Package
                                             </label>
                                             <input type="hidden" name="slug" class="form-control">
-                                            <select name="package" class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                            <input type="hidden" name="package" id="package_name" class="form-control">
+                                            <select name="package_id" id="package-input-1" class="form-select" data-choices='{"searchEnabled": true}'>
                                                 <option value="">Select Package</option>
                                                 @foreach($packages as $package)
-                                                    <option value="{{$package->name}}">{{$package->name}}</option>
+                                                    <option value="{{$package->id}}">{{$package->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -304,10 +305,11 @@
                                             </label>
                                             <input type="hidden" name="slug" class="form-control">
                                             <input type="hidden" id="discount-id" name="discount_id" class="form-control">
-                                            <select name="package" id="package-input" class="form-select" data-choices='{"searchEnabled": true}'>
-                                                <option value="">Select Package</option>
+                                            <input type="hidden" id="package-name" name="package" class="form-control">
+                                            <select name="package_id" id="package-input" class="form-select" data-choices='{"searchEnabled": true}'>
+                                                {{-- <option value="">Select Package</option> --}}
                                                 @foreach($packages as $package)
-                                                    <option value="{{$package->name}}">{{$package->name}}</option>
+                                                    <option value="{{$package->id}}">{{$package->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -358,6 +360,30 @@
         }
         document.getElementById('new-code').value = result;
 
+    }
+
+    $(document).ready(function () {
+        packageName();
+        $("#package-input").change(function () {
+            packageName();
+        });
+    });
+
+    function packageName() {
+        let pack = $("#package-input option:selected").text();
+        document.getElementById('package-name').value = pack;
+    }
+
+    $(document).ready(function () {
+        packageNames();
+        $("#package-input-1").change(function () {
+            packageNames();
+        });
+    });
+
+    function packageNames() {
+        let pack = $("#package-input-1 option:selected").text();
+        document.getElementById('package_name').value = pack;
     }
 
     function showEditDiscountModal(name, start, end, code, usage, percent, package_name, discount_id){

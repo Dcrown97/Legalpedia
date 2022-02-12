@@ -38,7 +38,7 @@
     </div>
     <div class="container-fluid">
         <div class="row mt-n7">
-            @if($packages)
+            @if(count($packages) > 0)
                 @foreach($packages as $package)
                     <div class="col-12 col-lg-4">
                         <div class="card">
@@ -413,8 +413,8 @@
                     </div>
                 @endforeach
                 @else
-                <div class="text-center mt-8">
-                    <h3 class="text-muted"><i class="fe fe-users"></i> No package available</h3>
+                <div class="text-center my-4">
+                    <h3 class="text-color"><i class="mdi mdi-crown-circle"></i> No package available</h3>
                 </div>
             @endif
         </div>

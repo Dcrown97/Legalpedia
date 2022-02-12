@@ -59,7 +59,7 @@
                             @foreach($fed_sections as $fed_section)
                                 <h3 class="text-muted">{{$fed_section_no}}. {{$fed_section->section_header}}</h3>
                                 <?php $fed_section_no++; ?>
-                                <p class="card-text mb-1">{!! nl2br(e($fed_section->section_body)) !!}</p>
+                                <p class="card-text mb-1">{!! nl2br(e(strip_tags($fed_section->section_body))) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif

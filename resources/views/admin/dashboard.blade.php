@@ -479,7 +479,6 @@
         </div>
     </div>
 
-    {{-- {{dd(Session::get('welcome'))}} --}}
 
     <div class="modal fade" id="teamModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -592,6 +591,5 @@
             document.getElementById("anote-id").value = id;
             $('#teamModal').modal('show')
         }
-
     </script>
 @endsection

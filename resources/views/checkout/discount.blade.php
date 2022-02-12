@@ -332,6 +332,9 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
+    @php
+        $discounted_price = $package->price - $new_price;
+    @endphp
     var paymentForm = document.getElementById('paymentForm');
     paymentForm.addEventListener('submit', payWithPaystack, false);
     function payWithPaystack(e) {
@@ -344,6 +347,44 @@
         var packageId = "{{$package->id}}";
         var discounted_price = "{{$discounted_price}}";
         var recur_date = {{$package->recur_date}};
+
+        // if(amount == 0) {
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: "/subscription-package/payment/" + response.reference,
+        //         data: {
+        //             "_token": "{{ csrf_token() }}",
+        //             reference: response.reference,
+        //             user_id: userId,
+        //             amount: amount,
+        //             name: name,
+        //             email: user_email,
+        //             package: package,
+        //             package_id: packageId,
+        //             recur_date: recur_date,
+        //             status: 'pending'
+        //         },
+        //         success: function (response) {
+        //             console.log(response);
+        //             if (response.status == true) {
+        //                 swal({
+        //                     title: "Success!",
+        //                     text: 'Payment Verified, redirecting you back to your dashboard',
+        //                     icon: "success",
+        //                 });
+        //                 window.location.href = "{{route('admin.dashboard')}}";
+        //             }
+        //             if (response.status == false) {
+        //                 swal({
+        //                     title: "Error!",
+        //                     text: 'Failed to verify payment, please try again',
+        //                     icon: "error",
+        //                 });
+        //             }
+        //         }
+
+        //     });
+        // }
 
         var handler = PaystackPop.setup({
             key: "{{env('PAYSTACK_PUBLIC_KEY')}}",

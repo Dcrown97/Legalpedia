@@ -116,6 +116,11 @@
                             <i class="fe fe-users"></i> Teams
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route(config('chatify.routes.prefix'))}}">
+                            <i class="fe fe-message-square"></i> Chats
+                        </a>
+                    </li>
                     @if(Auth::user()->role->name == 'Admin')
                         <li class="nav-item" style="background: #f5f5f5">
                             <a class="nav-link active" href="{{url('admin/categories')}}">
