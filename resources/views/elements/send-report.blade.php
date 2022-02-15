@@ -1,13 +1,6 @@
-<style>
-    .modal-content {
-        width: 100% !important;
-        height: auto !important;
-    }
-</style>
-
 <div class="modal fade" id="send_report" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
+        <div class="modal-content" style="width: 100%; height: auto !important">
             <div class="modal-header">
                 <div class="fs-1 fw-boldest">Legalpedia Report</div>
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">

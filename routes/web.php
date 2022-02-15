@@ -197,6 +197,7 @@ Auth::routes();
     Route::patch('/admin/licenses', [AdminController::class, 'updateLicense'])->name('update.license');
     Route::delete('/admin/licenses/{id}', [AdminController::class, 'deleteLicense'])->name('delete.license');
 
+    Route::get('/package-expiration', [PackageController::class, 'expiredPackage'])->name('expired.package');
 
     Route::post('/admin/reports', [AdminController::class, 'sendReport'])->name('send.report');
 // });

@@ -49,6 +49,7 @@
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-order">s/n</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Name</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Price</a></th>
+                                    <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Duration</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-date">Date Created</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-total">Package Link</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Action</a></th>
@@ -61,6 +62,27 @@
                                         <?php $package_no++ ;?>
                                         <td class="orders-product name">{{$package->name}}</td>
                                         <td class="orders-total">₦{{number_format($package->price, 2)}}</td>
+                                        <td class="orders-total">
+                                            @if($package->validity == 'Days')
+                                                @if($package->recur_date > 1)
+                                                    {{$package->recur_date}} {{$package->validity}}
+                                                    @else
+                                                    {{$package->recur_date}} Day
+                                                @endif
+                                                @elseif($package->validity == 'Months')
+                                                @if($package->recur_date > 1)
+                                                    {{$package->recur_date}} {{$package->validity}}
+                                                    @else
+                                                    {{$package->recur_date}} Month
+                                                @endif
+                                                @elseif($package->validity == 'Years')
+                                                @if($package->recur_date > 1)
+                                                    {{$package->recur_date}} {{$package->validity}}
+                                                    @else
+                                                    {{$package->recur_date}} Year
+                                                @endif
+                                            @endif
+                                        </td>
                                         <td class="orders-total">{{\Carbon\Carbon::parse($package->created_at)->toFormattedDateString()}}</td>
                                         @if($package->slug)
                                             <td class="orders-total"><a href="{{route('sub.pack', $package->slug)}}" target="_blank">{{route('sub.pack', $package->slug)}}</a></td>

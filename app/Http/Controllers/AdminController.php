@@ -61,9 +61,13 @@ use Illuminate\Support\Facades\Http;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
 use App\Notifications\LegalpediaReport;
+use App\Notifications\ExpiredPackage;
+use App\Notifications\FirstRenewalNotice;
+use App\Notifications\LastRenewalNotice;
 use Illuminate\Support\Facades\Session;
 use App\Notifications\LicenseCredentials;
 use App\Notifications\NewReport;
+use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
 
@@ -3849,6 +3853,8 @@ class AdminController extends Controller
         return view('admin.pricing', compact('packages'));
     }
 
+
+    ///////////////////////////////////////send report//////////////////////////////////
     public function sendReport(Request $request) {
         $user = Auth::user();
         $validated = $request->validate([

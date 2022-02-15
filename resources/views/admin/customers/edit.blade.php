@@ -444,33 +444,40 @@
                                                                 <td class="orders-date">{{$transaction->package}}</td>
                                                                 <td class="orders-date">{{$transaction->status}}</td>
                                                                 <td class="orders-total">{{\Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString()}}</td>
+                                                                @php
+                                                                    $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
+
+                                                                    if($package_expiry->validity == 'Days'){
+                                                                        $day = $package_expiry->recur_date;
+                                                                        $expiry_date =  $transaction->created_at->addDays($day);
+                                                                    }
+                                                                    if($package_expiry->validity == 'Months'){
+                                                                        $month = $package->recur_date;
+                                                                        $expiry_date =  $transaction->created_at->addMonths($month);
+                                                                    }
+                                                                    if($package_expiry->validity == 'Years'){
+                                                                        $year = $package->recur_date;
+                                                                        $expiry_date =  $transaction->created_at->addYears($year);
+                                                                    }
+                                                                @endphp
                                                                 @if($transaction->status == 'paid')
                                                                     <td class="orders-status">
-                                                                        <div class="badge bg-success-soft">
-                                                                            Active
-                                                                        </div>
+                                                                        @if($expiry_date > now())
+                                                                            <div class="badge bg-success-soft">
+                                                                                Active
+                                                                            </div>
+                                                                            @else
+                                                                            <div class="badge bg-secondary-soft">
+                                                                                Inactive
+                                                                            </div>
+                                                                        @endif
                                                                     </td>
-                                                                    @php
-                                                                        $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
 
-                                                                        if($package_expiry->validity == 'Days'){
-                                                                            $day = $package_expiry->recur_date;
-                                                                            $expiry_date =  $transaction->created_at->addDays($day);
-                                                                        }
-                                                                        if($package_expiry->validity == 'Months'){
-                                                                            $month = $package->recur_date;
-                                                                            $expiry_date =  $transaction->created_at->addMonths($month);
-                                                                        }
-                                                                        if($package_expiry->validity == 'Years'){
-                                                                            $year = $package->recur_date;
-                                                                            $expiry_date =  $transaction->created_at->addYears($year);
-                                                                        }
-                                                                    @endphp
                                                                     <td class="orders-date">{{\Carbon\Carbon::parse($expiry_date)->toFormattedDateString()}}</td>
                                                                     @else
                                                                     <td class="orders-status">
                                                                         <div class="badge bg-secondary-soft">
-                                                                            Not Active
+                                                                            Inactive
                                                                         </div>
                                                                     </td>
                                                                     <td class="orders-date">--</td>

@@ -225,7 +225,7 @@
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Package</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Payment Status</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Payment Date</a></th>
-                                <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Package Status</a></th>
+                                {{-- <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Package Status</a></th> --}}
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Package Expiry Date</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-status">Action</a></th>
                             </tr>
@@ -257,43 +257,49 @@
                                         <td class="orders-date">{{$transaction->package}}</td>
                                         <td class="orders-date">{{$transaction->status}}</td>
                                         <td class="orders-total">{{\Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString()}}</td>
+                                        @php
+                                            $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
+                                            if($package_expiry->validity == 'Days'){
+                                                $date = $package_expiry->recur_date;
+                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                $get_date = strtotime($transaction_date);
+                                                $added_date = strtotime("+$date day", $get_date);
+                                                $expiry_date = date('M d, Y', $added_date);
+                                            }
+                                            if($package_expiry->validity == 'Months'){
+                                                $date = $package_expiry->recur_date;
+                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                $get_date = strtotime($transaction_date);
+                                                $added_date = strtotime("+$date month", $get_date);
+                                                $expiry_date = date('M d, Y', $added_date);
+                                            }
+                                            if($package_expiry->validity == 'Years'){
+                                                $date = $package_expiry->recur_date;
+                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                $get_date = strtotime($transaction_date);
+                                                $added_date = strtotime("+$date year", $get_date);
+                                                $expiry_date = date('M d, Y', $added_date);
+                                            }
+                                        @endphp
                                         @if($transaction->status == 'paid')
-                                            <td class="orders-status">
-                                                <div class="badge bg-success-soft">
-                                                    Active
-                                                </div>
-                                            </td>
-                                            @php
-                                                $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
-                                                if($package_expiry->validity == 'Days'){
-                                                    $date = $package_expiry->recur_date;
-                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                    $get_date = strtotime($transaction_date);
-                                                    $added_date = strtotime("+$date day", $get_date);
-                                                    $expiry_date = date('M d, Y', $added_date);
-                                                }
-                                                if($package_expiry->validity == 'Months'){
-                                                    $date = $package_expiry->recur_date;
-                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                    $get_date = strtotime($transaction_date);
-                                                    $added_date = strtotime("+$date month", $get_date);
-                                                    $expiry_date = date('M d, Y', $added_date);
-                                                }
-                                                if($package_expiry->validity == 'Years'){
-                                                    $date = $package_expiry->recur_date;
-                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                    $get_date = strtotime($transaction_date);
-                                                    $added_date = strtotime("+$date year", $get_date);
-                                                    $expiry_date = date('M d, Y', $added_date);
-                                                }
-                                            @endphp
+                                            {{-- <td class="orders-status">
+                                                @if($expiry_date > now())
+                                                    <div class="badge bg-success-soft">
+                                                        Active
+                                                    </div>
+                                                    @else
+                                                    <div class="badge bg-secondary-soft">
+                                                        Inactive
+                                                    </div>
+                                                @endif
+                                            </td> --}}
                                             <td class="orders-date">{{$expiry_date}}</td>
                                             @else
-                                            <td class="orders-status">
+                                            {{-- <td class="orders-status">
                                                 <div class="badge bg-secondary-soft">
-                                                    Not Active
+                                                    Inactive
                                                 </div>
-                                            </td>
+                                            </td> --}}
                                             <td class="orders-date">--</td>
                                         @endif
                                         <td class="text-end">

@@ -288,13 +288,19 @@
                                                         $package = App\Models\Package::where('id', $user->package_id)->first();
                                                     @endphp
                                                     <td class="orders-total">{{$package ? $package->name : '--'}}</td>
-                                                    @if($package)
+                                                    @if($user->package_id !== NULL)
                                                         <td class="orders-date">{{\Carbon\Carbon::parse($user->active_date)->toFormattedDateString()}}</td>
                                                         <td class="orders-total">{{\Carbon\Carbon::parse($user->expiry_date)->toFormattedDateString()}}</td>
                                                         <td class="orders-status">
-                                                            <div class="badge bg-success-soft">
-                                                                {{$user->status}}
-                                                            </div>
+                                                            @if($user->status == 'active')
+                                                                <div class="badge bg-success-soft">
+                                                                    {{$user->status}}
+                                                                </div>
+                                                                @else
+                                                                <div class="badge bg-secondary-soft">
+                                                                    {{$user->status}}
+                                                                </div>
+                                                            @endif
                                                         </td>
                                                         @else
                                                         <td class="orders-date">--</td>

@@ -8,9 +8,11 @@
         top: 63%;
         border: 1px solid #edf2f9;
         background: #fff;
-        background: linear-gradient(to right bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6));
+         background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.5),  rgb(227, 237, 255));
+        /*background: rgb(227, 237, 255);*/
         backdrop-filter: blur(2rem);
         transition: .3s;
+        box-shadow: 0 10px 25px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
     }
     .chat-icon {
         overflow: hidden;
@@ -21,7 +23,7 @@
         border-radius: 100%;
         position: fixed;
         top: 85%;
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
+        box-shadow: 0 10px 35px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
     }
     .chat .icon {
         color: #ec6959;
