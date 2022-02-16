@@ -119,7 +119,7 @@
                         <p class="card-text mb-1">{!! $judgement_summary->area_of_law !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">SUMMARY OF FACTS</h3>
-                        <p class="card-text mb-1">{!! nl2br(e(strip_tags($judgement_summary->summary_of_facts))) !!}</p>
+                        <p class="card-text mb-1">{!! htmlspecialchars_decode(nl2br(e($judgement_summary->summary_of_facts)), ENT_QUOTES) !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">HELD</h3>
                         <hr class="my-4">
@@ -136,7 +136,8 @@
                             @foreach($ratios as $ratio)
                                 <h4 class="text-muted" id="ratio">{{$ratio->heading}}</h4>
                                 <hr class="my-4">
-                                <p class="card-text mb-1">{!! nl2br(e(strip_tags($ratio->body))) !!}</p>
+                                {{-- <p class="card-text mb-1">{!! nl2br(e(strip_tags($ratio->body))) !!}</p> --}}
+                                <p class="card-text mb-1">{!! htmlspecialchars_decode(nl2br(e($ratio->body)), ENT_QUOTES) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
@@ -163,7 +164,7 @@
                                     $list = explode("\n", $full_judgement ? $full_judgement->judgement : '');
                                     $tlist = "<ol>";
                                     foreach ($list as $num => $item) {
-                                    $tlist .= "<li class='nu'>" . strip_tags($item) . "</li>";
+                                    $tlist .= "<li class='nu'>" . htmlspecialchars_decode($item, ENT_QUOTES) . "</li>";
                                     }
                                     $tlist .= "</ol>";
                                 @endphp

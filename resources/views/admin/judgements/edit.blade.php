@@ -300,7 +300,7 @@
                                     @php
                                         $party_a_name = App\Models\JudgementPartyA::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                     @endphp
-                                    <input type="hidden" name="party_a_name_id" value="{{$party_a_name ? $party_a_name->id : ''}}">
+                                    <input type="hidden" name="party_a_name_id" value="{{$party_a_name ? $party_a_name->id : null}}">
                                     <textarea name="party_a_names" rows="5" class="form-control" placeholder="Enter names">{{$party_a_name ? $party_a_name->party_a_names : ''}}</textarea>
                                 </div>
                                 <div class="form-group">
@@ -310,7 +310,7 @@
                                     @php
                                         $party_b_name = App\Models\JudgementPartyB::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                     @endphp
-                                    <input type="hidden" name="party_b_name_id" value="{{$party_b_name ? $party_b_name->id : ''}}">
+                                    <input type="hidden" name="party_b_name_id" value="{{$party_b_name ? $party_b_name->id : null}}">
                                     <textarea name="party_b_names" rows="5" class="form-control" placeholder="Enter names">{{$party_b_name ? $party_b_name->party_b_names : ''}}</textarea>
                                 </div>
                                 <div class="form-group">
@@ -320,7 +320,7 @@
                                     @php
                                         $counsel = App\Models\JudgementCounsel::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                     @endphp
-                                    <input type="hidden" name="counsel_id" value="{{$counsel ? $counsel->id : ''}}">
+                                    <input type="hidden" name="counsel_id" value="{{$counsel ? $counsel->id : null}}">
                                     <textarea name="counsels" rows="5" class="form-control" placeholder="Enter Councel">{{$counsel ? $counsel->counsels : ''}}</textarea>
                                 </div>
                                 <hr class="my-5">
@@ -408,7 +408,7 @@
                                         @php
                                             $judgement = App\Models\Judgement::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
                                         @endphp
-                                        <input type="hidden" name="judgement_id" value="{{$judgement ? $judgement->id : ''}}">
+                                        <input type="hidden" name="judgement_id" value="{{$judgement ? $judgement->id : null}}">
                                         <textarea name="judgement" rows="5" class="form-control" placeholder="">{{$judgement ? $judgement->judgement : ''}}</textarea>
                                     </div>
                                 </div>
@@ -443,7 +443,7 @@
         <?php $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first(); ?>
         <?php $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->orderBy('id', 'DESC')->first(); ?>
         <?php $last_principle = App\Models\Principle::orderBy('id', 'DESC')->first(); ?>
-        var subject_id = {{$principle ? $principle->id : $last_principle}};
+        var subject_id = {{$principle ? $principle->id : $last_principle->id}};
         var subject_no = {{$principle_count}};
         function addSubs() {
             subject_no++;
@@ -472,7 +472,7 @@
         <?php $ratio = App\Models\SummaryRatio::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->first(); ?>
         <?php $last_ratio = App\Models\SummaryRatio::orderBy('id', 'DESC')->first(); ?>
         var ratio_no = {{$ratio_count}};
-        var ratio_id = {{$ratio ? $ratio->id : $last_ratio}};
+        var ratio_id = {{$ratio ? $ratio->id : $last_ratio->id}};
         function addRatio() {
             ratio_no++;
             var objTo = document.getElementById('add_ratio')

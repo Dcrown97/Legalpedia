@@ -606,19 +606,31 @@ class AdminController extends Controller
             'party_a_names'=>$request->party_a_names,
             'suit_no'=>$judg->suit_no
         ];
-        DB::table('judgement_party_a_s')->where('id', $request->party_a_name_id)->update($party_a_input);
+        if($request->party_a_name_id == null) {
+            JudgementPartyA::create($party_a_input);
+        } else {
+            DB::table('judgement_party_a_s')->where('id', $request->party_a_name_id)->update($party_a_input);
+        }
 
         $party_b_input = [
             'party_b_names'=>$request->party_b_names,
             'suit_no'=>$judg->suit_no
         ];
-        DB::table('judgement_party_b_s')->where('id', $request->party_b_name_id)->update($party_b_input);
+        if($request->party_b_name_id == null) {
+            JudgementPartyB::create($party_b_input);
+        } else {
+            DB::table('judgement_party_b_s')->where('id', $request->party_b_name_id)->update($party_b_input);
+        }
 
         $judg_counsel_input = [
             'counsels'=>$request->counsels,
             'suit_no'=>$judg->suit_no
         ];
-        DB::table('judgement_counsels')->where('id', $request->counsel_id)->update($judg_counsel_input);
+        if($request->counsel_id == null) {
+            JudgementCounsel::create($judg_counsel_input);
+        } else {
+            DB::table('judgement_counsels')->where('id', $request->counsel_id)->update($judg_counsel_input);
+        }
 
         // dd($request->ratio);
         if($request->ratio) {
@@ -655,7 +667,11 @@ class AdminController extends Controller
             'judgement'=>$request->judgement,
             'suit_no'=>$judg->suit_no
         ];
-        DB::table('judgements')->where('id', $request->judgement_id)->update($full_judg);
+        if($request->judgement_id == null) {
+            Judgement::create($full_judg);
+        } else {
+            DB::table('judgements')->where('id', $request->judgement_id)->update($full_judg);
+        }
 
 
         return back()->with('success', 'Judgement updated');
