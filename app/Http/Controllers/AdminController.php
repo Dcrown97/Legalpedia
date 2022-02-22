@@ -49,26 +49,28 @@ use App\Models\LawOfFederation;
 use App\Models\LawOfFedSection;
 use App\Models\JudgementCounsel;
 use App\Models\JudgementSummary;
+use App\Notifications\NewReport;
 use App\Notifications\MemberLeft;
 use App\Notifications\NewMessage;
 use App\Models\JudgementPrinciple;
 use App\Models\SubjectMatterIndex;
 use App\Notifications\TeamRequest;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\MemberRemoval;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use App\Notifications\ExpiredPackage;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
 use App\Notifications\LegalpediaReport;
-use App\Notifications\ExpiredPackage;
-use App\Notifications\FirstRenewalNotice;
-use App\Notifications\LastRenewalNotice;
 use Illuminate\Support\Facades\Session;
+use App\Notifications\LastRenewalNotice;
+use App\Notifications\FirstRenewalNotice;
 use App\Notifications\LicenseCredentials;
-use App\Notifications\NewReport;
-use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Notification;
 
 // use NunoMaduro\Collision\Adapters\Phpunit\State;
@@ -3082,6 +3084,9 @@ class AdminController extends Controller
         // if($empty_search == '') {
         //     return back()->with('error1', 'No search input found');
         // }
+
+      
+
         if($request->input('search')) {
             $search = $request->input('search');
             $first_search = $request->input('search');
@@ -3099,48 +3104,14 @@ class AdminController extends Controller
             ->simplePaginate(15)
             ->withQueryString();
             // ->get();
-
+            
 
             $query_ratio_count = SummaryRatio::query()
             ->where('heading', 'LIKE', '%'.$search.'%')
             ->orWhere('body', 'LIKE', '%'.$search.'%')
             ->count();
 
-            // if(count($query_case['search']) < 1) {
-            //     $query_case['table'] = 'sum';
-            //     $query_case['search'] = JudgementSummary::query()
-            //     ->where('title', 'LIKE', '%'.$search.'%')
-            //     ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
-            //     ->orWhere('issues', 'LIKE', '%'.$search.'%')
-            //     ->orderBy('judgement_date', 'DESC')
-            //     ->simplePaginate(5)
-            //     ->withQueryString();
-            //     // ->get();
-            // }
-
-            // $query_sum_count = JudgementSummary::query()
-            //     ->where('title', 'LIKE', '%'.$search.'%')
-            //     ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
-            //     ->orWhere('issues', 'LIKE','%'.$search.'%')
-            //     ->count();
-
-            // if(count($query_case['search']) < 1) {
-            //     $query_case['table'] = 'judgement';
-            //     $query_case['search'] = Judgement::query()
-            //     ->where('judgement', 'LIKE', '%'.$search.'%')
-            //     ->orderBy('judgement', 'DESC')
-            //     ->simplePaginate(5)
-            //     ->withQueryString();
-            //     // ->get();
-            // }
-
-            // $query_judg_count = Judgement::query()
-            // ->where('judgement', 'LIKE', '%'.$search.'%')
-            // ->count();
-
             $query_case_count = $query_ratio_count;
-
-
 
             /////////////// Law of Federation search //////////////////////
 
@@ -3281,7 +3252,182 @@ class AdminController extends Controller
                 'description' => $search,
             ]);
 
-            return view('admin.search', compact('query_case', 'search', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+            
+            $selected_year = [];
+            $selected_year['judgement_date'] = '';
+
+            return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+        }
+
+        if($request->input('year_result')) {
+            // $query_case['search'] = collect();
+            $search = $request->input('year_result');
+            $first_search = $request->input('search');
+            $second_search = '';
+
+
+
+            /////////////// Law of Federation search //////////////////////
+
+            $query_law['table'] = 'lfn';
+            $query_law['search'] = LawOfFederation::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
+            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
+            ->orderBy('law_date', 'DESC')
+            ->simplePaginate(5)
+            ->withQueryString();
+            // ->get();
+
+            // dd($query_law['search']);
+            $query_fed_count = LawOfFederation::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
+            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            if(count($query_law['search']) < 1) {
+                $query_law['table'] = 'sched';
+                $query_law['search'] = LawOfFedSched::query()
+                ->where('sched_header', 'LIKE', '%'.$search.'%')
+                ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
+                ->orderBy('sched_header', 'ASC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
+
+            $query_sched_count = LawOfFedSched::query()
+            ->where('sched_header', 'LIKE', '%'.$search.'%')
+            ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            if(count($query_law['search']) < 1) {
+                $query_law['table'] = 'sec';
+                $query_law['search'] = LawOfFedSection::query()
+                ->where('section_header', 'LIKE', '%'.$search.'%')
+                ->orWhere('section_body', 'LIKE', '%'.$search.'%')
+                ->orderBy('section_header', 'ASC')
+                ->simplePaginate(5)
+                ->withQueryString();
+                // ->get();
+            }
+            $query_sec_count = LawOfFedSection::query()
+            ->where('section_header', 'LIKE', '%'.$search.'%')
+            ->orWhere('section_body', 'LIKE', '%'.$search.'%')
+            ->count();
+
+            // dd($query_sec_count);
+
+            $query_law_count = $query_fed_count + $query_sched_count + $query_sec_count;
+
+
+
+            /////////////// Rules of court and state rules search //////////////////////
+
+            $query_rule['search'] = Rule::query()
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('section', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('type', 'LIKE', '%'.$search.'%')
+            ->orderBy('title', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_rule_count = Rule::query()
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('section', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('type', 'LIKE', '%'.$search.'%')
+            ->count();
+
+
+            /////////////// forms and precedents search //////////////////////
+
+            $query_form['search'] = FormsPrecedence::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('category', 'LIKE', '%'.$search.'%')
+            ->orderBy('title', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_form_count = FormsPrecedence::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('category', 'LIKE', '%'.$search.'%')
+            ->count();
+
+
+            /////////////// articles search //////////////////////
+
+            $query_article['search'] = Article::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->orderBy('title', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_article_count = Article::query()
+            ->where('title', 'LIKE', '%'.$search.'%')
+            ->orWhere('content', 'LIKE', '%'.$search.'%')
+            ->count();
+
+
+
+            /////////////// public notes search //////////////////////
+            $query_note['search'] = Annotation::query()
+            ->where('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('comment', 'LIKE', '%'.$search.'%')
+            ->where('display', 'public')
+            ->where('resource_type', '!=', 'admin-note')
+            ->orderBy('comment', 'ASC')
+            ->simplePaginate()
+            ->withQueryString();
+            // ->get();
+
+            $query_note_count = Annotation::query()
+            ->where('content', 'LIKE', '%'.$search.'%')
+            ->orWhere('comment', 'LIKE', '%'.$search.'%')
+            ->where('resource_type', '!=', 'admin-note')
+            ->where('display', 'public')
+            ->count();
+
+            if($request->filled('year')) {
+                $suitNumbers = JudgementSummary::query()->where('judgement_date','LIKE', '%'.$request->year.'%')->get()->pluck('suit_no');
+                $query_case['table'] = 'ratio';
+                $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+                $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+                $together = $heading->merge($body);
+                $query_case_count = $together->count();
+                $query_case['search'] =  $this->customPaginate($together)->withPath(url()->current())->withQueryString();
+                $selected_year = []; 
+                $selected_year['judgement_date'] = $request->year;
+                return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+            }
+            $query_case['table'] = 'ratio';
+            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
+            ->orWhere('body', 'LIKE', '%'.$search.'%')
+            ->orderByRaw('CHAR_LENGTH(heading)')
+            ->simplePaginate(15)
+            ->withQueryString();
+
+
+            $query_ratio_count = SummaryRatio::query()
+            ->where('heading', 'LIKE', '%'.$search.'%')
+            ->orWhere('body', 'LIKE', '%'.$search.'%')
+            ->count();
+            $query_case_count = $query_ratio_count;
+            
+            $selected_year = [];
+            $selected_year['judgement_date'] = '';
+            return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+
         }
 
         if($request->input('more_result')) {
@@ -3294,7 +3440,6 @@ class AdminController extends Controller
             $query_case['table'] = 'ratio';
             $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
             ->orWhere('body', 'LIKE', '%'.$search.'%')
-            // ->orderBy('heading', 'ASC')
             ->orderByRaw('CHAR_LENGTH(heading)')
             ->simplePaginate(5)
             ->withQueryString();
@@ -3473,9 +3618,75 @@ class AdminController extends Controller
             ->where('resource_type', '!=', 'admin-note')
             ->count();
 
-            return view('admin.search', compact('query_case', 'search', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+            $selected_year = [];
+            $selected_year['judgement_date'] = '';
+
+            return view('admin.search', compact('query_case', 'selected_year', 'search', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
         }
+
+
+        /////////// for more year results////////////
+        // if($request->filled('years')) {
+        //     $suitNumbers = JudgementSummary::query()->where('judgement_date','LIKE', '%'.$request->year.'%')->get()->pluck('suit_no');
+
+        //     $query_case['table'] = 'ratio';
+        //     $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+        //     $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+        //     $together = $heading->merge($body);
+        //     $query_ratio_count = $together->count();
+        //     $query_case['search'] =  $together;
+        //     // $query_case['search'] =  $this->customPaginate($together)->withPath(url()->current())->withQueryString();
+
+        //     if(count($query_case['search']) < 1 || count($query_case['search']) > 1) {
+        //         $query_case['table'] = 'sum';
+        //         $query_case['search'] =  $query_case['search']->merge(JudgementSummary::query()
+        //         ->where('judgement_date','LIKE', '%'.$request->year.'%')
+        //         ->where('title', 'LIKE', '%'.$search.'%')
+        //         ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+        //         ->orWhere('issues', 'LIKE', '%'.$search.'%')
+        //         ->orderBy('judgement_date', 'DESC')
+        //         // ->simplePaginate(5)
+        //         // ->withQueryString();
+        //         ->get());
+        //     }
+
+        //     $query_sum_count = JudgementSummary::query()
+        //         ->where('judgement_date','LIKE', '%'.$request->year.'%')
+        //         ->where('title', 'LIKE', '%'.$search.'%')
+        //         ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+        //         ->orWhere('issues', 'LIKE', '%'.$search.'%')
+        //         ->count();
+
+        //     if(count($query_case['search']) < 1 || count($query_case['search']) > 1) {
+        //         $query_case['table'] = 'judgement';
+        //         $query_case['search'] = $query_case['search']->merge(Judgement::whereIn('suit_no', $suitNumbers)
+        //         ->where('judgement', 'LIKE', '%'.$search.'%')
+        //         ->orderBy('judgement', 'DESC')
+        //         // ->simplePaginate(5)
+        //         // ->withQueryString();
+        //         ->get());
+        //     }
+
+        //     $query_judg_count = Judgement::whereIn('suit_no', $suitNumbers)
+        //     ->where('judgement', 'LIKE', '%'.$search.'%')
+        //     ->count();
+
+        //     $query_case_count = $query_ratio_count + $query_judg_count + $query_sum_count;
+
+        //     $query_case['search'] =  $this->customPaginate($query_case['search'])->withPath(url()->current())->withQueryString();
+
+        //     // dd($query_case['search']->toArray());
+            
+        //     $selected_year = []; 
+        //     $selected_year['judgement_date'] = $request->year;
+        //     return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
+        // }
+
     }
+
+
+  
+
     ////not in use/////
     public function autocomplete(Request $request){
         $search = $request->input('search');

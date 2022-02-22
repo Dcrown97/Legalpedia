@@ -196,6 +196,21 @@
                         <div class="card" data-list='{"valueNames": ["item-name", "item-name1"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                             <div class="card-header">
                                 <h4 class="card-header-title">Judgements</h4>
+                                <div class="row align-items-end justify-content-end">
+                                    <form action="{{route('search')}}" method="GET" class="me-3 d-flex">
+                                        <input type="hidden" name="year_result" value="{{$search}}">
+                                        <?php $years = range(1960, strftime("%Y", time())); ?>
+                                        <select name="year" class="form-select form-control-flush mr-4" data-choices='{"searchEnabled": true}'>
+                                            <option value="">All Years</option>
+                                            @foreach($years as $year)
+                                                <option value="{{$year}}" {{ $year == $selected_year['judgement_date'] ? 'selected' : '' }}>{{$year}}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" id="search-btn" onclick="this.classList.toggle('button--loading1')" class="ml-3 btn text-white btn-sm btn-primary p-2">
+                                            <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                                        </button>
+                                    </form>
+                                </div>
                                 @if($second_search == '')
                                     <form action="{{route('search')}}" method="GET">
                                         <input type="hidden" name="more_result" value="{{$search}}">
@@ -226,12 +241,11 @@
                                 </div>
                             </div>
                             <div class="card-body">
-
                                 @if(count($query_case['search']) > 0)
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
+                                    <ul class="list-group list-group-lg list-group-flush list mt-2">
                                         @if($query_case['table'] == 'ratio')
                                             @foreach($query_case['search'] as $case)
-                                                <li class="list-group-item">
+                                                <li class="list-group-item card border p-4 rounded-lg">
                                                     <div class="row align-items-center">
                                                         <div class="col-auto hide-mobile">
                                                             @php
@@ -262,9 +276,10 @@
                                                     </div>
                                                 </li>
                                             @endforeach
-                                            @elseif($query_case['table'] == 'sum')
+                                        @endif
+                                        @if($query_case['table'] == 'sum')
                                             @foreach($query_case['search'] as $case)
-                                                <li class="list-group-item">
+                                                <li class="list-group-item card border p-4 rounded-lg">
                                                     <div class="row align-items-center">
                                                         <div class="col-auto hide-mobile">
                                                             @php
@@ -292,9 +307,10 @@
                                                     </div>
                                                 </li>
                                             @endforeach
-                                            @elseif($query_case['table'] == 'judgement')
+                                        @endif
+                                        @if($query_case['table'] == 'judgement')
                                             @foreach($query_case['search'] as $case)
-                                                <li class="list-group-item">
+                                                <li class="list-group-item card border p-4 rounded-lg">
                                                     <div class="row align-items-center">
                                                         <div class="col-auto hide-mobile">
                                                             @php
@@ -393,10 +409,10 @@
                             </div>
                             <div class="card-body">
                                 @if(count($query_law['search']) > 0)
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
+                                    <ul class="list-group list-group-lg list-group-flush list mt-2">
                                         @if($query_law['table'] == 'sec')
                                             @foreach($query_law['search'] as $section)
-                                                <li class="list-group-item">
+                                                <li class="list-group-item card border p-4 rounded-lg">
                                                     <div class="row align-items-center">
                                                         <div class="col-auto hide-mobile">
                                                             @php
@@ -512,7 +528,7 @@
                                                 </li>
                                             @endforeach --}}
                                             @foreach($query_law['search'] as $sched)
-                                                <li class="list-group-item">
+                                                <li class="list-group-item card border p-4 rounded-lg">
                                                     <div class="row align-items-center">
                                                         <div class="col-auto hide-mobile">
                                                             @php
@@ -628,7 +644,7 @@
                                                 </li>
                                             @endforeach --}}
                                             @foreach($query_law['search'] as $fed)
-                                                <li class="list-group-item">
+                                                <li class="list-group-item card border p-4 rounded-lg">
                                                     <div class="row align-items-center">
                                                         <div class="col-auto hide-mobile">
                                                             {{-- @php
@@ -714,9 +730,9 @@
                             </div>
                             <div class="card-body">
                                 @if(count($query_rule['search']) > 0)
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
+                                    <ul class="list-group list-group-lg list-group-flush list mt-2">
                                         @foreach($query_rule['search'] as $rule)
-                                            <li class="list-group-item">
+                                            <li class="list-group-item card border p-4 rounded-lg">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
                                                         <a href="{{route('show.rule', $rule->id)}}">
@@ -793,9 +809,9 @@
                             </div>
                             <div class="card-body">
                                 @if(count($query_form['search']) > 0)
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
+                                    <ul class="list-group list-group-lg list-group-flush list mt-2">
                                         @foreach($query_form['search'] as $form)
-                                            <li class="list-group-item">
+                                            <li class="list-group-item card border p-4 rounded-lg">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
                                                         <a href="{{route('show.form', $form->id)}}">
@@ -874,9 +890,9 @@
                             </div>
                             <div class="card-body">
                                 @if(count($query_article['search']) > 0)
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
+                                    <ul class="list-group list-group-lg list-group-flush list mt-2">
                                         @foreach($query_article['search'] as $article)
-                                            <li class="list-group-item">
+                                            <li class="list-group-item card border p-4 rounded-lg">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto">
                                                         <div class="avatar avatar-sm">
@@ -966,9 +982,9 @@
                             </div>
                             <div class="card-body">
                                 @if(count($query_note['search']) > 0)
-                                    <ul class="list-group list-group-lg list-group-flush list my-n4">
+                                    <ul class="list-group list-group-lg list-group-flush list mt-2">
                                         @foreach($query_note['search'] as $note)
-                                            <li class="list-group-item">
+                                            <li class="list-group-item card border p-4 rounded-lg">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto">
                                                         <div class="avatar avatar-sm">

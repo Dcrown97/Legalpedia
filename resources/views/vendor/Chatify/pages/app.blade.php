@@ -16,15 +16,15 @@
                     </nav>
                 </nav>
                 {{-- Search input --}}
-                <input type="text" class="messenger-search" placeholder="Search" />
+                <input type="text" class="messenger-search" placeholder="Search users" />
                 {{-- Tabs --}}
                 <div class="messenger-listView-tabs">
                     <a href="#" @if($type == 'user') class="active-tab" @endif data-view="users">
                         <span class="fe fe-user"></span> Chats</a>
                     <a href="#" @if($type == 'group') class="active-tab" @endif data-view="groups">
-                        <span class="fe fe-users"></span> Team members</a>
+                        <span class="fe fe-users"></span> Team Chat</a>
                 </div>
-            </div>
+            </div>  
             {{-- tabs and lists --}}
             <div class="m-body contacts-container">
             {{-- Lists [Users/Group] --}}
@@ -84,9 +84,9 @@
                 </div>
 
                 {{-- ---------------- [ Search Tab ] ---------------- --}}
-            <div class="messenger-tab search-tab app-scroll"app-scroll" data-view="search">
+            <div class="messenger-tab search-tab app-scroll" data-view="search">
                     {{-- items --}}
-                    <p class="messenger-title">Search</p>
+                    <p class="messenger-title">Search users</p>
                     <div class="search-records">
                         <p class="message-hint center-el"><span>Type to search..</span></p>
                     </div>

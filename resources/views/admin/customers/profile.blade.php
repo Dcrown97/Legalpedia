@@ -24,23 +24,39 @@
 
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-12">
+        <div class="col-lg-4 col-xl-4 col-12">
             <div class="card">
                 <div class="card-body p-5">
                     <div class="row align-items-center">
-                        <div class="col-auto mb-6">
-                            <h2 class="mb-3">
-                                {{$user->name}}'s Profile
-                            </h2>
-                            <div class="avatar">
+                        <div class="text-center mb-6">
+                            <div class="avatar custom-width">
                                 @if($user->photo)
                                     <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                     @else
-                                    <div class="initials">
+                                    <div class="initials custom-width">
                                         <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
                                     </div>
                                 @endif
                             </div>
+                            <h2 class="mb-4 mt-4">
+                                {{$user->name}} {{$user->surname}}
+                            </h2>
+                            <a href="{{url('team-chats/'. $user->id)}}" class="btn text-white w-100 btn-primary">
+                                <i class="fa fa-paper-plane mr-2"></i> Send a message
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8 col-xl-8 col-12">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-auto mb-2">
+                            <h2 class="mb-3">
+                                {{$user->name}}'s Profile
+                            </h2>
                         </div>
                     </div>
                     <div class="row">

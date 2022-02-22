@@ -711,3 +711,9 @@ a:hover{
         width: 40px;
         border-radius: 50%;
     }
+
+    .custom-width {
+        height: 8rem !important;
+        width: 8rem !important;
+        font-size: 80px !important;
+    }
