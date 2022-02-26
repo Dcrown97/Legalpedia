@@ -10,7 +10,7 @@ class JudgementPartyA extends Model
     use HasFactory;
 
     protected $fillable = [
-        'suit_no', 'party_b_names'
+        'suit_no', 'party_a_names'
     ];
 
 }

@@ -25,11 +25,13 @@
                             Notes
                         </h1>
                     </div>
-                    <div class="col-auto">
-                        <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#admin_note" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                            <i class="fe fe-plus"></i> Add note
-                        </a>
-                    </div>
+                    @if(Auth::user()->role->name == 'Admin')
+                        <div class="col-auto">
+                            <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#admin_note" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <i class="fe fe-plus"></i> Add note
+                            </a>
+                        </div>
+                    @endif
                     @include('elements.notifications')
                 </div>
             </div>
@@ -214,10 +216,21 @@
                                                     <div class="col-auto">
                                                         <div class="dropdown">
                                                             @if($note->resource_type <> 'admin-note')
-                                                                <a data-bs-toggle="modal" onclick='showTeamModal("{{$note->content->selector[0]->exact}}", "{{$note->id}}")' class="dropdown-ellipses dropdown-toggle cursor">
-                                                                    <i class="mdi mdi-share-variant"></i>
-                                                                </a>
-                                                                @else
+                                                                <div class="d-flex align-items-center justify-content-between">
+                                                                    <a data-bs-toggle="modal" onclick='showTeamModal("{{$note->content->selector[0]->exact}}", "{{$note->id}}")' class="dropdown-ellipses dropdown-toggle cursor">
+                                                                        <i class="mdi mdi-share-variant"></i>
+                                                                    </a>
+                                                                    @if(Auth::user()->role->name == 'Admin')
+                                                                        <form action="/admin/notes/{{$note->id}}" method="POST">
+                                                                            {{ csrf_field() }}
+                                                                            {{ method_field('DELETE') }}
+                                                                            <button type="submit" name="submit" onclick="return deleteNoteFunction();" class="dropdown-item ml-3">
+                                                                                <i class="fe fe-trash text-color mr-2"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    @endif
+                                                                </div>
+                                                            @else
                                                                 <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                                     <i class="fe fe-more-vertical"></i>
                                                                 </a>
@@ -240,48 +253,50 @@
                                             </li>
                                         @endforeach
                                     </ul>
-                                    @elseif(count($public_notes) < 1)
-                                    @foreach($admin_notes as $note)
-                                        <div class="list-group-item">
-                                            <div class="row">
-                                                <div class="col-auto">
-                                                    <div class="avatar avatar-sm">
-                                                        <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
-                                                            <i class="fe fe-file"></i>
+                                @elseif(count($public_notes) < 1)
+                                    @if(count($admin_notes) > 0)
+                                        @foreach($admin_notes as $note)
+                                            <div class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col ms-n2">
-                                                    <h5 class="mb-1">
-                                                        <a href="{{url('admin/notes')}}">
-                                                            {{$note->comment}}
-                                                        </a>
-                                                    </h4>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-auto">
-                                                    <div class="avatar avatar-sm" style="visibility: hidden">
-                                                        <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
-                                                            <i class="fe fe-file"></i>
-                                                        </div>
+                                                    <div class="col ms-n2">
+                                                        <h5 class="mb-1">
+                                                            <a href="{{url('admin/notes')}}">
+                                                                {{$note->comment}}
+                                                            </a>
+                                                        </h4>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <p class="small text-gray-700 mb-0">
-                                                        {!! $note->content !!}
-                                                    </p>
-                                                    {{-- <p class="card-text small text-muted">
-                                                        {{$note->created_at->diffForHumans()}}
-                                                    </p> --}}
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm" style="visibility: hidden">
+                                                            <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <p class="small text-gray-700 mb-0">
+                                                            {!! $note->content !!}
+                                                        </p>
+                                                        {{-- <p class="card-text small text-muted">
+                                                            {{$note->created_at->diffForHumans()}}
+                                                        </p> --}}
+                                                    </div>
                                                 </div>
                                             </div>
+                                        @endforeach
+                                        @else
+                                        <div class="text-center">
+                                            <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                         </div>
-                                    @endforeach
-                                    @else
-                                    <div class="text-center">
-                                        <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
-                                    </div>
+                                    @endif
                                 @endif
                             </div>
                             <!-- Pagination -->
@@ -468,6 +483,13 @@
                                                                 <a data-bs-toggle="modal" onclick='showNoteDisplay("{{$note->note_id}}")' class="dropdown-item cursor">
                                                                     <i class="mdi mdi-pencil mr-2"></i> Edit
                                                                 </a>
+                                                                <form action="/admin/notes/{{$note->id}}" method="POST">
+                                                                    {{ csrf_field() }}
+                                                                    {{ method_field('DELETE') }}
+                                                                    <button type="submit" name="submit" onclick="return deleteNoteFunction();" class="dropdown-item">
+                                                                        <i class="fe fe-trash mr-2"></i> Delete
+                                                                    </button>
+                                                                </form>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -475,48 +497,50 @@
                                             </li>
                                         @endforeach
                                     </ul>
-                                    @elseif(count($notes) < 1)
-                                    @foreach($admin_notes as $note)
-                                        <div class="list-group-item">
-                                            <div class="row">
-                                                <div class="col-auto">
-                                                    <div class="avatar avatar-sm">
-                                                        <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
-                                                            <i class="fe fe-file"></i>
+                                @elseif(count($notes) < 1)
+                                    @if(count($admin_notes) > 0)
+                                        @foreach($admin_notes as $note)
+                                            <div class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col ms-n2">
-                                                    <h5 class="mb-1">
-                                                        <a href="{{url('admin/notes')}}">
-                                                            {{$note->comment}}
-                                                        </a>
-                                                    </h4>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-auto">
-                                                    <div class="avatar avatar-sm" style="visibility: hidden">
-                                                        <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
-                                                            <i class="fe fe-file"></i>
-                                                        </div>
+                                                    <div class="col ms-n2">
+                                                        <h5 class="mb-1">
+                                                            <a href="{{url('admin/notes')}}">
+                                                                {{$note->comment}}
+                                                            </a>
+                                                        </h4>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <p class="small text-gray-700 mb-0">
-                                                        {!! $note->content  !!}
-                                                    </p>
-                                                    {{-- <p class="card-text small text-muted">
-                                                        {{$note->created_at->diffForHumans()}}
-                                                    </p> --}}
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm" style="visibility: hidden">
+                                                            <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <p class="small text-gray-700 mb-0">
+                                                            {!! $note->content  !!}
+                                                        </p>
+                                                        {{-- <p class="card-text small text-muted">
+                                                            {{$note->created_at->diffForHumans()}}
+                                                        </p> --}}
+                                                    </div>
                                                 </div>
                                             </div>
+                                        @endforeach
+                                        @else
+                                        <div class="text-center">
+                                            <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
                                         </div>
-                                    @endforeach
-                                    @else
-                                    <div class="text-center">
-                                        <h3 class="text-muted"><i class="fe fe-file"></i> No record found</h3>
-                                    </div>
+                                    @endif
                                 @endif
                             </div>
                             <!-- Pagination -->

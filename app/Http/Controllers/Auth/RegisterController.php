@@ -82,8 +82,8 @@ class RegisterController extends Controller
                 'surname' => $data['surname'],
                 'email' => $data['email'],
                 'role_id' => $role->id,
-                // 'license_code' => $data['license_code'],
-                'referrer' => $data['referrer'],
+                'phone' => $data['phone'],
+                // 'referrer' => $data['referrer'],
                 'dob' => $data['dob'],
                 'call_to_bar_year' => $data['call_to_bar_year'],
                 'password' => Hash::make($data['password']),
@@ -100,12 +100,14 @@ class RegisterController extends Controller
             $role = Role::where('name','Admin')->first();
             $admin_user = User::where('role_id', $role->id)->first();
             $team = Team::where('user_id', $admin_user->id)->first();
-            UserTeam::create([
-                'user_id' => $user->id,
-                'team_id' => $team ? $team->id : NULL,
-                'send_request' => 1,
-                'approve_request' => 1,
-            ]);
+            if($team) {
+                UserTeam::create([
+                    'user_id' => $user->id,
+                    'team_id' => $team ? $team->id : NULL,
+                    'send_request' => 1,
+                    'approve_request' => 1,
+                ]);
+            }
 
             $user->notify(new WelcomeOnboard($user));
 
@@ -117,8 +119,8 @@ class RegisterController extends Controller
                 'surname' => $data['surname'],
                 'email' => $data['email'],
                 'role_id' => $role->id,
-                // 'license_code' => $data['license_code'],
-                'referrer' => $data['referrer'],
+                'phone' => $data['phone'],
+                // 'referrer' => $data['referrer'],
                 'dob' => $data['dob'],
                 'call_to_bar_year' => $data['call_to_bar_year'],
                 'password' => Hash::make($data['password']),
@@ -127,14 +129,14 @@ class RegisterController extends Controller
             $role = Role::where('name','Admin')->first();
             $admin_user = User::where('role_id', $role->id)->first();
             $team = Team::where('user_id', $admin_user->id)->first();
-            UserTeam::create([
-                'user_id' => $user->id,
-                'team_id' => $team ? $team->id : NULL,
-                'send_request' => 1,
-                'approve_request' => 1,
-            ]);
-
-
+            if($team) {
+                UserTeam::create([
+                    'user_id' => $user->id,
+                    'team_id' => $team ? $team->id : NULL,
+                    'send_request' => 1,
+                    'approve_request' => 1,
+                ]);
+            }
 
 
             $user->notify(new WelcomeOnboard($user));

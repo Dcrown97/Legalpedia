@@ -226,6 +226,24 @@
                                                             <i class="fe fe-file mr-3"></i><a href="{{route('show.article', $article->id)}}">{{$article->title}}</a>
                                                         </h4>
                                                     </div>
+                                                    @if(Auth::user()->role->name == 'Admin')
+                                                        <div class="col-auto">
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <form action="/admin/legal-articles/{{$article->id}}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{ method_field('DELETE') }}
+                                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </li>
                                         @endforeach

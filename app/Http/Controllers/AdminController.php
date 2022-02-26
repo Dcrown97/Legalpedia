@@ -3085,8 +3085,6 @@ class AdminController extends Controller
         //     return back()->with('error1', 'No search input found');
         // }
 
-      
-
         if($request->input('search')) {
             $search = $request->input('search');
             $first_search = $request->input('search');
@@ -3104,7 +3102,7 @@ class AdminController extends Controller
             ->simplePaginate(15)
             ->withQueryString();
             // ->get();
-            
+
 
             $query_ratio_count = SummaryRatio::query()
             ->where('heading', 'LIKE', '%'.$search.'%')
@@ -3252,7 +3250,7 @@ class AdminController extends Controller
                 'description' => $search,
             ]);
 
-            
+
             $selected_year = [];
             $selected_year['judgement_date'] = '';
 
@@ -3406,7 +3404,7 @@ class AdminController extends Controller
                 $together = $heading->merge($body);
                 $query_case_count = $together->count();
                 $query_case['search'] =  $this->customPaginate($together)->withPath(url()->current())->withQueryString();
-                $selected_year = []; 
+                $selected_year = [];
                 $selected_year['judgement_date'] = $request->year;
                 return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
             }
@@ -3423,7 +3421,7 @@ class AdminController extends Controller
             ->orWhere('body', 'LIKE', '%'.$search.'%')
             ->count();
             $query_case_count = $query_ratio_count;
-            
+
             $selected_year = [];
             $selected_year['judgement_date'] = '';
             return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
@@ -3676,16 +3674,14 @@ class AdminController extends Controller
         //     $query_case['search'] =  $this->customPaginate($query_case['search'])->withPath(url()->current())->withQueryString();
 
         //     // dd($query_case['search']->toArray());
-            
-        //     $selected_year = []; 
+
+        //     $selected_year = [];
         //     $selected_year['judgement_date'] = $request->year;
         //     return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
         // }
 
     }
 
-
-  
 
     ////not in use/////
     public function autocomplete(Request $request){
@@ -3792,6 +3788,11 @@ class AdminController extends Controller
         // dd($input);
         DB::table('annotations')->where('id', $request->admin_note_id)->update($input);
         return back()->with('success', 'Note updated');
+    }
+    public function deleteNote($id) {
+        $note = Annotation::findOrFail($id);
+        $note->delete();
+        return back()->with('success', 'Note deleted');
     }
 
     // public function fetchAnote($id) {

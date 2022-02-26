@@ -100,6 +100,13 @@ class User extends Authenticatable
         return false;
     }
 
+    public function expiredUser() {
+        if($this->package_id !== '' && $this->expiry_date < now()) {
+            return true;
+        }
+        return false;
+    }
+
     public function teams() {
         return $this->belongsToMany(Team::class, 'user_team');
     }

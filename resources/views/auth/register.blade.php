@@ -100,16 +100,16 @@
                             </span>
                         @enderror
                     </div>
-                    {{-- <div class="form-group">
-                        <label for="license_code">License code</label>
-                        <input id="license_code" type="text" class="form-control @error('license_code') is-invalid @enderror" placeholder="License code" name="license_code">
-                        @error('license_code')
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="text-color">*<span></label>
+                        <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" placeholder="23481000xxxxx" name="phone" required>
+                        @error('phone')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                    </div> --}}
-                    <div class="form-group">
+                    </div>
+                    {{-- <div class="form-group">
                         <label for="link">Referrer</label>
                         <input id="referrer" type="text" class="form-control @error('referrer') is-invalid @enderror" placeholder="Referrer" name="referrer">
                         @error('referrer')
@@ -117,7 +117,7 @@
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                    </div>
+                    </div> --}}
                     <button type="submit" class="btn btn-block login-btn mb-4" onclick="this.classList.toggle('button--loading')">
                         <span class="button__text">Sign up</span>
                     </button>

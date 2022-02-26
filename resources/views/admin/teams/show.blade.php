@@ -864,9 +864,16 @@
                                                         <h4 class="mb-1">
                                                             <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
                                                         </h4>
-                                                        <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
+                                                        @php
+                                                            $last_seen = strtotime($user->last_seen); //get last_seen from database and convert to numbers
+                                                            $now = \Carbon\Carbon::now(); // get current date and time
+                                                            $get_now = strtotime($now); // convert current date and time to numbers
+                                                            $subtract_now = strtotime("-2 min", $get_now); //subtract 2mins from current date and time
+                                                            $final = $get_now - $subtract_now; //get exactly 2mins which is 120seconds
+                                                            $get_seen = $get_now - $last_seen; // get the difference between the last seen date and current date, if it is less than 2mins keep online if not keep offline
+                                                        @endphp
                                                         <p class="card-text small">
-                                                            @if(Illuminate\Support\Facades\Cache::has('user-is-online-' . $online_user->id))
+                                                            @if($get_seen <= $final)
                                                                 <span class="text-success">●</span> Online
                                                                 @else
                                                                 <span class="text-secondary">●</span> Offline
@@ -933,9 +940,24 @@
                                                                     <h4 class="mb-1 item-name">
                                                                         <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
                                                                     </h4>
-                                                                    <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
+                                                                    {{-- <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
                                                                     <p class="card-text small">
                                                                         @if(Illuminate\Support\Facades\Cache::has('user-is-online-' . $online_user->id))
+                                                                            <span class="text-success">●</span> Online
+                                                                            @else
+                                                                            <span class="text-secondary">●</span> Offline
+                                                                        @endif
+                                                                    </p> --}}
+                                                                    @php
+                                                                        $last_seen = strtotime($user->last_seen); //get last_seen from database and convert to numbers
+                                                                        $now = \Carbon\Carbon::now(); // get current date and time
+                                                                        $get_now = strtotime($now); // convert current date and time to numbers
+                                                                        $subtract_now = strtotime("-2 min", $get_now); //subtract 2mins from current date and time
+                                                                        $final = $get_now - $subtract_now; //get exactly 2mins which is 120seconds
+                                                                        $get_seen = $get_now - $last_seen; // get the difference between the last seen date and current date, if it is less than 2mins keep online if not keep offline
+                                                                    @endphp
+                                                                    <p class="card-text small">
+                                                                        @if($get_seen <= $final)
                                                                             <span class="text-success">●</span> Online
                                                                             @else
                                                                             <span class="text-secondary">●</span> Offline
@@ -989,9 +1011,24 @@
                                                                     <h4 class="mb-1 name">
                                                                         <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
                                                                     </h4>
-                                                                    <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
+                                                                    {{-- <?php $online_user = App\Models\User::select("*")->whereNotNull('last_seen')->first();?>
                                                                     <p class="card-text small">
                                                                         @if(Illuminate\Support\Facades\Cache::has('user-is-online-' . $online_user->id))
+                                                                            <span class="text-success">●</span> Online
+                                                                            @else
+                                                                            <span class="text-secondary">●</span> Offline
+                                                                        @endif
+                                                                    </p> --}}
+                                                                    @php
+                                                                        $last_seen = strtotime($user->last_seen); //get last_seen from database and convert to numbers
+                                                                        $now = \Carbon\Carbon::now(); // get current date and time
+                                                                        $get_now = strtotime($now); // convert current date and time to numbers
+                                                                        $subtract_now = strtotime("-2 min", $get_now); //subtract 2mins from current date and time
+                                                                        $final = $get_now - $subtract_now; //get exactly 2mins which is 120seconds
+                                                                        $get_seen = $get_now - $last_seen; // get the difference between the last seen date and current date, if it is less than 2mins keep online if not keep offline
+                                                                    @endphp
+                                                                    <p class="card-text small">
+                                                                        @if($get_seen <= $final)
                                                                             <span class="text-success">●</span> Online
                                                                             @else
                                                                             <span class="text-secondary">●</span> Offline
