@@ -49,7 +49,7 @@
                                 <small class="form-text text-muted">
                                     This is the body of the article
                                 </small>
-                                <textarea class="description form-control" name="content" rows="5" placeholder="Enter content">{{$article->description}}</textarea>
+                                <textarea class="description form-control" name="content" rows="5" placeholder="Enter content">{{$article->content}}</textarea>
                             </div>
                             @if(Auth::user()->role->name == 'Admin')
                                 <div class="form-group">

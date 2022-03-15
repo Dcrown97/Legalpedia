@@ -7,8 +7,8 @@
 @section('content-1')
 <div class="text-center container cont">
     <div class="container">
-        <h3 class="package"> PACKAGE DESCRIPTION</h3>
-        <h2 class="package1">{{$package->name}} Package</h2>
+        {{-- <h3 class="package"> PACKAGE DESCRIPTION</h3> --}}
+        <h3>{{$package->name}} Package</h3>
         <p class="package3">{!! $package->description !!}</p>
     </div>
 </div>
@@ -23,10 +23,11 @@
     .text-color {
        color: #EC6959;
     }
+    
 </style>
 <div class="text-center cont">
-    <h3 class="package">PACKAGE FEATURES</h3>
-    <h2 class="package1">Package features</h2>
+    {{-- <h3 class="package">PACKAGE FEATURES</h3> --}}
+    <h3>Package features</h3>
     <div class="row row_pad">
         <div class="col-md-6 col-sm-12">
             <div class="text-white font_head">

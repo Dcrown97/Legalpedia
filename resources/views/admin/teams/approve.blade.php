@@ -70,7 +70,7 @@
                                                 </div>
                                                 <div class="col ms-n2">
                                                     <h4 class="mb-1 item-name">
-                                                        {{$user->name}}
+                                                        <a href="{{route('user.profile', $new_member->user_id)}}">{{$user->name}}</a>
                                                     </h4>
                                                     <p class="card-text small text-muted">
                                                         Requested at {{\Carbon\Carbon::parse($new_member->created_at)->toFormattedDateString()}}

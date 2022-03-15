@@ -42,18 +42,17 @@ class NewMessage extends Notification
      */
     public function toMail($notifiable)
     {
-        
-        return (new MailMessage)
-                    ->subject($this->message_sent->subject)
-                    ->line('Hi, '. $notifiable->name)
-                    ->line($this->message_sent->subject)
-                    ->line(strip_tags($this->message_sent->body))
-                    ->action('Get started', url('admin/dashboard'));
-                    // ->line('Please click this link to join event '. $this->event_sent->link)
-                    // ->action('View event', url('admin/calendar'));
-        // return (new MailMessage)->view(
-        //     'emails.newMessage', ['user'=> $this->user]
-        // )->subject('new message');
+
+        // return (new MailMessage)
+        //             ->subject($this->message_sent->subject)
+        //             ->line('Hi, '. $notifiable->name)
+        //             ->line($this->message_sent->subject)
+        //             ->line(strip_tags($this->message_sent->body))
+        //             ->action('Get started', url('admin/dashboard'));
+
+        return (new MailMessage)->view(
+            'emails.newMessage', ['user'=> $notifiable->name, 'subject'=> $this->message_sent->subject, 'body' => $this->message_sent->body]
+        )->subject($this->message_sent->subject);
     }
 
 

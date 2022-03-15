@@ -96,7 +96,7 @@
                 <ul class="nav nav-tabs nav-overflow header-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="legal-tab" data-toggle="tab" href="#legal" role="tab" aria-controls="legal" aria-selected="true">
-                            Legalpedia Articles
+                            Articles
                         </a>
                     </li>
                     <li class="nav-item">
@@ -121,7 +121,7 @@
                     <div class="tab-pane fade show active" id="legal" role="tabpanel" aria-labelledby="legal-tab">
                         <div class="card" data-list='{"valueNames": ["item-name"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                             <div class="card-header">
-                                <h4 class="card-header-title">Legalpedia Articles</h4>
+                                <h4 class="card-header-title">Articles and Journals</h4>
                                 <h4>{{number_format($article_count)}} records</h4>
                             </div>
                             <div class="card-header">
@@ -221,10 +221,25 @@
                                         @foreach($public_articles as $article)
                                             <li class="list-group-item">
                                                 <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <a href="{{route('show.article', $article->id)}}" class="avatar avatar-lg avatar-4by3">
+                                                            <img src="{{$article->photo}}" alt="{{$article->title}}" class="avatar-img rounded">
+                                                        </a>
+                                                    </div>
                                                     <div class="col">
                                                         <h4 class="mb-1 item-name">
-                                                            <i class="fe fe-file mr-3"></i><a href="{{route('show.article', $article->id)}}">{{$article->title}}</a>
+                                                            <a href="{{route('show.article', $article->id)}}">{{$article->title}}</a>
                                                         </h4>
+                                                        <p class="card-text small text-muted">
+                                                            Created {{\Carbon\Carbon::parse($article->created_at)->toFormattedDateString()}}
+                                                        </p>
+                                                        <p class="card-text small text-color">
+                                                            @if($article->authur == 'Legalpedia')
+                                                                By {{$article->authur}}
+                                                            @else
+                                                                By <a href="{{route('user.profile', $article->user_id)}}" class="text-color">{{$article->authur}}</a>
+                                                            @endif
+                                                        </p>
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
                                                         <div class="col-auto">
@@ -310,6 +325,9 @@
                                                                 </h4>
                                                                 <p class="card-text small text-muted">
                                                                     Created {{\Carbon\Carbon::parse($article->created_at)->toFormattedDateString()}}
+                                                                </p>
+                                                                <p class="card-text small text-color">
+                                                                    By {{$article->authur}}
                                                                 </p>
                                                             </div>
                                                             @if(Auth::user()->id == $article->user_id)

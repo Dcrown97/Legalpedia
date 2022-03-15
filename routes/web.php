@@ -1,15 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\InviteController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PaymentController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\SendBulkMessageController;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 
@@ -116,6 +118,13 @@ Auth::routes();
 
     Route::get('/admin/user/profile/{id}', [AdminUserController::class, 'userProfile'])->name('user.profile');
     Route::get('/admin/customers', [AdminUserController::class, 'index'])->name('admin.customers');
+
+    ////////////////////////////////////////////////datatables//////////////////////////////////////////////
+    Route::get('/admin/customers/custom', [AdminUserController::class, 'indexDatables'])->name('admin.custom');
+    // Route::get('/admin/customers/custom', [AdminUserController::class, 'customerDataSource'])->name('user.custom');;
+    Route::get('/admin/customers/custom', [AdminUserController::class, 'userTable'])->name('user.custom');
+    ////////////////////////////////////////////////datatables//////////////////////////////////////////////
+
     Route::get('/admin/customers/{id}', [AdminUserController::class, 'show'])->name('show.customer');
     Route::get('/admin/customers/{id}/profile', [AdminUserController::class, 'edit'])->name('edit.customer');
     Route::patch('/admin/customers/{id}/profile', [AdminUserController::class, 'update'])->name('update.customer');
@@ -161,7 +170,7 @@ Auth::routes();
     Route::get('/admin/teams/{id}/join', [AdminController::class, 'joinTeam'])->name('join.team');
     Route::post('/admin/teams/{id}/join', [AdminController::class, 'joinedTeam'])->name('joined.team');
     Route::post('/admin/teams/send-request', [AdminController::class, 'sendRequest'])->name('send.request');
-    Route::get('/admin/teams/member/approve', [AdminController::class, 'approveMember'])->name('approve.member');
+    Route::get('/admin/teams/member/approve/{id}', [AdminController::class, 'approveMember'])->name('approve.member');
     Route::patch('/admin/teams/approve/{id}', [AdminController::class, 'approveRequest'])->name('approve.request');
     Route::patch('/admin/teams/decline/{id}', [AdminController::class, 'declineRequest'])->name('decline.request');
     Route::delete('/admin/teams/remove/{id}', [AdminController::class, 'remove'])->name('remove.member');
@@ -192,6 +201,8 @@ Auth::routes();
     Route::delete('/admin/messages/{id}', [AdminController::class, 'deleteMessage'])->name('delete.message');
     Route::post('/admin/messages/send', [AdminController::class, 'sendMessages'])->name('send.messages');
 
+    Route::get('/messages/sent', [SendBulkMessageController::class, 'sendBulk'])->name('send.bulk');
+
     Route::get('/admin/licenses', [AdminController::class, 'license'])->name('admin.licenses');
     Route::post('/admin/licenses', [AdminController::class, 'storeLicense'])->name('store.license');
     Route::patch('/admin/licenses', [AdminController::class, 'updateLicense'])->name('update.license');
@@ -205,6 +216,11 @@ Auth::routes();
 // Route::group(['middleware'=>'subscribedUser'], function(){
 //     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 // });
+
+Route::get('execute', function(){
+    Artisan::call('schedule:run');
+    return 'runned';
+});
 
 
 

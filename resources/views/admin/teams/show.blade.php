@@ -1115,6 +1115,22 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @if($team->user_id == Auth::user()->id)
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col">
+                                                    <h5 class="mb-0 text-color">
+                                                        Approve new members
+                                                    </h5>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <small class="text-success">
+                                                        <a href="{{route('approve.member', $team->id)}}" class="text-green"><i class="mdi mdi-check"></i>Approve</a>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     <div class="list-group-item">
                                         <div class="row align-items-center">
                                             <div class="col">
@@ -1606,7 +1622,12 @@
                                 @csrf
                                 <div class="row justify-content-center">
                                     <div class="text-center">
-                                        <p class="mb-5 text-muted">You were invited to join this team</p>
+                                        <p class="mb-5 text-muted">You were invited to join {{$team->name}}</p>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center">
+                                    <div class="text-center mb-4">
+                                        <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top">
                                     </div>
                                 </div>
                                 <input type="hidden" name="send_request" value="1">

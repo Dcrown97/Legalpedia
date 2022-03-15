@@ -155,7 +155,7 @@
                                 </small>
                                 <h4 class="mb-1">
                                     @if($user->web_display)
-                                        <a href="{{$user->web_link}}" class="text-color">
+                                        <a href="https://{{$user->web_link}}" class="text-color">
                                             <i class="fe fe-globe"></i> {{$user->web_link}}
                                         </a>
                                     @endif

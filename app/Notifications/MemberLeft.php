@@ -42,7 +42,7 @@ class MemberLeft extends Notification
     {
         return (new MailMessage)
                         ->subject('You just left a team')
-                        ->line('Hi '. $this->user_left->name .' You just left a team. You can join another Team')
+                        ->line('Hi '. $this->left_user->name .' You just left a team. You can join another Team')
                         ->action('Join another team', url('admin/teams'));
     }
 

@@ -74,7 +74,7 @@
             @elseif($new_chat_count < 1)
             no message
         @endif
-        <a href="{{route(config('chatify.routes.prefix'))}}" class="text-color" style="border-bottom: 1px dotted">Start chatting</a>
+        <a href="{{route(config('chatify.routes.prefix'))}}" class="text-color" style="border-bottom: 1px dotted">Connect with friends</a>
     </p>
 </div>
 <a class="cursor" onclick="showChat()" id="hide-icon" style="display: none">

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use PDO;
 use DateTime;
 use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\Rule;
 use App\Models\Team;
 use App\Models\User;
+use Mailgun\Mailgun;
 use App\Models\Coram;
 use App\Models\Court;
 use App\Models\Maxim;
@@ -47,12 +49,14 @@ use App\Models\JudgementPartyA;
 use App\Models\JudgementPartyB;
 use App\Models\LawOfFederation;
 use App\Models\LawOfFedSection;
+use App\Jobs\SendBulkQueueEmail;
 use App\Models\JudgementCounsel;
 use App\Models\JudgementSummary;
 use App\Notifications\NewReport;
 use App\Notifications\MemberLeft;
 use App\Notifications\NewMessage;
 use App\Models\JudgementPrinciple;
+use App\Models\LicensedUserSession;
 use App\Models\SubjectMatterIndex;
 use App\Notifications\TeamRequest;
 use Illuminate\Support\Collection;
@@ -61,6 +65,7 @@ use App\Notifications\MemberRemoval;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use App\Notifications\ExpiredPackage;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
@@ -72,6 +77,7 @@ use App\Notifications\LicenseCredentials;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 // use NunoMaduro\Collision\Adapters\Phpunit\State;
 
@@ -145,6 +151,20 @@ class AdminController extends Controller
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
+            if($request->search_case) {
+                $search = $request->search_case;
+                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orderBy('judgement_date', 'DESC')
+                ->simplePaginate()
+                ->withQueryString();
+                $selected_court = [];
+                $selected_court['court_id'] = '';
+                $selected_year = [];
+                $selected_year['judgement_date'] = '';
+                return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+            }
             $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
             $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
             $selected_court = [];
@@ -192,6 +212,20 @@ class AdminController extends Controller
                         $selected_court['court_id'] = $request->id;
                         return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                     }
+                    if($request->search_case) {
+                        $search = $request->search_case;
+                        $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                        $judgement_count =  $judge->count();
+                        $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                        ->orderBy('judgement_date', 'DESC')
+                        ->simplePaginate()
+                        ->withQueryString();
+                        $selected_court = [];
+                        $selected_court['court_id'] = '';
+                        $selected_year = [];
+                        $selected_year['judgement_date'] = '';
+                        return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+                    }
                     $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year.'-01-00 24:00:00' : ''));
                     $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year.'-12-31 00:00:00' : ''));
                     $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
@@ -228,6 +262,18 @@ class AdminController extends Controller
                 $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                 return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
             }
+            if($request->search_case) {
+                $search = $request->search_case;
+                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orderBy('judgement_date', 'DESC')
+                ->simplePaginate()
+                ->withQueryString();
+                $selected_subject_matter = [];
+                $selected_subject_matter['subject_matter_index'] = '';
+                return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
+            }
             $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
             $judgement_count = $count->count();
             $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
@@ -253,6 +299,18 @@ class AdminController extends Controller
                     $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                     return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
                 }
+                if($request->search_case) {
+                    $search = $request->search_case;
+                    $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                    $judgement_count =  $judge->count();
+                    $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
+                    $selected_subject_matter = [];
+                    $selected_subject_matter['subject_matter_index'] = '';
+                    return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
+                }
                 $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
                 $judgement_count = $count->count();
                 $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
@@ -263,13 +321,23 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function legalCitation() {
+    public function legalCitation(Request $request) {
         if(Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('court', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
+            if($request->search_case) {
+                $search = $request->search_case;
+                $judge = JudgementSummary::where('title', 'LIKE', '%'.$search.'%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = JudgementSummary::where('title', 'LIKE', '%'.$search.'%')
+                ->orderBy('judgement_date', 'DESC')
+                ->simplePaginate()
+                ->withQueryString();
+                return view('admin.judgements.legal-citation',  compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
+            }
             $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
             $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
             return view('admin.judgements.legal-citation', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
@@ -281,6 +349,19 @@ class AdminController extends Controller
                 $categories = Category::orderBy('category', 'asc')->get();
                 $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year.'-01-00 24:00:00' : ''));
                 $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year.'-12-31 00:00:00' : ''));
+
+                if($request->search_case) {
+                    $search = $request->search_case;
+                    $judge = JudgementSummary::query()->where('title', 'LIKE', '%'.$search.'%')
+                    ->whereBetween('judgement_date', [$start_date, $end_date]);
+                    $judgement_count =  $judge->count();
+                    $judgement_summaries = JudgementSummary::query()->where('title', 'LIKE', '%'.$search.'%')
+                    ->whereBetween('judgement_date', [$start_date, $end_date])
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
+                    return view('admin.judgements.legal-citation',  compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
+                }
                 $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
                 return view('admin.judgements.legal-citation', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
@@ -328,6 +409,22 @@ class AdminController extends Controller
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
+            if($request->search_case) {
+                $search = $request->search_case;
+                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->where('summary_of_facts', NULL);
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->where('summary_of_facts', NULL)
+                ->orderBy('judgement_date', 'DESC')
+                ->simplePaginate()
+                ->withQueryString();
+                $selected_court = [];
+                $selected_court['court_id'] = '';
+                $selected_year = [];
+                $selected_year['judgement_date'] = '';
+                return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+            }
             $judgement_summaries = JudgementSummary::where('summary_of_facts', NULL)->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
             $judgement_count = JudgementSummary::where('summary_of_facts', NULL)->count();
             $selected_court = [];
@@ -335,16 +432,7 @@ class AdminController extends Controller
             $selected_year = [];
             $selected_year['judgement_date'] = '';
             return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
-
-            // $courts = Court::orderBy('court', 'ASC')->get();
-            // DB::statement("SET SQL_MODE=''");
-            // $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-            // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-            // $categories = Category::orderBy('category', 'asc')->get();
-            // $judgement_summaries = JudgementSummary::where('summary_of_facts', NULL)->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
-            // $judgement_count = JudgementSummary::where('summary_of_facts', NULL)->count();
-            // return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
-        }
+         }
         return redirect('admin/judgements');
     }
     public function create() {
@@ -2056,12 +2144,16 @@ class AdminController extends Controller
         if(Auth::user()->role->name == 'Admin') {
             $article = Article::findOrFail($id);
             $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-            return view('admin.legal-articles.show-article', compact('article', 'teams'));
+            $notes = Annotation::where('content_id', $article->id)->get();
+            $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+            return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes'));
         } else {
             if(Auth::user()->subscribedUser()) {
                 $article = Article::findOrFail($id);
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                return view('admin.legal-articles.show-article', compact('article', 'teams'));
+                $notes = Annotation::where('content_id', $article->id)->get();
+                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+                return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
@@ -2757,7 +2849,6 @@ class AdminController extends Controller
     }
 
 
-
     /////////////////////////////////////transactions///////////////////////////////////////
     public function transaction(Request $request) {
         if(Auth::user()->role->name == 'Admin') {
@@ -2942,17 +3033,18 @@ class AdminController extends Controller
             'user_id' => $request->user_id,
             'team_id' => $request->team_id,
         ];
-        UserTeam::create($input);
+        $team = UserTeam::create($input);
         $user = Auth::user();
         $team_admin = User::where('id', $request->team_owner_id)->first();
         if ($team_admin) {
-            $team_admin->notify(new TeamRequest($user));
+            $team_admin->notify(new TeamRequest($user, $team));
         }
         return redirect()->back()->with('success', 'Request sent');
     }
-    public function approveMember() {
+    public function approveMember($id) {
         if(UserTeam::where('user_id', Auth::user()->id)->first()) {
-            $new_members = UserTeam::where('send_request', 1)->where('approve_request', 0)->get();
+            $team = Team::findOrFail($id);
+            $new_members = UserTeam::where('send_request', 1)->where('approve_request', 0)->where('team_id', $team->id)->get();
             return view('admin.teams.approve', compact('new_members'));
         } else
         return redirect('admin/teams');
@@ -2997,7 +3089,7 @@ class AdminController extends Controller
         if($left_user) {
             $left_user->notify(new MemberLeft($approved_member));
         }
-        return redirect()->back()->with('success', 'You have just removed a user');
+        return redirect()->back()->with('success', 'You just left this team');
     }
     public function deleteTeam($id) {
         $team = Team::findOrFail($id);
@@ -3839,38 +3931,125 @@ class AdminController extends Controller
             $all_messages = Message::orderBy('created_at', 'DESC')->get();
             $message_count = $all_messages->count();
             $packages = Package::orderBy('name', 'ASC')->get();
-            if($request->has('fetch_user')) {
-                $user = User::query();
-                if($request->filled('end_date')) {
-                    $start_date = Carbon::parse($request->start_date)->toDateTimeString();
-                    $end_date = Carbon::parse($request->end_date)->toDateTimeString();
-                    $users = $user->whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->get();
+            $user = User::query();
+            if($request->filled('end_date')) {
+                $start_date = Carbon::parse($request->start_date)->toDateTimeString();
+                $end_date = Carbon::parse($request->end_date)->toDateTimeString();
+                $users = $user->whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
+                $user_array = User::whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->pluck('email')->toArray();
+                $data_array = User::whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->pluck('email', 'name')->toArray();
+                $user_count = User::whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->count();
+            }
+            if( $request->filled('status') && !$request->filled('package')) {
+                if($request->status == 'null') {
+                    $users = $user->where('status', null)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
+                    $user_array = User::where('status', null)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
+                    $data_array = User::where('status', null)->orderBy('active_date', 'DESC')->pluck('name', 'email')->toArray();
+                    $user_count = User::where('status', null)->orderBy('active_date', 'DESC')->count();
+                } else {
+                    $users = $user->where('status', $request->status)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
+                    $user_array = User::where('status', $request->status)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
+                    $data_array = User::where('status', $request->status)->orderBy('active_date', 'DESC')->pluck('name', 'email')->toArray();
+                    $user_count = User::where('status', $request->status)->orderBy('active_date', 'DESC')->count();
                 }
-                if( $request->filled('status')) {
-                    $users = $user->where('status', $request->status)->orderBy('active_date', 'DESC')->get();
-                }
-                if( $request->filled('package')) {
-                    $package = Package::where('name', $request->package)->first();
-                    $users = $user->where('package_id', $package->id)->orderBy('active_date', 'DESC')->get();
-                }
-                $user_count = $user->count();
-                $active_user_count = $user->where('status', 'active')->count();
-                $inactive_user_count = $user->where('status', '!=', 'active')->count();
+
+                $active_user_count = User::where('status', 'active')->count();
+                $inactive_user_count = User::where('status', '=', null)->orWhere('status', '<>', 'active')->count();
+                $selected_status = [];
+                $selected_status['status'] = $request->status;
+                $selected_package = [];
+                $selected_package['package'] = '';
+                return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+
+            }
+            if( !$request->filled('status') && $request->filled('package')) {
+                $package = Package::where('name', $request->package)->first();
+                $users = $user->where('package_id', $package->id)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
+                $user_array = User::where('package_id', $package->id)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
+                $data_array = User::where('package_id', $package->id)->orderBy('active_date', 'DESC')->pluck('email', 'name')->toArray();
+                $user_count = User::where('package_id', $package->id)->orderBy('active_date', 'DESC')->count();
+                $active_user_count = User::where('status', 'active')->where('package_id', $package->id)->count();
+                $inactive_user_count = User::where('package_id', $package->id)->where('status', '<>', 'active')->count();
+                $selected_status = [];
+                $selected_status['status'] = '';
+                $selected_package = [];
+                $selected_package['package'] = $request->package;
+                return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+
+            }
+            if( $request->filled('status') && $request->filled('package')) {
+                $package = Package::where('name', $request->package)->first();
+                $users = $user->where('package_id', $package->id)->where('status', $request->status)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
+                $user_array = User::where('package_id', $package->id)->where('status', $request->status)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
+                // dd($user_array);
+                $data_array = User::where('package_id', $package->id)->where('status', $request->status)->orderBy('active_date', 'DESC')->pluck('email', 'name')->toArray();
+                $user_count = User::where('package_id', $package->id)->orderBy('active_date', 'DESC')->count();
+                // dd($user_count);
+                $active_user_count = User::where('status', 'active')->where('package_id', $package->id)->count();
+                $inactive_user_count = User::where('package_id', $package->id)->where('status', '<>', 'active')->count();
                 $selected_status = [];
                 $selected_status['status'] = $request->status;
                 $selected_package = [];
                 $selected_package['package'] = $request->package;
-                return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+                return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+
             }
-            $users = User::orderBy('created_at', 'DESC')->get();
-            $user_count = $users->count();
-            $active_user_count = $users->where('status', 'active')->count();
-            $inactive_user_count = $users->where('status', '!=', 'active')->count();
+
+            if($request->search_customer) {
+                $search = $request->search_customer;
+                $user = User::query();
+                $users = $user->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('surname', 'LIKE', '%'.$search.'%')
+                ->orWhere('email', 'LIKE', '%'.$search.'%')
+                ->orWhere('phone', 'LIKE', '%'.$search.'%')
+                ->orderBy('name', 'ASC')
+                ->simplePaginate(10)
+                ->withQueryString();
+
+                $users_get = $user->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('surname', 'LIKE', '%'.$search.'%')
+                ->orWhere('email', 'LIKE', '%'.$search.'%')
+                ->orWhere('phone', 'LIKE', '%'.$search.'%')
+                ->orderBy('name', 'ASC')
+                ->get();
+
+                $user_count = $user->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('surname', 'LIKE', '%'.$search.'%')
+                ->orWhere('email', 'LIKE', '%'.$search.'%')
+                ->orWhere('phone', 'LIKE', '%'.$search.'%')
+                ->orderBy('name', 'ASC')
+                ->count();
+                $active_user_count = $users_get->where('status', 'active')->count();
+                $inactive_user_count = $users_get->where('status', '!=', 'active')->count();
+                $selected_status = [];
+                $selected_status['status'] = '';
+                $selected_package = [];
+                $selected_package['package'] = '';
+                $user_array = $user->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('surname', 'LIKE', '%'.$search.'%')
+                ->orWhere('email', 'LIKE', '%'.$search.'%')
+                ->orWhere('phone', 'LIKE', '%'.$search.'%')
+                ->orderBy('name', 'ASC')
+                ->pluck('email')->toArray();
+                $data_array = $user->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('surname', 'LIKE', '%'.$search.'%')
+                ->orWhere('email', 'LIKE', '%'.$search.'%')
+                ->orWhere('phone', 'LIKE', '%'.$search.'%')
+                ->orderBy('name', 'ASC')
+                ->pluck('email', 'name')->toArray();
+                return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+            }
+            $users = User::orderBy('created_at', 'DESC')->simplePaginate(10)->withQueryString();
+            $user_array = User::orderBy('created_at', 'DESC')->pluck('email')->toArray();
+            $data_array = User::orderBy('created_at', 'DESC')->pluck('email', 'name')->toArray();
+            $user_count = User::orderBy('created_at', 'DESC')->count();
+            $active_user_count = User::orderBy('created_at', 'DESC')->where('status', 'active')->count();
+            $inactive_user_count = User::orderBy('created_at', 'DESC')->where('status', '=', null)->orWhere('status', '<>', 'active')->count();
             $selected_status = [];
             $selected_status['status'] = '';
             $selected_package = [];
             $selected_package['package'] = '';
-            return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
+            return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
         }
         return redirect('admin/dashboard');
     }
@@ -3895,22 +4074,157 @@ class AdminController extends Controller
         return back()->with('success', 'Message created');
     }
     public function sendMessages(Request $request) {
-        if($request->has('send_message') && !empty($request->checkBoxArray)) {
+        if($request->has('send_single_message')) {
+            if(!empty($request->message_id)) {
+                if(!empty($request->checkBoxArray)){
 
-            $message = Message::where('id', $request->message_id)->first();
-            $input = [
-                'users' => json_encode($request->checkBoxArray),
-                'message_id' => $request->message_id,
-                'content' => json_encode([$message->name, $message->subject, $message->body])
-            ];
-            MailMessage::create($input);
+                    $message = Message::where('id', $request->message_id)->first();
+                    $input = [
+                        'users' => json_encode($request->checkBoxArray),
+                        'message_id' => $request->message_id,
+                        'content' => json_encode([$message->name, $message->subject, $message->body])
+                    ];
+                    MailMessage::create($input);
 
-            $newUsers = User::whereIn('id',$request->checkBoxArray)->get();
+                    $newUsers = User::whereIn('id', $request->checkBoxArray)->get();
 
-            Notification::send($newUsers, new NewMessage($message, $newUsers));
+                    Notification::send($newUsers, new NewMessage($message, $newUsers));
 
-            return back()->with('success', 'Message sent!');
+                    return back()->with('success', 'Message sent!');
+                }
+                return back()->with('error1', 'Please select a user to send a message to');
+            }
+            return back()->with('error1', 'Please select a message to send');
         }
+
+        if($request->has('send_multiple_message')) {
+            if(!empty($request->message_id)) {
+                if(!empty($request->checkBoxArray)){
+
+                    $message = Message::where('id', $request->message_id)->first();
+                    $input = [
+                        'users' => $request->users,
+                        'message_id' => $request->message_id,
+                        'content' => json_encode([$message->name, $message->subject, $message->body])
+                    ];
+                    MailMessage::create($input);
+                    $users = json_decode($request->users);
+                    $data = (array) json_decode($request->data);
+                    // dd($request->data);
+                    // $newUsers = User::whereIn('id', $users)->get();
+                    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY;
+
+                    // Notification::send($newUsers, new NewMessage($message, $newUsers));
+
+                    $subject = $message->subject;
+                    // $emails = $users;
+
+                    // Mail::send('emails.newMessage', ['subject' => $message->subject, 'body' => $message->body], function($message) use ($emails, $subject)
+                    // {
+                    //     $message->to($emails)->subject($subject);
+                    // });
+
+
+
+                    // $details = [
+                    //     'subject' => $message->subject,
+                    //     'body' => $message->body
+                    // ];
+                    // $job = (new SendBulkQueueEmail($details, $users));
+
+                    // dispatch($job);
+
+
+
+                    // $recipientVariables = $data;
+                    // $rec = [
+                    //     'akpanemmanueledidiong99@gmail.com' => [
+                    //         'first' => 'Emmanuel',
+                    //         'id' =>1
+                    //     ],
+                    //     'akpanemmanueledidiong99@yahoo.com' => [
+                    //         'first' => 'Emmanuel',
+                    //         'id' =>2
+                    //     ],
+                    //     'kamsi@gmail.com' => [
+                    //         'first' => 'Kamsi',
+                    //         'id' =>3
+                    //     ],
+                    //     'edidiong@gmail.com' => [
+                    //         'first' => 'Test Org 4',
+                    //         'id' =>4
+                    //     ]
+                    // ];
+                    // $recipientVariables = json_encode($rec);
+                    // $chunked_users = array_chunk($users, 1000, true);
+                    // dd($chunked_users);
+                    // $chunks = array_chunk($data['recipient-variables'],500,true);
+                    // $result = [];
+
+                    // foreach($chunked_users as $single_chunk) {
+                    //     try {
+                    //         Mail::send('emails.newMessage', ['subject' => $message->subject, 'body' => $message->body], function($message) use ($single_chunk, $subject, $recipientVariables) {
+
+
+                    //             // $headerLine = $message->headerLine('X-Mailgun-Recipient-Variables', $recipientVariables);
+                    //             $message->getHeaders()->addTextHeader('X-Mailgun-Variables', $recipientVariables);
+                    //             $message->getBcc($single_chunk);
+                    //             $message->to($single_chunk);
+
+                    //             // $message->addCustomHeader($headerLine);
+
+                    //             // $message->addCustomHeader($headerLine);
+                    //             $message->subject($subject. '%recipient.first%');
+                    //             // $message->getHeaders()->addTextHeader('X-Mailgun-Recipient-Variables', $recipientVariables);
+                    //         });
+
+
+                    //     } catch (ModelNotFoundException $exception) {
+                    //         return back()->with('error1', 'Something went wrong');
+                    //     }
+                    // }
+
+                    // return back()->with('success', 'Messages are being sent');
+                    Session::flash('success1', 'Messages are being sent');
+                    return redirect()->route('send.bulk');
+                }
+                return back()->with('error1', 'Please select a user to send a message to');
+            }
+            return back()->with('error1', 'Please select a message to send');
+        }
+    }
+
+    public function sendBulk(Request $request) {
+        $message = MailMessage::orderBy('created_at', 'DESC')->first();
+        dd($message);
+        $details = [
+            'subject' => $message->content,
+            'body' => 'How far'
+        ];
+
+        $users = json_decode($request->users);
+        // dd($users);
+
+        // send all mail in the queue.
+        $job = (new SendBulkQueueEmail($details, $users))
+            ->delay(
+                now()
+                ->addSeconds(1)
+            );
+
+        dispatch($job);
+
+        echo "Bulk mail send successfully in the background...";
+
+
+
+
+
+
+
+
+        // return back()->with('success', 'Messages are being sent');
+
     }
     ///////send new subscribers to active campaign subscriber list//////
     public function sendEmail() {
@@ -3965,6 +4279,12 @@ class AdminController extends Controller
         $input = $request->all();
         $message->update($input);
         return back()->with('success', 'Message updated');
+    }
+    public function deleteMessage($id) {
+        $message = Message::find($id);
+        $mail_message = MailMessage::where('message_id', $message->id)->delete();
+        $message->delete();
+        return back()->with('success', 'Message deleted');
     }
 
 
@@ -4053,6 +4373,9 @@ class AdminController extends Controller
     }
     public function deleteLicense($id) {
         $license = License::findOrFail($id);
+        $user = User::where('license_code', $license->license_code)->first();
+        LicensedUserSession::where('user_id', $user->id)->delete();
+        $user->delete();
         $license->delete();
         return back()->with('success', 'License deleted');
     }

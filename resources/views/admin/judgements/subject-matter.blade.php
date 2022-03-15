@@ -97,9 +97,12 @@
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <form>
+                                    <form action="{{route('judgement.sbj-matter')}}" method="GET" class="d-flex">
                                         <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                            <input class="form-control list-search" type="search" placeholder="Search titles">
+                                            <button id="search-btn" class="btn button_load text-white btn-sm btn-primary p-2 px-3" onclick="this.classList.toggle('button--loading')">
+                                                <span class="button__text">Search</span>
+                                            </button>
+                                            <input class="form-control list-search" type="text" name="search_case" id="search-case" placeholder="Search titles">
                                             <span class="input-group-text">
                                                 <i class="fe fe-search"></i>
                                             </span>
@@ -136,8 +139,8 @@
                                                     </h4>
                                                     <p class="card-text text-color small mb-1">
                                                         @php
-                                                            $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary->suit_no)->first();
-                                                            $principle = App\Models\Principle::where('id', $judg_principle->principle_id)->first();
+                                                            $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
+                                                            $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->first();
                                                             $sbj = App\Models\SubjectMatterIndex::where('id', $principle ? $principle->subject_matter_index_id : '')->first();
                                                         @endphp
                                                         {{$sbj ? $sbj->subject_matter_index : ''}}

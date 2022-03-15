@@ -94,30 +94,42 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label">First name</label>
-                                            <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
+                                @if(Auth::user()->license_code)
+                                    <div class="form-group">
+                                        <label class="form-label">Organization Name</label>
+                                        <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
+                                    </div>
+                                @else
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">First name</label>
+                                                <input type="text" name="name" value="{{Auth::user()->name}}" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Last name</label>
+                                                <input type="text" name="surname" value="{{Auth::user()->surname}}" class="form-control">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label">Last name</label>
-                                            <input type="text" name="surname" value="{{Auth::user()->surname}}" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
+                                @endif
                                 <div class="form-group">
                                     <label class="mb-1">Email address</label>
                                     <small class="form-text text-muted">Your Verified Email.</small>
-                                    <input type="email" name="email" value="{{Auth::user()->email}}" class="form-control">
+                                    @if(Auth::user()->license_code)
+                                        <input type="email" name="email" value="{{Auth::user()->email}}" readonly class="form-control">
+                                        @else
+                                        <input type="email" name="email" value="{{Auth::user()->email}}" class="form-control">
+                                    @endif
                                 </div>
                                 <div class="row">
                                     <div class="col-12 col-md-6">
                                         <div class="form-group">
                                             <label class="form-label">Phone</label>
-                                            <input type="text" name="phone" value="{{Auth::user()->phone}}" class="form-control mb-3" placeholder="(___)___-____" data-inputmask="'mask': '(999)999-999-9999'">
+                                            <input type="text" name="phone" value="{{Auth::user()->phone}}" class="form-control mb-3" placeholder="234810xxxxxxxx">
+                                            {{-- <input type="text" name="phone" value="{{Auth::user()->phone}}" class="form-control mb-3" placeholder="(___)___-____" data-inputmask="'mask': '(999)999-999-9999'"> --}}
                                         </div>
                                         </div>
                                     <div class="col-12 col-md-6">
@@ -128,25 +140,27 @@
                                     </div>
                                 </div>
                                 <hr class="mt-4 mb-5">
-                                <h4>Update your password</h4>
-                                <div class="row">
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label">New Password</label>
-                                            <input type="password" name="password" class="form-control mb-3">
+                                @if(!Auth::user()->license_code)
+                                    <h4>Update your password</h4>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">New Password</label>
+                                                <input type="password" name="password" class="form-control mb-3">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Retype Password</label>
+                                                <input type="password" name="password_confirmation" class="form-control">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-group">
-                                            <label class="form-label">Retype Password</label>
-                                            <input type="password" name="password_confirmation" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
+                                @endif
                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary">
                                     <span class="button__text"><i class="mdi mdi-check"></i> Save changes</span>
                                 </button>
-                                <hr class="mt-4 mb-5">
+                                {{-- <hr class="mt-4 mb-5">
                                 <div class="row justify-content-between">
                                     <div class="col-12 col-md-6">
                                         <h4>
@@ -161,7 +175,7 @@
                                             <i class="fe fe-trash"></i> Delete
                                         </a>
                                     </div>
-                                </div>
+                                </div> --}}
                             {{-- </form> --}}
                             <br><br>
                         </div>
@@ -219,15 +233,15 @@
                                     <div class="col-12 col-md-6">
                                         <div class="form-group">
                                             <label class="form-label"><i class="mdi mdi-facebook"></i> Facebook</label>
-                                            <input type="text" name="facebook" value="{{Auth::user()->facebook}}" class="form-control">
+                                            <input type="text" name="facebook" placeholder="facebook_handle" value="{{Auth::user()->facebook}}" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label"><i class="mdi mdi-instagram"></i> Instagram</label>
-                                            <input type="text" name="instagram" value="{{Auth::user()->instagram}}" class="form-control">
+                                            <input type="text" name="instagram" placeholder="instagram_handle" value="{{Auth::user()->instagram}}" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label"><i class="mdi mdi-twitter"></i> Twitter</label>
-                                            <input type="text" name="twitter" value="{{Auth::user()->twitter}}" class="form-control">
+                                            <input type="text" name="twitter" placeholder="twitter_handle" value="{{Auth::user()->twitter}}" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">

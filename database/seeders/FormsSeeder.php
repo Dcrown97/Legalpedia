@@ -14,11 +14,11 @@ class FormsSeeder extends Seeder
      */
     public function run()
     {
-        $forms = DB::table('forms_precedence')->get();
-        $firstId = 1;
-        foreach($forms as $form) {
-            $uuid = $form->uuid;
-            DB::table('forms_precedence')->where('uuid', $uuid)->update(['id' => $firstId++]);
-        }
+        // $forms = DB::table('forms_precedence')->get();
+        // $firstId = 1;
+        // foreach($forms as $form) {
+        //     $uuid = $form->uuid;
+        //     DB::table('forms_precedence')->where('uuid', $uuid)->update(['id' => $firstId++]);
+        // }
     }
 }

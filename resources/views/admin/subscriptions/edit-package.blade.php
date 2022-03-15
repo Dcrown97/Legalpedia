@@ -26,7 +26,7 @@
             <div class="col-12 col-lg-12 col-xl-12">
                 <div class="card">
                     <div class="card-body p-5">
-                        <form class="tab-content pb-4" id="wizardSteps" action="{{route('update.package', $package)}}" method="POST">
+                        <form class="tab-content pb-4" id="wizardSteps" action="{{route('update.package', $package->id)}}" method="POST">
                             {{ csrf_field() }}
                             {{ method_field('patch') }}
                             <div class="tab-pane fade show active" id="wizardStepOne" role="tabpanel" aria-labelledby="wizardTabOne">

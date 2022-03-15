@@ -59,14 +59,13 @@
                 <div class="col">
                     <ul class="nav nav-tabs nav-overflow header-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="true">
-                                My Teams
+                            <a class="nav-link active" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="true">
+                                Find Teams
                             </a>
                         </li>
-
                         <li class="nav-item">
-                            <a class="nav-link" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="false">
-                                All Teams
+                            <a class="nav-link" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="false">
+                                My Teams
                             </a>
                         </li>
                     </ul>
@@ -82,14 +81,13 @@
                         <div class="col">
                             <ul class="nav nav-tabs nav-overflow header-tabs" id="myTab" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="true">
-                                        My Teams
+                                    <a class="nav-link active" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="true">
+                                        Find Teams
                                     </a>
                                 </li>
-
                                 <li class="nav-item">
-                                    <a class="nav-link" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="false">
-                                        All Teams
+                                    <a class="nav-link" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="false">
+                                        My Teams
                                     </a>
                                 </li>
                             </ul>
@@ -105,100 +103,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="tab-content" id="wizardSteps">
-                        <div class="tab-pane fade show active" id="team" role="tabpanel" aria-labelledby="team-tab">
-                            <div class="row listAlias">
-                                @if(count($my_teams) > 0)
-                                    @foreach($my_teams as $my_team)
-                                        <div class="col-12 col-md-6 col-xl-4">
-                                            <div class="card">
-                                                <a href="{{route('show.team', $my_team->id)}}">
-                                                    <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top">
-                                                </a>
-                                                <div class="card-body">
-                                                    <div class="row align-items-center">
-                                                        <div class="col">
-                                                            <h4 class="mb-2 name">
-                                                                <a href="{{route('show.team', $my_team->id)}}">{{$my_team->name}}</a>
-                                                            </h4>
-                                                            <p class="card-text small text-muted">
-                                                                Created {{\Carbon\Carbon::parse($my_team->created_at)->toFormattedDateString()}}
-                                                            </p>
-                                                        </div>
-                                                        <div class="col-auto">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                    <i class="fe fe-more-vertical"></i>
-                                                                </a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditTeamModal("{{$my_team->name}}", "{{$my_team->id}}", "{{$my_team->description}}", "{{$my_team->photo}}", "{{$my_team->user_id}}", "{{$my_team->team_owner}}")' class="dropdown-item">
-                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
-                                                                    </a>
-                                                                    <form action="/admin/teams/{{$my_team->id}}" method="POST">
-                                                                        {{ csrf_field() }}
-                                                                        {{ method_field('DELETE') }}
-                                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                            <i class="fe fe-trash mr-2"></i>Delete
-                                                                        </button>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="card-footer card-footer-boxed">
-                                                    <div class="row align-items-center">
-                                                        <div class="col">
-                                                            <div class="row align-items-center g-0">
-                                                                <div class="col-auto">
-                                                                    <?php $my_team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->count(); ?>
-                                                                    <div class="small me-2">{{$my_team_member_count}} Members</div>
-                                                                </div>
-                                                                <div class="col text-center">
-                                                                    <div class="me-2 text-color"><a href="" class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</a></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-auto">
-                                                            @php
-                                                                $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
-                                                            @endphp
-                                                            <div class="avatar-group">
-                                                                @if($members)
-                                                                    @foreach($members as $member)
-                                                                        @php
-                                                                            $user = App\Models\User::where('id', $member->user_id)->first();
-                                                                        @endphp
-                                                                        <a href="{{route('user.profile', $user->id)}}" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}} {{$user->surname}}">
-                                                                            @if($user->photo)
-                                                                                <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
-                                                                                @else
-                                                                                <div class="initials">
-                                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
-                                                                                </div>
-                                                                            @endif
-                                                                        </a>
-                                                                    @endforeach
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                    @else
-                                    <div class="text-center mt-8">
-                                        <h3 class="text-muted"><i class="fe fe-users"></i> You don't own a team</h3>
-                                        <div class="col-auto mt-2">
-                                            <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                                                <i class="fe fe-plus"></i> Create Team
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="all-teams" role="tabpanel" aria-labelledby="all-team-tab">
+                        <div class="tab-pane fade show active" id="all-teams" role="tabpanel" aria-labelledby="all-team-tab">
                             <div data-list='{"valueNames": ["name"]}'>
                                 <div class="" data-list='{"valueNames": ["name"], "listClass": "listAlias"}'>
                                     <div class="row mb-4">
@@ -388,6 +293,99 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="tab-pane fade" id="team" role="tabpanel" aria-labelledby="team-tab">
+                            <div class="row listAlias">
+                                @if(count($my_teams) > 0)
+                                    @foreach($my_teams as $my_team)
+                                        <div class="col-12 col-md-6 col-xl-4">
+                                            <div class="card">
+                                                <a href="{{route('show.team', $my_team->id)}}">
+                                                    <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top">
+                                                </a>
+                                                <div class="card-body">
+                                                    <div class="row align-items-center">
+                                                        <div class="col">
+                                                            <h4 class="mb-2 name">
+                                                                <a href="{{route('show.team', $my_team->id)}}">{{$my_team->name}}</a>
+                                                            </h4>
+                                                            <p class="card-text small text-muted">
+                                                                Created {{\Carbon\Carbon::parse($my_team->created_at)->toFormattedDateString()}}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditTeamModal("{{$my_team->name}}", "{{$my_team->id}}", "{{$my_team->description}}", "{{$my_team->photo}}", "{{$my_team->user_id}}", "{{$my_team->team_owner}}")' class="dropdown-item">
+                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                    </a>
+                                                                    <form action="/admin/teams/{{$my_team->id}}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{ method_field('DELETE') }}
+                                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer card-footer-boxed">
+                                                    <div class="row align-items-center">
+                                                        <div class="col">
+                                                            <div class="row align-items-center g-0">
+                                                                <div class="col-auto">
+                                                                    <?php $my_team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->count(); ?>
+                                                                    <div class="small me-2">{{$my_team_member_count}} Members</div>
+                                                                </div>
+                                                                <div class="col text-center">
+                                                                    <div class="me-2 text-color"><a href="" class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</a></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            @php
+                                                                $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
+                                                            @endphp
+                                                            <div class="avatar-group">
+                                                                @if($members)
+                                                                    @foreach($members as $member)
+                                                                        @php
+                                                                            $user = App\Models\User::where('id', $member->user_id)->first();
+                                                                        @endphp
+                                                                        <a href="{{route('user.profile', $user->id)}}" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}} {{$user->surname}}">
+                                                                            @if($user->photo)
+                                                                                <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
+                                                                                @else
+                                                                                <div class="initials">
+                                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                                </div>
+                                                                            @endif
+                                                                        </a>
+                                                                    @endforeach
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @else
+                                    <div class="text-center mt-8">
+                                        <h3 class="text-muted"><i class="fe fe-users"></i> You don't own a team</h3>
+                                        <div class="col-auto mt-2">
+                                            <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                                <i class="fe fe-plus"></i> Create Team
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -398,100 +396,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="tab-content" id="wizardSteps">
-                            <div class="tab-pane fade show active" id="team" role="tabpanel" aria-labelledby="team-tab">
-                                <div class="row listAlias">
-                                    @if(count($my_teams) > 0)
-                                        @foreach($my_teams as $my_team)
-                                            <div class="col-12 col-md-6 col-xl-4">
-                                                <div class="card">
-                                                    <a href="{{route('show.team', $my_team->id)}}">
-                                                        <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top">
-                                                    </a>
-                                                    <div class="card-body">
-                                                        <div class="row align-items-center">
-                                                            <div class="col">
-                                                                <h4 class="mb-2 name">
-                                                                    <a href="{{route('show.team', $my_team->id)}}">{{$my_team->name}}</a>
-                                                                </h4>
-                                                                <p class="card-text small text-muted">
-                                                                    Created {{\Carbon\Carbon::parse($my_team->created_at)->toFormattedDateString()}}
-                                                                </p>
-                                                            </div>
-                                                            <div class="col-auto">
-                                                                <div class="dropdown">
-                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                        <i class="fe fe-more-vertical"></i>
-                                                                    </a>
-                                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                                        <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditTeamModal("{{$my_team->name}}", "{{$my_team->id}}", "{{$my_team->description}}", "{{$my_team->photo}}", "{{$my_team->user_id}}", "{{$my_team->team_owner}}")' class="dropdown-item">
-                                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
-                                                                        </a>
-                                                                        <form action="/admin/teams/{{$my_team->id}}" method="POST">
-                                                                            {{ csrf_field() }}
-                                                                            {{ method_field('DELETE') }}
-                                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                                <i class="fe fe-trash mr-2"></i>Delete
-                                                                            </button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-footer card-footer-boxed">
-                                                        <div class="row align-items-center">
-                                                            <div class="col">
-                                                                <div class="row align-items-center g-0">
-                                                                    <div class="col-auto">
-                                                                        <?php $my_team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->count(); ?>
-                                                                        <div class="small me-2">{{$my_team_member_count}} Members</div>
-                                                                    </div>
-                                                                    <div class="col text-center">
-                                                                        <div class="me-2 text-color"><a href="" class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</a></div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-auto">
-                                                                @php
-                                                                    $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
-                                                                @endphp
-                                                                <div class="avatar-group">
-                                                                    @if($members)
-                                                                        @foreach($members as $member)
-                                                                            @php
-                                                                                $user = App\Models\User::where('id', $member->user_id)->first();
-                                                                            @endphp
-                                                                            <a href="{{route('user.profile', $user->id)}}" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}} {{$user->surname}}">
-                                                                                @if($user->photo)
-                                                                                    <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
-                                                                                    @else
-                                                                                    <div class="initials">
-                                                                                        <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
-                                                                                    </div>
-                                                                                @endif
-                                                                            </a>
-                                                                        @endforeach
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                        @else
-                                        <div class="text-center mt-8">
-                                            <h3 class="text-muted"><i class="fe fe-users"></i> You don't own a team</h3>
-                                            <div class="col-auto mt-2">
-                                                <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
-                                                    <i class="fe fe-plus"></i> Create Team
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="all-teams" role="tabpanel" aria-labelledby="all-team-tab">
+                            <div class="tab-pane fade show active" id="all-teams" role="tabpanel" aria-labelledby="all-team-tab">
                                 <div data-list='{"valueNames": ["name"]}'>
                                     <div class="" data-list='{"valueNames": ["name"], "listClass": "listAlias"}'>
                                         <div class="row mb-4">
@@ -663,6 +568,99 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="team" role="tabpanel" aria-labelledby="team-tab">
+                                <div class="row listAlias">
+                                    @if(count($my_teams) > 0)
+                                        @foreach($my_teams as $my_team)
+                                            <div class="col-12 col-md-6 col-xl-4">
+                                                <div class="card">
+                                                    <a href="{{route('show.team', $my_team->id)}}">
+                                                        <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top">
+                                                    </a>
+                                                    <div class="card-body">
+                                                        <div class="row align-items-center">
+                                                            <div class="col">
+                                                                <h4 class="mb-2 name">
+                                                                    <a href="{{route('show.team', $my_team->id)}}">{{$my_team->name}}</a>
+                                                                </h4>
+                                                                <p class="card-text small text-muted">
+                                                                    Created {{\Carbon\Carbon::parse($my_team->created_at)->toFormattedDateString()}}
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <div class="dropdown">
+                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        <i class="fe fe-more-vertical"></i>
+                                                                    </a>
+                                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                                        <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditTeamModal("{{$my_team->name}}", "{{$my_team->id}}", "{{$my_team->description}}", "{{$my_team->photo}}", "{{$my_team->user_id}}", "{{$my_team->team_owner}}")' class="dropdown-item">
+                                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                        </a>
+                                                                        <form action="/admin/teams/{{$my_team->id}}" method="POST">
+                                                                            {{ csrf_field() }}
+                                                                            {{ method_field('DELETE') }}
+                                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                                <i class="fe fe-trash mr-2"></i>Delete
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-footer card-footer-boxed">
+                                                        <div class="row align-items-center">
+                                                            <div class="col">
+                                                                <div class="row align-items-center g-0">
+                                                                    <div class="col-auto">
+                                                                        <?php $my_team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->count(); ?>
+                                                                        <div class="small me-2">{{$my_team_member_count}} Members</div>
+                                                                    </div>
+                                                                    <div class="col text-center">
+                                                                        <div class="me-2 text-color"><a href="" class="text-green-0"><i class="fas fa-check-circle text-success"></i> Joined</a></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                @php
+                                                                    $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $my_team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
+                                                                @endphp
+                                                                <div class="avatar-group">
+                                                                    @if($members)
+                                                                        @foreach($members as $member)
+                                                                            @php
+                                                                                $user = App\Models\User::where('id', $member->user_id)->first();
+                                                                            @endphp
+                                                                            <a href="{{route('user.profile', $user->id)}}" class="avatar avatar-xs" data-bs-toggle="tooltip" title="{{$user->name}} {{$user->surname}}">
+                                                                                @if($user->photo)
+                                                                                    <img src="{{$user->photo}}" alt="{{$user->name}}" class="avatar-img rounded-circle">
+                                                                                    @else
+                                                                                    <div class="initials">
+                                                                                        <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                                    </div>
+                                                                                @endif
+                                                                            </a>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        @else
+                                        <div class="text-center mt-8">
+                                            <h3 class="text-muted"><i class="fe fe-users"></i> You don't own a team</h3>
+                                            <div class="col-auto mt-2">
+                                                <a href="#" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                                    <i class="fe fe-plus"></i> Create Team
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

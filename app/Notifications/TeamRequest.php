@@ -10,16 +10,17 @@ use Illuminate\Notifications\Notification;
 class TeamRequest extends Notification
 {
     use Queueable;
-    protected $user_request;
+    protected $user_request, $team;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($user_request)
+    public function __construct($user_request, $team)
     {
         $this->user_request = $user_request;
+        $this->team = $team;
     }
 
     /**
@@ -44,7 +45,7 @@ class TeamRequest extends Notification
         return (new MailMessage)
                     ->subject('New team member')
                     ->line('Hi Team Admin, this user '. $this->user_request->email .' is requesting to join your Team')
-                    ->action('Approve user', url('admin/teams/member/approve'));
+                    ->action('Approve user', url('admin/teams/member/approve/'. $this->team->team_id));
 
         // return (new MailMessage)->view(
         //     'emails.welcomeOnboard', ['user'=> $this->user]

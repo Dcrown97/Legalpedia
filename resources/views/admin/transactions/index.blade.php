@@ -259,26 +259,28 @@
                                         <td class="orders-total">{{\Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString()}}</td>
                                         @php
                                             $package_expiry = App\Models\Package::where('id', $transaction->package_id)->first();
-                                            if($package_expiry->validity == 'Days'){
-                                                $date = $package_expiry->recur_date;
-                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                $get_date = strtotime($transaction_date);
-                                                $added_date = strtotime("+$date day", $get_date);
-                                                $expiry_date = date('M d, Y', $added_date);
-                                            }
-                                            if($package_expiry->validity == 'Months'){
-                                                $date = $package_expiry->recur_date;
-                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                $get_date = strtotime($transaction_date);
-                                                $added_date = strtotime("+$date month", $get_date);
-                                                $expiry_date = date('M d, Y', $added_date);
-                                            }
-                                            if($package_expiry->validity == 'Years'){
-                                                $date = $package_expiry->recur_date;
-                                                $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
-                                                $get_date = strtotime($transaction_date);
-                                                $added_date = strtotime("+$date year", $get_date);
-                                                $expiry_date = date('M d, Y', $added_date);
+                                            if($package_expiry){
+                                                if($package_expiry->validity == 'Days'){
+                                                    $date = $package_expiry->recur_date;
+                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                    $get_date = strtotime($transaction_date);
+                                                    $added_date = strtotime("+$date day", $get_date);
+                                                    $expiry_date = date('M d, Y', $added_date);
+                                                }
+                                                if($package_expiry->validity == 'Months'){
+                                                    $date = $package_expiry->recur_date;
+                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                    $get_date = strtotime($transaction_date);
+                                                    $added_date = strtotime("+$date month", $get_date);
+                                                    $expiry_date = date('M d, Y', $added_date);
+                                                }
+                                                if($package_expiry->validity == 'Years'){
+                                                    $date = $package_expiry->recur_date;
+                                                    $transaction_date = \Carbon\Carbon::parse($transaction->created_at)->toFormattedDateString();
+                                                    $get_date = strtotime($transaction_date);
+                                                    $added_date = strtotime("+$date year", $get_date);
+                                                    $expiry_date = date('M d, Y', $added_date);
+                                                }
                                             }
                                         @endphp
                                         @if($transaction->status == 'paid')

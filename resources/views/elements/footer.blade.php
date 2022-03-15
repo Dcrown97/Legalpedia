@@ -14,7 +14,7 @@
             </ul>
         </div>
         <div class="col-md-2">
-            <h3 class="logos">Pages</h3>
+            <h4 class="logos">Pages</h4>
             <ul class="ulz">
                 <li class="liz"><a href="#" class="ads">About Us</a></li>
                 <li class="liz"><a href="#" class="ads">Features</a></li>
@@ -23,7 +23,7 @@
             </ul>
         </div>
         <div class="col-md-3">
-            <h3 class="logos">Quick Links</h3>
+            <h4 class="logos">Quick Links</h4>
             <ul class="ulz">
                 <li class="liz"><a href="#" class="ads">Terms and Condition</a></li>
                 <li class="liz"><a href="#" class="ads">Privacy Policy</a></li>
@@ -31,7 +31,7 @@
             </ul>
         </div>
         <div class="col-md-3">
-            <h3>Contact Us</h3>
+            <h4>Contact Us</h4>
             <ul class="logos ulz">
                 <li class="liz">Plot A4 Justice Coker Estate, CBD Alausa, Ikeja, Lagos Nigeria.</li>
                 <li class="liz">Telephone: (+44) 020 7467 8515</li>

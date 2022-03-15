@@ -105,9 +105,12 @@
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <form>
+                                    <form action="{{route('judgement.no-summary')}}" method="GET" class="d-flex">
                                         <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                                            <input class="form-control list-search" type="search" placeholder="Search titles">
+                                            <button id="search-btn" class="btn button_load text-white btn-sm btn-primary p-2 px-3" onclick="this.classList.toggle('button--loading')">
+                                                <span class="button__text">Search</span>
+                                            </button>
+                                            <input class="form-control list-search" type="text" name="search_case" id="search-case" placeholder="Search titles">
                                             <span class="input-group-text">
                                                 <i class="fe fe-search"></i>
                                             </span>

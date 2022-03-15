@@ -315,7 +315,7 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
     function deleteFunction() {
-        if(!confirm("Are you sure you want to delete this license?"))
+        if(!confirm("Are you sure you want to delete this license? User with this license will be removed automatically"))
         event.preventDefault();
     }
     function genCode(length) {
