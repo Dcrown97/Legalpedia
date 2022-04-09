@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use Paystack;
 use Carbon\Carbon;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\Package;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Package;
-use App\Models\Role;
 use App\Notifications\NewSubscriber;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\NewBankSubscriber;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NotifyAdminBankSubscriber;
 
 class PaymentController extends Controller
 {
@@ -117,6 +120,61 @@ class PaymentController extends Controller
 
     }
 
+    public function paymentSuccess(Request $request, $reference) {
+        if($request->has('bank_payment')) {
+            $input = [
+                'name'=> $request->name,
+                'user_id'=> $request->user_id,
+                'email'=> $request->email,
+                'reference'=> $reference,
+                'amount'=> $request->amount,
+                'package'=> $request->package,
+                'package_id'=> $request->package_id,
+                'status'=> $request->status,
+                'discounted_price'=> $request->discounted_price,
+            ];
+
+            $transact = Transaction::create($input);
+
+            $package = Package::where('id', $transact->package_id)->first();
+
+            if($package->validity == 'Days'){
+                $day = $package->recur_date;
+                $transact_date = $transact->created_at;
+                $expiry_date =  $transact->created_at->addDays($day);
+            }
+            if($package->validity == 'Months'){
+                $month = $package->recur_date;
+                $transact_date = $transact->created_at;
+                $expiry_date =  $transact->created_at->addMonths($month);
+            }
+            if($package->validity == 'Years'){
+                $year = $package->recur_date;
+                $transact_date = $transact->created_at;
+                $expiry_date =  $transact->created_at->addYears($year);
+            }
+
+            $user = User::find(auth()->id());
+            $user->package_id = $transact->package_id;
+            $user->active_date = $transact_date;
+            $user->expiry_date = $expiry_date;
+            if($transact->status == 'paid') {
+                $user->status = 'active';
+            } else {
+                $user->status = 'inactive';
+            }
+            $user->save();
+
+            $user->notify(new NewBankSubscriber($transact, $user));
+
+            Notification::route('mail', 'legalpediaonline@gmail.com')->notify(new NotifyAdminBankSubscriber($transact, $user));
+
+            $this->addSubscriber($user);
+
+            return redirect()->route('payment.successful', $reference);
+        }
+    }
+
     public function addSubscriber($user) {
         $data['contact'] =  [
             "email" => $user->email,
@@ -170,5 +228,14 @@ class PaymentController extends Controller
             'data', 'Payment successful'
         ]);
         // $paymentDetails = Paystack::getPaymentData();
+    }
+
+
+    public function paymentSuccessful($reference) {
+        $transaction = Transaction::where('reference', $reference)->first();
+
+        return view('payment-success', [
+            'transaction' => $transaction
+        ]);
     }
 }

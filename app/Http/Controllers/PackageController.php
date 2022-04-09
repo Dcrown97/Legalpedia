@@ -26,11 +26,10 @@ class PackageController extends Controller
 
     ///////////////////////////////////////send expiry emails for packages//////////////////////////////////
     public function expiredPackage() {
-        $users = User::get();
+        $users = User::where('package_id','<>', null)->get();
         foreach($users as $user) {
+            $package = Package::where('id', $user->package_id)->first();
             if(isset($user->package_id) && $user->expiry_date > now()) {
-                $package = Package::where('id', $user->package_id)->first();
-
                 $date = Carbon::now();
                 $get_date = strtotime($date);
                 $first_notice_date = strtotime("+14 day", $get_date); /// add 14 days notice
@@ -60,7 +59,8 @@ class PackageController extends Controller
             }
         }
 
-        // return 'Ran';
+        info(['package_expiration_executed' => now()->toDayDateTimeString()]);
+        return 'Ran';
     }
 
 }

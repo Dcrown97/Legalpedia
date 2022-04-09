@@ -31,7 +31,7 @@
                                     Email
                                 </label>
                                 <input type="hidden" name="name" value="{{Auth::user()->name}} {{Auth::user()->surname}}">
-                                <input type="hidden" name="to_email" value="legalpediareport@gmail.com">
+                                <input type="hidden" name="to_email" value="legalpediareports@gmail.com">
                                 <input type="hidden" name="email" class="form-control" value="{{Auth::user()->email}}">
                                 <input type="email" class="form-control" value="{{Auth::user()->email}}" disabled>
                             </div>

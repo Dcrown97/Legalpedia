@@ -2,12 +2,13 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class NewSubscriber extends Notification
+class NotifyAdminBankSubscriber extends Notification
 {
     use Queueable;
     protected $transaction_message, $user;
@@ -44,12 +45,17 @@ class NewSubscriber extends Notification
     {
         return (new MailMessage)
                     ->subject('New Subscriber')
-                    ->line('Hi, '. $this->user->name)
-                    ->line('You have subscribed to '. $this->transaction_message->package . ' Legalpedia package')
-                    ->line('Amount: ₦'. number_format($this->transaction_message->amount, 2))
-                    ->line('Package: '. $this->transaction_message->package)
-                    ->line('You can now sign in and get access to Legalpedia resources')
-                    ->action('Sign in', url('admin/dashboard'));
+                    ->line('Hi, Admin')
+                    ->line('This user '. $this->user->name . ' ' .$this->user->surname. ' has just subscribed to '. $this->transaction_message->package)
+                    ->line('The payment method is Bank Transfer, please update this user\'s transaction status upon receival of valid payment receipt to activate user\'s package')
+                    ->line('The transaction details are below')
+                    ->line('Payment reference ID: '. $this->transaction_message->reference)
+                    ->line('Subscribed Package: '. $this->transaction_message->package)
+                    ->line('Amount to be paid: ₦'. number_format($this->transaction_message->amount, 2))
+                    ->line('Purchase date: '. Carbon::parse($this->transaction_message->created_at)->toFormattedDateString())
+                    ->line('Name: '. $this->transaction_message->name)
+                    ->line('Email: '. $this->transaction_message->email)
+                    ->action('Update transaction status', url('admin/transactions'));
     }
 
     /**

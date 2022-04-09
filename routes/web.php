@@ -150,6 +150,9 @@ Auth::routes();
     Route::get('/subscription-package/payment/callback/{reference}', [PaymentController::class, 'handleGatewayCallback'])->name('sub.paid');
     Route::post('/subscription-package/payment/{reference}', [PaymentController::class, 'savePayment']);
 
+    Route::get('/payment-success/{reference}', [PaymentController::class, 'paymentSuccessful'])->name('payment.successful');
+    Route::post('/payment-success/{reference}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+
     Route::get('/admin/discount', [AdminController::class, 'discount'])->name('admin.discount');
     Route::post('/admin/discount', [AdminController::class, 'storeDiscount'])->name('store.discount');
     Route::patch('/admin/discount', [AdminController::class, 'updateDiscount'])->name('update.discount');
@@ -219,7 +222,6 @@ Auth::routes();
 
 Route::get('execute', function(){
     Artisan::call('schedule:run');
-    return 'runned';
 });
 
 

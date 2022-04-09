@@ -97,9 +97,9 @@ class RegisterController extends Controller
                 'approve_request' => $data['approve_request'],
             ]);
 
-            $role = Role::where('name','Admin')->first();
-            $admin_user = User::where('role_id', $role->id)->first();
-            $team = Team::where('user_id', $admin_user->id)->first();
+            // $role = Role::where('name','Admin')->first();
+            // $admin_user = User::where('role_id', $role->id)->first();
+            $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
             if($team) {
                 UserTeam::create([
                     'user_id' => $user->id,
@@ -126,9 +126,9 @@ class RegisterController extends Controller
                 'password' => Hash::make($data['password']),
             ]);
 
-            $role = Role::where('name','Admin')->first();
-            $admin_user = User::where('role_id', $role->id)->first();
-            $team = Team::where('user_id', $admin_user->id)->first();
+            // $role = Role::where('name','Admin')->first();
+            // $admin_user = User::where('role_id', $role->id)->first();
+            $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
             if($team) {
                 UserTeam::create([
                     'user_id' => $user->id,

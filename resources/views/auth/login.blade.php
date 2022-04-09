@@ -9,6 +9,22 @@
 @endsection
 
 @section('content')
+<style>
+    .eye-icon {
+        float: right;
+        margin: 40px 150px;
+        position: absolute;
+        cursor: pointer;
+    }
+    @media screen and (min-width: 200px) and (max-width: 480px) {
+        .eye-icon {
+            margin: 40px 100px;
+        }
+    }
+    .mb-30 {
+        margin-bottom: 30px;
+    }
+</style>
 <div class="login-card">
     <div class="row">
         <div class="col-md-6 image">
@@ -31,8 +47,9 @@
                             </span>
                         @enderror
                     </div>
-                    <div class="form-group mp4">
+                    <div class="form-group mb-30">
                         <label for="password">Password</label>
+                        <i class="mdi mdi-eye-off-outline eye-icon" id="togglePassword"></i>
                         <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password" name="password" required autocomplete="current-password">
                         @error('password')
                             <span class="invalid-feedback" role="alert">
@@ -66,4 +83,17 @@
         </div>
     </div>
 </div>
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // toggle the eye slash icon
+        this.classList.toggle('mdi-eye-off-outline');
+        this.classList.toggle('mdi-eye-outline');
+    });
+</script>
 @endsection

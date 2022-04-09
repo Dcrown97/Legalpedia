@@ -168,6 +168,18 @@
         .package-list ul li{
             list-style: none;
         }
+
+        .custom-option-width {
+            width: inherit !important;
+        }
+        .-mt-1 {
+            margin-top: -10px;
+        }
+        .alert-warning, .alert-success {
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px !important;
+        }
     </style>
 @endsection
 
@@ -274,16 +286,7 @@
                     <div class="pb-2">
                         <h6>{{ $package->name }}</h6>
                     </div>
-                {{-- @php
-                    $discount = App\Models\Discount::where('package_id', $package->id)->first();
-                @endphp --}}
                     <div class="">
-                        {{-- @php
-                            $discounted_price = ($package->price * $discount->percentage) / 100;
-                            $new_price = $package->price - $discounted_price;
-                            $package->price = $new_price;
-                        @endphp --}}
-
                         <p>₦{{number_format($package->price, 2)}}</p>
                     </div>
                     <hr>
@@ -297,6 +300,23 @@
                     </div>
                     <p style="font-size: 14px">LegalPedia is required by law to collect applicable transaction taxes for purchases made in certain jurisdiction</p>
                     <p style="font-size: 14px">By completing your purchase you agree to these <a href="#" style="font-size: 14px">Terms of service</a></p>
+                    <div class="form-group">
+                        <label class="flex">
+                            <input type="radio" name="payment_option" class="custom-option-width" id="bank-option" checked>
+                            <span class="pl-2 -mt-1">Direct Bank Transfer</span>
+                        </label><br>
+                        <p class="alert-warning" id="bank-message">Make your payment directly into Legalpedia's account.
+                            Details can be found after completing this purchase.
+                            Once your payment is confirmed, your package will be activated.
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label class="flex">
+                            <input type="radio" name="payment_option" class="custom-option-width" id="paystack-option">
+                            <span class="pl-2 -mt-1">Paystack - Fast and secure</span>
+                        </label><br>
+                        <p class="alert-success" id="paystack-message">Pay with your credit/debit cards, USSD or Instant bank payment and activate your package instantly</p>
+                    </div>
                     <form id="paymentForm">
                         <input type="hidden" name="name" value="{{Auth::user() ? Auth::user()->name : ''}}">
                         <input type="hidden" name="email" value="{{Auth::user() ? Auth::user()->email : ''}}">
@@ -314,19 +334,68 @@
                         <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
                         <button class="btn text-white my-2 my-sm-0 py-2 btn-md btn-block" type="submit" onclick="payWithPaystack(event)" style="background-color: #EC6959;">Proceed to Payment</button>
                     </form>
+                    @php
+                        $random_string = Paystack::genTranxRef();
+                    @endphp
+                    <form action="{{route('payment.success', $random_string)}}" method="POST" id="bankPayment">
+                        @csrf
+                        <input type="hidden" name="name" value="{{Auth::user() ? Auth::user()->name : ''}}">
+                        <input type="hidden" name="email" value="{{Auth::user() ? Auth::user()->email : ''}}">
+                        <input type="hidden" name="amount" value="{{$package->price}}">
+                        <input type="hidden" name="package" value="{{$package->name}}">
+                        <input type="hidden" name="package_id" value="{{$package->id}}">
+                        <input type="hidden" name="user_id" value="{{Auth::user() ? Auth::user()->id : ''}}">
+                        <input type="hidden" name="status" value="pending">
+                        <input type="hidden" name="expiry_date" value="">
+                        <input type="hidden" name="recur_date" value="{{$package->recur_date}}">
+                        <input type="hidden" name="reference" value="{{$random_string}}">
+                        <button class="btn text-white my-2 my-sm-0 py-2 btn-md btn-block button_load" type="submit" name="bank_payment" onclick="this.classList.toggle('button--loading')" style="background-color: #EC6959;">
+                            <span class="button__text"> Complete Purchase</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    function discount() {
-
-    }
-</script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#paystack-message").hide();
+        $("#paymentForm").hide();
+        $('#bank-option').change(function () {
+            if (this.checked) {
+                $("#bank-message").show();
+                $("#bankPayment").show();
+                $("#paystack-message").hide();
+                $("#paymentForm").hide();
+            }
+            else {
+                $("#bank-message").hide();
+                $("#bankPayment").hide();
+                $("#paystack-message").show();
+                $("#paymentForm").show();
+
+            }
+        });
+        $('#paystack-option').change(function () {
+            if (this.checked) {
+                $("#bank-message").hide();
+                $("#bankPayment").hide();
+                $("#paystack-message").show();
+                $("#paymentForm").show();
+            }
+            else {
+                $("#bank-message").show();
+                $("#bankPayment").show();
+                $("#paystack-message").hide();
+                $("#paymentForm").hide();
+            }
+        });
+    });
+</script>
 <script>
     var paymentForm = document.getElementById('paymentForm');
     paymentForm.addEventListener('submit', payWithPaystack, false);

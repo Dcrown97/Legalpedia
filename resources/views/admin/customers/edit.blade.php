@@ -318,7 +318,7 @@
                         <div class="tab-pane fade" id="transact" role="tabpanel" aria-labelledby="transact-tab">
                             <div class="row">
                                 <div class="col-12 col-xl-4">
-                                    @if($package && $user->expiry_date > now())
+                                    @if(Auth::user()->subscribedUser())
                                         <div class="card">
                                             <div class="card-header">
                                                 <h4 class="card-header-title">
@@ -356,7 +356,45 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @elseif($package && $user->expiry_date < now())
+                                        @elseif(Auth::user()->pendingUser())
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4 class="card-header-title">
+                                                <i class="mdi mdi-crown text-color"></i> Inactive Package
+                                                </h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="list-group list-group-flush list-group-activity my-n3">
+                                                    <div class="list-group-item">
+                                                        <div class="row mb-4">
+                                                            <div class="col-auto">
+                                                                <div class="avatar avatar-sm">
+                                                                    <i class="mdi mdi-close text-color text-30"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col ms-n2">
+                                                                <h5 class="mb-1">
+                                                                    {{$package->name}}
+                                                                </h5>
+                                                                <p class="small text-gray-700 mb-0">
+                                                                   Your package has not been activated
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <a class="mt-4" href="{{url('admin/pricing')}}">
+                                                                    <span class="btn w-100 button_load text-color btn-sm btn-custom p-2" onclick="this.classList.toggle('button--loading')">
+                                                                        <span class="button__text"><i class="mdi mdi-crown"></i> Renew Package</span>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @elseif(Auth::user()->expiredUser())
                                         <div class="card">
                                             <div class="card-header">
                                                 <h4 class="card-header-title">

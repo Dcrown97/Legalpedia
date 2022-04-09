@@ -7,20 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewSubscriber extends Notification
+class UpdatedLicenseCredentials extends Notification
 {
     use Queueable;
-    protected $transaction_message, $user;
-
+    protected $license_creds, $license_user;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($transaction_message, $user)
+    public function __construct($license_creds, $license_user)
     {
-        $this->transaction_message = $transaction_message;
-        $this->user = $user;
+        $this->license_creds = $license_creds;
+        $this->license_user = $license_user;
     }
 
     /**
@@ -43,13 +42,11 @@ class NewSubscriber extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('New Subscriber')
-                    ->line('Hi, '. $this->user->name)
-                    ->line('You have subscribed to '. $this->transaction_message->package . ' Legalpedia package')
-                    ->line('Amount: ₦'. number_format($this->transaction_message->amount, 2))
-                    ->line('Package: '. $this->transaction_message->package)
-                    ->line('You can now sign in and get access to Legalpedia resources')
-                    ->action('Sign in', url('admin/dashboard'));
+                    ->subject('Updated License Credentials')
+                    ->line('Hi '. $this->license_user->name .', your License Credentials were updated. Below are your new License credentials to sign in')
+                    ->line('Licensed Email: '. $this->license_user->email)
+                    ->line('License Code: '. $this->license_creds->license_code)
+                    ->action('Sign in', url('/login'));
     }
 
     /**

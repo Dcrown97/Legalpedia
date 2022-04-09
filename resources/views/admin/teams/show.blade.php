@@ -107,8 +107,8 @@
                 </div>
             </div>
         </div>
-      </div>
-      <div class="container-fluid">
+    </div>
+    <div class="container-fluid">
         <div class="tab-content" id="wizardSteps">
             <div class="tab-pane fade show active" id="feeds" role="tabpanel" aria-labelledby="feeds-tab">
                 <div class="row">
@@ -139,12 +139,13 @@
                                                 <label class="form-label mb-1">
                                                     Select File type
                                                 </label>
-                                                <select name="file_type" id="file_type" class="form-select" onchange="showDiv('PDF', 'DOC', 'ZIP', 'RAR', this)">
+                                                <select name="file_type" id="file_type" class="form-select" onchange="showDiv('PDF', 'DOC', this)">
                                                     <option value="image">Image</option>
+                                                    <option value="video">Video</option>
                                                     <option value="PDF" data_type="files">PDF</option>
                                                     <option value="DOC" data_type="files">DOC</option>
-                                                    <option value="ZIP" data_type="files">ZIP</option>
-                                                    <option value="RAR" data_type="files">RAR</option>
+                                                    {{-- <option value="ZIP" data_type="files">ZIP</option> --}}
+                                                    {{-- <option value="RAR" data_type="files">RAR</option> --}}
                                                 </select>
                                             </div>
                                             <div class="form-group file_name" id="PDF" style="display: none">
@@ -159,7 +160,7 @@
                                                 </label>
                                                 <input type="text" name="doc_name" class="form-control">
                                             </div>
-                                            <div class="form-group file_name" id="ZIP" style="display: none">
+                                            {{-- <div class="form-group file_name" id="ZIP" style="display: none">
                                                 <label class="form-label mb-1">
                                                     File Name
                                                 </label>
@@ -170,7 +171,7 @@
                                                     File Name
                                                 </label>
                                                 <input type="text" name="rar_name" class="form-control">
-                                            </div>
+                                            </div> --}}
                                             <div class="form-group">
                                                 <label for="actual-btn" style="cursor: pointer" class="w-100 p-6 w-full text-center px-4 py-6 bg-white rounded-md border border-blue cursor-pointer hover:bg-purple-600 dark:bg-gray-700 hover:text-white text-gray-600 dark:text-gray-200 ease-linear transition-all duration-150">
                                                     <i class="mdi mdi-cloud-upload icon-size"></i>
@@ -214,12 +215,13 @@
                                                         <label class="form-label mb-1">
                                                             Select File type
                                                         </label>
-                                                        <select name="file_type" id="file_type" class="form-select" onchange="showDiv('PDF', 'DOC', 'ZIP', 'RAR', this)">
+                                                        <select name="file_type" id="file_type" class="form-select" onchange="showDiv('PDF', 'DOC', this)">
                                                             <option value="image">Image</option>
+                                                            <option value="video">Video</option>
                                                             <option value="PDF" data_type="files">PDF</option>
                                                             <option value="DOC" data_type="files">DOC</option>
-                                                            <option value="ZIP" data_type="files">ZIP</option>
-                                                            <option value="RAR" data_type="files">RAR</option>
+                                                            {{-- <option value="ZIP" data_type="files">ZIP</option>
+                                                            <option value="RAR" data_type="files">RAR</option> --}}
                                                         </select>
                                                     </div>
                                                     <div class="form-group file_name" id="PDF" style="display: none">
@@ -234,7 +236,7 @@
                                                         </label>
                                                         <input type="text" name="doc_name" class="form-control">
                                                     </div>
-                                                    <div class="form-group file_name" id="ZIP" style="display: none">
+                                                    {{-- <div class="form-group file_name" id="ZIP" style="display: none">
                                                         <label class="form-label mb-1">
                                                             File Name
                                                         </label>
@@ -245,7 +247,7 @@
                                                             File Name
                                                         </label>
                                                         <input type="text" name="rar_name" class="form-control">
-                                                    </div>
+                                                    </div> --}}
                                                     <div class="form-group">
                                                         <label for="actual-btn" style="cursor: pointer" class="w-100 p-6 w-full text-center px-4 py-6 bg-white rounded-md border border-blue cursor-pointer hover:bg-purple-600 dark:bg-gray-700 hover:text-white text-gray-600 dark:text-gray-200 ease-linear transition-all duration-150">
                                                             <i class="mdi mdi-cloud-upload icon-size"></i>
@@ -339,6 +341,10 @@
                                                 @if($send_request->send_request == 1 && $send_request->approve_request == 1)
                                                     @if($comment->file_type == 'image')
                                                         <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                        @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
                                                         @elseif($comment->file_type == 'PDF')
                                                         <div class="comment-body">
                                                             <a class="w-full" href="{{$comment->file}}">
@@ -383,6 +389,10 @@
                                                     @else
                                                     @if($comment->file_type == 'image')
                                                         <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                        @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
                                                         @elseif($comment->file_type == 'PDF')
                                                         <div class="comment-body">
                                                             <a class="w-full cursor" onclick="info()">
@@ -428,6 +438,10 @@
                                                 @else
                                                 @if($comment->file_type == 'image')
                                                     <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                    @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
                                                     @elseif($comment->file_type == 'PDF')
                                                     <div class="comment-body">
                                                         <a class="w-full cursor" onclick="info()">
@@ -1752,12 +1766,12 @@
             document.getElementById('show-1').style.display = 'none';
         }
 
-        function showDiv(PDF, DOC, ZIP, RAR, element)
+        function showDiv(PDF, DOC, element)
         {
             document.getElementById(PDF).style.display = element.value == 'PDF' ? 'block' : 'none';
             document.getElementById(DOC).style.display = element.value == 'DOC' ? 'block' : 'none';
-            document.getElementById(ZIP).style.display = element.value == 'ZIP' ? 'block' : 'none';
-            document.getElementById(RAR).style.display = element.value == 'RAR' ? 'block' : 'none';
+            // document.getElementById(ZIP).style.display = element.value == 'ZIP' ? 'block' : 'none';
+            // document.getElementById(RAR).style.display = element.value == 'RAR' ? 'block' : 'none';
         }
 
         function info() {

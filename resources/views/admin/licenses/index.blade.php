@@ -247,21 +247,25 @@
                                     <label class="form-label mb-1">
                                         License Organization
                                     </label>
-                                    <input type="text" name="license_organisation" id="license-organisation" class="form-control">
+                                    <input type="text" name="licensed_organisation" id="license-organisation" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         License Email
                                     </label>
-                                    <input type="email" name="licensed_email" id="license-email" class="form-control">
+                                    <input type="email" name="licensed_email" id="license-email" class="form-control" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label mb-1">
                                         Package
                                     </label>
-                                    <select name="package" id="package-input" class="form-select" data-choices='{"searchEnabled": true}'>
-
+                                    <select name="package_id" id="selected-package" class="form-select" data-choices='{"searchEnabled": true}'>
+                                        {{-- <option value="">Select Package</option> --}}
+                                        @foreach($packages as $package)
+                                            <option value="{{$package->id}}">{{$package->name}}</option>
+                                        @endforeach
                                     </select>
+                                    <input type="hidden" name="package" id="package-name-1">
                                 </div>
                                 <div class="row">
                                     <div class="col-12 col-lg-6 col-xl-6">
@@ -301,7 +305,7 @@
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
-                                        <span class="button__text"><i class="mdi mdi-plus"></i> Create License</span>
+                                        <span class="button__text"><i class="mdi mdi-check"></i> Update License</span>
                                     </button>
                                 </div>
                             </form>
@@ -342,7 +346,7 @@
 
     function showEditLicenseModal(name, org, email, package_name, days, code, active, id){
         document.getElementById("license-name").value = name;
-        document.getElementById("license-oragnisation").value = org;
+        document.getElementById("license-organisation").value = org;
         document.getElementById("license-email").value = email;
 
         $('#package-input').append($('<option>', {
@@ -369,6 +373,18 @@
 
     function toggleFields() {
         document.getElementById('package-name').value =  $("#select-package option:selected").text();
+    }
+
+    $(document).ready(function () {
+        toggleField();
+        $("#selected-package").change(function () {
+            toggleField();
+        });
+
+    });
+
+    function toggleField() {
+        document.getElementById('package-name-1').value =  $("#selected-package option:selected").text();
     }
 
 

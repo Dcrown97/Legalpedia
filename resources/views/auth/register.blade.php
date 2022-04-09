@@ -19,6 +19,9 @@
     .text-color {
         color: #EC6959 !important;
     }
+    .mb-30 {
+        margin-bottom: 30px;
+    }
 </style>
 <div class="login-card">
     <div class="row">
@@ -100,7 +103,7 @@
                             </span>
                         @enderror
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-30">
                         <label for="phone">Phone Number <span class="text-color">*<span></label>
                         <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" placeholder="23481000xxxxx" name="phone" required>
                         @error('phone')

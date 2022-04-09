@@ -98,7 +98,7 @@
             @endif
         </form>
         <div class="navbar-user">
-            @if(Auth::user()->package_id && Auth::user()->expiry_date > now())
+            @if(Auth::user()->subscribedUser())
                 <div class="dropdown me-4 d-none d-md-flex">
                     <a href="#" class="navbar-user-link" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="icon text-color text-2xl">
@@ -130,7 +130,39 @@
                         </div>
                     </div>
                 </div>
-                @elseif(Auth::user()->package_id && Auth::user()->expiry_date < now())
+                @elseif(Auth::user()->pendingUser())
+                <div class="dropdown me-4 d-none d-md-flex">
+                    <a href="#" class="navbar-user-link" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="icon text-color text-2xl">
+                            <i class="mdi mdi-crown-circle"></i>
+                        </span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-card">
+                        <div class="card-header">
+                            <h5 class="card-header-title">
+                                @php
+                                    $package = App\Models\Package::where('id', Auth::user()->package_id)->first();
+                                @endphp
+                                <i class="mdi mdi-close text-color"></i> Inactive Package: {{$package->name}}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush list-group-activity">
+                                <div class="small">
+                                    <p>
+                                        <strong>Your Legalpedia package has not been activated</strong>
+                                    </p>
+                                    <a class="mt-2" href="{{url('admin/pricing')}}">
+                                        <span class="btn w-100 button_load text-color btn-sm btn-custom p-2" onclick="this.classList.toggle('button--loading')">
+                                            <span class="button__text"><i class="mdi mdi-crown"></i> Renew Package</span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @elseif(Auth::user()->expiredUser())
                 <div class="dropdown me-4 d-none d-md-flex">
                     <a href="#" class="navbar-user-link" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="icon text-color text-2xl">
@@ -208,9 +240,6 @@
                         <h5 class="card-header-title">
                             Notifications
                         </h5>
-                        {{-- <a href="#!" class="small">
-                            View all
-                        </a> --}}
                     </div>
                     <div class="card-body">
                         <div class="list-group list-group-flush list-group-activity my-n3">

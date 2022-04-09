@@ -94,7 +94,14 @@ class User extends Authenticatable
     // }
 
     public function subscribedUser() {
-        if($this->package_id !== '' && $this->expiry_date > now()) {
+        if($this->package_id !== '' && $this->expiry_date > now() && $this->status == 'active') {
+            return true;
+        }
+        return false;
+    }
+
+    public function pendingUser() {
+        if($this->package_id !== '' && $this->expiry_date > now() && $this->status == 'inactive') {
             return true;
         }
         return false;

@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     public function run()
     {
         $current_users = DB::table('users_old')->get();
-        $users = (json_decode(file_get_contents(database_path('migrations/files/leads.json'))));
+        $users = (json_decode(file_get_contents(database_path('migrations/files/leads_1.json'))));
         $this->command->getOutput()->progressStart(count($users)); //start progress bar
 
         foreach($users as $user) {
@@ -27,9 +27,9 @@ class UserSeeder extends Seeder
             if($isExistingUser){ //is found
                 $isExistingUser->name = $user['Name'];
                 $isExistingUser->surname = $user['Surname'];
-                $isExistingUser->email = $user['Email'];
+                // $isExistingUser->email = $user['Email'];
                 $isExistingUser->phone = $user['PhoneNumber'];
-                $isExistingUser->password = bcrypt($user['Email'] . $user['PhoneNumber']);
+                // $isExistingUser->password = bcrypt($user['Email'] . $user['PhoneNumber']);
                 $isExistingUser->package_id = 20;
                 $isExistingUser->active_date = now();
                 $isExistingUser->expiry_date = now()->addDays(30);

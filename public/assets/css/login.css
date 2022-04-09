@@ -95,6 +95,10 @@ body {
       background-color: transparent;
       color: #000; } */
 
+      input {
+        color: #000 !important;
+      }
+
 
       .login-card .button__text {
         /* font: bold 20px "Quicksand", san-serif; */

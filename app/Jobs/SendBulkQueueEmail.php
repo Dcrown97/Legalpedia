@@ -46,5 +46,6 @@ class SendBulkQueueEmail implements ShouldQueue
                 $message->to($input['email'], $input['name'])->subject($input['subject']);
             });
         }
+        info(['bulk_email_dispatch_executed' => now()->toDayDateTimeString()]);
     }
 }

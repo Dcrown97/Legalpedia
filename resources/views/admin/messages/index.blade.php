@@ -407,7 +407,7 @@
                                                     <?php $message_no++; ?>
                                                     <td class="orders-product">{{Str::words($message->name, 3)}}</td>
                                                     <td class="orders-product">{{Str::words($message->subject, 3)}}</td>
-                                                    <td class="orders-product">{!! Str::words($message->body, 5) !!}</td>
+                                                    <td class="orders-product">{!! Str::words(strip_tags($message->body), 5) !!}</td>
                                                     <td class="orders-total">
                                                         @if($message->type == 'normal')
                                                             Email

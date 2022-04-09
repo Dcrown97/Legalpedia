@@ -56,11 +56,11 @@ use App\Notifications\NewReport;
 use App\Notifications\MemberLeft;
 use App\Notifications\NewMessage;
 use App\Models\JudgementPrinciple;
-use App\Models\LicensedUserSession;
 use App\Models\SubjectMatterIndex;
 use App\Notifications\TeamRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Models\LicensedUserSession;
 use App\Notifications\MemberRemoval;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
@@ -69,14 +69,18 @@ use Illuminate\Support\Facades\Mail;
 use App\Notifications\ExpiredPackage;
 use App\Notifications\RequestApproved;
 use App\Notifications\RequestDeclined;
+use App\Notifications\FailedSubscriber;
 use App\Notifications\LegalpediaReport;
 use Illuminate\Support\Facades\Session;
 use App\Notifications\LastRenewalNotice;
+use App\Notifications\PendingSubscriber;
 use App\Notifications\FirstRenewalNotice;
 use App\Notifications\LicenseCredentials;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\ActivatedSubscriber;
 use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\UpdatedLicenseCredentials;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 // use NunoMaduro\Collision\Adapters\Phpunit\State;
@@ -2222,7 +2226,7 @@ class AdminController extends Controller
                     'user_id' => $request->user_id,
                     'article_id' => $id,
                     'comment_body' => json_encode([$article->title, $article->description, $link]),
-                    'file' => substr($article->photo, 31),
+                    'file' => substr($article->photo, 40), //40 on live server 31 on localhost
                     'file_type' => 'image',
                 ];
                 Comment::create($input);
@@ -2898,7 +2902,23 @@ class AdminController extends Controller
         $input = [
           'status'=> $request->status,
         ];
-        DB::table('transactions')->where('id', $request->transaction_id)->update($input);
+        $transaction = Transaction::where('id', $request->transaction_id)->first();
+        $transaction->update($input);
+        // DB::table('transactions')->where('id', $request->transaction_id)->update($input);
+        $user = User::where('id', $transaction->user_id)->first();
+
+        if($transaction->status == 'paid') {
+            $user->status = 'active';
+            $user->notify(new ActivatedSubscriber($transaction, $user));
+        } elseif($transaction->status == 'pending') {
+            $user->status = 'inactive';
+            $user->notify(new PendingSubscriber($transaction, $user));
+        }elseif($transaction->status == 'failed') {
+            $user->status = 'inactive';
+            $user->notify(new FailedSubscriber($transaction, $user));
+        }
+        $user->save();
+
         return back()->with('success', 'Transaction updated');
     }
     public function deleteTransaction($id) {
@@ -3105,13 +3125,20 @@ class AdminController extends Controller
 
     ///////////////////////////////////////comment and replies/////////////////////////
     public function comment(Request $request) {
-        $validated = $request->validate([
-            'comment_body' => 'required',
-            // 'file'=>'required|mimes:pdf,doc,docx,zip,rar,png,jpg,jpeg|max:10000',
-            // 'file_type' => 'required',
-        ]);
+
 
         if($file = $request->file('file')) {
+            $validated = $request->validate(
+                [
+                    // 'comment_body' => 'required',
+                    'file'=>'required|mimes:pdf,doc,docx,png,jpg,jpeg,gif,mp4|max:50000',
+                    'file_type' => 'required',
+                ],
+                [
+                    'file.max'=> 'The maximum file upload size is 50mb', // custom message
+                ]
+            );
+
             $path = $file->store('media', 'public');
             $input = [
                 'user_id' => $request->user_id,
@@ -3127,6 +3154,15 @@ class AdminController extends Controller
             Comment::create($input);
             return redirect()->back()->with('success', 'You just posted to this team');
         } else {
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'comment_body' => 'required',
+                ]
+            );
+            if($validator->fails()) {
+                return back()->withErrors('Your post is empty');
+            }
             $input = [
                 'user_id' => $request->user_id,
                 'team_id' => $request->team_id,
@@ -4306,8 +4342,7 @@ class AdminController extends Controller
             'licensed_email' => 'required|email',
             'license_code' => 'required',
             'active_users' => 'required',
-            'package_id' => 'required',
-            'package' => 'required',
+            'package_id' => 'required'
         ]);
         if(User::where('email', $request->licensed_email)->first()) {
             return back()->withErrors('This email already exists');
@@ -4351,12 +4386,11 @@ class AdminController extends Controller
         $validated = $request->validate([
             'license_name' => 'required',
             'license_days' => 'required',
-            'license_organisation' => 'required',
+            'licensed_organisation' => 'required',
             'licensed_email' => 'required',
             'license_code' => 'required',
             'active_users' => 'required',
             'package_id' => 'required',
-            'package' => 'required',
         ]);
         $input = [
           'license_name'=> $request->license_name,
@@ -4369,6 +4403,25 @@ class AdminController extends Controller
           'package_id'=> $request->package_id,
         ];
         DB::table('licenses')->where('id', $request->license_id)->update($input);
+        $license =  License::where('id', $request->license_id)->first();
+        $user = User::where('email', $license->licensed_email)->first();
+        $user->name = $license->licensed_organisation;
+        $user->password = bcrypt($license->license_code);
+        $user->license_code = $license->license_code;
+        $user->package_id = $license->package_id;
+        $user->expiry_date = $license->created_at->addDays($license->license_days);
+
+        $exp = $license->created_at->addDays($license->license_days);
+        if($exp > now()) {
+            $user_input['status'] = 'active';
+        } else {
+            $user_input['status'] = 'inactive';
+        }
+        $user->save();
+        $licensed_user = User::where('license_code', $license->license_code)->first();
+        if($licensed_user) {
+            $licensed_user->notify(new UpdatedLicenseCredentials($user, $licensed_user));
+        }
         return back()->with('success', 'License updated');
     }
     public function deleteLicense($id) {

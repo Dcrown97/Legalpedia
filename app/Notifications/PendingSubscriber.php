@@ -2,12 +2,13 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class NewSubscriber extends Notification
+class PendingSubscriber extends Notification
 {
     use Queueable;
     protected $transaction_message, $user;
@@ -43,12 +44,12 @@ class NewSubscriber extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('New Subscriber')
+                    ->subject('Pending Transaction')
                     ->line('Hi, '. $this->user->name)
-                    ->line('You have subscribed to '. $this->transaction_message->package . ' Legalpedia package')
-                    ->line('Amount: ₦'. number_format($this->transaction_message->amount, 2))
+                    ->line('Your payment is still currently pending and has not been confirmed, please contact support at support@legalpediaresources.com')
                     ->line('Package: '. $this->transaction_message->package)
-                    ->line('You can now sign in and get access to Legalpedia resources')
+                    ->line('Amount: ₦'. number_format($this->transaction_message->amount, 2))
+                    ->line('Payment Reference ID'. $this->transaction_message->reference)
                     ->action('Sign in', url('admin/dashboard'));
     }
 
