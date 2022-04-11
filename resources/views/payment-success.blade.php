@@ -14,7 +14,7 @@
             <a href="mailto:legalpediaonline@gmail.com">legalpediaonline@gmail.com</a>
             alongside your payment reference ID. Payment details can be found below
         </p>
-        <p><a href="{{url('admin/dasboard')}}" class="text-color" style="text-decoration: none"><i class="mdi mdi-arrow-left"></i>  Back to dashboard </a></p>
+        <p><a href="{{url('admin/dashboard')}}" class="text-color" style="text-decoration: none"><i class="mdi mdi-arrow-left"></i>  Back to dashboard </a></p>
     </div>
 </div>
 @endsection
@@ -43,9 +43,9 @@
         </p>
     </div>
     <div class="row text-center justify-content-center p-4">
-        <p class="text-color">Account Number: 0223904739 <br>
-            Account Name: Akpan Emmanuel <br>
-            Bank: GTBANK <br>
+        <p class="text-color">Account Number: 0809282089 <br>
+            Account Name: Legalpedia Nig Ltd<br>
+            Bank: Access Bank <br>
         </p>
     </div>
 </div>

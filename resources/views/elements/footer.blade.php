@@ -16,10 +16,11 @@
         <div class="col-md-2">
             <h4 class="logos">Pages</h4>
             <ul class="ulz">
-                <li class="liz"><a href="#" class="ads">About Us</a></li>
-                <li class="liz"><a href="#" class="ads">Features</a></li>
-                <li class="liz"><a href="#" class="ads">Pricing</a></li>
-                <li class="liz"><a href="#" class="ads">Services</a></li>
+                <li class="liz"><a href="https://legalpediaonline.com/about-us/" class="ads">About Us</a></li>
+                <li class="liz"><a href="https://legalpediaonline.com/pricing/" class="ads">Pricing</a></li>
+                <li class="liz"><a href="https://legalpediaonline.com/services/" class="ads">Services</a></li>
+                <li class="liz"><a href="https://legalpediaonline.com/speedy-legal-research/" class="ads">Features</a></li>
+
             </ul>
         </div>
         <div class="col-md-3">
@@ -34,7 +35,7 @@
             <h4>Contact Us</h4>
             <ul class="logos ulz">
                 <li class="liz">Plot A4 Justice Coker Estate, CBD Alausa, Ikeja, Lagos Nigeria.</li>
-                <li class="liz">Telephone: (+44) 020 7467 8515</li>
+                <li class="liz">Telephone: (+234) 703 075 2987</li>
                 <li class="liz"><a href="mailto:support@legalpediaonline.com" class="ads"> support@legalpediaonline.com</a></li>
                 <li class="liz">
                     <a href="#"><img src="{{asset('assets/images/facebook.svg')}}" alt="Facebook" class="social"></a>

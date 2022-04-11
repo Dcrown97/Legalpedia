@@ -49,7 +49,7 @@ class ActivatedSubscriber extends Notification
                     ->line('Your payment has been confirmed and your package activated')
                     ->line('Package: '. $this->transaction_message->package)
                     ->line('Amount: ₦'. number_format($this->transaction_message->amount, 2))
-                    ->line('Payment Reference ID'. $this->transaction_message->reference)
+                    ->line('Payment Reference ID: '. $this->transaction_message->reference)
                     ->line('You can now sign in and get access to Legalpedia resources')
                     ->action('Sign in', url('admin/dashboard'));
     }

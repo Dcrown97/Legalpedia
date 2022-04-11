@@ -167,7 +167,7 @@ class PaymentController extends Controller
 
             $user->notify(new NewBankSubscriber($transact, $user));
 
-            Notification::route('mail', 'legalpediaonline@gmail.com')->notify(new NotifyAdminBankSubscriber($transact, $user));
+            Notification::route('mail', 'support@legalpediaonline.com')->notify(new NotifyAdminBankSubscriber($transact, $user));
 
             $this->addSubscriber($user);
 

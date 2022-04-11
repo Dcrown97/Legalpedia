@@ -56,9 +56,9 @@ class NewBankSubscriber extends Notification
                     ->line('Name: '. $this->transaction_message->name)
                     ->line('Email: '. $this->transaction_message->email)
                     ->line('Haven\'t made payment yet? Make your payment to Legalpedia account details below')
-                    ->line('Account Number: 0223904739')
-                    ->line('Account Name: Akpan Emmanuel')
-                    ->line('Bank: GTBANK')
+                    ->line('Account Number: 0809282089')
+                    ->line('Account Name: Legalpedia Nig Ltd')
+                    ->line('Bank: Access Bank')
                     ->action('Sign in', url('admin/dashboard'));
     }
 
