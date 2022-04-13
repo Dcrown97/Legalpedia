@@ -11,7 +11,7 @@
         <h3>Purchase Successful!</h3>
         <p>Your purchase ID has been received.
             To confirm your payment and activate your package, send a receipt of payment issued from your bank to
-            <a href="mailto:legalpediaonline@gmail.com">legalpediaonline@gmail.com</a>
+            <a href="mailto:legalpediapayments@gmail.com">legalpediapayments@gmail.com</a>
             alongside your payment reference ID. Payment details can be found below
         </p>
         <p><a href="{{url('admin/dashboard')}}" class="text-color" style="text-decoration: none"><i class="mdi mdi-arrow-left"></i>  Back to dashboard </a></p>

@@ -19,7 +19,7 @@ Route::get('/', [LoginController::class, 'index'])->name('login');
 Auth::routes();
 // Auth::routes(['verify' => true]);
 
-Route::group(['middleware'=>'auth'], function(){
+// Route::group(['middleware'=>'auth'], function(){
 // Route::group(['middleware'=>['auth', 'verified']], function(){
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -96,6 +96,7 @@ Route::group(['middleware'=>'auth'], function(){
     Route::patch('/admin/legal-articles/edit-article/{id}', [AdminController::class, 'updateArticle'])->name('update.article');
     Route::delete('/admin/legal-articles/{id}', [AdminController::class, 'deleteArticle'])->name('delete.article');
     Route::post('/admin/legal-articles/{id}', [AdminController::class, 'shareArticle'])->name('share.article');
+    Route::get('/articles/{id}', [ArticleController::class, 'viewArticle'])->name('articles');
 
     Route::get('/admin/law-dictionary', [AdminController::class, 'dictionary'])->name('admin.law-dictionary');
     Route::post('/admin/law-dictionary', [AdminController::class, 'storeDictionary'])->name('store.dictionary');
@@ -142,9 +143,10 @@ Route::group(['middleware'=>'auth'], function(){
     Route::delete('/admin/transactions/{id}', [AdminController::class, 'deleteTransaction'])->name('delete.transaction');
 
     Route::get('/admin/pricing', [AdminController::class, 'pricing'])->name('admin.pricing');
-    Route::get('/subscription-package', [PackageController::class, 'sub_pack'])->name('subscription'); //not in use
+    Route::get('/subscription-package', [PackageController::class, 'sub_pack'])->name('subscription');
     Route::get('/checkout/{id}', [AdminController::class, 'checkout'])->name('checkout');
     Route::get('/checkout/discount/{id}', [AdminController::class, 'checkoutDiscount'])->name('checkout.discount');
+    Route::get('/subscription-package/{slug}', [PackageController::class, 'subPack'])->name('sub.pack');
     Route::post('/subscription-package/pay', [PaymentController::class, 'redirectToGateway'])->name('sub.pay');
     Route::get('/subscription-package/payment/callback/{reference}', [PaymentController::class, 'handleGatewayCallback'])->name('sub.paid');
     Route::post('/subscription-package/payment/{reference}', [PaymentController::class, 'savePayment']);
@@ -203,26 +205,19 @@ Route::group(['middleware'=>'auth'], function(){
     Route::delete('/admin/messages/{id}', [AdminController::class, 'deleteMessage'])->name('delete.message');
     Route::post('/admin/messages/send', [AdminController::class, 'sendMessages'])->name('send.messages');
 
+    Route::get('/messages/sent', [SendBulkMessageController::class, 'sendBulk'])->name('send.bulk');
 
     Route::get('/admin/licenses', [AdminController::class, 'license'])->name('admin.licenses');
     Route::post('/admin/licenses', [AdminController::class, 'storeLicense'])->name('store.license');
     Route::patch('/admin/licenses', [AdminController::class, 'updateLicense'])->name('update.license');
     Route::delete('/admin/licenses/{id}', [AdminController::class, 'deleteLicense'])->name('delete.license');
 
+    Route::get('/package-expiration', [PackageController::class, 'expiredPackage'])->name('expired.package');
 
+    Route::get('/send-birthday-message', [AutomatedController::class, 'birthdayMessage'])->name('birthday.message');
 
     Route::post('/admin/reports', [AdminController::class, 'sendReport'])->name('send.report');
-});
-
-Route::get('/articles/{id}', [ArticleController::class, 'viewArticle'])->name('articles');
-
-Route::get('/subscription-package/{slug}', [PackageController::class, 'subPack'])->name('sub.pack');
-
-Route::get('/messages/sent', [SendBulkMessageController::class, 'sendBulk'])->name('send.bulk');
-
-Route::get('/package-expiration', [PackageController::class, 'expiredPackage'])->name('expired.package');
-
-Route::get('/send-birthday-message', [AutomatedController::class, 'birthdayMessage'])->name('birthday.message');
+// });
 
 // Route::group(['middleware'=>'subscribedUser'], function(){
 //     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');

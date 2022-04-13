@@ -72,7 +72,7 @@
                             </select>
                         </div>
                     </div>
-                    @elseif($message->type == 'automated')
+                @elseif($message->type == 'automated')
                     <div class="form-group">
                         <label class="form-label mb-1">
                             Type of Message
@@ -99,14 +99,20 @@
                             <label class="form-label mb-1">
                                 Receipient
                             </label>
-                            <select name="receipient_type" class="form-select">
-                                <option value="{{$message->receipient_type}}" selected>{{$message->receipient_type}}</option>
-                                <option value="dob">Date of birth message</option>
-                                <option value="ctb">Call to bar message</option>
-                            </select>
+                            @if($message->receipient_type == 'dob')
+                                <select name="receipient_type" class="form-select">
+                                    <option value="{{$message->receipient_type}}" selected>Date of birth message</option>
+                                    <option value="ctb">Call to bar message</option>
+                                </select>
+                            @elseif($message->receipient_type == 'ctb')
+                                <select name="receipient_type" class="form-select">
+                                    <option value="{{$message->receipient_type}}" selected>Call to bar message</option>
+                                    <option value="dob">Date of birth message</option>
+                                </select>
+                            @endif
                         </div>
                     </div>
-                    @elseif($message->type == 'in-app')
+                @elseif($message->type == 'in-app')
                     <div class="form-group">
                         <label class="form-label mb-1">
                             Type of Message

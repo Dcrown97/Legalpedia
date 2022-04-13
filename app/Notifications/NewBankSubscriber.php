@@ -47,7 +47,7 @@ class NewBankSubscriber extends Notification
                     ->subject('Purchase Successful')
                     ->line('Hi, '. $this->user->name)
                     ->line('You have just purchased '. $this->transaction_message->package . ' Legalpedia package')
-                    ->line('To confirm your payment and activate your package, send a receipt of payment issued from your bank to legalpediaonline@gmail.com alongside your payment reference ID')
+                    ->line('To confirm your payment and activate your package, send a receipt of payment issued from your bank to legalpediapayments@gmail.com alongside your payment reference ID')
                     ->line('Your purchase details are below')
                     ->line('Payment reference ID: '. $this->transaction_message->reference)
                     ->line('Subscribed Package: '. $this->transaction_message->package)
