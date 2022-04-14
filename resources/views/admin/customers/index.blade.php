@@ -137,6 +137,7 @@
                                         </div>
                                     </th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-order">s/n</a></th>
+                                    <th><a href="#" class="text-muted list-sort" data-sort="orders-order">Last Seen</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Customer</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Email</a></th>
                                     <th><a href="#" class="text-muted list-sort" data-sort="orders-date">Phone</a></th>
@@ -168,6 +169,7 @@
                                             @php
                                                 $user_no++
                                             @endphp
+                                            <td class="orders-order">{{\Carbon\Carbon::parse($user->last_seen)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->last_seen)->format('H:i:s')}} </td>
                                             <td class="orders-product">
                                                 <div class="avatar avatar-sm avatar-online mr-2">
                                                     @if($user->photo)

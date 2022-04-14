@@ -157,9 +157,10 @@ class AdminController extends Controller
             }
             if($request->search_case) {
                 $search = $request->search_case;
-                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')->orWhere('suit_no', 'LIKE', '%'.$search.'%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->orderBy('judgement_date', 'DESC')
                 ->simplePaginate()
                 ->withQueryString();
@@ -218,9 +219,11 @@ class AdminController extends Controller
                     }
                     if($request->search_case) {
                         $search = $request->search_case;
-                        $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                        $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                        ->orWhere('suit_no', 'LIKE', '%'.$search.'%');
                         $judgement_count =  $judge->count();
                         $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                        ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                         ->orderBy('judgement_date', 'DESC')
                         ->simplePaginate()
                         ->withQueryString();
@@ -268,9 +271,11 @@ class AdminController extends Controller
             }
             if($request->search_case) {
                 $search = $request->search_case;
-                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->orderBy('judgement_date', 'DESC')
                 ->simplePaginate()
                 ->withQueryString();
@@ -305,9 +310,11 @@ class AdminController extends Controller
                 }
                 if($request->search_case) {
                     $search = $request->search_case;
-                    $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%');
+                    $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%');
                     $judgement_count =  $judge->count();
                     $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                     ->orderBy('judgement_date', 'DESC')
                     ->simplePaginate()
                     ->withQueryString();
@@ -334,9 +341,10 @@ class AdminController extends Controller
             $categories = Category::orderBy('category', 'asc')->get();
             if($request->search_case) {
                 $search = $request->search_case;
-                $judge = JudgementSummary::where('title', 'LIKE', '%'.$search.'%');
+                $judge = JudgementSummary::where('title', 'LIKE', '%'.$search.'%')->orWhere('suit_no', 'LIKE', '%'.$search.'%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = JudgementSummary::where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->orderBy('judgement_date', 'DESC')
                 ->simplePaginate()
                 ->withQueryString();
@@ -357,9 +365,11 @@ class AdminController extends Controller
                 if($request->search_case) {
                     $search = $request->search_case;
                     $judge = JudgementSummary::query()->where('title', 'LIKE', '%'.$search.'%')
+                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                     ->whereBetween('judgement_date', [$start_date, $end_date]);
                     $judgement_count =  $judge->count();
                     $judgement_summaries = JudgementSummary::query()->where('title', 'LIKE', '%'.$search.'%')
+                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                     ->whereBetween('judgement_date', [$start_date, $end_date])
                     ->orderBy('judgement_date', 'DESC')
                     ->simplePaginate()
@@ -416,9 +426,11 @@ class AdminController extends Controller
             if($request->search_case) {
                 $search = $request->search_case;
                 $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->where('summary_of_facts', NULL);
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->where('summary_of_facts', NULL)
                 ->orderBy('judgement_date', 'DESC')
                 ->simplePaginate()
@@ -3237,7 +3249,27 @@ class AdminController extends Controller
             ->orWhere('body', 'LIKE', '%'.$search.'%')
             ->count();
 
-            $query_case_count = $query_ratio_count;
+            
+            if(count($query_case['search']) < 1) {
+                $query_case['table'] = 'sum';
+                $query_case['search'] = JudgementSummary::query()
+                ->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
+                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+                ->orWhere('issues', 'LIKE', '%'.$search.'%')
+                ->orderBy('judgement_date', 'DESC')
+                ->simplePaginate(5)
+                ->withQueryString();
+            }
+
+            $query_sum_count = JudgementSummary::query()
+                ->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
+                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
+                ->orWhere('issues', 'LIKE','%'.$search.'%')
+                ->count();
+
+            $query_case_count = $query_sum_count + $query_ratio_count;
 
             /////////////// Law of Federation search //////////////////////
 
@@ -3581,16 +3613,17 @@ class AdminController extends Controller
                 $query_case['table'] = 'sum';
                 $query_case['search'] = JudgementSummary::query()
                 ->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
                 ->orWhere('issues', 'LIKE', '%'.$search.'%')
                 ->orderBy('judgement_date', 'DESC')
                 ->simplePaginate(5)
                 ->withQueryString();
-                // ->get();
             }
 
             $query_sum_count = JudgementSummary::query()
                 ->where('title', 'LIKE', '%'.$search.'%')
+                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
                 ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
                 ->orWhere('issues', 'LIKE','%'.$search.'%')
                 ->count();

@@ -185,6 +185,12 @@
                                                         <p class="card-text small text-muted">
                                                             {{$note->created_at->diffForHumans()}}
                                                         </p>
+                                                        <p class="card-text small text-color">
+                                                            @php
+                                                                $note_user = App\Models\User::where('id', $note->user_id)->first();
+                                                            @endphp
+                                                            By <a href="{{route('user.profile', $note->user_id)}}" class="text-color">{{$note_user->name}} {{$note_user->surname}}</a>
+                                                        </p>
                                                         <h4 class="mb-2 item-name">
                                                             @if($note->resource_type == 'judgement')
                                                                 <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}" class="text-primary">
@@ -445,6 +451,12 @@
                                                         </p> --}}
                                                         <p class="card-text small text-muted">
                                                             {{$note->created_at->diffForHumans()}}
+                                                        </p>
+                                                        <p class="card-text small text-color">
+                                                            @php
+                                                                $note_user = App\Models\User::where('id', $note->user_id)->first();
+                                                            @endphp
+                                                            By <a href="{{route('user.profile', $note->user_id)}}" class="text-color">{{$note_user->name}} {{$note_user->surname}}</a>
                                                         </p>
                                                         <h4 class="mb-2 item-name">
                                                             @if($note->resource_type == 'judgement')

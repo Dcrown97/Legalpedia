@@ -327,7 +327,11 @@
                                                                     Created {{\Carbon\Carbon::parse($article->created_at)->toFormattedDateString()}}
                                                                 </p>
                                                                 <p class="card-text small text-color">
-                                                                    By {{$article->authur}}
+                                                                    @if($article->authur == 'Legalpedia')
+                                                                        <a href="{{route('user.profile', $article->user_id)}}" class="text-color">By {{$article->authur}}</a>
+                                                                    @else
+                                                                        <a href="{{route('user.profile', $article->user_id)}}" class="text-color">By {{$article->authur}}</a>
+                                                                    @endif
                                                                 </p>
                                                             </div>
                                                             @if(Auth::user()->id == $article->user_id)

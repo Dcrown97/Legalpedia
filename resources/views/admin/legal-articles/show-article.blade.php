@@ -60,9 +60,9 @@
                         <h3 class="header-title">
                             @if($article->article_type == 'legalpedia')
                                 @if($article->authur == null)
-                                    By Legalpedia
+                                    <a href="{{route('user.profile', $article ? $article->user_id : '')}}"> By Legalpedia</a>
                                 @else
-                                    By {{$article->authur}}
+                                    <a href="{{route('user.profile', $article ? $article->user_id : '')}}">By {{$article->authur}} </a>
                                 @endif
                             @else
                                 <a href="{{route('user.profile', $article ? $article->user_id : '')}}"> By {{$article->authur}}</a>
