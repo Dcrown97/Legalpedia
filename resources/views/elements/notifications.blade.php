@@ -22,7 +22,7 @@
     </div>
 @endif
 @if(session()->has('success'))
-    <div class="toast" data-autohide="false">
+    <div class="toast" id="toast-success" data-autohide="false">
         <div class="toast-body">
             <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button>
             <p class="text-white"><i class="mdi mdi-check mr-1"></i> {{ session()->get('success') }}</p>

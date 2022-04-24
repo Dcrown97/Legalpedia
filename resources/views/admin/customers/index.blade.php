@@ -169,7 +169,13 @@
                                             @php
                                                 $user_no++
                                             @endphp
-                                            <td class="orders-order">{{\Carbon\Carbon::parse($user->last_seen)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->last_seen)->format('H:i:s')}} </td>
+                                            <td class="orders-order">
+                                                @if($user->last_seen !== NULL)
+                                                    {{\Carbon\Carbon::parse($user->last_seen)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->last_seen)->format('H:i:s')}} 
+                                                @else
+                                                    {{\Carbon\Carbon::parse($user->created_at)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->created_at)->format('H:i:s')}}
+                                                @endif
+                                            </td>
                                             <td class="orders-product">
                                                 <div class="avatar avatar-sm avatar-online mr-2">
                                                     @if($user->photo)
@@ -186,7 +192,13 @@
                                             </td>
                                             <td class="orders-date">{{$user->email}}</td>
                                             <td class="orders-total">{{$user->phone}}</td>
-                                            <td class="orders-total">{{\Carbon\Carbon::parse($user->dob)->toFormattedDateString()}}</td>
+                                            <td class="orders-total">
+                                                @if($user->last_seen !== NULL)
+                                                    {{\Carbon\Carbon::parse($user->dob)->toFormattedDateString()}}
+                                                @else
+                                                    --
+                                                @endif
+                                            </td>
                                             <td class="orders-total">{{$user->referrer}}</td>
                                             <td class="orders-total">{{$user->call_to_bar_year}}</td>
                                             @php

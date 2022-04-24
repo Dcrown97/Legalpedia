@@ -278,40 +278,18 @@
                                     <div class="tab-pane fade" id="wizardStepTwo" role="tabpanel" aria-labelledby="wizardTabTwo">
                                         <div class="row justify-content-center">
                                             <div class="text-center">
-                                                <h1 class="mb-3">Next, add a Part Header and Sections</h1>
+                                                <h1 class="mb-3">Next, add a Part Header</h1>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label mb-1">
                                                 1. Part Title
                                             </label>
-                                            <input type="text" name="part_header[0][]" class="form-control">
+                                            <input type="hidden" name="law_of_federation_id">
+                                            <input type="hidden" name="law_of_fed_part_id">
+                                            <input type="text" name="part_header" class="form-control">
                                         </div>
                                         <hr class="my-5">
-                                        <div class="add_more">
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    1. Section Header
-                                                </label>
-                                                <input type="text" name="part_header[0][10][0][]" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label mb-1">
-                                                    Section Body
-                                                </label>
-                                                <textarea class="form-control" name="part_header[0][10][0][]" rows="5"></textarea>
-                                            </div>
-                                        </div>
-                                        <hr class="my-5">
-                                        <div id="add_field1"></div>
-                                        <div class="justify-content-end">
-                                            <a type="button" id="more_fields1" class="text-color" onclick="addFields('add_field1')"><i class="mdi mdi-plus"></i> Add Section</a>
-                                        </div>
-                                        <hr class="my-5">
-                                        <div id="add_part"></div>
-                                        <div class="justify-content-end mb-5">
-                                            <a type="button" id="more_part" class="text-color" onclick="addPart()"><i class="mdi mdi-plus"></i> Add Part</a>
-                                        </div>
                                         <div class="nav row align-items-center">
                                             <div class="col-auto">
                                                 <a class="btn btn-white" data-toggle="wizard" href="#wizardStepOne">Back</a>
@@ -325,6 +303,44 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="wizardStepThree" role="tabpanel" aria-labelledby="wizardTabThree">
+                                        <div class="row justify-content-center">
+                                            <div class="text-center">
+                                                <h1 class="mb-3">Now create Section</h1>
+                                            </div>
+                                        </div>
+                                        <div class="add_more">
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    1. Section Header
+                                                </label>
+                                                <input type="text" name="section[0][]" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label mb-1">
+                                                    Section Body
+                                                </label>
+                                                <textarea class="form-control" name="section[0][]" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                        <hr class="my-5">
+                                        <div id="add_field"></div>
+                                        <div class="justify-content-end">
+                                            <a type="button" id="more_fields" class="text-color" onclick="addFields()"><i class="mdi mdi-plus"></i> Add Section</a>
+                                        </div>
+                                        <hr class="my-5">
+                                        <div class="nav row align-items-center">
+                                            <div class="col-auto">
+                                                <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>
+                                            </div>
+                                            <div class="col text-center">
+                                                <h6 class="text-uppercase text-muted mb-0">Step 3 of 4</h6>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a class="btn text-white btn-primary" data-toggle="wizard" href="#wizardStepFour">Next <i class="mdi mdi-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="wizardStepFour" role="tabpanel" aria-labelledby="wizardTabFour">
                                         <div class="row justify-content-center">
                                             <div class="text-center">
                                                 <h1 class="mb-3">Add Schedule</h1>
@@ -346,15 +362,16 @@
                                         </div>
                                         <hr class="my-5">
                                         <div id="add_sched"></div>
-                                        <div class="justify-content-end mb-5">
+                                        <div class="justify-content-end">
                                             <a type="button" id="more_scheds" class="text-color" onclick="addScheds()"><i class="mdi mdi-plus"></i> Add Schedule</a>
                                         </div>
+                                        <hr class="my-5">
                                         <div class="nav row align-items-center">
                                             <div class="col-auto">
-                                                <a class="btn btn-white" data-toggle="wizard" href="#wizardStepTwo">Back</a>
+                                                <a class="btn btn-white" data-toggle="wizard" href="#wizardStepThree">Back</a>
                                             </div>
                                             <div class="col text-center">
-                                                <h6 class="text-uppercase text-muted mb-0">Step 3 of 3</h6>
+                                                <h6 class="text-uppercase text-muted mb-0">Step 4 of 4</h6>
                                             </div>
                                             <div class="col-auto">
                                                 <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -380,53 +397,16 @@
             });
         }
 
-
-
-        var section_no = 0;
-        var section_number = 1;
-        function addFields(addField) {
-            section_no++; // section array
-            section_number++; // section numbering
-            no = 0; // part array
-            var objTo = document.getElementById(addField)
+        var section_no = 1;
+        function addFields() {
+            section_no++;
+            var objTo = document.getElementById('add_field')
             var divcreate = document.createElement("div");
-            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_number +
-            '. Section Header</label><input type="text" name="part_header['+ no +'][10]['+ section_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="part_header['+ no +'][10]['+ section_no +'][]" rows="5"></textarea></div><hr class="my-5">';
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_no +
+            '. Section Header</label><input type="text" name="section['+ section_no +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="section['+ section_no +'][]" rows="5"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
             initMCEall();
         }
-
-
-        var part_no = 1;
-        var section_noss = 1;
-        var section_nos = 0;
-        function addPart() {
-            part_no++;
-            var objTo = document.getElementById('add_part')
-            var divcreate = document.createElement("div");
-            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + part_no +
-            '. Part Title</label><input type="text" name="part_header['+ part_no +'][]" class="form-control"></div><hr class="my-5"><div class="form-group"><label class="form-label mb-1">'+ section_noss +'. Section Header</label><input type="text" name="part_header['+ part_no +'][10]['+ section_nos +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="part_header['+ part_no +'][10]['+ section_nos +'][]" rows="5"></textarea></div><hr class="my-5"><div id="add_field' + part_no + '"></div><input type="hidden" id="secton-no'+ part_no +'" value="'+ section_noss +'"><input type="hidden" id="secton-id'+ part_no +'" value="'+ section_nos +'"><div class="justify-content-end"><a type="button" id="more_fields' + part_no + '" class="text-color" onclick="addFieldss(`add_field'+ part_no + '`, `secton-id'+ part_no +'`, `'+ part_no +'`, `secton-no'+ part_no +'`)"><i class="mdi mdi-plus"></i>Add Section</a></div><hr class="my-5">';
-            objTo.appendChild(divcreate);
-            initMCEall();
-        }
-
-
-        function addFieldss(addField, section_id, partNo, section_no) {
-            sectionId = document.getElementById(section_id).value;
-            sectionNo = document.getElementById(section_no).value;
-            sectionId++;
-            sectionNo++;
-            document.getElementById(section_id).value = sectionId;
-            document.getElementById(section_no).value = sectionNo;
-            var objTo = document.getElementById(addField)
-            var divcreate = document.createElement("div");
-            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + sectionNo +
-            '. Section Header</label><input type="text" name="part_header['+ partNo +'][10]['+ sectionId +'][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="part_header['+ partNo +'][10]['+ sectionId +'][]" rows="5"></textarea></div><hr class="my-5">';
-            objTo.appendChild(divcreate);
-            initMCEall();
-        }
-
-
 
         var sched_no = 1;
         function addScheds() {

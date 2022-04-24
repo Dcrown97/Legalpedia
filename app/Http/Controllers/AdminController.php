@@ -1638,7 +1638,7 @@ class AdminController extends Controller
             'law_no' => 'required',
             // 'law_date' => 'required',
             'subsidiary_legislation' => 'required',
-            'part_header' => 'required',
+            // 'part_header' => 'required',
             // 'section_header' => 'required',
             // 'section_body' => 'required',
             // 'sched_header' => 'required',
@@ -1656,26 +1656,25 @@ class AdminController extends Controller
         ];
 
         $fed = LawOfFederation::create($fed_input);
-        $request->law_of_federation_id = $fed->id;
 
-        $fed_part_input = [
-            'part_header' => $request->part_header,
-            'law_of_federation_id' => $request->law_of_federation_id
-        ];
+        // dd($request->part_header);
 
-        $fed_part = LawOfFedPart::create($fed_part_input);
-
-        $request->law_of_fed_part_id = $fed_part->id;
-        // dd($request->sched);
-        if($request->section) {
-            foreach($request->section as $section_input) {
-                $data = [
-                    'section_header'=>$section_input[0],
-                    'section_body'=>$section_input[1],
-                    'law_of_federation_id'=> $request->law_of_federation_id,
-                    'law_of_fed_part_id'=> $request->law_of_fed_part_id,
+        if($request->part_header) {
+            foreach($request->part_header as $part_header) {
+                $fed_part_input = [
+                    'part_header' => $part_header[0],
+                    'law_of_federation_id' => $fed->id
                 ];
-                LawOfFedSection::create($data);
+                $fed_part = LawOfFedPart::create($fed_part_input);
+                foreach($part_header[10] as $section_input) {
+                    $data = [
+                        'section_header'=>$section_input[0],
+                        'section_body'=>$section_input[1],
+                        'law_of_federation_id'=> $fed->id,
+                        'law_of_fed_part_id'=> $fed_part->id,
+                    ];
+                    LawOfFedSection::create($data);
+                }
             }
         }
 
@@ -1684,7 +1683,7 @@ class AdminController extends Controller
                 $data = [
                     'sched_header'=>$sched_input[0],
                     'sched_body'=>$sched_input[1],
-                    'law_of_federation_id'=> $request->law_of_federation_id,
+                    'law_of_federation_id'=> $fed->id,
                 ];
                 LawOfFedSched::create($data);
             }
@@ -1698,12 +1697,13 @@ class AdminController extends Controller
             $fed = LawOfFederation::findOrFail($id);
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
-            $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->first();
-            $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->get();
+            // $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->first();
+            $fed_parts = LawOfFedPart::where('law_of_federation_id', $fed->id)->get();
+            // $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->get();
             $fed_section_count = LawOfFedSection::where('law_of_federation_id', $fed->id)->count();
             $fed_scheds = LawOfFedSched::where('law_of_federation_id', $fed->id)->get();
             $fed_sched_count = LawOfFedSched::where('law_of_federation_id', $fed->id)->count();
-            return view('admin.laws-of-federation.edit', compact('fed', 'area_of_laws', 'categories', 'fed_part', 'fed_sections', 'fed_section_count', 'fed_scheds', 'fed_sched_count'));
+            return view('admin.laws-of-federation.edit', compact('fed', 'area_of_laws', 'categories', 'fed_parts', 'fed_section_count', 'fed_scheds', 'fed_sched_count'));
         }
         return redirect('admin/laws-of-federation');
     }
@@ -1752,44 +1752,100 @@ class AdminController extends Controller
         ];
         $fed->update($fed_input);
 
-        $fed_part_input = [
-            'part_header' => $request->part_header,
-            'law_of_federation_id' => $request->law_of_federation_id
-        ];
-        $fed_part = DB::table('law_of_fed_parts')->where('law_of_federation_id', $fed->id)->update($fed_part_input);
-        $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->first();
-        $fed_part_id = $fed_part->id;
-        // dd($request->new_section);
-        // dd($request->sched);
-        if($request->section) {
-            foreach($request->section as $key => $section_input) {
-                $data = [
-                    'section_header'=>$section_input[2],
-                    'section_body'=>$section_input[3],
-                    'law_of_federation_id'=> $fed->id,
-                    'law_of_fed_part_id'=> $fed_part_id,
-                ];
-                DB::table('law_of_fed_sections')->where('id', $key)->update($data);
+        // dd($request->section_part_header);
 
-                if($request->has('remove_section')) {
-                    $fed_section = LawOfFedSection::where('id', $request->fed_section_id);
-                    $fed_section->delete();
-                    return back()->with('success', 'Law Federation Section removed');
+
+        if($request->part_header) {
+            foreach($request->part_header as $key => $part_header) {
+                $fed_part_input = [
+                    'part_header' => $part_header[0],
+                    'law_of_federation_id' => $fed->id
+                ];
+                DB::table('law_of_fed_parts')->where('id', $key)->update($fed_part_input);
+                $fed_part = LawOfFedPart::where('id', $key)->first();
+                foreach($part_header[10] as $section_key => $section_input) {
+                    $data = [
+                        'section_header'=>$section_input[0],
+                        'section_body'=>$section_input[1],
+                        'law_of_federation_id'=> $fed->id,
+                        'law_of_fed_part_id'=> $fed_part->id,
+                    ];
+                    DB::table('law_of_fed_sections')->where('id', $section_key)->update($data);
                 }
             }
         }
 
-        if($request->new_section) {
-            foreach($request->new_section as $section_input) {
-                $data = [
-                    'section_header'=>$section_input[2],
-                    'section_body'=>$section_input[3],
-                    'law_of_federation_id'=> $fed->id,
-                    'law_of_fed_part_id'=> $fed_part_id,
+        //// saving a new section in a part
+        if($request->section_part_header) {
+            $fed_part = LawOfFedPart::where('id', $request->fed_section_part_id)->first();
+                foreach($request->section_part_header[$fed_part->id][10] as $key => $section_input) {
+                    $data = [
+                        'section_header'=>$section_input[0],
+                        'section_body'=>$section_input[1],
+                        'law_of_federation_id'=> $fed->id,
+                        'law_of_fed_part_id'=> $fed_part->id,
+                    ];
+                    LawOfFedSection::create($data);
+                }
+        }
+
+
+        // saving a new part and new section
+        if($request->new_part_header) {
+            foreach($request->new_part_header as $part_header) {
+                $fed_part_input = [
+                    'part_header' => $part_header[0],
+                    'law_of_federation_id' => $fed->id
                 ];
-                LawOfFedSection::where('law_of_federation_id', $fed->id)->create($data);
+                $fed_part = LawOfFedPart::create($fed_part_input);
+                foreach($part_header[10] as $section_input) {
+                    $data = [
+                        'section_header'=>$section_input[0],
+                        'section_body'=>$section_input[1],
+                        'law_of_federation_id'=> $fed->id,
+                        'law_of_fed_part_id'=> $fed_part->id,
+                    ];
+                    LawOfFedSection::create($data);
+                }
             }
         }
+
+        // $fed_part_input = [
+        //     'part_header' => $request->part_header,
+        //     'law_of_federation_id' => $fed->id
+        // ];
+        // DB::table('law_of_fed_parts')->where('law_of_federation_id', $fed->id)->update($fed_part_input);
+        // $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->first();
+        // $fed_part_id = $fed_part->id;
+        // if($request->section) {
+        //     foreach($request->section as $key => $section_input) {
+        //         $data = [
+        //             'section_header'=>$section_input[2],
+        //             'section_body'=>$section_input[3],
+        //             'law_of_federation_id'=> $fed->id,
+        //             'law_of_fed_part_id'=> $fed_part_id,
+        //         ];
+        //         DB::table('law_of_fed_sections')->where('id', $key)->update($data);
+
+        //         if($request->has('remove_section')) {
+        //             $fed_section = LawOfFedSection::where('id', $request->fed_section_id);
+        //             $fed_section->delete();
+        //             return back()->with('success', 'Law Federation Section removed');
+        //         }
+        //     }
+        // }
+
+        // if($request->new_section) {
+        //     foreach($request->new_section as $section_input) {
+        //         $data = [
+        //             'section_header'=>$section_input[2],
+        //             'section_body'=>$section_input[3],
+        //             'law_of_federation_id'=> $fed->id,
+        //             'law_of_fed_part_id'=> $fed_part_id,
+        //         ];
+        //         LawOfFedSection::where('law_of_federation_id', $fed->id)->create($data);
+        //     }
+        // }
 
         if($request->sched) {
             foreach($request->sched as $key => $sched_input) {
@@ -1821,8 +1877,22 @@ class AdminController extends Controller
 
         return back()->with('success', 'Law updated');
     }
+    public function removeSection(Request $request) {
+        $fed_section = LawOfFedSection::where('id', $request->id)->first();
+        $fed_section->delete();
+        return response()->json(['success', 'Law Federation Section removed']);
+    }
+    public function removePart(Request $request) {
+        $fed_part = LawOfFedPart::where('id', $request->id)->first();
+        LawOfFedSection::where('law_of_fed_part_id', $request->id)->delete();
+        $fed_part->delete();
+        return response()->json(['success', 'Law Federation Part removed']);
+    }
     public function deleteFed($id) {
         $fed = LawOfFederation::findOrFail($id);
+        LawOfFedPart::where('law_of_federation_id', $fed->id)->delete();
+        LawOfFedSection::where('law_of_federation_id', $fed->id)->delete();
+        LawOfFedSched::where('law_of_federation_id', $fed->id)->delete();
         $fed->delete();
         return back()->with('success', 'Law deleted');
     }
@@ -3249,7 +3319,7 @@ class AdminController extends Controller
             ->orWhere('body', 'LIKE', '%'.$search.'%')
             ->count();
 
-            
+
             if(count($query_case['search']) < 1) {
                 $query_case['table'] = 'sum';
                 $query_case['search'] = JudgementSummary::query()

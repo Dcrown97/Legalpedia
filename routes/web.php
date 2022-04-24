@@ -70,6 +70,8 @@ Route::group(['middleware'=>'auth'], function(){
     Route::get('/admin/laws-of-federation/edit-fed/{id}', [AdminController::class, 'editFed'])->name('edit.fed');
     Route::get('/admin/laws-of-federation/{id}', [AdminController::class, 'showFed'])->name('show.fed');
     Route::patch('/admin/laws-of-federation/edit-fed/{id}', [AdminController::class, 'updateFed'])->name('update.fed');
+    Route::post('/admin/laws-of-federation/edit-fed/remove-section/{sectionId}', [AdminController::class, 'removeSection'])->name('remove.section');
+    Route::post('/admin/laws-of-federation/edit-fed/remove-part/{partId}', [AdminController::class, 'removePart'])->name('remove.part');
     Route::delete('/admin/laws-of-federation/{id}', [AdminController::class, 'deleteFed'])->name('delete.fed');
 
     Route::get('/admin/areas-of-laws', [AdminController::class, 'area_of_law']);

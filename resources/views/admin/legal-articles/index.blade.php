@@ -235,9 +235,9 @@
                                                         </p>
                                                         <p class="card-text small text-color">
                                                             @if($article->authur == 'Legalpedia')
-                                                                By {{$article->authur}}
+                                                                <a href="{{route('user.profile', $article->user_id)}}" class="text-color">By {{$article->authur}}</a>
                                                             @else
-                                                                By <a href="{{route('user.profile', $article->user_id)}}" class="text-color">{{$article->authur}}</a>
+                                                                <a href="{{route('user.profile', $article->user_id)}}" class="text-color">By {{$article->authur}}</a>
                                                             @endif
                                                         </p>
                                                     </div>

@@ -90,6 +90,8 @@
             plugins: 'autolink lists link image'
         });
   </script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  @include('elements.notifications')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
         $(document).ready(function(){
