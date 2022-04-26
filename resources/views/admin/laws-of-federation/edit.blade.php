@@ -136,7 +136,7 @@
                                             $last_section = App\Models\LawOfFedSection::where('law_of_fed_part_id', $fed_part ? $fed_part->id : '')->where('law_of_federation_id', $fed->id)->orderBy('id', 'DESC')->first();
                                             $section_count = App\Models\LawOfFedSection::where('law_of_fed_part_id', $fed_part ? $fed_part->id : '')->where('law_of_federation_id', $fed->id)->count();
                                         @endphp
-                                        @if($get_fed_sections)
+                                        @if(count($get_fed_sections) > 0 )
                                             @foreach($get_fed_sections as $fed_section)
                                                 <div class="add_more">
                                                     <div class="form-group">

@@ -717,3 +717,7 @@ a:hover{
         width: 8rem !important;
         font-size: 80px !important;
     }
+
+    mark {
+        background-color: #ffe665 !important;
+    }

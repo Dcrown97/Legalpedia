@@ -226,9 +226,7 @@ Route::get('/package-expiration', [PackageController::class, 'expiredPackage'])-
 
 Route::get('/send-birthday-message', [AutomatedController::class, 'birthdayMessage'])->name('birthday.message');
 
-// Route::group(['middleware'=>'subscribedUser'], function(){
-//     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-// });
+Route::get('/clear-license-session', [AutomatedController::class, 'clearSession'])->name('clear.session');
 
 Route::get('execute', function(){
     Artisan::call('schedule:run');

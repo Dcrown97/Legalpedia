@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LicensedUserSession;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Notifications\BirthdayMessage;
+use Illuminate\Support\Facades\DB;
 
 class AutomatedController extends Controller
 {
@@ -31,5 +33,13 @@ class AutomatedController extends Controller
         info(['birthday_message_error' => now()->toDayDateTimeString()]);
         return 'Couldn\'t run';
 
+    }
+
+
+    ///////////////////////////////////////Clear license user session//////////////////////////////////
+    public function clearSession() {
+        DB::table('licensed_user_sessions')->delete();
+        info(['license_session_cleared' => now()->toDayDateTimeString()]);
+        return 'license session cleared';
     }
 }

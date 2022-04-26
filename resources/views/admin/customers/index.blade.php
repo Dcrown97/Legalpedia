@@ -77,7 +77,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row ">
+                <div class="row">
                     <div class="col-auto">
                         <button type="submit" name="fetch_user" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-sm btn-primary p-2">
                             <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
@@ -87,7 +87,41 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="row mt-4">
+                    <div class="col-12 col-lg-4 col-xl-4">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Last seen from
+                            </label>
+                            @php
+                                $yesterday = now()->subDay();
+                                $yesterday_date = strtotime($yesterday);
+                            @endphp
+                            <input type="text" id="last_seen_start_date" name="last_seen_start_date" class="form-control custom-form w-8" value="{{ $selected_start_date['last_seen_start_date'] <> '' ? $selected_start_date['last_seen_start_date'] :  date('Y-m-d', $yesterday_date)}}" placeholder="<?php echo date('Y-m-d');?>" data-flatpickr>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 col-xl-4">
+                        <div class="form-group">
+                            <label class="form-label mb-1">
+                                Last seen to
+                            </label>
+                            <input type="text" id="last_seen_end_date" name="last_seen_end_date" class="form-control custom-form w-8" value="{{ $selected_end_date['last_seen_end_date'] <> '' ? $selected_end_date['last_seen_end_date'] :  date('Y-m-d')}}" placeholder="<?php echo date('Y-m-d');?>" data-flatpickr>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 col-xl-4">
+                        <div class="form-group" style="margin-top: 25px">
+                            <button type="submit" name="fetch_last_seen" onclick="this.classList.toggle('button--loading')" class="mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                                <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
+                            </button>
+                            <a href="{{url('admin/customers')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2">
+                                <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </form>
+
         </div>
     </div>
     <div class="container-fluid">
@@ -95,14 +129,6 @@
             <div class="col-12">
                 <div class="card" data-list='{"valueNames": ["orders-order", "orders-product", "orders-date", "orders-total", "orders-status", "orders-method"], "page": 10, "pagination": {"paginationClass": "list-pagination"}}' id="contactsList">
                     <div class="card-header">
-                        {{-- <form>
-                            <div class="input-group input-group-flush input-group-merge input-group-reverse">
-                            <input class="form-control list-search" type="search" placeholder="Search">
-                            <span class="input-group-text">
-                                <i class="fe fe-search"></i>
-                            </span>
-                            </div>
-                        </form> --}}
                         <form action="{{route('admin.customers')}}" method="GET" class="w-100">
                             <div class="input-group input-group-flush input-group-merge input-group-reverse w-100">
                                 <button id="search-btn" class="btn button_load text-white btn-sm btn-primary p-2 px-3" onclick="this.classList.toggle('button--loading')">
@@ -171,7 +197,7 @@
                                             @endphp
                                             <td class="orders-order">
                                                 @if($user->last_seen !== NULL)
-                                                    {{\Carbon\Carbon::parse($user->last_seen)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->last_seen)->format('H:i:s')}} 
+                                                    {{\Carbon\Carbon::parse($user->last_seen)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->last_seen)->format('H:i:s')}}
                                                 @else
                                                     {{\Carbon\Carbon::parse($user->created_at)->toFormattedDateString()}} {{\Carbon\Carbon::parse($user->created_at)->format('H:i:s')}}
                                                 @endif

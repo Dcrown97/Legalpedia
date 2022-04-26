@@ -278,7 +278,7 @@
                                     <div class="tab-pane fade" id="wizardStepTwo" role="tabpanel" aria-labelledby="wizardTabTwo">
                                         <div class="row justify-content-center">
                                             <div class="text-center">
-                                                <h1 class="mb-3">Next, add a Part Header and Sections</h1>
+                                                <h1 class="mb-3">Next, add Parts and Sections</h1>
                                             </div>
                                         </div>
                                         <div class="form-group">
