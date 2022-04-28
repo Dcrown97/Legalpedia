@@ -11,6 +11,18 @@
         height: auto !important;
     }
 </style>
+<style>html {scroll-behavior: smooth;}</style>
+    @php
+        if (isset(request()->search) && !empty(request()->search)) {
+            $searchData = request()->search;
+        } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
+            $searchData = request()->year_result;
+        } elseif(isset(request()->more_result) && !empty(request()->more_result)) {
+            $searchData = request()->more_result;
+        } else {
+            $searchData = "";
+        }
+    @endphp
     <div class="header">
         <div class="container-fluid">
             <div class="header-body">
@@ -40,7 +52,7 @@
                 <div class="row align-items-end">
                     <div class="col">
                         <h1 class="header-title">
-                            {{$form->title}}
+                            {!! highlightText($form->title, $searchData) !!}
                         </h1>
                     </div>
                     @include('elements.notifications')
@@ -54,10 +66,10 @@
             <div class="col-12 col-lg-12 col-xl-12">
                 <div class="card">
                     <div class="card-body p-5" id="content">
-                        <h3>{{$form->title}}</h3>
+                        <h3>{!! highlightText($form->title, $searchData) !!}</h3>
                         <p class="card-text text-muted small mb-1">Category: <span class="text-color">{{$form->category}}</span></p>
                         <p>By: {{$form->author}}</p>
-                        {!! $form->content !!}
+                        <p id="{{returnHighlightText($form->content, $searchData) == true ? 'form' : '' }}">{!! highlightText($form->content, $searchData) !!}</p>
                     </div>
                 </div>
             </div>

@@ -171,6 +171,10 @@ Route::group(['middleware'=>'auth'], function(){
     Route::patch('/admin/teams', [AdminController::class, 'updateTeam'])->name('update.team');
     Route::patch('/admin/teams/{id}', [AdminController::class, 'settingsTeam'])->name('settings.team');
     Route::get('/admin/teams/{id}', [AdminController::class, 'showTeam'])->name('show.team');
+
+    Route::post('/admin/teams/post/like', [AdminController::class, 'likeTeamPost'])->name('like.post');
+    Route::post('/admin/teams/post/save', [AdminController::class, 'saveTeamPost'])->name('save.post');
+
     Route::get('/admin/teams/{id}/join', [AdminController::class, 'joinTeam'])->name('join.team');
     Route::post('/admin/teams/{id}/join', [AdminController::class, 'joinedTeam'])->name('joined.team');
     Route::post('/admin/teams/send-request', [AdminController::class, 'sendRequest'])->name('send.request');

@@ -43,6 +43,18 @@
             font-size: 10px;
         }
     </style>
+    <style>html {scroll-behavior: smooth;}</style>
+    @php
+        if (isset(request()->search) && !empty(request()->search)) {
+            $searchData = request()->search;
+        } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
+            $searchData = request()->year_result;
+        } elseif(isset(request()->more_result) && !empty(request()->more_result)) {
+            $searchData = request()->more_result;
+        } else {
+            $searchData = "";
+        }
+    @endphp
     <div class="header">
         <div class="container-fluid">
             <div class="header-body">
@@ -119,7 +131,7 @@
                         <p class="card-text mb-1">{!! $judgement_summary->area_of_law !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">SUMMARY OF FACTS</h3>
-                        <p class="card-text mb-1">{!! htmlspecialchars_decode(nl2br(e($judgement_summary->summary_of_facts)), ENT_QUOTES) !!}</p>
+                        <p class="card-text mb-1" id="{{returnHighlightText($judgement_summary->summary_of_facts, $searchData) == true ? 'sum' : '' }}">{!! htmlspecialchars_decode(nl2br(e(highlightText($judgement_summary->summary_of_facts, $searchData))), ENT_QUOTES) !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">HELD</h3>
                         <hr class="my-4">
@@ -134,10 +146,10 @@
                         <?php $ratios = App\Models\SummaryRatio::where('suit_no', $judgement_summary->suit_no)->get() ;?>
                         @if($ratios)
                             @foreach($ratios as $ratio)
-                                <h4 class="text-muted" id="ratio">{{$ratio->heading}}</h4>
+                                <h4 class="text-muted" id="{{returnHighlightText($ratio->heading, $searchData) == true ? 'ratio' : '' }}">{!! highlightText($ratio->heading, $searchData) !!}</h4>
                                 <hr class="my-4">
                                 {{-- <p class="card-text mb-1">{!! nl2br(e(strip_tags($ratio->body))) !!}</p> --}}
-                                <p class="card-text mb-1">{!! htmlspecialchars_decode(nl2br(e($ratio->body)), ENT_QUOTES) !!}</p>
+                                <p class="card-text mb-1" id="{{returnHighlightText($ratio->body, $searchData) == true ? 'ratio' : '' }}">{!! htmlspecialchars_decode(nl2br(e(highlightText($ratio->body, $searchData))), ENT_QUOTES) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
@@ -161,14 +173,14 @@
                             <div class="collapse multi-collapse" id="multiCollapse">
                                 <?php $full_judgement = App\Models\Judgement::where('suit_no', 'LIKE', '%'.$judgement_summary->suit_no. '%')->first() ;?>
                                 @php
-                                    $list = explode("\n", $full_judgement ? $full_judgement->judgement : '');
+                                    $list = explode("\n", highlightText($full_judgement ? $full_judgement->judgement : '', $searchData));
                                     $tlist = "<ol>";
                                     foreach ($list as $num => $item) {
                                     $tlist .= "<li class='nu'>" . htmlspecialchars_decode($item, ENT_QUOTES) . "</li>";
                                     }
                                     $tlist .= "</ol>";
                                 @endphp
-                                <p class="card-text mb-1 mt-4" style="line-height: 25px; font-weight: 400">{!! $tlist !!}</p>
+                                <p id="{{returnHighlightText($full_judgement ? $full_judgement->judgement : '', $searchData) == true ? 'judg' : '' }}" class="card-text mb-1 mt-4" style="line-height: 25px; font-weight: 400">{!! $tlist !!}</p>
                             </div>
                         </div>
                         <hr class="my-4">

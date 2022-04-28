@@ -21,6 +21,7 @@ class Comment extends Model
         'comment_body',
         'article_id',
         'anote_id',
+        'pinned_post' // have a default of 0
     ];
 
     public function getFileAttribute($value)

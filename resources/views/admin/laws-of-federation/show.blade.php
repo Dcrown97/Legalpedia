@@ -11,6 +11,18 @@
         height: auto !important;
     }
 </style>
+<style>html {scroll-behavior: smooth;}</style>
+    @php
+        if (isset(request()->search) && !empty(request()->search)) {
+            $searchData = request()->search;
+        } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
+            $searchData = request()->year_result;
+        } elseif(isset(request()->more_result) && !empty(request()->more_result)) {
+            $searchData = request()->more_result;
+        } else {
+            $searchData = "";
+        }
+    @endphp
     <div class="header">
         <div class="container-fluid">
             <div class="header-body">
@@ -57,9 +69,9 @@
                         @if($fed_sections)
                             <?php $fed_section_no = 1; ?>
                             @foreach($fed_sections as $fed_section)
-                                <h3 class="text-muted">{{$fed_section_no}}. {{$fed_section->section_header}}</h3>
+                                <h3 class="text-muted" id="{{returnHighlightText($fed_section->section_header, $searchData) == true ? 'section' : '' }}">{{$fed_section_no}}. {!! highlightText($fed_section->section_header, $searchData) !!}</h3>
                                 <?php $fed_section_no++; ?>
-                                <p class="card-text mb-1">{!! nl2br(e(strip_tags($fed_section->section_body))) !!}</p>
+                                <p class="card-text mb-1" id="{{returnHighlightText($fed_section->section_body, $searchData) == true ? 'section' : '' }}">{!! highlightText(nl2br(e(strip_tags($fed_section->section_body))), $searchData) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif

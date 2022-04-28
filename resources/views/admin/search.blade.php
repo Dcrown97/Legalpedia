@@ -91,24 +91,6 @@
         }
     </style>
     @php
-        function highlightText($str, $search_term) {
-            if (empty($search_term))
-                return $str;
-
-            $pos = strpos(strtolower($str), strtolower($search_term));
-
-            if ($pos !== false) {
-                $replaced = substr($str, 0, $pos);
-                $replaced .= '<mark>' . substr($str, $pos, strlen($search_term)) . '</mark>';
-                $replaced .= substr($str, $pos + strlen($search_term));
-            } else {
-                $replaced = $str;
-            }
-
-            return $replaced;
-        }
-    @endphp
-    @php
         if (isset(request()->search) && !empty(request()->search)) {
             $searchData = request()->search;
         } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
@@ -281,13 +263,13 @@
                                                                 $judgement_summary = App\Models\JudgementSummary::where('suit_no', $case->suit_no)->first();
                                                                 $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
                                                             @endphp
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}">
+                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#ratio">
                                                                 <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$case->heading}}" class="card-img-top w-8 h-8">
                                                             </a>
                                                         </div>
                                                         <div class="col">
                                                             <p class="card-text mb-2 item-name">
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}" class="text-color">{!! highlightText($case->heading, $search) !!}</a>
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#ratio" class="text-color">{!! highlightText($case->heading, $search) !!}</a>
                                                             </p>
                                                             <p class="card-text mb-4">
                                                                 {!! Str::words(highlightText($case->body, $search), 100) !!}
@@ -299,7 +281,7 @@
                                                                 {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
                                                             </p>
                                                             <h4 class="mb-1 item-name1">
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#ratio" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
                                                             </h4>
                                                         </div>
                                                     </div>
@@ -315,7 +297,7 @@
                                                                 $judgement_summary = App\Models\JudgementSummary::where('suit_no', $case->suit_no)->first();
                                                                 $court = App\Models\Court::where('id', $judgement_summary ? $judgement_summary->court_id : '')->first();
                                                             @endphp
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}">
+                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#sum">
                                                                 <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary ? $judgement_summary->title : ''}}" class="card-img-top w-8 h-8">
                                                             </a>
                                                         </div>
@@ -330,7 +312,7 @@
                                                                 {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
                                                             </p>
                                                             <h4 class="mb-2 item-name1">
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#sum" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
                                                             </h4>
                                                         </div>
                                                     </div>
@@ -348,7 +330,7 @@
                                                                 $judgement = App\Models\Judgement::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first();
 
                                                             @endphp
-                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}">
+                                                            <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#judg">
                                                                 <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$judgement_summary ? $judgement_summary->title : ''}}" class="card-img-top w-8 h-8">
                                                             </a>
                                                         </div>
@@ -363,7 +345,7 @@
                                                                 {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->format('D')}}  {{\Carbon\Carbon::parse($judgement_summary ? $judgement_summary->judgement_date : '')->toFormattedDateString()}}
                                                             </p>
                                                             <h4 class="mb-2 item-name1">
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#judg" class="text-primary">{{$judgement_summary ? $judgement_summary->title : ''}}</a>
                                                             </h4>
                                                         </div>
                                                     </div>
@@ -448,13 +430,13 @@
                                                                 // $section = App\Models\LawOfFedSection::where('law_of_federation_id', $sched->law_of_federation_id)->first();
                                                                 $fed = App\Models\LawOfFederation::where('id', $section->law_of_federation_id)->first();
                                                             @endphp
-                                                            <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}?search={{$searchData}}">
+                                                            <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}?search={{$searchData}}#section">
                                                                 <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$section ? $section->section_header : ''}}" class="card-img-top w-8 h-8">
                                                             </a>
                                                         </div>
                                                         <div class="col">
                                                             <p class="card-text mb-4 item-name2">
-                                                                <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}?search={{$searchData}}" class="text-color">{!! highlightText($section ? $section->section_header : '', $search) !!}</a>
+                                                                <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}?search={{$searchData}}#section" class="text-color">{!! highlightText($section ? $section->section_header : '', $search) !!}</a>
                                                             </p>
                                                             <p class="card-text mb-4">
                                                                 {!! Str::words(highlightText($section ? $section->section_body : '', $search), 100) !!}
@@ -463,7 +445,7 @@
                                                                 {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->format('D')}}  {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->toFormattedDateString()}}
                                                             </p>
                                                             <h4 class="mb-2 item-name3">
-                                                                <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}?search={{$searchData}}" class="text-primary">{{$fed ? $fed->title : ''}}</a>
+                                                                <a href="{{route('show.fed', $section ? $section->law_of_federation_id : '')}}?search={{$searchData}}#section" class="text-primary">{{$fed ? $fed->title : ''}}</a>
                                                             </h4>
                                                         </div>
                                                     </div>
@@ -564,13 +546,13 @@
                                                                 // $sched = App\Models\LawOfFedSched::where('law_of_federation_id', $section ? $section->law_of_federation_id : '')->first();
                                                                 $fed = App\Models\LawOfFederation::where('id', $sched ? $sched->law_of_federation_id : '')->first();
                                                             @endphp
-                                                            <a href="{{route('show.fed', $sched ? $sched->law_of_federation_id : '')}}?search={{$searchData}}">
+                                                            <a href="{{route('show.fed', $sched ? $sched->law_of_federation_id : '')}}?search={{$searchData}}#schedule">
                                                                 <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$sched ? $sched->sched_header : ''}}" class="card-img-top w-8 h-8">
                                                             </a>
                                                         </div>
                                                         <div class="col">
                                                             <p class="card-text mb-4 item-name2">
-                                                                <a href="{{route('show.fed', $sched ? $sched->law_of_federation_id : '')}}?search={{$searchData}}" class="text-color">{{$sched ? $sched->sched_header : ''}}</a>
+                                                                <a href="{{route('show.fed', $sched ? $sched->law_of_federation_id : '')}}?search={{$searchData}}#schedule" class="text-color">{{$sched ? $sched->sched_header : ''}}</a>
                                                             </p>
                                                             <p class="card-text mb-4">
                                                                 {!! Str::words($sched ? $sched->sched_body : '', 100) !!}
@@ -579,7 +561,7 @@
                                                                 {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->format('D')}}  {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->toFormattedDateString()}}
                                                             </p>
                                                             <h4 class="mb-2 item-name3">
-                                                                <a href="{{route('show.fed', $sched ? $sched->law_of_federation_id : '')}}?search={{$searchData}}" class="text-primary">{{$fed ? $fed->title : ''}}</a>
+                                                                <a href="{{route('show.fed', $sched ? $sched->law_of_federation_id : '')}}?search={{$searchData}}#schedule" class="text-primary">{{$fed ? $fed->title : ''}}</a>
                                                             </h4>
                                                         </div>
                                                     </div>
@@ -679,13 +661,13 @@
                                                             {{-- @php
                                                                 $fed = App\Models\LawOfFederation::where('id', $sched ? $sched->law_of_federation_id : '')->first();
                                                             @endphp --}}
-                                                            <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}">
+                                                            <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}#fed">
                                                                 <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$fed ? $fed->title : ''}}" class="card-img-top w-8 h-8">
                                                             </a>
                                                         </div>
                                                         <div class="col">
                                                             <p class="card-text mb-4 item-name2">
-                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}" class="text-color">{{$fed ? $fed->title : ''}}</a>
+                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}#fed" class="text-color">{{$fed ? $fed->title : ''}}</a>
                                                             </p>
                                                             <p class="card-text mb-4">
                                                                 {!! Str::words($fed ? $fed->description : '', 100) !!}
@@ -694,7 +676,7 @@
                                                                 {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->format('D')}}  {{\Carbon\Carbon::parse($fed ? $fed->law_date : '')->toFormattedDateString()}}
                                                             </p>
                                                             <h4 class="mb-2 item-name3">
-                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}" class="text-primary">{{$fed ? $fed->title : ''}}</a>
+                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}#fed" class="text-primary">{{$fed ? $fed->title : ''}}</a>
                                                             </h4>
                                                         </div>
                                                     </div>
@@ -764,14 +746,14 @@
                                             <li class="list-group-item card border p-4 rounded-lg">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
-                                                        <a href="{{route('show.rule', $rule->id)}}?search={{$searchData}}">
+                                                        <a href="{{route('show.rule', $rule->id)}}?search={{$searchData}}#rule">
                                                             <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$rule ? $rule->title : ''}}" class="card-img-top w-8 h-8">
                                                         </a>
                                                         {{-- <i class="fe fe-file"></i> --}}
                                                     </div>
                                                     <div class="col">
                                                         <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.rule', $rule->id)}}?search={{$searchData}}">{{$rule ? $rule->title : ''}}</a>
+                                                            <a href="{{route('show.rule', $rule->id)}}?search={{$searchData}}#rule">{!! highlightText($rule ? $rule->title : '', $searchData) !!}</a>
                                                         </h4>
                                                         <p class="card-text text-color mb-4">
                                                             {{ucwords(strtolower($rule ? $rule->name : ''))}}
@@ -843,19 +825,19 @@
                                             <li class="list-group-item card border p-4 rounded-lg">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto hide-mobile">
-                                                        <a href="{{route('show.form', $form->id)}}?search={{$searchData}}">
+                                                        <a href="{{route('show.form', $form->id)}}?search={{$searchData}}#form">
                                                             <img src="{{asset('assets/images/nigerian-coat-of-arms.png')}}" alt="{{$form ? $form->title : ''}}" class="card-img-top w-8 h-8">
                                                         </a>
                                                     </div>
                                                     <div class="col">
                                                         <p class="card-text mb-4 item-name">
-                                                            {!! Str::words($form ? $form->content : '', 50) !!}
+                                                            {!! Str::words(highlightText($form ? $form->content : '', $searchData), 50) !!}
                                                         </p>
                                                         <p class="card-text mb-1 text-color">
                                                             {{$form ? $form->category : ''}}
                                                         </p>
                                                         <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.form', $form->id)}}?search={{$searchData}}" class="text-primary">{{$form ? $form->title : ''}}</a>
+                                                            <a href="{{route('show.form', $form->id)}}?search={{$searchData}}#form" class="text-primary">{!! highlightText($form ? $form->title : '', $searchData) !!}</a>
                                                         </h4>
                                                     </div>
                                                 </div>
@@ -932,7 +914,7 @@
                                                     </div>
                                                     <div class="col">
                                                         <p class="card-text mb-4 item-name">
-                                                            {!! Str::words($article ? $article->content : '', 50) !!}
+                                                            {!! Str::words(highlightText($article ? $article->content : '', $searchData), 50) !!}
                                                         </p>
                                                         <p class="small text-color mb-2">
                                                             @php
@@ -941,11 +923,11 @@
                                                             @if($article->article_type == 'legalpedia')
                                                                 By Legalpedia
                                                                 @else
-                                                                <a href="{{route('user.profile', $user->id)}}?search={{$searchData}}" class="text-color">By {{$user->name}}</a>
+                                                                <a href="{{route('user.profile', $user->id)}}?search={{$searchData}}#article" class="text-color">By {{$user->name}}</a>
                                                             @endif
                                                         </p>
                                                         <h4 class="mb-2 item-name">
-                                                            <a href="{{route('show.article', $article->id)}}?search={{$searchData}}" class="text-primary">{{$article ? $article->title : ''}}</a>
+                                                            <a href="{{route('show.article', $article->id)}}?search={{$searchData}}#article" class="text-primary">{!! highlightText($article ? $article->title : '', $searchData) !!}</a>
                                                         </h4>
                                                     </div>
                                                 </div>
@@ -1033,68 +1015,68 @@
                                                                 $article = App\Models\Rule::where('id', $note->content_id)->first();
                                                             @endphp
                                                             @if($note->resource_type == 'judgement')
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}">
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#ratio">
                                                                     @php
                                                                         $note->comment = json_decode($note->comment);
                                                                     @endphp
                                                                     @if($note->comment)
                                                                         @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                                            {!! ucwords(strtolower(highlightText($comment_type->value, $searchData))) !!}
                                                                         @endforeach
                                                                     @endif
                                                                 </a>
                                                                 @elseif($note->resource_type == 'fed')
-                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}">
+                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}#section">
                                                                     @php
                                                                         $note->comment = json_decode($note->comment);
                                                                     @endphp
                                                                     @if($note->comment)
                                                                         @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                                            {!! ucwords(strtolower(highlightText($comment_type->value, $searchData))) !!}
                                                                         @endforeach
                                                                     @endif
                                                                 </a>
                                                                 @elseif($note->resource_type == 'rule')
-                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}?search={{$searchData}}">
+                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}?search={{$searchData}}#rule">
                                                                     @php
                                                                         $note->comment = json_decode($note->comment);
                                                                     @endphp
                                                                     @if($note->comment)
                                                                         @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                                            {!! ucwords(strtolower(highlightText($comment_type->value, $searchData))) !!}
                                                                         @endforeach
                                                                     @endif
                                                                 </a>
                                                                 @elseif($note->resource_type == 'state-rule')
-                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}?search={{$searchData}}">
+                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}?search={{$searchData}}#rule">
                                                                     @php
                                                                         $note->comment = json_decode($note->comment);
                                                                     @endphp
                                                                     @if($note->comment)
                                                                         @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                                            {!! ucwords(strtolower(highlightText($comment_type->value, $searchData))) !!}
                                                                         @endforeach
                                                                     @endif
                                                                 </a>
                                                                 @elseif($note->resource_type == 'form')
-                                                                <a href="{{route('show.form', $form ? $form->id : '')}}?search={{$searchData}}">
+                                                                <a href="{{route('show.form', $form ? $form->id : '')}}?search={{$searchData}}#form">
                                                                     @php
                                                                         $note->comment = json_decode($note->comment);
                                                                     @endphp
                                                                     @if($note->comment)
                                                                         @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                                            {!! ucwords(strtolower(highlightText($comment_type->value, $searchData))) !!}
                                                                         @endforeach
                                                                     @endif
                                                                 </a>
                                                                 @elseif($note->resource_type == 'article')
-                                                                <a href="{{route('show.article', $article ? $article->id : '')}}?search={{$searchData}}">
+                                                                <a href="{{route('show.article', $article ? $article->id : '')}}?search={{$searchData}}#article">
                                                                     @php
                                                                         $note->comment = json_decode($note->comment);
                                                                     @endphp
                                                                     @if($note->comment)
                                                                         @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
+                                                                            {!! ucwords(strtolower(highlightText($comment_type->value, $searchData))) !!}
                                                                         @endforeach
                                                                     @endif
                                                                 </a>
@@ -1104,7 +1086,7 @@
                                                             @php
                                                                 $note->content = json_decode($note->content);
                                                             @endphp
-                                                            {{ucwords(strtolower($note->content->selector[0]->exact))}}
+                                                            {!! ucwords(strtolower(highlightText($note->content->selector[0]->exact, $searchData))) !!}
                                                         </p>
                                                         {{-- <p class="small text-color mb-1">
                                                             @php
@@ -1117,27 +1099,27 @@
                                                         </p>
                                                         <h4 class="mb-2 item-name">
                                                             @if($note->resource_type == 'judgement')
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}" class="text-primary">
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}?search={{$searchData}}#ratio" class="text-primary">
                                                                     {{$judgement_summary ? $judgement_summary->title : ''}}
                                                                 </a>
                                                                 @elseif($note->resource_type == 'fed')
-                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}" class="text-primary">
+                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}?search={{$searchData}}#section" class="text-primary">
                                                                     {{$fed ? $fed->title : ''}}
                                                                 </a>
                                                                 @elseif($note->resource_type == 'rule')
-                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}?search={{$searchData}}" class="text-primary">
+                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}?search={{$searchData}}#rule" class="text-primary">
                                                                     {{$rule ? $rule->title : ''}}
                                                                 </a>
                                                                 @elseif($note->resource_type == 'state-rule')
-                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}?search={{$searchData}}" class="text-primary">
+                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}?search={{$searchData}}#rule" class="text-primary">
                                                                     {{$state_rule ? $state_rule->title : ''}}
                                                                 </a>
                                                                 @elseif($note->resource_type == 'form')
-                                                                <a href="{{route('show.form', $form ? $form->id : '')}}?search={{$searchData}}" class="text-primary">
+                                                                <a href="{{route('show.form', $form ? $form->id : '')}}?search={{$searchData}}#form" class="text-primary">
                                                                     {{$form ? $form->title : ''}}
                                                                 </a>
                                                                 @elseif($note->resource_type == 'article')
-                                                                <a href="{{route('show.article', $article ? $article->id : '')}}?search={{$searchData}}" class="text-primary">
+                                                                <a href="{{route('show.article', $article ? $article->id : '')}}?search={{$searchData}}#article" class="text-primary">
                                                                     {{$article ? $article->title : ''}}
                                                                 </a>
                                                             @endif

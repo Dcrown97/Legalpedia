@@ -16,6 +16,18 @@
             height: auto !important;
         }
     </style>
+    <style>html {scroll-behavior: smooth;}</style>
+    @php
+        if (isset(request()->search) && !empty(request()->search)) {
+            $searchData = request()->search;
+        } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
+            $searchData = request()->year_result;
+        } elseif(isset(request()->more_result) && !empty(request()->more_result)) {
+            $searchData = request()->more_result;
+        } else {
+            $searchData = "";
+        }
+    @endphp
     <div class="header">
         @if($article->photo)
             <img src="{{$article ? $article->photo : ''}}" class="header-img-top" alt="{{$article->title}}">
@@ -60,12 +72,12 @@
                         <h3 class="header-title">
                             @if($article->article_type == 'legalpedia')
                                 @if($article->authur == null)
-                                    <a href="{{route('user.profile', $article ? $article->user_id : '')}}"> By Legalpedia</a>
+                                    <a href="{{route('user.profile', $article->user_id ? $article->user_id : '')}}"> By Legalpedia</a>
                                 @else
-                                    <a href="{{route('user.profile', $article ? $article->user_id : '')}}">By {{$article->authur}} </a>
+                                    <a href="{{route('user.profile', $article->user_id ? $article->user_id : '')}}">By {{$article->authur}} </a>
                                 @endif
                             @else
-                                <a href="{{route('user.profile', $article ? $article->user_id : '')}}"> By {{$article->authur}}</a>
+                                <a href="{{route('user.profile', $article->user_id ? $article->user_id : '')}}"> By {{$article->authur}}</a>
                             @endif
                         </h3>
                         <small class="text-muted">
@@ -152,13 +164,13 @@
                         <p class="card-text mb-1">{!! $article->area_of_law !!}</p>
                         <hr class="my-4"> --}}
                         {{-- <h3 class="text-muted">Description</h3> --}}
-                        <p class="card-text mb-1">{!! $article->description !!}</p>
+                        <p class="card-text mb-1" id="{{returnHighlightText($article->description, $searchData) == true ? 'article' : '' }}">{!! highlightText($article->description, $searchData) !!}</p>
                         <hr class="my-4">
                         {{-- <h3 class="text-muted">Content</h3> --}}
-                        <p class="card-text mb-1" id="my-content">{!! $article->content !!}</p>
+                        <p class="card-text mb-1" id="{{returnHighlightText($article->content, $searchData) == true ? 'article' : '' }}">{!! highlightText($article->content, $searchData) !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">References</h3>
-                        <p class="card-text mb-1">{!! $article->references !!}</p>
+                        <p class="card-text mb-1">{!! highlightText($article->references, $searchData) !!}</p>
                         <hr class="my-4">
                         <h3 class="text-muted">Link</h3>
                         <p class="card-text mb-1">

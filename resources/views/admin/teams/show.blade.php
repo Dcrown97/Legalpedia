@@ -86,6 +86,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" id="saved-tab" data-toggle="tab" href="#saved" role="tab" aria-controls="saved" aria-selected="false">
+                                    Saved Posts
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" id="members-tab" data-toggle="tab" href="#members" role="tab" aria-controls="members" aria-selected="false">
                                     Members
                                 </a>
@@ -114,6 +119,19 @@
                 <div class="row">
                     <div class="col-12 col-xl-8">
                         @if(Auth::user()->id == $team->user_id)
+                            <div class="mb-4">
+                                <form action="{{route('show.team', $team->id)}}" method="GET" class="d-flex">
+                                    <div class="input-group input-group-lg input-group-merge input-group-reverse mr-3">
+                                        <input class="form-control list-search" name="search_post" type="text" id="searchBar" placeholder="Search Posts" style="height: 50px">
+                                        <div class="input-group-text">
+                                            <span class="fe fe-search"></span>
+                                        </div>
+                                    </div>
+                                    <button id="searchPostBtn" disabled class="btn button_load text-white btn-sm btn-primary p-2 px-3" onclick="this.classList.toggle('button--loading1')">
+                                        <span class="button__text"> Search</span>
+                                    </button>
+                                </form>
+                            </div>
                             <div class="card">
                                 <div class="card-body">
                                     <form action="{{route('post.comment')}}" method="POST" enctype="multipart/form-data">
@@ -121,7 +139,7 @@
                                         <div class="input-group input-group-lg input-group-flush input-group-merge">
                                             <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                             <input type="hidden" name="team_id" value="{{$team->id}}">
-                                            <textarea name="comment_body" class="form-control form-control-flush" data-autosize rows="1" placeholder="Create posts and share files to this team"></textarea>
+                                            <textarea name="comment_body" id="commentBody" class="form-control form-control-flush" data-autosize rows="1" placeholder="Create posts and share files to this team"></textarea>
                                             <div class="input-group-text">
                                                 <a class="text-reset me-3" style="cursor: pointer" id="attach" onclick="showFile()" data-bs-toggle="tooltip" title="Attach file">
                                                     <i class="fe fe-paperclip"></i>
@@ -129,7 +147,7 @@
                                                 <a class="text-reset me-3" style="cursor: pointer; display:none" id="remove" onclick="removeFile()" data-bs-toggle="tooltip" title="Remove file">
                                                     <i class="mdi mdi-close"></i>
                                                 </a>
-                                                <button type="submit" onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
+                                                <button type="submit" disabled onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
                                                     <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
                                                 </button>
                                             </div>
@@ -180,16 +198,29 @@
                                                     <h2 class="text-lg" id="file-chosen">No file chosen</h2>
                                                 </label>
                                             </div>
-                                            <button type="submit" onclick="this.classList.toggle('button--loading')" id="show-1" style="display: none; float: right" class="btn button_load text-white btn-primary">
+                                            <button type="submit" disabled onclick="this.classList.toggle('button--loading')" id="show-1" style="display: none; float: right" class="btn button_load text-white btn-primary">
                                                 <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
                                             </button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                            @else
+                        @else
                             @if($send_request)
                                 @if($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                    <div class="mb-4">
+                                        <form action="{{route('show.team', $team->id)}}" method="GET" class="d-flex">
+                                            <div class="input-group input-group-lg input-group-merge input-group-reverse mr-3">
+                                                <input class="form-control list-search" name="search_post" id="searchBar" type="text" placeholder="Search Posts" style="height: 50px">
+                                                <div class="input-group-text">
+                                                    <span class="fe fe-search"></span>
+                                                </div>
+                                            </div>
+                                            <button id="searchPostBtn" disabled class="btn button_load text-white btn-sm btn-primary p-2 px-3" onclick="this.classList.toggle('button--loading1')">
+                                                <span class="button__text"> Search</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                     <div class="card">
                                         <div class="card-body">
                                             <form action="{{route('post.comment')}}" method="POST" enctype="multipart/form-data">
@@ -197,7 +228,7 @@
                                                 <div class="input-group input-group-lg input-group-flush input-group-merge">
                                                     <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                                     <input type="hidden" name="team_id" value="{{$team->id}}">
-                                                    <textarea name="comment_body" class="form-control form-control-flush" data-autosize rows="1" placeholder="Create posts and share files to this team"></textarea>
+                                                    <textarea name="comment_body" id="commentBody" class="form-control form-control-flush" data-autosize rows="1" placeholder="Create posts and share files to this team"></textarea>
                                                     <div class="input-group-text">
                                                         <a class="text-reset me-3" style="cursor: pointer" id="attach" onclick="showFile()" data-bs-toggle="tooltip" title="Attach file">
                                                             <i class="fe fe-paperclip"></i>
@@ -205,7 +236,7 @@
                                                         <a class="text-reset me-3" style="cursor: pointer; display:none" id="remove" onclick="removeFile()" data-bs-toggle="tooltip" title="Remove file">
                                                             <i class="mdi mdi-close"></i>
                                                         </a>
-                                                        <button type="submit" onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
+                                                        <button type="submit" disabled onclick="this.classList.toggle('button--loading')" id="remove-1" class="btn button_load text-white btn-primary">
                                                             <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
                                                         </button>
                                                     </div>
@@ -256,7 +287,7 @@
                                                             <h2 class="text-lg" id="file-chosen">No file chosen</h2>
                                                         </label>
                                                     </div>
-                                                    <button type="submit" onclick="this.classList.toggle('button--loading')" id="show-1" style="display: none; float: right" class="btn button_load text-white btn-primary">
+                                                    <button type="submit" disabled onclick="this.classList.toggle('button--loading')" id="show-1" style="display: none; float: right" class="btn button_load text-white btn-primary">
                                                         <span class="button__text"><i class="mdi mdi-check"></i> Post</span>
                                                     </button>
                                                 </div>
@@ -267,14 +298,14 @@
                             @endif
                         @endif
                         @if(count($comments) > 0)
-                            @foreach($comments as $comment)
+                            @if(!empty($comment))
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <div class="row align-items-center">
                                                 <div class="col-auto">
                                                     <span class="avatar avatar-sm">
-                                                        <?php $user = App\Models\User::where('id', $comment->user_id)->first(); ?>
+                                                        <?php $user = App\Models\User::where('id', @$comment->user_id)->first(); ?>
                                                         @if($user->photo)
                                                             <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                             @else
@@ -290,18 +321,55 @@
                                                             {{$user->name}}
                                                         </a>
                                                     </h4>
-                                                   <p class="card-text small text-muted">
-                                                       <span class="fe fe-clock"></span>
-                                                       @if($comment->created_at < $comment->updated_at)
+                                                <p class="card-text small text-muted">
+                                                    <span class="fe fe-clock"></span>
+                                                    @if($comment->created_at < $comment->updated_at)
                                                             Edited {{\Carbon\Carbon::parse($comment->updated_at)->toFormattedDateString()}}
                                                             @else
                                                             Posted {{\Carbon\Carbon::parse($comment->created_at)->toFormattedDateString()}}
                                                         @endif
                                                     </p>
                                                 </div>
-                                                @if($comment->user_id == Auth::user()->id)
-                                                    @if(empty($comment->article_id))
-                                                        <div class="col-auto">
+                                                <div class="col-auto d-flex">
+                                                    @if(Auth::user()->id == $team->user_id)
+                                                        @if($comment->pinned_post == 0)
+                                                            <div class="mr-3">
+                                                                <form action="{{route('update.comment')}}" method="POST">
+                                                                    {{ csrf_field() }}
+                                                                    {{ method_field('patch') }}
+                                                                    <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                    <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                    <input type="hidden" name="pinned_post" value="1">
+                                                                    <button type="submit" name="pin_post" class="custom-button text-color">
+                                                                        <i class="mdi mdi-pin"></i> Pin post
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        @elseif($comment->pinned_post == 1)
+                                                            <div class="mr-3">
+                                                                <form action="{{route('update.comment')}}" method="POST">
+                                                                    {{ csrf_field() }}
+                                                                    {{ method_field('patch') }}
+                                                                    <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                    <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                    <input type="hidden" name="pinned_post" value="0">
+                                                                    <button type="submit" name="unpin_post" onmouseover="unpin(this)" onmouseout="pin(this)" class="custom-button text-success">
+                                                                        <i class="mdi mdi-pin"></i> Pinned
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        @if($comment->pinned_post == 1)
+                                                            <div class="mr-3">
+                                                                <span class="custom-button text-success">
+                                                                    <i class="mdi mdi-pin"></i> Pinned
+                                                                </span>
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                    @if($comment->user_id == Auth::user()->id)
+                                                        @if(empty($comment->article_id))
                                                             <div class="dropdown">
                                                                 <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                                     <i class="fe fe-more-vertical"></i>
@@ -319,9 +387,9 @@
                                                                     </form>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        @endif
                                                     @endif
-                                                @endif
+                                                </div>
                                             </div>
                                         </div>
                                         <p class="mb-4">
@@ -512,7 +580,7 @@
                                                                 </div>
                                                                 <div class="col-auto">
                                                                     <time class="comment-time">
-                                                                        {{\Carbon\Carbon::parse($comment->created_at)->toFormattedDateString()}}
+                                                                        {{\Carbon\Carbon::parse($comment_reply->created_at)->toFormattedDateString()}}
                                                                     </time>
                                                                 </div>
                                                             </div>
@@ -526,6 +594,103 @@
                                         @endforeach
                                         @if($send_request)
                                             @if($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                                <div class="row justify-content-between">
+                                                    <div class="col">
+                                                        <div class="d-flex">
+                                                            <span class="mr-4">
+                                                                <form id="like-form">
+                                                                    <input type="hidden" name="user_id" id="user-id" value="{{Auth::user()->id}}">
+                                                                    <input type="hidden" name="comment_id" id="comment-id" value="{{$comment->id}}">
+                                                                    <input type="hidden" name="team_id" id="team-id" value="{{$team->id}}">
+                                                                    @php
+                                                                        $likes = App\Models\Like::where('comment_id', $comment->id)->get();
+                                                                        $user_has_liked = App\Models\Like::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->where('like', 1)->first();
+                                                                        $user_has_unliked = App\Models\Like::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->where('like', 0)->first();
+                                                                        $user_has_not_liked = App\Models\Like::where('comment_id', $comment->id)->first();
+                                                                        $like_count = App\Models\Like::where('comment_id', $comment->id)->where('like', 1)->count();
+                                                                    @endphp
+                                                                    @if(count($likes) > 0)
+                                                                        @if($user_has_liked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" style="display: none" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @elseif($user_has_unliked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                        @elseif($user_has_not_liked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @endif
+                                                                    @else
+                                                                        <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                    @endif
+                                                                </form>
+                                                                <span id="like-div{{$comment->id}}">
+                                                                    <small id="like-no{{$comment->id}}" class="text-color">{{$like_count}}</small>
+                                                                </span>
+                                                            </span>
+                                                            <span class="mr-4">
+                                                                <h1><i class="mdi mdi-comment-text-multiple"></i></h1>
+                                                                @php
+                                                                    $comment_reply_count = App\Models\CommentReply::where('comment_id', $comment->id)->count();
+                                                                @endphp
+                                                                <small class="text-pink">{{$comment_reply_count}}</small>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <div class="d-flex text-end">
+                                                            @php
+                                                                $saved_post = App\Models\SavedPost::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->first();
+                                                            @endphp
+                                                            @if(isset($saved_post) && !empty($saved_post))
+                                                                @if($saved_post->status == 0)
+                                                                    <span>
+                                                                        <form action="{{route('save.post')}}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                            <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                            <input type="hidden" name="status" value="1">
+                                                                            <button type="submit" name="unpin_post" class="custom-button">
+                                                                                <h1><i class="fe fe-bookmark"></i></h1>
+                                                                                <small>Save</small>
+                                                                            </button>
+                                                                        </form>
+                                                                    </span>
+                                                                @elseif($saved_post->status == 1)
+                                                                    <span>
+                                                                        <form action="{{route('save.post')}}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                            <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                            <input type="hidden" name="status" value="0">
+                                                                            <button type="submit" class="custom-button text-success">
+                                                                                <h1><i class="fe fe-bookmark"></i></h1>
+                                                                                <small>Saved</small>
+                                                                            </button>
+                                                                        </form>
+                                                                    </span>
+                                                                @endif
+                                                            @else
+                                                                <span>
+                                                                    <form action="{{route('save.post')}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                        <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                        <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                        <input type="hidden" name="status" value="1">
+                                                                        <button type="submit" class="custom-button">
+                                                                            <h1><i class="fe fe-bookmark"></i></h1>
+                                                                            <small>Save</small>
+                                                                        </button>
+                                                                    </form>
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <hr>
                                                 <form class="mt-1" action="{{route('reply.comment')}}" method="POST">
                                                     @csrf
@@ -546,11 +711,417 @@
                                                             <label class="visually-hidden">Leave a comment...</label>
                                                             <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                                             <input type="hidden" name="comment_id" value="{{$comment->id}}">
-                                                            <textarea name="comment_reply_body" class="form-control form-control-flush" data-autosize rows="1" placeholder="Leave a comment"></textarea>
+                                                            <textarea name="comment_reply_body" id="commentReply{{$comment->id}}" class="form-control form-control-flush" onkeyup="commentPost('commentReply{{$comment->id}}', 'commentReplyBtn{{$comment->id}}')" data-autosize rows="1" placeholder="Leave a comment"></textarea>
                                                         </div>
                                                         <div class="col-auto align-self-end">
                                                             <div class="text-muted mb-2">
-                                                                <button type="submit" name="reply" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary">
+                                                                <button type="submit" disabled id="commentReplyBtn{{$comment->id}}" name="reply" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary">
+                                                                    <span class="button__text"><i class="mdi mdi-check"></i> Comment</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                            @foreach($comments as $comment)
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    <span class="avatar avatar-sm">
+                                                        <?php $user = App\Models\User::where('id', $comment->user_id)->first(); ?>
+                                                        @if($user->photo)
+                                                            <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                            @else
+                                                            <div class="initials">
+                                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                            </div>
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                                <div class="col ms-n2">
+                                                    <h4 class="mb-1">
+                                                        <a href="{{route('user.profile', $user->id)}}">
+                                                            {{$user->name}}
+                                                        </a>
+                                                    </h4>
+                                                   <p class="card-text small text-muted">
+                                                       <span class="fe fe-clock"></span>
+                                                       @if($comment->created_at < $comment->updated_at)
+                                                            Edited {{\Carbon\Carbon::parse($comment->updated_at)->toFormattedDateString()}}
+                                                            @else
+                                                            Posted {{\Carbon\Carbon::parse($comment->created_at)->toFormattedDateString()}}
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                                <div class="col-auto d-flex">
+                                                    @if(Auth::user()->id == $team->user_id)
+                                                        <div class="mr-3">
+                                                            <form action="{{route('update.comment')}}" method="POST">
+                                                                {{ csrf_field() }}
+                                                                {{ method_field('patch') }}
+                                                                <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                <input type="hidden" name="pinned_post" value="1">
+                                                                <button type="submit" name="pin_post" class="custom-button text-color">
+                                                                    <i class="mdi mdi-pin"></i> Pin post
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    @endif
+                                                    @if($comment->user_id == Auth::user()->id)
+                                                        @if(empty($comment->article_id))
+                                                                <div class="dropdown">
+                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        <i class="fe fe-more-vertical"></i>
+                                                                    </a>
+                                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                                        <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditPost("{{$comment->comment_body}}", "{{$comment->id}}")' class="dropdown-item">
+                                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                        </a>
+                                                                        <form action="/admin/teams/comment/{{$comment->id}}" method="POST">
+                                                                            {{ csrf_field() }}
+                                                                            {{ method_field('DELETE') }}
+                                                                            <button type="submit" name="submit" onclick="return deletePost();" class="dropdown-item">
+                                                                                <i class="fe fe-trash mr-2"></i>Delete
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="mb-4">
+                                            @if($comment->article_id)
+                                                @php
+                                                    $body = json_decode($comment->comment_body)
+                                                @endphp
+                                                <p>{!! $body[0] !!}</p>
+                                                <p>{!! $body[1] !!}</p>
+                                                <p><a href="{{$body[2]}}" class="text-color"><u>View full article <i class="fe fe-arrow-right"></i></u></a></p>
+                                                @else
+                                                {!! $comment->comment_body !!}
+                                            @endif
+                                        </p>
+                                        <p class="mb-4 text-center">
+                                            @if($send_request)
+                                                @if($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                                    @if($comment->file_type == 'image')
+                                                        <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                        @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
+                                                        @elseif($comment->file_type == 'PDF')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->pdf_name}}">
+                                                                {{$comment->pdf_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'DOC')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->doc_name}}">
+                                                                {{$comment->doc_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'ZIP')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->zip_name}}">
+                                                                {{$comment->zip_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'RAR')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->rar_name}}">
+                                                                {{$comment->rar_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                    @else
+                                                    @if($comment->file_type == 'image')
+                                                        <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                        @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
+                                                        @elseif($comment->file_type == 'PDF')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->pdf_name}}">
+                                                                {{$comment->pdf_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'DOC')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->doc_name}}">
+                                                                {{$comment->doc_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'ZIP')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->zip_name}}">
+                                                                {{$comment->zip_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'RAR')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->rar_name}}">
+                                                                {{$comment->rar_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                @endif
+                                                @else
+                                                @if($comment->file_type == 'image')
+                                                    <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                    @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
+                                                    @elseif($comment->file_type == 'PDF')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->pdf_name}}">
+                                                            {{$comment->pdf_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                    @elseif($comment->file_type == 'DOC')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->doc_name}}">
+                                                            {{$comment->doc_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                    @elseif($comment->file_type == 'ZIP')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->zip_name}}">
+                                                            {{$comment->zip_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                    @elseif($comment->file_type == 'RAR')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->rar_name}}">
+                                                            {{$comment->rar_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </p>
+                                        @foreach($comment->comment_replies as $comment_reply)
+                                            <div class="comment mt-4 mb-4">
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <span class="avatar avatar-sm">
+                                                            <?php $user = App\Models\User::where('id', $comment_reply->user_id)->first(); ?>
+                                                            @if($user->photo)
+                                                                <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                @else
+                                                                <div class="initials">
+                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                </div>
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="col ms-n2">
+                                                        <div class="comment-body">
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    <h5 class="comment-title">
+                                                                        <a href="{{route('user.profile', $user->id)}}">
+                                                                            {{$user->name}}
+                                                                        </a>
+                                                                    </h5>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <time class="comment-time">
+                                                                        {{\Carbon\Carbon::parse($comment_reply->created_at)->toFormattedDateString()}}
+                                                                    </time>
+                                                                </div>
+                                                            </div>
+                                                            <p class="comment-text">
+                                                                {{$comment_reply->comment_reply_body}}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        @if($send_request)
+                                            @if($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                                <div class="row justify-content-between">
+                                                    <div class="col">
+                                                        <div class="d-flex">
+                                                            <span class="mr-4">
+                                                                <form id="like-form">
+                                                                    <input type="hidden" name="user_id" id="user-id" value="{{Auth::user()->id}}">
+                                                                    <input type="hidden" name="comment_id" id="comment-id" value="{{$comment->id}}">
+                                                                    <input type="hidden" name="team_id" id="team-id" value="{{$team->id}}">
+                                                                    @php
+                                                                        $likes = App\Models\Like::where('comment_id', $comment->id)->get();
+                                                                        $user_has_liked = App\Models\Like::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->where('like', 1)->first();
+                                                                        $user_has_unliked = App\Models\Like::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->where('like', 0)->first();
+                                                                        $user_has_not_liked = App\Models\Like::where('comment_id', $comment->id)->first();
+                                                                        $like_count = App\Models\Like::where('comment_id', $comment->id)->where('like', 1)->count();
+                                                                    @endphp
+                                                                    @if(count($likes) > 0)
+                                                                        @if($user_has_liked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" style="display: none" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @elseif($user_has_unliked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                        @elseif($user_has_not_liked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @endif
+                                                                    @else
+                                                                        <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$comment->id}}', 'like-btn{{$comment->id}}', 'like-div{{$comment->id}}', 'like-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                    @endif
+                                                                </form>
+                                                                <span id="like-div{{$comment->id}}">
+                                                                    <small id="like-no{{$comment->id}}" class="text-color">{{$like_count}}</small>
+                                                                </span>
+                                                            </span>
+                                                            <span class="mr-4">
+                                                                <h1><i class="mdi mdi-comment-text-multiple"></i></h1>
+                                                                @php
+                                                                    $comment_reply_count = App\Models\CommentReply::where('comment_id', $comment->id)->count();
+                                                                @endphp
+                                                                <small class="text-pink">{{$comment_reply_count}}</small>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <div class="d-flex text-end">
+                                                            @php
+                                                                $saved_post = App\Models\SavedPost::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->first();
+                                                            @endphp
+                                                            @if(isset($saved_post) && !empty($saved_post))
+                                                                @if($saved_post->status == 0)
+                                                                    <span>
+                                                                        <form action="{{route('save.post')}}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                            <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                            <input type="hidden" name="status" value="1">
+                                                                            <button type="submit" class="custom-button">
+                                                                                <h1><i class="fe fe-bookmark"></i></h1>
+                                                                                <small>Save</small>
+                                                                            </button>
+                                                                        </form>
+                                                                    </span>
+                                                                @elseif($saved_post->status == 1)
+                                                                    <span>
+                                                                        <form action="{{route('save.post')}}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                            <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                            <input type="hidden" name="status" value="0">
+                                                                            <button type="submit" class="custom-button text-success">
+                                                                                <h1><i class="fe fe-bookmark"></i></h1>
+                                                                                <small>Saved</small>
+                                                                            </button>
+                                                                        </form>
+                                                                    </span>
+                                                                @endif
+                                                            @else
+                                                                <span>
+                                                                    <form action="{{route('save.post')}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                        <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                        <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                        <input type="hidden" name="status" value="1">
+                                                                        <button type="submit" class="custom-button">
+                                                                            <h1><i class="fe fe-bookmark"></i></h1>
+                                                                            <small>Save</small>
+                                                                        </button>
+                                                                    </form>
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <form class="mt-1" action="{{route('reply.comment')}}" method="POST">
+                                                    @csrf
+                                                    <div class="row">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm">
+                                                                {{-- <img src="{{Auth::user()->photo}}" alt="{{Auth::user()->name}}" class="avatar-img rounded-circle"> --}}
+                                                                @if(Auth::user()->photo)
+                                                                    <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                                                    @else
+                                                                    <div class="initials">
+                                                                        <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="col ms-n2">
+                                                            <label class="visually-hidden">Leave a comment...</label>
+                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                            <textarea name="comment_reply_body" id="commentReply{{$comment->id}}" class="form-control form-control-flush" onkeyup="commentPost('commentReply{{$comment->id}}', 'commentReplyBtn{{$comment->id}}')" data-autosize rows="1" placeholder="Leave a comment"></textarea>
+                                                        </div>
+                                                        <div class="col-auto align-self-end">
+                                                            <div class="text-muted mb-2">
+                                                                <button type="submit" disabled id="commentReplyBtn{{$comment->id}}" name="reply" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary">
                                                                     <span class="button__text"><i class="mdi mdi-check"></i> Comment</span>
                                                                 </button>
                                                             </div>
@@ -567,7 +1138,752 @@
                                 <div class="card-body">
                                     <div class="mt-3 mb-3">
                                         <div class="row align-items-center text-center">
-                                            <h4 class="text-muted"><i class="mdi mdi-file-outline"></i> There are currently no posts</h4>
+                                            <h4 class="text-muted"><i class="mdi mdi-file-outline"></i> No post found</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="col-12 col-xl-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-header-title">
+                                    Recent Files
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                @if(Auth::user()->id == $team->user_id)
+                                    <div class="list-group list-group-flush my-n3">
+                                        @if(count($shared_files) > 0)
+                                            @foreach($shared_files as $shared_file)
+                                                @if($shared_file->file_type == 'PDF')
+                                                    <div class="list-group-item">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->pdf_name}}">
+                                                                </a>
+                                                            </div>
+                                                            <div class="col ms-n2">
+                                                                <h4 class="mb-1">
+                                                                    <a href="{{$shared_file->file}}">{{$shared_file->pdf_name}}</a>
+                                                                </h4>
+                                                                <p class="card-text small text-muted">
+                                                                    <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                        <i class="fe fe-download mx-2"></i>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @elseif($shared_file->file_type == 'DOC')
+                                                    <div class="list-group-item">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->doc_name}}">
+                                                                </a>
+                                                            </div>
+                                                            <div class="col ms-n2">
+                                                                <h4 class="mb-1">
+                                                                    <a href="{{$shared_file->file}}">{{$shared_file->doc_name}}</a>
+                                                                </h4>
+                                                                <p class="card-text small text-muted">
+                                                                    <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                        <i class="fe fe-download mx-2"></i>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @elseif($shared_file->file_type == 'ZIP')
+                                                    <div class="list-group-item">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->zip_name}}">
+                                                                </a>
+                                                            </div>
+                                                            <div class="col ms-n2">
+                                                                <h4 class="mb-1">
+                                                                    <a href="{{$shared_file->file}}">{{$shared_file->zip_name}}</a>
+                                                                </h4>
+                                                                <p class="card-text small text-muted">
+                                                                    <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                        <i class="fe fe-download mx-2"></i>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @elseif($shared_file->file_type == 'RAR')
+                                                    <div class="list-group-item">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->rar_name}}">
+                                                                </a>
+                                                            </div>
+                                                            <div class="col ms-n2">
+                                                                <h4 class="mb-1">
+                                                                    <a href="{{$shared_file->file}}">{{$shared_file->rar_name}}</a>
+                                                                </h4>
+                                                                <p class="card-text small text-muted">
+                                                                    <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <a href="{{$shared_file->file}}">
+                                                                    <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                        <i class="fe fe-download mx-2"></i>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                            @else
+                                            <div class="row align-items-center text-center">
+                                                <h4 class="text-muted"><i class="mdi mdi-file-outline"></i> There are no files</h4>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @else
+                                    @if(empty($send_request))
+                                        <div class="text-center m-6">
+                                            <h3 class="text-muted"><i class="i.mdi.mdi-warning"></i> You need to join this team to get access</h3>
+                                            <div class="col-auto mt-2">
+                                                <form action="{{route('send.request')}}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="send_request" value="1">
+                                                    <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                    <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                    <input type="hidden" name="team_owner_id" value="{{$team->user_id}}">
+                                                    <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="btn text-white btn-primary d-block d-md-inline-block">
+                                                        <span class="button__text"><i class="mdi mdi-plus"></i> Request Access</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        @elseif($send_request->send_request == 0)
+                                        <div class="text-center m-6">
+                                            <h3 class="text-muted"><i class="i.mdi.mdi-warning"></i> You need to join this team to get access</h3>
+                                            <div class="col-auto mt-2">
+                                                <form action="{{route('send.request')}}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="send_request" value="1">
+                                                    <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                    <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                    <input type="hidden" name="team_owner_id" value="{{$team->user_id}}">
+                                                    <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="btn text-white btn-primary d-block d-md-inline-block">
+                                                        <span class="button__text"><i class="mdi mdi-plus"></i> Request Access</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        @elseif($send_request->send_request == 1 && $send_request->approve_request == 0)
+                                        <div class="text-center m-6">
+                                            <h3 class="text-muted"><i class="i.mdi.mdi-warning"></i> You need to join this team to get access</h3>
+                                            <div class="col-auto mt-2">
+                                                <a style="cursor: not-allowed; text-align: center" class="px-5 bg-padding py-3 d-block d-md-inline-block font-medium leading-5 text-gray-400 transition-colors duration-150 bg-gray-100 hover:bg-gray-100 dark:bg-gray-700 border border-transparent rounded-lg">Request Sent</a>
+                                            </div>
+                                        </div>
+                                        @elseif($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                        <div class="list-group list-group-flush my-n3">
+                                            @if(count($shared_files) > 0)
+                                                @foreach($shared_files as $shared_file)
+                                                    @if($shared_file->file_type == 'PDF')
+                                                        <div class="list-group-item">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->pdf_name}}">
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col ms-n2">
+                                                                    <h4 class="mb-1">
+                                                                        <a href="{{$shared_file->file}}">{{$shared_file->pdf_name}}</a>
+                                                                    </h4>
+                                                                    <p class="card-text small text-muted">
+                                                                        <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                            <i class="fe fe-download mx-2"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @elseif($shared_file->file_type == 'DOC')
+                                                        <div class="list-group-item">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->doc_name}}">
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col ms-n2">
+                                                                    <h4 class="mb-1">
+                                                                        <a href="{{$shared_file->file}}">{{$shared_file->doc_name}}</a>
+                                                                    </h4>
+                                                                    <p class="card-text small text-muted">
+                                                                        <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                            <i class="fe fe-download mx-2"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @elseif($shared_file->file_type == 'ZIP')
+                                                        <div class="list-group-item">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->zip_name}}">
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col ms-n2">
+                                                                    <h4 class="mb-1">
+                                                                        <a href="{{$shared_file->file}}">{{$shared_file->zip_name}}</a>
+                                                                    </h4>
+                                                                    <p class="card-text small text-muted">
+                                                                        <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                            <i class="fe fe-download mx-2"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @elseif($shared_file->file_type == 'RAR')
+                                                        <div class="list-group-item">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$shared_file->rar_name}}">
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col ms-n2">
+                                                                    <h4 class="mb-1">
+                                                                        <a href="{{$shared_file->file}}">{{$shared_file->rar_name}}</a>
+                                                                    </h4>
+                                                                    <p class="card-text small text-muted">
+                                                                        <time datetime="2018-05-24">Shared {{\Carbon\Carbon::parse($shared_file->created_at)->toFormattedDateString()}}</time>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <a href="{{$shared_file->file}}">
+                                                                        <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                            <i class="fe fe-download mx-2"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                                @else
+                                                <div class="row align-items-center text-center">
+                                                    <h4 class="text-muted"><i class="mdi mdi-file-outline"></i> There are no files</h4>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-header-title">
+                                    Members
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush my-n3">
+                                    @if($some_approved_members)
+                                        @foreach ($some_approved_members as $some_approved_member)
+                                            <div class="list-group-item">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <span class="avatar avatar-sm">
+                                                            <?php $user = App\Models\User::where('id', $some_approved_member->user_id)->first(); ?>
+                                                            @if($user->photo)
+                                                                <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                @else
+                                                                <div class="initials">
+                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                </div>
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="col ms-n2">
+                                                        <h4 class="mb-1">
+                                                            <a href="{{route('user.profile', $user->id)}}">{{$user->name}}</a>
+                                                        </h4>
+                                                        @php
+                                                            $last_seen = strtotime($user->last_seen); //get last_seen from database and convert to numbers
+                                                            $now = \Carbon\Carbon::now(); // get current date and time
+                                                            $get_now = strtotime($now); // convert current date and time to numbers
+                                                            $subtract_now = strtotime("-2 min", $get_now); //subtract 2mins from current date and time
+                                                            $final = $get_now - $subtract_now; //get exactly 2mins which is 120seconds
+                                                            $get_seen = $get_now - $last_seen; // get the difference between the last seen date and current date, if it is less than 2mins keep online if not keep offline
+                                                        @endphp
+                                                        <p class="card-text small">
+                                                            @if($get_seen <= $final)
+                                                                <span class="text-success">●</span> Online
+                                                                @else
+                                                                <span class="text-secondary">●</span> Offline
+                                                            @endif
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        @else
+                                        <div class="text-center mt-4">
+                                            <h3 class="text-muted"><i class="fe fe-users"></i> No members</h3>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="saved" role="tabpanel" aria-labelledby="saved-tab">
+                <div class="row">
+                    <div class="col-12 col-xl-8">
+                        @if(count($saved_posts) > 0)
+                            @foreach($saved_posts as $saved_post)
+                                @php
+                                    $comment = App\Models\Comment::where('id', $saved_post->comment_id)->first();
+                                @endphp
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    <span class="avatar avatar-sm">
+                                                        <?php $user = App\Models\User::where('id', $comment->user_id)->first(); ?>
+                                                        @if($user->photo)
+                                                            <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                            @else
+                                                            <div class="initials">
+                                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                            </div>
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                                <div class="col ms-n2">
+                                                    <h4 class="mb-1">
+                                                        <a href="{{route('user.profile', $user->id)}}">
+                                                            {{$user->name}}
+                                                        </a>
+                                                    </h4>
+                                                   <p class="card-text small text-muted">
+                                                       <span class="fe fe-clock"></span>
+                                                       @if($comment->created_at < $comment->updated_at)
+                                                            Edited {{\Carbon\Carbon::parse($comment->updated_at)->toFormattedDateString()}}
+                                                            @else
+                                                            Posted {{\Carbon\Carbon::parse($comment->created_at)->toFormattedDateString()}}
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                                <div class="col-auto">
+                                                    @if($comment->user_id == Auth::user()->id)
+                                                        @if(empty($comment->article_id))
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditPost("{{$comment->comment_body}}", "{{$comment->id}}")' class="dropdown-item">
+                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                    </a>
+                                                                    <form action="/admin/teams/comment/{{$comment->id}}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{ method_field('DELETE') }}
+                                                                        <button type="submit" name="submit" onclick="return deletePost();" class="dropdown-item">
+                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="mb-4">
+                                            @if($comment->article_id)
+                                                @php
+                                                    $body = json_decode($comment->comment_body)
+                                                @endphp
+                                                <p>{!! $body[0] !!}</p>
+                                                <p>{!! $body[1] !!}</p>
+                                                <p><a href="{{$body[2]}}" class="text-color"><u>View full article <i class="fe fe-arrow-right"></i></u></a></p>
+                                                @else
+                                                {!! $comment->comment_body !!}
+                                            @endif
+                                        </p>
+                                        <p class="mb-4 text-center">
+                                            @if($send_request)
+                                                @if($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                                    @if($comment->file_type == 'image')
+                                                        <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                        @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
+                                                        @elseif($comment->file_type == 'PDF')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->pdf_name}}">
+                                                                {{$comment->pdf_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'DOC')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->doc_name}}">
+                                                                {{$comment->doc_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'ZIP')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->zip_name}}">
+                                                                {{$comment->zip_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'RAR')
+                                                        <div class="comment-body">
+                                                            <a class="w-full" href="{{$comment->file}}">
+                                                                <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->rar_name}}">
+                                                                {{$comment->rar_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                    @else
+                                                    @if($comment->file_type == 'image')
+                                                        <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                        @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
+                                                        @elseif($comment->file_type == 'PDF')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->pdf_name}}">
+                                                                {{$comment->pdf_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'DOC')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->doc_name}}">
+                                                                {{$comment->doc_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'ZIP')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->zip_name}}">
+                                                                {{$comment->zip_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        @elseif($comment->file_type == 'RAR')
+                                                        <div class="comment-body">
+                                                            <a class="w-full cursor" onclick="info()">
+                                                                <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->rar_name}}">
+                                                                {{$comment->rar_name}}
+                                                                <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                    <i class="fe fe-download mx-2"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                @endif
+                                                @else
+                                                @if($comment->file_type == 'image')
+                                                    <img src="{{$comment->file}}" class="img-fluid rounded">
+                                                    @elseif($comment->file_type == 'video')
+                                                        <video controls class="rounded w-100">
+                                                            <source src="{{$comment->file}}" type="video/mp4">
+                                                        </video>
+                                                    @elseif($comment->file_type == 'PDF')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/pdf.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->pdf_name}}">
+                                                            {{$comment->pdf_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                    @elseif($comment->file_type == 'DOC')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/doc.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->doc_name}}">
+                                                            {{$comment->doc_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                    @elseif($comment->file_type == 'ZIP')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/zip.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->zip_name}}">
+                                                            {{$comment->zip_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                    @elseif($comment->file_type == 'RAR')
+                                                    <div class="comment-body">
+                                                        <a class="w-full cursor" onclick="info()">
+                                                            <img src="{{asset('assets/images/rar.png')}}" class="h-2 w-2 mr-2" alt="{{$comment->rar_name}}">
+                                                            {{$comment->rar_name}}
+                                                            <span class="flex align items text-gray-600 dark:text-gray-300">
+                                                                <i class="fe fe-download mx-2"></i>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </p>
+                                        @foreach($comment->comment_replies as $comment_reply)
+                                            <div class="comment mt-4 mb-4">
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <span class="avatar avatar-sm">
+                                                            <?php $user = App\Models\User::where('id', $comment_reply->user_id)->first(); ?>
+                                                            @if($user->photo)
+                                                                <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                @else
+                                                                <div class="initials">
+                                                                    <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                                                </div>
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="col ms-n2">
+                                                        <div class="comment-body">
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    <h5 class="comment-title">
+                                                                        <a href="{{route('user.profile', $user->id)}}">
+                                                                            {{$user->name}}
+                                                                        </a>
+                                                                    </h5>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <time class="comment-time">
+                                                                        {{\Carbon\Carbon::parse($comment_reply->created_at)->toFormattedDateString()}}
+                                                                    </time>
+                                                                </div>
+                                                            </div>
+                                                            <p class="comment-text">
+                                                                {{$comment_reply->comment_reply_body}}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        @if($send_request)
+                                            @if($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                                <div class="row justify-content-between">
+                                                    <div class="col">
+                                                        <div class="d-flex">
+                                                            <span class="mr-4">
+                                                                <form id="like-form">
+                                                                    <input type="hidden" name="user_id" id="user-id" value="{{Auth::user()->id}}">
+                                                                    <input type="hidden" name="comment_id" id="comment-id" value="{{$comment->id}}">
+                                                                    <input type="hidden" name="team_id" id="team-id" value="{{$team->id}}">
+                                                                    @php
+                                                                        $likes = App\Models\Like::where('comment_id', $comment->id)->get();
+                                                                        $user_has_liked = App\Models\Like::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->where('like', 1)->first();
+                                                                        $user_has_unliked = App\Models\Like::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->where('like', 0)->first();
+                                                                        $user_has_not_liked = App\Models\Like::where('comment_id', $comment->id)->first();
+                                                                        $like_count = App\Models\Like::where('comment_id', $comment->id)->where('like', 1)->count();
+                                                                    @endphp
+                                                                    @if(count($likes) > 0)
+                                                                        @if($user_has_liked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" id="savedunlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" style="display: none" id="savedlike-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @elseif($user_has_unliked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="savedlike-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="savedunlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @elseif($user_has_not_liked)
+                                                                            <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="savedlike-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                            <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="savedunlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        @endif
+                                                                    @else
+                                                                        <h1 class="cursor-pointer"><i class="mdi like mdi-heart-outline font-md" id="savedlike-btn{{$comment->id}}" onclick="like('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                        <h1 class="cursor-pointer"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="savedunlike-btn{{$comment->id}}" onclick="unLike('{{$like_count}}', 'savedunlike-btn{{$comment->id}}', 'savedlike-btn{{$comment->id}}', 'savedlike-div{{$comment->id}}', 'savedlike-no{{$comment->id}}', '{{$comment->id}}', '{{Auth::user()->id}}', '{{$team->id}}')"></i></h1>
+                                                                    @endif
+                                                                </form>
+                                                                <span id="savedlike-div{{$comment->id}}">
+                                                                    <small id="savedlike-no{{$comment->id}}" class="text-color">{{$like_count}}</small>
+                                                                </span>
+                                                            </span>
+                                                            <span class="mr-4">
+                                                                <h1><i class="mdi mdi-comment-text-multiple"></i></h1>
+                                                                @php
+                                                                    $comment_reply_count = App\Models\CommentReply::where('comment_id', $comment->id)->count();
+                                                                @endphp
+                                                                <small class="text-pink">{{$comment_reply_count}}</small>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <div class="d-flex text-end">
+                                                            @php
+                                                                $saved_post = App\Models\SavedPost::where('comment_id', $comment->id)->where('user_id', Auth::user()->id)->first();
+                                                            @endphp
+                                                            @if(isset($saved_post) && !empty($saved_post))
+                                                                @if($saved_post->status == 0)
+                                                                    <span>
+                                                                        <form action="{{route('save.post')}}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                            <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                            <input type="hidden" name="status" value="1">
+                                                                            <button type="submit" name="unpin_post" class="custom-button">
+                                                                                <h1><i class="fe fe-bookmark"></i></h1>
+                                                                                <small>Save</small>
+                                                                            </button>
+                                                                        </form>
+                                                                    </span>
+                                                                @elseif($saved_post->status == 1)
+                                                                    <span>
+                                                                        <form action="{{route('save.post')}}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                            <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                            <input type="hidden" name="status" value="0">
+                                                                            <button type="submit" class="custom-button text-success">
+                                                                                <h1><i class="fe fe-bookmark"></i></h1>
+                                                                                <small>Saved</small>
+                                                                            </button>
+                                                                        </form>
+                                                                    </span>
+                                                                @endif
+                                                            @else
+                                                                <span>
+                                                                    <form action="{{route('save.post')}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                        <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                                        <input type="hidden" name="team_id" value="{{$team->id}}">
+                                                                        <input type="hidden" name="status" value="1">
+                                                                        <button type="submit" class="custom-button">
+                                                                            <h1><i class="fe fe-bookmark"></i></h1>
+                                                                            <small>Save</small>
+                                                                        </button>
+                                                                    </form>
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <form class="mt-1" action="{{route('reply.comment')}}" method="POST">
+                                                    @csrf
+                                                    <div class="row">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm">
+                                                                {{-- <img src="{{Auth::user()->photo}}" alt="{{Auth::user()->name}}" class="avatar-img rounded-circle"> --}}
+                                                                @if(Auth::user()->photo)
+                                                                    <img src="{{Auth::user()->photo}}" class="avatar-img rounded-circle" alt="{{Auth::user()->name}}">
+                                                                    @else
+                                                                    <div class="initials">
+                                                                        <span>{{Str::limit(Auth::user()->name, 1, '')}}{{Str::limit(Auth::user()->surname, 1, '')}}</span>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="col ms-n2">
+                                                            <label class="visually-hidden">Leave a comment...</label>
+                                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                            <input type="hidden" name="comment_id" value="{{$comment->id}}">
+                                                            <textarea name="comment_reply_body" id="savedCommentReply{{$comment->id}}" class="form-control form-control-flush" onkeyup="commentPost('savedCommentReply{{$comment->id}}', 'savedCommentReplyBtn{{$comment->id}}')" data-autosize rows="1" placeholder="Leave a comment"></textarea>
+                                                        </div>
+                                                        <div class="col-auto align-self-end">
+                                                            <div class="text-muted mb-2">
+                                                                <button type="submit" disabled id="savedCommentReplyBtn{{$comment->id}}" name="reply" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary">
+                                                                    <span class="button__text"><i class="mdi mdi-check"></i> Comment</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                            @else
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="mt-3 mb-3">
+                                        <div class="row align-items-center text-center">
+                                            <h4 class="text-muted"><i class="mdi mdi-file-outline"></i> You have no saved post</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -1479,7 +2795,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
                 <div class="row">
                     <div class="col-12 col-xl-8">
@@ -1799,6 +3114,133 @@
 
             document.getElementById('hide-copy').style.display = 'none';
             document.getElementById('show-status').style.display = 'inline-block';
+        }
+
+        const searchPostBtn = document.getElementById('searchPostBtn')
+        const postBtn = document.getElementById('remove-1')
+        const postBtn1 = document.getElementById('show-1')
+
+        const searchBar = document.getElementById('searchBar')
+        const commentBody = document.getElementById('commentBody')
+
+        const checkSearchButton = () => {
+            searchPostBtn.disabled = !(
+                searchBar.value
+            )
+        }
+        const checkPostButton = () => {
+            postBtn.disabled = !(
+                commentBody.value
+            )
+        }
+        const checkPostButton1 = () => {
+            postBtn1.disabled = !(
+                commentBody.value
+            )
+        }
+
+        searchBar.addEventListener('change', checkSearchButton)
+        commentBody.addEventListener('change', checkPostButton)
+        commentBody.addEventListener('change', checkPostButton1)
+
+        function unpin(x) {
+            x.innerHTML = '<i class="mdi mdi-pin-off"></i> Unpin post';
+            x.classList.remove('text-success');
+            x.classList.add('text-color');
+        }
+        function pin(x) {
+            x.innerHTML = '<i class="mdi mdi-pin"></i> Pinned';
+            x.classList.remove('text-color');
+            x.classList.add('text-success');
+        }
+
+        function commentPost(commentBody, commentBtn) {
+        $(document).ready(function () {
+            var emptyCommentBox = $.trim($("#" + commentBody).val());
+            if (emptyCommentBox === "") {
+                document.getElementById(commentBtn).disabled = true;
+                document.getElementById(commentBtn).style.opacity = 0.3;
+                document.getElementById(commentBtn).style.cursor = 'unset';
+            } else {
+                document.getElementById(commentBtn).disabled = false;
+                document.getElementById(commentBtn).style.opacity = 1;
+                document.getElementById(commentBtn).style.cursor = 'pointer';
+            }
+        });
+    }
+
+    </script>
+    <script>
+        // liking team post function
+        function like(likeCount, unlikeBtn, likeBtn, likeDiv, likeNo, commentId, userId, teamId) {
+            document.getElementById(unlikeBtn).style.display = 'block';
+            document.getElementById(unlikeBtn).style.marginTop = '-19px';
+            document.getElementById(likeBtn).style.display = 'none';
+            if( document.getElementById(likeDiv).style.display = 'none') {
+                document.getElementById(likeDiv).style.display = 'block';
+                noOfLikes = document.getElementById(likeNo).innerHTML;
+                document.getElementById(likeNo).innerHTML = parseInt(noOfLikes) + 1;
+            } else {
+                noOfLikes = document.getElementById(likeNo).innerHTML;
+                document.getElementById(likeNo).innerHTML = parseInt(noOfLikes) + 1;
+            }
+
+            let user_id = userId;
+            let comment_id = commentId;
+            let team_id = teamId;
+            let like = 1;
+
+            $.ajax({
+                type:'POST',
+                url: "{{ url('/admin/teams/post/like')}}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id:user_id,
+                    team_id:team_id,
+                    comment_id:comment_id,
+                    like:like,
+                },
+                success:function(data){
+                    $("#like-form")[0].reset();
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        // unliking team post function
+        function unLike(likeCount, unlikeBtn, likeBtn, likeDiv, likeNo, commentId, userId, teamId) {
+            document.getElementById(likeBtn).style.display = 'block';
+            // document.getElementById(likeBtn).style.marginTop = '-18px';
+            document.getElementById(unlikeBtn).style.display = 'none';
+            noOfLikes = document.getElementById(likeNo).innerHTML;
+            document.getElementById(likeNo).innerHTML = parseInt(noOfLikes) - 1;
+
+            let user_id = userId;
+            let comment_id = commentId;
+            let team_id = teamId;
+            let like = 0;
+
+            $.ajax({
+                type:'POST',
+                url: "{{ url('/admin/teams/post/like')}}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id:user_id,
+                    team_id:team_id,
+                    comment_id:comment_id,
+                    like:like,
+                },
+                success:function(data){
+                    $("#like-form")[0].reset();
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
         }
 
     </script>

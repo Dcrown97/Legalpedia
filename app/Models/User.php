@@ -94,21 +94,21 @@ class User extends Authenticatable
     // }
 
     public function subscribedUser() {
-        if($this->package_id !== '' && $this->expiry_date > now() && $this->status == 'active') {
+        if(isset($this->package_id) && !empty($this->package_id) && $this->expiry_date > now() && $this->status == 'active') {
             return true;
         }
         return false;
     }
 
     public function pendingUser() {
-        if($this->package_id !== '' && $this->expiry_date > now() && $this->status == 'inactive') {
+        if(isset($this->package_id) && !empty($this->package_id) && $this->expiry_date > now() && $this->status == 'inactive') {
             return true;
         }
         return false;
     }
 
     public function expiredUser() {
-        if($this->package_id !== '' && $this->expiry_date < now()) {
+        if(isset($this->package_id) && !empty($this->package_id) && $this->expiry_date < now()) {
             return true;
         }
         return false;

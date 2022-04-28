@@ -25,6 +25,18 @@
         height: auto !important;
     }
 </style>
+<style>html {scroll-behavior: smooth;}</style>
+    @php
+        if (isset(request()->search) && !empty(request()->search)) {
+            $searchData = request()->search;
+        } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
+            $searchData = request()->year_result;
+        } elseif(isset(request()->more_result) && !empty(request()->more_result)) {
+            $searchData = request()->more_result;
+        } else {
+            $searchData = "";
+        }
+    @endphp
     @php
         if($order){
             $rule_id = $order->id;
@@ -93,19 +105,19 @@
                     <div class="col">
                         <h1 class="header-title">
                             @if($order)
-                                {{$order->title}}
+                                {!! highlightText($order->title, $searchData) !!}
                                 @elseif($schedule)
-                                {{$schedule->title}}
+                                {!! highlightText($schedule->title, $searchData) !!}
                                 @elseif($part)
-                                {{$part->title}}
+                                {!! highlightText($part->title, $searchData) !!}
                                 @elseif($form)
-                                {{$form->title}}
+                                {!! highlightText($form->title, $searchData) !!}
                                 @elseif($probate_form)
-                                {{$probate_form->title}}
+                                {!! highlightText($probate_form->title, $searchData) !!}
                                 @elseif($civil_form)
-                                {{$civil_form->title}}
+                                {!! highlightText($civil_form->title, $searchData) !!}
                                 @elseif($appendix)
-                                {{$appendix->title}}
+                                {!! highlightText($appendix->title, $searchData) !!}
                             @endif
                         </h1>
                     </div>
@@ -122,36 +134,51 @@
                     <div class="card-body p-5" id="content">
                         <h3>
                             @if($order)
-                                {{$order->title}}
+                                {!! highlightText($order->title, $searchData) !!}
                                 @elseif($schedule)
-                                {{$schedule->title}}
+                                {!! highlightText($schedule->title, $searchData) !!}
                                 @elseif($part)
-                                {{$part->title}}
+                                {!! highlightText($part->title, $searchData) !!}
                                 @elseif($form)
-                                {{$form->title}}
+                                {!! highlightText($form->title, $searchData) !!}
                                 @elseif($probate_form)
-                                {{$probate_form->title}}
+                                {!! highlightText($probate_form->title, $searchData) !!}
                                 @elseif($civil_form)
-                                {{$civil_form->title}}
+                                {!! highlightText($civil_form->title, $searchData) !!}
                                 @elseif($appendix)
-                                {{$appendix->title}}
+                                {!! highlightText($appendix->title, $searchData) !!}
                             @endif
                         </h3>
                         @if($order)
-                            {!! $order->content !!}
-                            @elseif($schedule)
-                            {!! $schedule->content !!}
-                            @elseif($part)
-                            {!! $part->content !!}
-                            @elseif($form)
-                            {!! $form->content !!}
-                            @elseif($probate_form)
-                            {!! $probate_form->content !!}
-                            @elseif($civil_form)
-                            {!! $civil_form->content !!}
-                            @elseif($appendix)
-                            {!! $appendix->content !!}
+                            <p id="{{returnHighlightText($order->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($order->content, $searchData) !!}
+                            </p>
+                        @elseif($schedule)
+                            <p id="{{returnHighlightText($schedule->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($schedule->content, $searchDa) !!}
+                            </p>
+                        @elseif($part)
+                            <p id="{{returnHighlightText($part->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($part->content, $searchData) !!}
+                            </p>
+                        @elseif($form)
+                            <p id="{{returnHighlightText($form->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($form->content, $searchData) !!}
+                            </p>
+                        @elseif($probate_form)
+                            <p id="{{returnHighlightText($probate_form->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($probate_form->content, $searchData) !!}
+                            </p>
+                        @elseif($civil_form)
+                            <p id="{{returnHighlightText($civil_form->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($civil_form->content, $searchData) !!}
+                            </p>
+                        @elseif($appendix)
+                            <p id="{{returnHighlightText($appendix->content, $searchData) == true ? 'rule' : '' }}">
+                                {!! highlightText($appendix->content, $searchData) !!}
+                            </p>
                         @endif
+                        </p>
                     </div>
                 </div>
             </div>

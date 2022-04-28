@@ -93,34 +93,26 @@ class AdminUserController extends Controller
                 $selected_end_date['last_seen_end_date'] = '';
                 return view('admin.customers.index', compact('users', 'roles', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package', 'selected_start_date', 'selected_end_date'));
             }
-            if($request->has('fetch_last_seen')) {
+            if(isset($request->last_seen_start_date) && isset($request->last_seen_end_date) ) {
                 $user = User::query();
-                if($request->filled('last_seen_start_date') && $request->filled('last_seen_end_date') ) {
-                    $start_date = Carbon::parse($request->last_seen_start_date)->addDays(1);
-                    $end_date = Carbon::parse($request->last_seen_end_date)->addDays(1);
-                    $users = $user->whereBetween('last_seen', [$start_date, $end_date])->orderBy('last_seen', 'DESC')->simplePaginate(10)->withQueryString();
-                }
-                if($request->filled('last_seen_start_date') && !$request->filled('last_seen_end_date') ) {
-                    $start_date = Carbon::parse($request->last_seen_start_date)->addDays(1);
-                    $users = $user->where('last_seen', $start_date)->orderBy('last_seen', 'DESC')->simplePaginate(10)->withQueryString();
-                }
-                if($request->filled('last_seen_end_date') && !$request->filled('last_seen_start_date') ) {
-                    $end_date = Carbon::parse($request->last_seen_end_date)->addDays(1);
-                    $users = $user->where('last_seen', $end_date)->orderBy('last_seen', 'DESC')->simplePaginate(10)->withQueryString();
-                }
+                $start_date = Carbon::parse($request->last_seen_start_date)->addDays(1);
+                $end_date = Carbon::parse($request->last_seen_end_date)->addDays(1);
+                $user_count = $user->whereBetween('last_seen', [$start_date, $end_date])->count();
+                $users = $user->whereBetween('last_seen', [$start_date, $end_date])->orderBy('last_seen', 'DESC')->simplePaginate(10)->withPath(url()->current())->withQueryString();
+
                 $selected_start_date = [];
                 $selected_start_date['last_seen_start_date'] = $request->last_seen_start_date;
                 $selected_end_date = [];
                 $selected_end_date['last_seen_end_date'] = $request->last_seen_end_date;
 
-                $user_count = $user->count();
                 $active_user_count = $user->where('status', 'active')->count();
                 $inactive_user_count = $user->where('status', '!=', 'active')->count();
                 $selected_status = [];
-                $selected_status['status'] = $request->status;
+                $selected_status['status'] = '';
                 $selected_package = [];
-                $selected_package['package'] = $request->package;
+                $selected_package['package'] = '';
                 return view('admin.customers.index', compact('users', 'roles', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package', 'selected_start_date', 'selected_end_date'));
+
             }
             $users = User::orderBy('created_at', 'DESC')->simplePaginate(10)->withQueryString();
             $user_count =  User::count();

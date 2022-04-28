@@ -143,7 +143,7 @@
                                 @php
                                     $package = App\Models\Package::where('id', Auth::user()->package_id)->first();
                                 @endphp
-                                <i class="mdi mdi-close text-color"></i> Inactive Package: {{$package->name}}
+                                <i class="mdi mdi-close text-color"></i> Inactive Package: {{@$package->name}}
                             </h5>
                         </div>
                         <div class="card-body">
@@ -175,7 +175,7 @@
                                 @php
                                     $package = App\Models\Package::where('id', Auth::user()->package_id)->first();
                                 @endphp
-                                <i class="mdi mdi-close text-color"></i> Inactive Package: {{$package->name}}
+                                <i class="mdi mdi-close text-color"></i> Inactive Package: {{@$package->name}}
                             </h5>
                         </div>
                         <div class="card-body">

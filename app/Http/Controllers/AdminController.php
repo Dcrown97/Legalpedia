@@ -61,6 +61,8 @@ use App\Notifications\TeamRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\LicensedUserSession;
+use App\Models\Like;
+use App\Models\SavedPost;
 use App\Notifications\MemberRemoval;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
@@ -3090,7 +3092,7 @@ class AdminController extends Controller
         $team->update($input);
         return redirect()->back()->with('success', 'Team updated');
     }
-    public function showTeam($id) {
+    public function showTeam(Request $request, $id) {
         $team = Team::findOrFail($id);
         $user = Auth::user()->id;
         $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->get();
@@ -3099,10 +3101,53 @@ class AdminController extends Controller
         $some_approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->limit(4)->get();
         $approved_member = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->first();
         $approved_member_count = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->count();
-        $comments = Comment::with('comment_replies')->where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
+        $comment = Comment::with('comment_replies')->where('team_id', $team->id)->where('pinned_post', 1)->first(); // pinned post
         $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
         $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
-        return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources'));
+        $saved_posts = SavedPost::where('team_id', $team->id)->where('user_id', Auth::user()->id)->where('status', 1)->orderBy('created_at', 'DESC')->get();
+        if(isset($request->search_post) && !empty($request->search_post)) {
+            $search = $request->search_post;
+            $query_comment = Comment::query();
+            $comments = $query_comment->with('comment_replies')
+                        ->where('team_id', $team->id)
+                        ->where('comment_body', 'LIKE', '%'.$search.'%')
+                        ->orderBy('created_at', 'DESC')
+                        ->get();
+            return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts'));
+        }
+        $comments = Comment::with('comment_replies')->where('team_id', $team->id)->where('id', '<>', @$comment->id)->orderBy('created_at', 'DESC')->get();
+        return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts'));
+    }
+    public function likeTeamPost(Request $request) {
+        $input = $request->all();
+        if($request->comment_id) {
+            $like = Like::where('user_id', $request->user_id)->where('comment_id', $request->comment_id)->first();
+            if($like) {
+                $like->update($input);
+            } else {
+                Like::create($input);
+            }
+            return response()->json(['success' => 'Team Post liked']);
+        }
+    }
+    public function saveTeamPost(Request $request) {
+        $input = $request->all();
+        if($request->comment_id) {
+            $saved_post = SavedPost::where('user_id', $request->user_id)->where('comment_id', $request->comment_id)->first();
+            if($saved_post) {
+                if($request->status == 1){
+                    $saved_post->update($input);
+                    return back()->with('success', 'Post saved');
+                } else {
+                    $saved_post->update($input);
+                    return back()->with('success', 'Post unsaved');
+                }
+
+            } else {
+                SavedPost::create($input);
+            }
+            return back()->with('success', 'Post saved');
+        }
     }
     public function joinTeam($id) {
         $team = Team::findOrFail($id);
@@ -3269,16 +3314,33 @@ class AdminController extends Controller
         }
     }
     public function updateComment(Request $request) {
-        $validated = $request->validate([
-            'comment_body' => 'required'
-        ]);
-        $input = [
-            'user_id' => $request->user_id,
-            'team_id' => $request->team_id,
-            'comment_body' => $request->comment_body
-        ];
-        DB::table('comments')->where('id', $request->comment_id)->update($input);
-        return redirect()->back()->with('success', 'Post reposted');
+        if($request->has('pin_post')) {
+            $input = [
+                'pinned_post' => $request->pinned_post,
+            ];
+            DB::table('comments')->where('team_id', $request->team_id)->where('pinned_post', 1)->update(array('pinned_post' => 0));
+            $comment = Comment::where('id', $request->comment_id)->first();
+            $comment->update($input);
+            return back()->with('success', 'Post pinned');
+        } elseif($request->has('unpin_post')) {
+            $input = [
+                'pinned_post' => $request->pinned_post,
+            ];
+            $comment = Comment::where('id', $request->comment_id)->first();
+            $comment->update($input);
+            return back()->with('success', 'Post unpinned');
+        } else {
+            $validated = $request->validate([
+                'comment_body' => 'required'
+            ]);
+            $input = [
+                'user_id' => $request->user_id,
+                'team_id' => $request->team_id,
+                'comment_body' => $request->comment_body
+            ];
+            DB::table('comments')->where('id', $request->comment_id)->update($input);
+            return redirect()->back()->with('success', 'Post reposted');
+        }
     }
     public function deleteComment($id) {
         $comment = Comment::findorFail($id);

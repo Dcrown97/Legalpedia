@@ -102,7 +102,7 @@
 .hover\:bg-light-green:hover{--bg-opacity:0.24;background-color:#20D489;background-color:rgba(32,212,137,var(--bg-opacity)) !important;}
 
 .text-pink {
-    color: #F1416C !important;
+    color: #fd1eb9 !important;
 }
 .text-blue {
     color: #4285F4 !important;
@@ -608,116 +608,120 @@ a:hover{
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
     transition: all .5s ease;
-    }
-    .loader{
-    display: block;
-    position: relative;
-    left: 50%;
-    top: 50%;
-    width: 150px;
-    height: 150px;
-    margin: -75px 0 0 -75px;
+}
+.loader{
+display: block;
+position: relative;
+left: 50%;
+top: 50%;
+width: 150px;
+height: 150px;
+margin: -75px 0 0 -75px;
+border-radius: 50%;
+border: 3px solid transparent;
+border-top-color: transparent;
+border-top-color: #EC6959;
+-webkit-animation: spin 2s linear infinite;
+animation: spin 2s linear infinite;
+}
+.loader:before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-top-color: transparent;
     border-top-color: #EC6959;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
+}
+.loader:after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #EC6959;
+    -webkit-animation: spin 1.5s linear infinite;
+    animation: spin 1.5s linear infinite;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        transform: rotate(0deg);
     }
-    .loader:before {
-        content: "";
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        right: 5px;
-        bottom: 5px;
-        border-radius: 50%;
-        border: 3px solid transparent;
-        border-top-color: #EC6959;
-        -webkit-animation: spin 2s linear infinite;
-        animation: spin 2s linear infinite;
+    100% {
+        -webkit-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-    .loader:after {
-        content: "";
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        right: 15px;
-        bottom: 15px;
-        border-radius: 50%;
-        border: 3px solid transparent;
-        border-top-color: #EC6959;
-        -webkit-animation: spin 1.5s linear infinite;
-        animation: spin 1.5s linear infinite;
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        transform: rotate(0deg);
     }
-    @-webkit-keyframes spin {
-        0% {
-            -webkit-transform: rotate(0deg);
-            -ms-transform: rotate(0deg);
-            transform: rotate(0deg);
-        }
-        100% {
-            -webkit-transform: rotate(360deg);
-            -ms-transform: rotate(360deg);
-            transform: rotate(360deg);
-        }
+    100% {
+        -webkit-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-    @keyframes spin {
-        0% {
-            -webkit-transform: rotate(0deg);
-            -ms-transform: rotate(0deg);
-            transform: rotate(0deg);
-        }
-        100% {
-            -webkit-transform: rotate(360deg);
-            -ms-transform: rotate(360deg);
-            transform: rotate(360deg);
-        }
-    }
+}
 
 
-    .note {
-        overflow: hidden;
-        background: #ec6959;
-        width: 80px;
-        height: 80px;
-        /* position: absolute; */
-        right: 20px;
-        border-radius: 100%;
-        position: fixed;
-        top: 80%;
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
-    }
-    .note .icon {
-        color: #fff;
-        font-size: 30px;
-        padding: 15px 0 0 25px;
-    }
-    a .note {
-        transition: .3s;
-    }
-    a .note:hover {
-        margin-top: -10px;
-        transition: .3s;
-        box-shadow: 0 10px 35px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
-    }
+.note {
+    overflow: hidden;
+    background: #ec6959;
+    width: 80px;
+    height: 80px;
+    /* position: absolute; */
+    right: 20px;
+    border-radius: 100%;
+    position: fixed;
+    top: 80%;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
+}
+.note .icon {
+    color: #fff;
+    font-size: 30px;
+    padding: 15px 0 0 25px;
+}
+a .note {
+    transition: .3s;
+}
+a .note:hover {
+    margin-top: -10px;
+    transition: .3s;
+    box-shadow: 0 10px 35px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
+}
 
-    .initials {
-        color: #fff;
-        font-size: 20px;
-        padding: 5px 0 0 8px;
-        background: #EC6959 !important;
-        height: 40px;
-        width: 40px;
-        border-radius: 50%;
-    }
+.initials {
+    color: #fff;
+    font-size: 20px;
+    padding: 5px 0 0 8px;
+    background: #EC6959 !important;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
 
-    .custom-width {
-        height: 8rem !important;
-        width: 8rem !important;
-        font-size: 80px !important;
-    }
+.custom-width {
+    height: 8rem !important;
+    width: 8rem !important;
+    font-size: 80px !important;
+}
 
-    mark {
-        background-color: #ffe665 !important;
-    }
+mark {
+    background-color: #ffe665 !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

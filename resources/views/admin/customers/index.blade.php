@@ -111,7 +111,7 @@
                     </div>
                     <div class="col-12 col-lg-4 col-xl-4">
                         <div class="form-group" style="margin-top: 25px">
-                            <button type="submit" name="fetch_last_seen" onclick="this.classList.toggle('button--loading')" class="mr-3 btn button_load text-white btn-sm btn-primary p-2">
+                            <button type="submit" onclick="this.classList.toggle('button--loading')" class="mr-3 btn button_load text-white btn-sm btn-primary p-2">
                                 <span class="button__text"><i class="mdi mdi-filter"></i> Filter</span>
                             </button>
                             <a href="{{url('admin/customers')}}" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary btn-sm p-2">

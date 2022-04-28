@@ -175,36 +175,112 @@ class PaymentController extends Controller
     }
 
     public function addSubscriber($user) {
-        $data['contact'] =  [
-            "email" => $user->email,
-            "firstName" => $user->name,
-            "lastName"=> $user->surname,
-            "phone" => $user ? $user->phone : ''
-        ];
+        $package = Package::where('id', $user->package_id)->first();
+
         $curl = curl_init();
+
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => '',
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => json_encode($data),
-          CURLOPT_HTTPHEADER => array(
+        CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts?status=-1&email='.$user->email,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+            'Accept: application/json',
             'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-            'Content-Type: application/json',
-            'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
-          ),
+            'Cookie: PHPSESSID=04a10f3af56b8443eaf4b634cee35999; em_acp_globalauth_cookie=b8b1817d-ee1b-46ba-9abc-746bff155ede'
+        ),
         ));
 
         $response = curl_exec($curl);
 
-        curl_close($curl);
-        info($response);
-        $this->updateSubscriberList($response);
-        // return $response;
+        $user_data = json_decode($response);
+
+        $get_data = (array) $user_data;
+        
+        if(isset($get_data['contacts']) && !empty($get_data['contacts'])) { // if the user already exists in active campaign update the user's details
+            $data['contact'] =  [
+                "email" => $user->email,
+                "firstName" => $user->name,
+                "lastName"=> $user->surname,
+                "phone" => $user->phone,
+                "fieldValues" => [
+                    [
+                        "field" => 16, // subscription field id on active campaign
+                        "value" => $package->name
+                    ],
+                    [
+                        "field" => 15, // validity date field id on active campaign for expiry date for package
+                        "value" => $user->expiry_date
+                    ]
+                ]
+            ];
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts/'.$get_data['contacts'][0]->id,
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'PUT',
+              CURLOPT_POSTFIELDS => json_encode($data),
+              CURLOPT_HTTPHEADER => array(
+                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                'Content-Type: application/json',
+                'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+              ),
+            ));
+            $response = curl_exec($curl);
+            curl_close($curl);
+            info($response);
+            return $this->updateSubscriberList($response);
+        } else { // if the user doesn't exist create the user
+
+            $data['contact'] =  [
+                "email" => $user->email,
+                "firstName" => $user->name,
+                "lastName"=> $user->surname,
+                "phone" => $user ? $user->phone : '',
+                "fieldValues" => [
+                    [
+                        "field" => 16, // subscription field id on active campaign
+                        "value" => $package->name
+                    ],
+                    [
+                        "field" => 15, // validity date field id on active campaign for expiry date for package
+                        "value" => $user->expiry_date
+                    ]
+                ]
+            ];
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS => json_encode($data),
+              CURLOPT_HTTPHEADER => array(
+                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                'Content-Type: application/json',
+                'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+              ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            info($response);
+            return $this->updateSubscriberList($response);
+        }
 
     }
 
@@ -214,7 +290,6 @@ class PaymentController extends Controller
 
         $user_data = json_decode($response);
         $get_data = (array) $user_data;
-
         $data['contactList'] =  [
             "list" => 117,
             "contact" => $get_data['contact']->id,
@@ -238,10 +313,10 @@ class PaymentController extends Controller
           ),
         ));
 
-        $response = curl_exec($curl);
+        $responseData = curl_exec($curl);
 
         curl_close($curl);
-        info($response);
+        info($responseData);
 
     }
 
