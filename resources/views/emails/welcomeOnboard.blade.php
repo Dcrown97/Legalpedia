@@ -473,7 +473,7 @@
                           </tr>
                           <tr>
                               <td>
-                                <a href="{{route(login)}}" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#admin_note" id="kt_toolbar_primary_button" class="btn btn-primary lift">
+                                <a href="{{route('login')}}" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#admin_note" id="kt_toolbar_primary_button" class="btn btn-primary lift">
                                     <i class="fe fe-plus"></i> Get started
                                 </a>
                               </td>
