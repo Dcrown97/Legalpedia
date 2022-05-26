@@ -9,7 +9,7 @@
         .text-color {
             color: #EC6959 !important;
         }
-        .icon-1.active:after {
+        .icon-index.active:after {
             display: none;
         }
         .notify-1 {
@@ -126,7 +126,7 @@
                             @if($query_case_count < 1)
                                 Judgements
                                 @else
-                                <span class="icon-1 active">
+                                <span class="icon-index active">
                                     <small class="notify-1" style=" margin: -25px 0 0 40px;">{{number_format($query_case_count)}}</small>
                                     Judgements
                                 </span>
@@ -138,7 +138,7 @@
                             @if($query_law_count < 1)
                                 Laws of Federation
                                 @else
-                                <span class="icon-1 active">
+                                <span class="icon-index active">
                                     <small class="notify-1" style=" margin: -25px 0 0 80px;">{{number_format($query_law_count)}}</small>
                                     Laws of Federation
                                 </span>
@@ -150,7 +150,7 @@
                             @if($query_rule_count < 1)
                                 Rules
                                 @else
-                                <span class="icon-1 active">
+                                <span class="icon-index active">
                                     <small class="notify-1" style=" margin: -25px 0 0 2px;">{{number_format($query_rule_count)}}</small>
                                     Rules
                                 </span>
@@ -162,7 +162,7 @@
                             @if($query_form_count < 1)
                                 Forms and Precedents
                                 @else
-                                <span class="icon-1 active">
+                                <span class="icon-index active">
                                     <small class="notify-1" style=" margin: -25px 0 0 120px;">{{number_format($query_form_count)}}</small>
                                     Forms and Precendents
                                 </span>
@@ -174,7 +174,7 @@
                             @if($query_article_count < 1)
                                 Articles
                                 @else
-                                <span class="icon-1 active">
+                                <span class="icon-index active">
                                     <small class="notify-1" style=" margin: -25px 0 0 20px;">{{number_format($query_article_count)}}</small>
                                     Articles
                                 </span>
@@ -186,7 +186,7 @@
                             @if($query_note_count < 1)
                                 Public Notes
                                 @else
-                                <span class="icon-1 active">
+                                <span class="icon-index active">
                                     <small class="notify-1" style=" margin: -25px 0 0 60px;">{{number_format($query_note_count)}}</small>
                                     Public Notes
                                 </span>
