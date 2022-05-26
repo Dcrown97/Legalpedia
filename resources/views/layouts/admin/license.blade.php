@@ -44,12 +44,6 @@
     </script>
     <!-- End Google Tag Manager -->
 
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MKT36XX"height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    
     <style>body { display: none; }</style>
 
     <!-- Title -->
@@ -57,6 +51,11 @@
 
   </head>
   <body>
+     <!-- Google Tag Manager (noscript) -->
+     <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MKT36XX"height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div class="loader-bg">
 		<div class="loader-bar"></div>
     </div>

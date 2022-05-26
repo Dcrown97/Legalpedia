@@ -188,11 +188,11 @@
                     <i class="fe fe-bell"></i> Categories
                     </a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a class="nav-link" href="{{url('admin/areas-of-laws')}}">
-                    <i class="fe fe-bell"></i> Areas of Laws
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url('admin/featured-content')}}">
+                    <i class="fe fe-bell"></i> Featured Content
                     </a>
-                </li> --}}
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{url('admin/customers')}}">
                         <i class="fe fe-users"></i> Customers

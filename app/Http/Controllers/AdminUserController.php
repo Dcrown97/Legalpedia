@@ -6,11 +6,16 @@ use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\State;
+use App\Models\Article;
+use App\Models\Comment;
 use App\Models\Country;
 use App\Models\Package;
+use App\Models\Annotation;
 use App\Models\Transaction;
 use App\Exports\UsersExport;
 use Illuminate\Http\Request;
+use App\Models\FeaturedContent;
+use App\Models\FormsPrecedence;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -225,7 +230,20 @@ class AdminUserController extends Controller
 
     public function userProfile($id) {
         $user = User::findOrFail($id);
-        return view('admin.customers.profile', compact('user'));
+        $comments = Comment::with('comment_replies')->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->get();
+        $forms = FormsPrecedence::where('user_id', Auth::user()->id)->where('display_type', 'public')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $articles = Article::where('user_id', Auth::user()->id)->where('display_type', 'public')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $notes = Annotation::where('user_id', Auth::user()->id)->where('display', 'public')->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $rating_count = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->count();
+        $rating = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->max('rating');
+        $reviews = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->orderBy('created_at', 'DESC')->get();
+        return view('admin.customers.profile', compact('user', 'comments', 'forms', 'articles', 'notes', 'rating_count', 'rating', 'reviews'));
+    }
+
+    public function rateUser(Request $request) {
+        $input = $request->all();
+        FeaturedContent::create($input);
+        return back()->with('success', 'Review sent');
     }
 
     public function edit($id) {
@@ -292,5 +310,18 @@ class AdminUserController extends Controller
 
     public function exportCustomer() {
         return Excel::download(new UsersExport, 'Legalpedia-customers.xlsx');
+    }
+
+    public function featureCustomer(Request $request, $id) {
+        $user = User::find($id);
+        $input = $request->all();
+        if($request->has('make_featured')) {
+            $user->update($input);
+            return back()->with('success', 'User featured');
+        }
+        if($request->has('remove_featured')) {
+            $user->update($input);
+            return back()->with('success', 'User not featured');
+        }
     }
 }

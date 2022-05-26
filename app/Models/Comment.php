@@ -21,6 +21,7 @@ class Comment extends Model
         'comment_body',
         'article_id',
         'anote_id',
+        'form_precedence_id',
         'pinned_post' // have a default of 0
     ];
 

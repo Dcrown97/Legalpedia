@@ -25,6 +25,7 @@ class CreateArticlesTable extends Migration
             $table->text('author')->nullable();
             $table->text('link')->nullable();
             $table->string('photo')->nullable();
+            $table->string('featured')->nullable();
             $table->text('category')->nullable();
             $table->text('area_of_law')->nullable();
             $table->text('article_type')->nullable();

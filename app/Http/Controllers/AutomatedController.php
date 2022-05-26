@@ -24,7 +24,16 @@ class AutomatedController extends Controller
                 $dob = strtotime($user->dob);
                 $user_dob = date('M d', $dob);
                 if($user_dob == $now) {
-                    $user->notify(new BirthdayMessage($user, $message));
+                    // $user->notify(new BirthdayMessage($user, $message));
+                    $explodedMail =  $user->name .'|' . $user->email;
+                    $subject = $message->subject;
+                    $newContent =  [
+                        'user' => $user->name,
+                        'subject' => $message->subject,
+                        'body' => $message->body
+                    ];
+                    $content = view("emails.birthdayMessage", $newContent)->render();
+                    tribearcMail($subject, $content, $explodedMail);
                 }
             }
             info(['birthday_message_success' => now()->toDayDateTimeString()]);

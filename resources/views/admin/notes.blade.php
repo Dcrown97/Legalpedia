@@ -91,89 +91,165 @@
                                                         </div>
                                                     </div>
                                                     <div class="col">
-                                                        <h4 class="mb-1 item-name">
-                                                            @php
-                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
-                                                                $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
-                                                                $rule = App\Models\Rule::where('id', $note->content_id)->first();
-                                                                $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
-                                                                $form = App\Models\Rule::where('id', $note->content_id)->first();
-                                                                $article = App\Models\Rule::where('id', $note->content_id)->first();
-                                                            @endphp
-                                                            @if($note->resource_type == 'judgement')
-                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <h4 class="mb-1 item-name">
                                                                     @php
-                                                                        $note->comment = json_decode($note->comment);
+                                                                        $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
+                                                                        $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
+                                                                        $rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                        $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                        $form = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                        $article = App\Models\Rule::where('id', $note->content_id)->first();
                                                                     @endphp
-                                                                    @if($note->comment)
-                                                                        @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
-                                                                        @endforeach
+                                                                    @if($note->resource_type == 'judgement')
+                                                                        <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
+                                                                            @php
+                                                                                $note->comment = json_decode($note->comment);
+                                                                            @endphp
+                                                                            @if($note->comment)
+                                                                                @foreach ($note->comment as $comment_type)
+                                                                                    {{ucwords(strtolower($comment_type->value))}}
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </a>
+                                                                        @elseif($note->resource_type == 'fed')
+                                                                        <a href="{{route('show.fed', $fed ? $fed->id : '')}}">
+                                                                            @php
+                                                                                $note->comment = json_decode($note->comment);
+                                                                            @endphp
+                                                                            @if($note->comment)
+                                                                                @foreach ($note->comment as $comment_type)
+                                                                                    {{ucwords(strtolower($comment_type->value))}}
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </a>
+                                                                        @elseif($note->resource_type == 'rule')
+                                                                        <a href="{{route('show.rule', $rule ? $rule->id : '')}}">
+                                                                            @php
+                                                                                $note->comment = json_decode($note->comment);
+                                                                            @endphp
+                                                                            @if($note->comment)
+                                                                                @foreach ($note->comment as $comment_type)
+                                                                                    {{ucwords(strtolower($comment_type->value))}}
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </a>
+                                                                        @elseif($note->resource_type == 'state-rule')
+                                                                        <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}">
+                                                                            @php
+                                                                                $note->comment = json_decode($note->comment);
+                                                                            @endphp
+                                                                            @if($note->comment)
+                                                                                @foreach ($note->comment as $comment_type)
+                                                                                    {{ucwords(strtolower($comment_type->value))}}
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </a>
+                                                                        @elseif($note->resource_type == 'form')
+                                                                        <a href="{{route('show.form', $form ? $form->id : '')}}">
+                                                                            @php
+                                                                                $note->comment = json_decode($note->comment);
+                                                                            @endphp
+                                                                            @if($note->comment)
+                                                                                @foreach ($note->comment as $comment_type)
+                                                                                    {{ucwords(strtolower($comment_type->value))}}
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </a>
+                                                                        @elseif($note->resource_type == 'article')
+                                                                        <a href="{{route('show.article', $article ? $article->id : '')}}">
+                                                                            @php
+                                                                                $note->comment = json_decode($note->comment);
+                                                                            @endphp
+                                                                            @if($note->comment)
+                                                                                @foreach ($note->comment as $comment_type)
+                                                                                    {{ucwords(strtolower($comment_type->value))}}
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </a>
                                                                     @endif
-                                                                </a>
-                                                                @elseif($note->resource_type == 'fed')
-                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}">
-                                                                    @php
-                                                                        $note->comment = json_decode($note->comment);
-                                                                    @endphp
-                                                                    @if($note->comment)
-                                                                        @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
-                                                                        @endforeach
+                                                                </h4>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <div class="d-flex">
+                                                                    @if(Auth::user()->role->name == 'Admin')
+                                                                        <span class="mr-4"><a onclick="rate('{{$note->id}}')" class="cursor-pointer"><i class="mdi mdi-star"></i> <i class="mdi mdi-star"></i> Rate this Note</a></span>
+                                                                    @elseif(Auth::user()->id !== $note->user_id)
+                                                                        <span class="mr-4"><a onclick="rate('{{$note->id}}')" class="cursor-pointer"><i class="mdi mdi-star"></i> <i class="mdi mdi-star"></i> Rate this Note</a></span>
                                                                     @endif
-                                                                </a>
-                                                                @elseif($note->resource_type == 'rule')
-                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}">
-                                                                    @php
-                                                                        $note->comment = json_decode($note->comment);
-                                                                    @endphp
-                                                                    @if($note->comment)
-                                                                        @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
-                                                                        @endforeach
-                                                                    @endif
-                                                                </a>
-                                                                @elseif($note->resource_type == 'state-rule')
-                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}">
-                                                                    @php
-                                                                        $note->comment = json_decode($note->comment);
-                                                                    @endphp
-                                                                    @if($note->comment)
-                                                                        @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
-                                                                        @endforeach
-                                                                    @endif
-                                                                </a>
-                                                                @elseif($note->resource_type == 'form')
-                                                                <a href="{{route('show.form', $form ? $form->id : '')}}">
-                                                                    @php
-                                                                        $note->comment = json_decode($note->comment);
-                                                                    @endphp
-                                                                    @if($note->comment)
-                                                                        @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
-                                                                        @endforeach
-                                                                    @endif
-                                                                </a>
-                                                                @elseif($note->resource_type == 'article')
-                                                                <a href="{{route('show.article', $article ? $article->id : '')}}">
-                                                                    @php
-                                                                        $note->comment = json_decode($note->comment);
-                                                                    @endphp
-                                                                    @if($note->comment)
-                                                                        @foreach ($note->comment as $comment_type)
-                                                                            {{ucwords(strtolower($comment_type->value))}}
-                                                                        @endforeach
-                                                                    @endif
-                                                                </a>
-                                                            @endif
-                                                        </h4>
+                                                                    <form id="like-form" class="mr-4">
+                                                                        <input type="hidden" name="user_id" id="user-id" value="{{Auth::user()->id}}">
+                                                                        <input type="hidden" name="annotation_id" id="annotation-id" value="{{$note->id}}">
+                                                                        <input type="hidden" name="type" value="form">
+                                                                        @php
+                                                                            $likes = App\Models\Like::where('annotation_id', $note->id)->get();
+                                                                            $user_has_liked = App\Models\Like::where('annotation_id', $note->id)->where('user_id', Auth::user()->id)->where('like', 1)->first();
+                                                                            $user_has_unliked = App\Models\Like::where('annotation_id', $note->id)->where('user_id', Auth::user()->id)->where('like', 0)->first();
+                                                                            $user_has_not_liked = App\Models\Like::where('annotation_id', $note->id)->first();
+                                                                            $like_count = App\Models\Like::where('annotation_id', $note->id)->where('like', 1)->count();
+                                                                        @endphp
+                                                                        @if(count($likes) > 0)
+                                                                            @if($user_has_liked)
+                                                                                <h2 class="cursor-pointer pt-1"><i class="mdi unlike mdi-heart font-md text-red" id="unlike-btn{{$note->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                                <h2 class="cursor-pointer pt-1"><i class="mdi like mdi-heart-outline font-md" style="display: none" id="like-btn{{$note->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                            @elseif($user_has_unliked)
+                                                                                <h2 class="cursor-pointer pt-1"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$note->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                                <h2 class="cursor-pointer pt-1"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$note->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                            @elseif($user_has_not_liked)
+                                                                                <h2 class="cursor-pointer pt-1"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$note->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                                <h2 class="cursor-pointer pt-1"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$note->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                            @endif
+                                                                        @else
+                                                                            <h2 class="cursor-pointer pt-1"><i class="mdi like mdi-heart-outline font-md" id="like-btn{{$note->id}}" onclick="like('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                            <h2 class="cursor-pointer pt-1"><i class="mdi unlike mdi-heart font-md text-red" style="display: none" id="unlike-btn{{$note->id}}" onclick="unLike('{{$like_count}}', 'unlike-btn{{$note->id}}', 'like-btn{{$note->id}}', 'like-div{{$note->id}}', 'like-no{{$note->id}}', '{{$note->id}}', '{{Auth::user()->id}}')"></i></h1>
+                                                                        @endif
+                                                                    </form>
+                                                                    <div class="dropdown">
+                                                                        @php
+                                                                            $note->content = json_decode($note->content);
+                                                                        @endphp
+                                                                        @if($note->resource_type <> 'admin-note')
+                                                                            <div class="d-flex align-items-center justify-content-between">
+                                                                                <a data-bs-toggle="modal" onclick='showTeamModal("{{str_replace("\"", "", $note->content->selector[0]->exact)}}", "{{$note->id}}")' class="dropdown-ellipses dropdown-toggle cursor">
+                                                                                    <i class="mdi mdi-share-variant"></i>
+                                                                                </a>
+                                                                                @if(Auth::user()->role->name == 'Admin')
+                                                                                    <form action="/admin/notes/{{$note->id}}" method="POST">
+                                                                                        {{ csrf_field() }}
+                                                                                        {{ method_field('DELETE') }}
+                                                                                        <button type="submit" name="submit" onclick="return deleteNoteFunction();" class="dropdown-item">
+                                                                                            <i class="fe fe-trash text-color"></i>
+                                                                                        </button>
+                                                                                    </form>
+                                                                                @endif
+                                                                            </div>
+                                                                        @else
+                                                                            <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                <i class="fe fe-more-vertical"></i>
+                                                                            </a>
+                                                                            <div class="dropdown-menu dropdown-menu-end">
+                                                                                <a data-bs-toggle="modal" onclick='showEditNote("{{$note->comment}}", "{{$note->content}}", "{{$note->id}}")' class="dropdown-item cursor">
+                                                                                    <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                                </a>
+                                                                                <form action="/admin/notes/{{$note->id}}" method="POST">
+                                                                                    {{ csrf_field() }}
+                                                                                    {{ method_field('DELETE') }}
+                                                                                    <button type="submit" name="submit" onclick="return deleteNoteFunction();" class="dropdown-item">
+                                                                                        <i class="fe fe-trash mr-2"></i>Delete
+                                                                                    </button>
+                                                                                </form>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                         <p class="small text-gray-700 mb-2">
-                                                            @php
-                                                                $note->content = json_decode($note->content);
-                                                            @endphp
+
                                                             @if($note->content)
-                                                                {{ucwords(strtolower($note->content->selector[0]->exact))}}
+                                                                {{ucwords(strtolower((str_replace("\"", "", $note->content->selector[0]->exact))))}}
                                                             @endif
                                                         </p>
                                                         {{-- <p class="small text-color mb-1">
@@ -218,42 +294,27 @@
                                                                 </a>
                                                             @endif
                                                         </h4>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <div class="dropdown">
-                                                            @if($note->resource_type <> 'admin-note')
-                                                                <div class="d-flex align-items-center justify-content-between">
-                                                                    <a data-bs-toggle="modal" onclick='showTeamModal("{{$note->content->selector[0]->exact}}", "{{$note->id}}")' class="dropdown-ellipses dropdown-toggle cursor">
-                                                                        <i class="mdi mdi-share-variant"></i>
-                                                                    </a>
-                                                                    @if(Auth::user()->role->name == 'Admin')
-                                                                        <form action="/admin/notes/{{$note->id}}" method="POST">
-                                                                            {{ csrf_field() }}
-                                                                            {{ method_field('DELETE') }}
-                                                                            <button type="submit" name="submit" onclick="return deleteNoteFunction();" class="dropdown-item ml-3">
-                                                                                <i class="fe fe-trash text-color mr-2"></i>
-                                                                            </button>
-                                                                        </form>
-                                                                    @endif
-                                                                </div>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <a href="#reviews"><small>{{number_format($rating_count)}} . {{getRating($rating)}} </small></a>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                        <br>
+                                                        @php
+                                                            $like_count = App\Models\Like::where('annotation_id', $note->id)->where('like', 1)->count();
+                                                        @endphp
+                                                        <span id="like-div{{$note->id}}">
+                                                            <small id="like-no{{$note->id}}" class="text-color">{{$like_count}} </small>
+                                                            @if($like_count < 2)
+                                                                like
                                                             @else
-                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                    <i class="fe fe-more-vertical"></i>
-                                                                </a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <a data-bs-toggle="modal" onclick='showEditNote("{{$note->comment}}", "{{$note->content}}", "{{$note->id}}")' class="dropdown-item cursor">
-                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
-                                                                    </a>
-                                                                    <form action="/admin/notes/{{$note->id}}" method="POST">
-                                                                        {{ csrf_field() }}
-                                                                        {{ method_field('DELETE') }}
-                                                                        <button type="submit" name="submit" onclick="return deleteNoteFunction();" class="dropdown-item">
-                                                                            <i class="fe fe-trash mr-2"></i>Delete
-                                                                        </button>
-                                                                    </form>
-                                                                </div>
+                                                                likes
                                                             @endif
-                                                        </div>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </li>
@@ -798,6 +859,78 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="rateModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-card card" data-list='{"valueNames": ["name"]}'>
+                    <div class="card-header">
+                        <h4 class="card-header-title" id="exampleModalCenterTitle">
+                            Rate this Note
+                        </h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group justify-content-center">
+                                    <div class="d-flex p-2 text-center justify-content-center">
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="first-star-icon" onclick="first()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="second-star-icon" onclick="second()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="third-star-icon" onclick="third()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="fourth-star-icon" onclick="fourth()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="">
+                                            <a href="#!" class="cursor-pointer" id="fifth-star-icon" onclick="fifth();">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <form action="{{route('rate.note')}}" method="POST">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Your review
+                                        </label>
+                                        <input type="hidden" name="rating" id="rating">
+                                        <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                        <input type="hidden" name="type" value="note">
+                                        <input type="hidden" name="review_type" value="rating">
+                                        <input type="hidden" name="reference_id" id="reference">
+                                        <textarea name="review" id="review-input" class="form-control"></textarea>
+                                        <div class="mt-4">
+                                            <button type="submit" disabled id="reviewBtn" class="btn button_load text-white w-100 btn-primary" onclick="this.classList.toggle('button--loading')">
+                                                <div class="button__text">Send Review</div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         function showTeamModal(content, id){
             document.getElementById("anote-content").value = content;
@@ -830,5 +963,136 @@
             if(!confirm("Are you sure you want to delete this note?"))
             event.preventDefault();
         }
+    </script>
+    <script>
+        function rate(id){
+            document.getElementById("reference").value = id;
+            $('#rateModal').modal('show')
+        }
+
+        const reviewBtn = document.getElementById('reviewBtn')
+
+        const review = document.getElementById('review-input')
+
+        const checkEnableButton = () => {
+            reviewBtn.disabled = !(
+                review.value
+            )
+        }
+        review.addEventListener('change', checkEnableButton)
+
+        function first() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('1')
+        }
+        function second() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('2')
+        }
+        function third() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('3')
+        }
+        function fourth() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('4')
+        }
+        function fifth() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            $('#rating').val('5')
+        }
+
+        // liking team post function
+        function like(likeCount, unlikeBtn, likeBtn, likeDiv, likeNo, noteId, userId) {
+            document.getElementById(unlikeBtn).style.display = 'block';
+            document.getElementById(unlikeBtn).style.marginTop = '-19px';
+            document.getElementById(likeBtn).style.display = 'none';
+            if( document.getElementById(likeDiv).style.display = 'none') {
+                document.getElementById(likeDiv).style.display = 'block';
+                noOfLikes = document.getElementById(likeNo).innerHTML;
+                document.getElementById(likeNo).innerHTML = parseInt(noOfLikes) + 1;
+            } else {
+                noOfLikes = document.getElementById(likeNo).innerHTML;
+                document.getElementById(likeNo).innerHTML = parseInt(noOfLikes) + 1;
+            }
+
+            let user_id = userId;
+            let annotation_id = noteId;
+            let type = 'note';
+            let like = 1;
+
+            $.ajax({
+                type:'POST',
+                url: "{{ url('/admin/notes/like')}}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id:user_id,
+                    annotation_id:annotation_id,
+                    type:type,
+                    like:like,
+                },
+                success:function(data){
+                    $("#like-form")[0].reset();
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        // unliking team post function
+        function unLike(likeCount, unlikeBtn, likeBtn, likeDiv, likeNo, noteId, userId) {
+            document.getElementById(likeBtn).style.display = 'block';
+            // document.getElementById(likeBtn).style.marginTop = '-18px';
+            document.getElementById(unlikeBtn).style.display = 'none';
+            noOfLikes = document.getElementById(likeNo).innerHTML;
+            document.getElementById(likeNo).innerHTML = parseInt(noOfLikes) - 1;
+
+            let user_id = userId;
+            let annotation_id = noteId;
+            let type = 'note';
+            let like = 0;
+
+            $.ajax({
+                type:'POST',
+                url: "{{ url('/admin/notes/like')}}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id:user_id,
+                    annotation_id:annotation_id,
+                    type:type,
+                    like:like,
+                },
+                success:function(data){
+                    $("#like-form")[0].reset();
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
     </script>
 @endsection

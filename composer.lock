@@ -4,8 +4,70 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af95556d796a26e32b1212b9eafc099e",
+    "content-hash": "12832e9533521859d2712b35a42edcaf",
     "packages": [
+        {
+            "name": "amyisme13/laravel-jitsi",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amyisme13/laravel-jitsi.git",
+                "reference": "d544853ada197946608107c190bb1e9c2fe7ecde"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amyisme13/laravel-jitsi/zipball/d544853ada197946608107c190bb1e9c2fe7ecde",
+                "reference": "d544853ada197946608107c190bb1e9c2fe7ecde",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "^5.2",
+                "illuminate/support": "~6.0|~7.0|~8.0",
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "orchestra/canvas": "^4.6",
+                "orchestra/testbench": "^4.0",
+                "phpunit/phpunit": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Amyisme13\\LaravelJitsi\\LaravelJitsiServiceProvider"
+                    ],
+                    "aliases": {
+                        "LaravelJitsi": "Amyisme13\\LaravelJitsi\\LaravelJitsiFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Amyisme13\\LaravelJitsi\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Azmi Makarima",
+                    "email": "amy.azmim@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A package to generate view of a Jitsi Meet room using Jitsi Meet IFrame API",
+            "homepage": "https://github.com/amyisme13/laravel-jitsi",
+            "keywords": [
+                "amyisme13",
+                "laravel-jitsi"
+            ],
+            "support": {
+                "source": "https://github.com/amyisme13/laravel-jitsi/tree/1.0.0"
+            },
+            "time": "2020-11-12T04:24:18+00:00"
+        },
         {
             "name": "asm89/stack-cors",
             "version": "v2.0.3",
@@ -694,6 +756,63 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.14.0"
             },
             "time": "2021-12-25T01:21:49+00:00"
+        },
+        {
+            "name": "firebase/php-jwt",
+            "version": "v5.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/firebase/php-jwt.git",
+                "reference": "83b609028194aa042ea33b5af2d41a7427de80e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/83b609028194aa042ea33b5af2d41a7427de80e6",
+                "reference": "83b609028194aa042ea33b5af2d41a7427de80e6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4.8 <=9"
+            },
+            "suggest": {
+                "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firebase\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Neuman Vong",
+                    "email": "neuman+pear@twilio.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Anant Narayanan",
+                    "email": "anant@php.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
+            "homepage": "https://github.com/firebase/php-jwt",
+            "keywords": [
+                "jwt",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/firebase/php-jwt/issues",
+                "source": "https://github.com/firebase/php-jwt/tree/v5.5.1"
+            },
+            "time": "2021-11-08T20:18:51+00:00"
         },
         {
             "name": "fruitcake/laravel-cors",

@@ -62,7 +62,15 @@ class InviteController extends Controller
             'registration', now()->addMinutes(300), ['token' => $token]
         );
 
-        Notification::route('mail', $request->input('email'))->notify(new TeamInvite($url, $user));
+        // Notification::route('mail', $request->input('email'))->notify(new TeamInvite($url, $user));
+        $explodedMail =  $data->email;
+        $subject = 'You have been Invited';
+        $newContent =  [
+            'user' => $user->name,
+            'url' => $url
+        ];
+        $content = view("emails.teamInvite", $newContent)->render();
+        tribearcMail($subject, $content, $explodedMail);
 
         return redirect()->back()->with('success', 'Your Invite has been sent');
     }

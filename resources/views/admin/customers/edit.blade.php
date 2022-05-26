@@ -188,7 +188,7 @@
                                     <small class="form-text text-muted">
                                         Add a short bio to your profle
                                     </small>
-                                    <textarea name="bio" rows="5" class="form-control">{{Auth::user()->bio}}</textarea>
+                                    <textarea name="bio" rows="5" class="description form-control">{{Auth::user()->bio}}</textarea>
                                 </div>
                                 <div class="row">
                                     <div class="col-12 col-md-6">

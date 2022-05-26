@@ -19,8 +19,10 @@ class CreateLikesTable extends Migration
             $table->foreignId('team_id')->nullable()->references('id')->on('teams')->onDelete('cascade');
             $table->foreignId('article_id')->nullable()->references('id')->on('articles')->onDelete('cascade');
             $table->foreignId('form_precedence_id')->nullable()->references('id')->on('form_precedences')->onDelete('cascade');
+            $table->foreignId('annotation_id')->nullable()->references('id')->on('annotations')->onDelete('cascade');
             $table->foreignId('comment_id')->nullable()->references('id')->on('comments')->onDelete('cascade');
             $table->integer('like')->nullable();
+            $table->enum('type', ['team', 'article', 'form', 'note'])->nullable();
             $table->timestamps();
         });
     }

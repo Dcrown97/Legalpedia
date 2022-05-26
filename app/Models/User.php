@@ -50,6 +50,7 @@ class User extends Authenticatable
         'ctb_display',
         'social_display',
         'web_display',
+        'featured',
     ];
 
     /**

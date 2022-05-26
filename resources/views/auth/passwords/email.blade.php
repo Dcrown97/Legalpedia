@@ -20,12 +20,12 @@
                     <img src="{{ asset('assets/images/legalpedia_logo.png') }}" alt="logo" class="logo">
                 </div>
                 <p class="login-card-description">Reset your password</p>
-                @if (session('status'))
+                @if (session('success2'))
                     <div class="alert alert-success" role="alert">
-                        {{ session('status') }}
+                        {{ session('success2') }}
                     </div>
                 @endif
-                <form method="POST" action="{{ route('password.email') }}">
+                <form method="POST" action="{{ route('forgot.password.post') }}">
                     @csrf
                     <div class="form-group">
                         <label for="email">Email Address</label>
@@ -39,6 +39,9 @@
                     <button type="submit" class="btn button_load btn-block login-btn" onclick="this.classList.toggle('button--loading')">
                         <span class="button__text">Send Password Reset Link</span>
                     </button>
+                    <div class="mt-4">
+                        <a href="{{url('/login')}}"><i class="mdi mdi-arrow-left"></i> Back to login</a>
+                    </div>
                 </form>
             </div>
         </div>

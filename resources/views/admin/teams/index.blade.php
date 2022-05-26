@@ -136,7 +136,7 @@
                                                         <div class="col-12 col-md-6 col-xl-4">
                                                             <div class="card">
                                                                 <a href="{{route('show.team', $team->id)}}">
-                                                                    <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top">
+                                                                    <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top card-img-top-team">
                                                                 </a>
                                                                 <div class="card-body">
                                                                     <div class="row align-items-center">
@@ -149,18 +149,48 @@
                                                                             </p>
                                                                         </div>
                                                                         <div class="col-auto">
-                                                                            <div class="dropdown">
-                                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                                    <i class="fe fe-more-vertical"></i>
-                                                                                </a>
-                                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                                    <form action="/admin/teams/{{$team->id}}" method="POST">
-                                                                                        {{ csrf_field() }}
-                                                                                        {{ method_field('DELETE') }}
-                                                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                                            @php
+                                                                                $rating_count = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
+                                                                                $rating = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
+                                                                            @endphp
+                                                                            @if ($rating_count > 0)
+                                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                                            @else
+                                                                                <small class="text-muted">No rating</small> 
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <div class="d-flex">
+                                                                                {{-- @if($team->featured == 1)
+                                                                                    <form action="{{route('feature.team', $team->id)}}" method="POST">
+                                                                                        @csrf
+                                                                                        <input type="hidden" name="featured" value="0">
+                                                                                        <button type="submit" name="remove_featured" class="btn-custom-2">
+                                                                                            <span class="mr-4" data-bs-toggle="tooltip" title="Make featured"><i class="mdi mdi-star text-warning"></i></span>
                                                                                         </button>
                                                                                     </form>
+                                                                                @elseif($team->featured == 0)
+                                                                                    <form action="{{route('feature.team', $team->id)}}" method="POST">
+                                                                                        @csrf
+                                                                                        <input type="hidden" name="featured" value="1">
+                                                                                        <button type="submit" name="make_featured" class="btn-custom-1">
+                                                                                            <span class="mr-4" data-bs-toggle="tooltip" title="Make featured"><i class="mdi mdi-star"></i></span>
+                                                                                        </button>
+                                                                                    </form>
+                                                                                @endif --}}
+                                                                                <div class="dropdown">
+                                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                        <i class="fe fe-more-vertical"></i>
+                                                                                    </a>
+                                                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                                                        <form action="/admin/teams/{{$team->id}}" method="POST">
+                                                                                            {{ csrf_field() }}
+                                                                                            {{ method_field('DELETE') }}
+                                                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                                                <i class="fe fe-trash mr-2"></i>Delete
+                                                                                            </button>
+                                                                                        </form>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -251,6 +281,17 @@
                                                                         </div>
                                                                         <div class="col-auto">
                                                                             @php
+                                                                                $rating_count = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
+                                                                                $rating = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
+                                                                            @endphp
+                                                                            @if ($rating_count > 0)
+                                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                                            @else
+                                                                                <small class="text-muted">No rating</small> 
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            @php
                                                                                 $members = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
                                                                             @endphp
                                                                             <div class="avatar-group">
@@ -300,7 +341,7 @@
                                         <div class="col-12 col-md-6 col-xl-4">
                                             <div class="card">
                                                 <a href="{{route('show.team', $my_team->id)}}">
-                                                    <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top">
+                                                    <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top card-img-top-team">
                                                 </a>
                                                 <div class="card-body">
                                                     <div class="row align-items-center">
@@ -311,6 +352,17 @@
                                                             <p class="card-text small text-muted">
                                                                 Created {{\Carbon\Carbon::parse($my_team->created_at)->toFormattedDateString()}}
                                                             </p>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            @php
+                                                                $rating_count = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $my_team->id)->count();
+                                                                $rating = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $my_team->id)->max('rating');
+                                                            @endphp
+                                                            @if ($rating_count > 0)
+                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                            @else
+                                                                <small class="text-muted">No rating</small> 
+                                                            @endif
                                                         </div>
                                                         <div class="col-auto">
                                                             <div class="dropdown">
@@ -429,7 +481,7 @@
                                                             <div class="col-12 col-md-6 col-xl-4">
                                                                 <div class="card">
                                                                     <a href="{{route('show.team', $team->id)}}">
-                                                                        <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top">
+                                                                        <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top card-img-top-team">
                                                                     </a>
                                                                     <div class="card-body">
                                                                         <div class="row align-items-center">
@@ -577,7 +629,7 @@
                                             <div class="col-12 col-md-6 col-xl-4">
                                                 <div class="card">
                                                     <a href="{{route('show.team', $my_team->id)}}">
-                                                        <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top">
+                                                        <img src="{{$my_team->photo ? $my_team->photo : ''}}" alt="..." class="card-img-top card-img-top-team">
                                                     </a>
                                                     <div class="card-body">
                                                         <div class="row align-items-center">
@@ -703,7 +755,7 @@
                                                     <div class="col-12 col-md-6 col-xl-4">
                                                         <div class="card">
                                                             <a href="{{route('show.team', $team->id)}}">
-                                                                <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top">
+                                                                <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top card-img-top-team">
                                                             </a>
                                                             <div class="card-body">
                                                                 <div class="row align-items-center">
@@ -883,7 +935,7 @@
                                                 <div class="col-12 col-md-6 col-xl-4">
                                                     <div class="card">
                                                         <a href="{{route('show.team', $team->id)}}">
-                                                            <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top">
+                                                            <img src="{{$team->photo}}" alt="{{$team->name}}" class="card-img-top card-img-top-team">
                                                         </a>
                                                         <div class="card-body">
                                                             <div class="row align-items-center">

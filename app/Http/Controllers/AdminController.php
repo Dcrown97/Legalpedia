@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use PDO;
 use DateTime;
 use Carbon\Carbon;
+use App\Models\Like;
 use App\Models\Role;
 use App\Models\Rule;
 use App\Models\Team;
@@ -30,6 +31,7 @@ use App\Models\AreaOfLaw;
 use App\Models\ChMessage;
 use App\Models\Judgement;
 use App\Models\Principle;
+use App\Models\SavedPost;
 use App\Models\Annotation;
 use App\Models\Dictionary;
 use App\Models\PartyAType;
@@ -44,6 +46,7 @@ use Illuminate\Http\Request;
 use App\Models\LawOfFedSched;
 use App\Models\JudgementCoram;
 use App\Models\RecentActivity;
+use App\Models\FeaturedContent;
 use App\Models\FormsPrecedence;
 use App\Models\JudgementPartyA;
 use App\Models\JudgementPartyB;
@@ -61,8 +64,6 @@ use App\Notifications\TeamRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\LicensedUserSession;
-use App\Models\Like;
-use App\Models\SavedPost;
 use App\Notifications\MemberRemoval;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
@@ -114,7 +115,13 @@ class AdminController extends Controller
         $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
         $new_chat_count = ChMessage::where('to_id', Auth::user()->id)->where('seen', 0)->count();
         $all_count = $judgement_count + $fed_count + $rule_count + $form_count + $article_count + $dict_count + $maxim_count + $resource_count;
-        return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'admin_notes', 'recent_activities', 'teams', 'pop_message', 'new_chat_count'));
+        DB::statement("SET SQL_MODE=''");
+        $featured_team = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('featured', 1)->first();
+        $featured_user = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('featured', 1)->first();
+        $featured_article = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('featured', 1)->first();
+        $featured_form = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('featured', 1)->first();
+        $featured_note = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('featured', 1)->first();
+        return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'admin_notes', 'recent_activities', 'teams', 'pop_message', 'new_chat_count', 'featured_user', 'featured_team', 'featured_article', 'featured_form', 'featured_note'));
     }
 
 
@@ -800,7 +807,7 @@ class AdminController extends Controller
     public function showJudgement($id) {
         if(Auth::user()->role->name == 'Admin') {
             $judgement_summary = JudgementSummary::findOrFail($id);
-            $notes = Annotation::where('content_id', 'LIKE', '%'. trim($judgement_summary->suit_no) .'%')->get();
+            $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%'. trim($judgement_summary->suit_no) .'%')->get();
             $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
             $courts = Court::orderBy('rank', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
@@ -810,7 +817,9 @@ class AdminController extends Controller
             $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law','ASC')->get();
             // dd($corams);
-            return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes'));
+            $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+
+            return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes', 'teams'));
         } else {
             if(Auth::user()->subscribedUser()) {
                 $judgement_summary = JudgementSummary::findOrFail($id);
@@ -824,7 +833,9 @@ class AdminController extends Controller
                 $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
                 // dd($corams);
                 $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%'.trim($judgement_summary->suit_no).'%')->get();
-                return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+
+                return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes', 'teams'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
@@ -1076,66 +1087,87 @@ class AdminController extends Controller
             if(Rule::where('section', 'ORDERS')->first()) {
                 $order = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                return view('admin.rules-of-court.show', compact('order', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('order', 'notes', 'teams'));
             }elseif(Rule::where('section', 'SCHEDULES')->first()) {
                 $schedule = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                return view('admin.rules-of-court.show', compact('schedule', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('schedule', 'notes', 'teams'));
             }elseif(Rule::where('section', 'APPENDIX')->first()) {
                 $appendix = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                return view('admin.rules-of-court.show', compact('appendix', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('appendix', 'notes', 'teams'));
             }elseif(Rule::where('section', 'FORMS')->first()) {
                 $form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                return view('admin.rules-of-court.show', compact('form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('form', 'notes', 'teams'));
             }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
                 $civil_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                return view('admin.rules-of-court.show', compact('civil_form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('civil_form', 'notes', 'teams'));
             }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
                 $probate_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                return view('admin.rules-of-court.show', compact('probate_form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('probate_form', 'notes', 'teams'));
             }elseif(Rule::where('section', 'PARTS')->first()) {
                 $part = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                return view('admin.rules-of-court.show', compact('part', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.rules-of-court.show', compact('part', 'notes', 'teams'));
             }
         } else {
             if(Auth::user()->subscribedUser()) {
                 if(Rule::where('section', 'ORDERS')->first()) {
                     $order = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                    return view('admin.rules-of-court.show', compact('order', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('order', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'SCHEDULES')->first()) {
                     $schedule = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                    return view('admin.rules-of-court.show', compact('schedule', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('schedule', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'APPENDIX')->first()) {
                     $appendix = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                    return view('admin.rules-of-court.show', compact('appendix', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('appendix', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'FORMS')->first()) {
                     $form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                    return view('admin.rules-of-court.show', compact('form', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('form', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
                     $civil_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                    return view('admin.rules-of-court.show', compact('civil_form', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('civil_form', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
                     $probate_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                    return view('admin.rules-of-court.show', compact('probate_form', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('probate_form', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'PARTS')->first()) {
                     $part = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                    return view('admin.rules-of-court.show', compact('part', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.rules-of-court.show', compact('part', 'notes', 'teams'));
                 }
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
+    }
+    public function fetchRuleAnote($id) {
+        $rule = Rule::whereId($id)->first();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $rule->id)->where('resource_type', 'rule')->get();
+        return response()->json([
+            'anotes'=> $anotes,
+        ]);
     }
     public function storeRule(Request $request) {
         $validated = $request->validate([
@@ -1391,66 +1423,87 @@ class AdminController extends Controller
             if(Rule::where('section', 'ORDERS')->first()) {
                 $order = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                return view('admin.state-rules-of-court.show', compact('order', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('order', 'notes', 'teams'));
             }elseif(Rule::where('section', 'SCHEDULES')->first()) {
                 $schedule = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                return view('admin.state-rules-of-court.show', compact('schedule', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('schedule', 'notes', 'teams'));
             }elseif(Rule::where('section', 'APPENDIX')->first()) {
                 $appendix = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                return view('admin.state-rules-of-court.show', compact('appendix', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('appendix', 'notes', 'teams'));
             }elseif(Rule::where('section', 'FORMS')->first()) {
                 $form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                return view('admin.state-rules-of-court.show', compact('form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('form', 'notes', 'teams'));
             }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
                 $civil_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                return view('admin.state-rules-of-court.show', compact('civil_form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('civil_form', 'notes', 'teams'));
             }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
                 $probate_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                return view('admin.state-rules-of-court.show', compact('probate_form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('probate_form', 'notes', 'teams'));
             }elseif(Rule::where('section', 'PARTS')->first()) {
                 $part = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                return view('admin.state-rules-of-court.show', compact('part', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                return view('admin.state-rules-of-court.show', compact('part', 'notes', 'teams'));
             }
         } else {
             if(Auth::user()->subscribedUser()) {
                 if(Rule::where('section', 'ORDERS')->first()) {
                     $order = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('order', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('order', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'SCHEDULES')->first()) {
                     $schedule = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('schedule', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('schedule', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'APPENDIX')->first()) {
                     $appendix = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('appendix', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('appendix', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'FORMS')->first()) {
                     $form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('form', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('form', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
                     $civil_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('civil_form', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('civil_form', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
                     $probate_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('probate_form', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('probate_form', 'notes', 'teams'));
                 }elseif(Rule::where('section', 'PARTS')->first()) {
                     $part = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                    return view('admin.state-rules-of-court.show', compact('part', 'notes'));
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    return view('admin.state-rules-of-court.show', compact('part', 'notes', 'teams'));
                 }
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
+    }
+    public function fetchStateRuleAnote($id) {
+        $state_rule = Rule::whereId($id)->first();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $state_rule->id)->where('resource_type', 'state-rule')->get();
+        return response()->json([
+            'anotes'=> $anotes,
+        ]);
     }
     public function storeStateRule(Request $request) {
         $validated = $request->validate([
@@ -1715,17 +1768,25 @@ class AdminController extends Controller
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
-            return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes'));
+            $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+            return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes', 'teams'));
         } else{
             if(Auth::user()->subscribedUser()) {
                 $fed = LawOfFederation::findOrFail($id);
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
                 $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
-                return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes'));
+                return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes', 'teams'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
+    }
+    public function fetchLawAnote($id) {
+        $fed = LawOfFederation::whereId($id)->first();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $fed->id)->where('resource_type', 'fed')->get();
+        return response()->json([
+            'anotes'=> $anotes,
+        ]);
     }
     public function updateFed(Request $request, $id) {
         $fed = LawOfFederation::findOrFail($id);
@@ -2070,15 +2131,34 @@ class AdminController extends Controller
         if(Auth::user()->role->name == 'Admin') {
             $form = FormsPrecedence::findOrFail($id);
             $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-            return view('admin.forms-and-precedents.show', compact('form', 'notes'));
+            $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+            $comments = FeaturedContent::where('type', 'form')->where('review_type', 'comment')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
+            $reviews = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
+            $rating_count = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
+            $rating = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
+
+            return view('admin.forms-and-precedents.show', compact('form', 'notes', 'comments', 'reviews', 'rating_count', 'rating', 'teams'));
         } else {
             if(Auth::user()->subscribedUser()) {
                 $form = FormsPrecedence::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                return view('admin.forms-and-precedents.show', compact('form', 'notes'));
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                $comments = FeaturedContent::where('type', 'form')->where('review_type', 'comment')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
+                $reviews = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
+                $rating_count = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
+                $rating = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
+
+                return view('admin.forms-and-precedents.show', compact('form', 'notes', 'comments', 'reviews', 'rating_count', 'rating', 'teams'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
+    }
+    public function fetchFormAnote($id) {
+        $form = FormsPrecedence::whereId($id)->first();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $form->id)->where('resource_type', 'form')->get();
+        return response()->json([
+            'anotes'=> $anotes,
+        ]);
     }
     public function updateForm(Request $request, $id) {
         $form = FormsPrecedence::findOrFail($id);
@@ -2099,7 +2179,58 @@ class AdminController extends Controller
         $form->delete();
         return back()->with('success', 'form deleted');
     }
-
+    public function featureForm(Request $request, $id) {
+        $form = FormsPrecedence::find($id);
+        $input = $request->all();
+        if($request->has('make_featured')) {
+            $form->update($input);
+            return back()->with('success', 'Form featured');
+        }
+        if($request->has('remove_featured')) {
+            $form->update($input);
+            return back()->with('success', 'Form not featured');
+        }
+    }
+    public function rateForm(Request $request) {
+        $input = $request->all();
+        FeaturedContent::create($input);
+        return back()->with('success', 'Review sent');
+    }
+    public function likeForm(Request $request) {
+        $input = $request->all();
+        if($request->form_precedence_id) {
+            $like = Like::where('user_id', $request->user_id)->where('form_precedence_id', $request->form_precedence_id)->first();
+            if($like) {
+                $like->update($input);
+            } else {
+                Like::create($input);
+            }
+            return response()->json(['success' => 'Form liked']);
+        }
+    }
+    public function shareForm(Request $request, $id) {
+        $form = FormsPrecedence::find($id);
+        $link = route('show.form', $form->id);
+        if($request->has('share_all') && !empty($request->checkBoxArray)) {
+            foreach($request->checkBoxArray as $team) {
+                $input = [
+                    'team_id' => $team,
+                    'user_id' => $request->user_id,
+                    'form_precedence_id' => $id,
+                    'comment_body' => json_encode([$form->title, $form->description, $link]),
+                ];
+                Comment::create($input);
+            }
+            RecentActivity::create([
+                'user_id' => Auth::user()->id,
+                'type' => 'shared form',
+                'name' => 'You recently shared a form',
+                'description' => $form->title
+            ]);
+            return back()->with('success', 'Article shared');
+        }
+        return back()->withErrors('Please select a team to share to');
+    }
 
     ///////////////////////////////////////Legal Articles///////////////////////////////////
     public function articles(Request $request) {
@@ -2232,19 +2363,34 @@ class AdminController extends Controller
         if(Auth::user()->role->name == 'Admin') {
             $article = Article::findOrFail($id);
             $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-            $notes = Annotation::where('content_id', $article->id)->get();
+            $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->get();
             $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-            return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes'));
+            $comments = FeaturedContent::where('type', 'article')->where('review_type', 'comment')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
+            $reviews = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
+            $rating_count = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
+            $rating = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
+            return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes', 'rating', 'rating_count', 'reviews', 'comments'));
         } else {
             if(Auth::user()->subscribedUser()) {
                 $article = Article::findOrFail($id);
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                $notes = Annotation::where('content_id', $article->id)->get();
+                $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->get();
                 $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-                return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes'));
+                $comments = FeaturedContent::where('type', 'article')->where('review_type', 'comment')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
+                $reviews = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
+                $rating_count = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
+                $rating = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
+                return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes', 'rating', 'rating_count', 'reviews', 'comments'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
+    }
+    public function fetchArticleAnote($id) {
+        $article = Article::whereId($id)->first();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $article->id)->where('resource_type', 'article')->get();
+        return response()->json([
+            'anotes'=> $anotes,
+        ]);
     }
     public function updateArticle(Request $request, $id) {
         $article = Article::findOrFail($id);
@@ -2294,6 +2440,35 @@ class AdminController extends Controller
         $article->update($input);
 
         return back()->with('success', 'Article updated');
+    }
+    public function featureArticle(Request $request, $id) {
+        $article = Article::find($id);
+        $input = $request->all();
+        if($request->has('make_featured')) {
+            $article->update($input);
+            return back()->with('success', 'Article featured');
+        }
+        if($request->has('remove_featured')) {
+            $article->update($input);
+            return back()->with('success', 'Article not featured');
+        }
+    }
+    public function rateArticle(Request $request, $id) {
+        $input = $request->all();
+        FeaturedContent::create($input);
+        return back()->with('success', 'Review sent');
+    }
+    public function likeArticle(Request $request) {
+        $input = $request->all();
+        if($request->article_id) {
+            $like = Like::where('user_id', $request->user_id)->where('article_id', $request->article_id)->first();
+            if($like) {
+                $like->update($input);
+            } else {
+                Like::create($input);
+            }
+            return response()->json(['success' => 'Article liked']);
+        }
     }
     public function deleteArticle($id) {
         $article = Article::findOrFail($id);
@@ -2575,6 +2750,38 @@ class AdminController extends Controller
         $resource = Resource::findOrFail($id);
         $resource->delete();
         return back()->with('success', 'Resource deleted');
+    }
+
+
+
+
+
+    ////////////////////////////// featured content //////////////////////////////////////
+    public function featuredContent() {
+        DB::statement("SET SQL_MODE=''");
+        $featured_teams = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->groupBy('reference_id')->get();
+        $featured_users = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->groupBy('reference_id')->get();
+        $featured_articles = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->groupBy('reference_id')->get();
+        $featured_forms = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->groupBy('reference_id')->get();
+        $featured_notes = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->groupBy('reference_id')->get();
+        return view('admin.featured-content', [
+            'featured_teams' => $featured_teams,
+            'featured_users' => $featured_users,
+            'featured_articles' => $featured_articles,
+            'featured_forms' => $featured_forms,
+            'featured_notes' => $featured_notes,
+        ]);
+    }
+    public function saveFeature(Request $request, $id) {
+        if($request->has('make_featured')) {
+            FeaturedContent::where('reference_id', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => $request->featured));
+            FeaturedContent::where('reference_id', '<>', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => 0));
+            return back()->with('success', 'Featured on Dashboard');
+        }
+        if($request->has('remove_featured')) {
+            FeaturedContent::where('reference_id', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => $request->featured));
+            return back()->with('success', 'Feature removed from dashboard');
+        }
     }
 
 
@@ -2990,16 +3197,32 @@ class AdminController extends Controller
         $transaction->update($input);
         // DB::table('transactions')->where('id', $request->transaction_id)->update($input);
         $user = User::where('id', $transaction->user_id)->first();
+        $explodedMail =  $user->name .'|' . $user->email;
+        $activesubject = 'Package Activated';
+        $pendingsubject = 'Pending Transaction';
+        $failedsubject = 'Transaction Failed';
+        $newContent =  [
+            'user' => $user->name,
+            'package' => $transaction->package,
+            'amount' => $transaction->amount,
+            'reference' => $transaction->reference,
+        ];
+        $activated = view("emails.activatedSubscriber", $newContent)->render();
+        $pending = view("emails.pendingSubscriber", $newContent)->render();
+        $failed = view("emails.failedSubscriber", $newContent)->render();
 
         if($transaction->status == 'paid') {
             $user->status = 'active';
-            $user->notify(new ActivatedSubscriber($transaction, $user));
+            // $user->notify(new ActivatedSubscriber($transaction, $user));
+            tribearcMail($activesubject, $activated, $explodedMail);
         } elseif($transaction->status == 'pending') {
             $user->status = 'inactive';
-            $user->notify(new PendingSubscriber($transaction, $user));
+            // $user->notify(new PendingSubscriber($transaction, $user));
+            tribearcMail($pendingsubject, $pending, $explodedMail);
         }elseif($transaction->status == 'failed') {
             $user->status = 'inactive';
-            $user->notify(new FailedSubscriber($transaction, $user));
+            // $user->notify(new FailedSubscriber($transaction, $user));
+            tribearcMail($failedsubject, $failed, $explodedMail);
         }
         $user->save();
 
@@ -3105,6 +3328,12 @@ class AdminController extends Controller
         $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
         $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
         $saved_posts = SavedPost::where('team_id', $team->id)->where('user_id', Auth::user()->id)->where('status', 1)->orderBy('created_at', 'DESC')->get();
+
+        $team_member = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->where('user_id', Auth::user()->id)->first();
+        $rating_count = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
+        $rating = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
+        $reviews = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->orderBy('created_at', 'DESC')->get();
+
         if(isset($request->search_post) && !empty($request->search_post)) {
             $search = $request->search_post;
             $query_comment = Comment::query();
@@ -3113,10 +3342,16 @@ class AdminController extends Controller
                         ->where('comment_body', 'LIKE', '%'.$search.'%')
                         ->orderBy('created_at', 'DESC')
                         ->get();
-            return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts'));
+            return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts', 'rating_count', 'rating', 'reviews', 'team_member'));
         }
         $comments = Comment::with('comment_replies')->where('team_id', $team->id)->where('id', '<>', @$comment->id)->orderBy('created_at', 'DESC')->get();
-        return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts'));
+        return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts', 'rating_count', 'rating', 'reviews', 'team_member'));
+    }
+    public function teamMeeting($teamId) {
+        $team = Team::find($teamId);
+        return view('admin.teams.meeting', [
+            'team' => $team
+        ]);
     }
     public function likeTeamPost(Request $request) {
         $input = $request->all();
@@ -3184,7 +3419,17 @@ class AdminController extends Controller
         $user = Auth::user();
         $team_admin = User::where('id', $request->team_owner_id)->first();
         if ($team_admin) {
-            $team_admin->notify(new TeamRequest($user, $team));
+            // $team_admin->notify(new TeamRequest($user, $team));
+            $explodedMail =  $team_admin->name .'|' . $team_admin->email;
+            $subject = 'New Team Member';
+            $newContent =  [
+                'user' => $team_admin->name,
+                'member_name' => $user->name,
+                'member_email' => $user->email,
+                'team_id' => $team->team_id,
+            ];
+            $content = view("emails.teamRequest", $newContent)->render();
+            tribearcMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'Request sent');
     }
@@ -3204,7 +3449,14 @@ class AdminController extends Controller
         $user->update($input);
         $approved_member = User::where('id', $user->user_id)->first();
         if($approved_member) {
-            $approved_member->notify(new RequestApproved($user));
+            // $approved_member->notify(new RequestApproved($user));
+            $explodedMail =  $approved_member->name .'|' . $approved_member->email;
+            $subject = 'Your request has been approved';
+            $newContent =  [
+                'user' => $approved_member->name
+            ];
+            $content = view("emails.requestApproved", $newContent)->render();
+            tribearcMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You have just approved this member');
     }
@@ -3216,7 +3468,14 @@ class AdminController extends Controller
         $user->update($input);
         $declined_member = User::where('id', $user->user_id)->first();
         if($declined_member) {
-            $declined_member->notify(new RequestDeclined($user));
+            // $declined_member->notify(new RequestDeclined($user));
+            $explodedMail =  $declined_member->name .'|' . $declined_member->email;
+            $subject = 'Your request has been declined';
+            $newContent =  [
+                'user' => $declined_member->name
+            ];
+            $content = view("emails.requestDeclined", $newContent)->render();
+            tribearcMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You declined this member');
     }
@@ -3225,7 +3484,14 @@ class AdminController extends Controller
         $approved_member->delete();
         $removed_user = User::where('id', $approved_member->user_id)->first();
         if($removed_user) {
-            $removed_user->notify(new MemberRemoval($approved_member));
+            // $removed_user->notify(new MemberRemoval($approved_member));
+            $explodedMail =  $removed_user->name .'|' . $removed_user->email;
+            $subject = 'Your have been removed';
+            $newContent =  [
+                'user' => $removed_user->name
+            ];
+            $content = view("emails.memberRemoval", $newContent)->render();
+            tribearcMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You have just removed a user');
     }
@@ -3234,20 +3500,40 @@ class AdminController extends Controller
         $approved_member->delete();
         $left_user = User::where('id', $approved_member->user_id)->first();
         if($left_user) {
-            $left_user->notify(new MemberLeft($approved_member));
+            // $left_user->notify(new MemberLeft($approved_member));
+            $explodedMail =  $left_user->name .'|' . $left_user->email;
+            $subject = 'Your just left a team';
+            $newContent =  [
+                'user' => $left_user->name
+            ];
+            $content = view("emails.memberLeft", $newContent)->render();
+            tribearcMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You just left this team');
     }
     public function deleteTeam($id) {
         $team = Team::findOrFail($id);
-        $user_team = UserTeam::where('team_id', $team->id)->first();
-        if($user_team) {
-            $user_team->delete();
-        }
+        UserTeam::where('team_id', $team->id)->delete();
         $team->delete();
         return redirect('admin/teams')->with('success', 'Team deleted');
     }
-
+    public function featureTeam(Request $request, $id) {
+        $team = Team::find($id);
+        $input = $request->all();
+        if($request->has('make_featured')) {
+            $team->update($input);
+            return back()->with('success', 'Team featured');
+        }
+        if($request->has('remove_featured')) {
+            $team->update($input);
+            return back()->with('success', 'Team not featured');
+        }
+    }
+    public function rateTeam(Request $request) {
+        $input = $request->all();
+        FeaturedContent::create($input);
+        return back()->with('success', 'Review sent');
+    }
 
 
     ///////////////////////////////////////comment and replies/////////////////////////
@@ -4011,7 +4297,10 @@ class AdminController extends Controller
             'name' => 'You recently made a note',
             'description' => $anote->content
         ]);
-        return response()->json(['success', 'Note added']);
+        return response()->json([
+            'success' => 'Note added',
+            'anote' => json_decode($anote->content),
+        ]);
     }
     public function updateAnote(Request $request) {
         // dd($request->all());
@@ -4087,41 +4376,44 @@ class AdminController extends Controller
         $note->delete();
         return back()->with('success', 'Note deleted');
     }
+    public function featureNote(Request $request, $id) {
+        $note = Annotation::find($id);
+        $input = $request->all();
+        if($request->has('make_featured')) {
+            $note->update($input);
+            return back()->with('success', 'Note featured');
+        }
+        if($request->has('remove_featured')) {
+            $note->update($input);
+            return back()->with('success', 'Note not featured');
+        }
+    }
+    public function rateNote(Request $request) {
+        $input = $request->all();
+        FeaturedContent::create($input);
+        return back()->with('success', 'Review sent');
+    }
+     public function likeNote(Request $request) {
+        $input = $request->all();
+        if($request->annotation_id) {
+            $like = Like::where('user_id', $request->user_id)->where('annotation_id', $request->annotation_id)->first();
+            if($like) {
+                $like->update($input);
+            } else {
+                Like::create($input);
+            }
+            return response()->json(['success' => 'Note liked']);
+        }
+    }
 
-    // public function fetchAnote($id) {
-    //     $judgement_summary = JudgementSummary::whereId($id)->first();
-    //     // dd($judgement_summary);
-    //     $suit_no = substr($judgement_summary->suit_no, 1);
-    //     // $anotes = Annotation::where('content_id', $suit_no)->get();
-    //     // dd($anotes);
-    //     return $anotes = [
-
-    //         [
-    //             '@context'=> 'http://www.w3.org/ns/anno.jsonld',
-    //             "id"=> "#ce0ed291-766b-4763-8e91-90ce1d04e706",
-    //             "type"=> "Annotation",
-    //             'body'=> [
-    //               'type'=> 'TextualBody',
-    //               'value'=> 'This annotation was added via JS.'
-    //             ],
-    //             'target'=> [
-    //               'selector'=> [
-    //                 'type'=> 'TextQuoteSelector',
-    //                 'exact'=> 'MITCHELL'
-    //               ],
-    //               '0'=>[
-    //                 'type'=> 'TextPositionSelector',
-    //                 'start'=> 1,
-    //                 'end'=> 15
-    //               ]
-    //             ]
-    //         ]
-
-    //     ];
-    //     // return response()->json([
-    //     //     'anotes'=>$anotes,
-    //     // ]);
-    // }
+    public function fetchAnote($id) {
+        $judgement_summary = JudgementSummary::whereId($id)->first();
+        $suit_no = trim($judgement_summary->suit_no);
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $suit_no)->where('resource_type', 'judgement')->get();
+        return response()->json([
+            'anotes'=> $anotes,
+        ]);
+    }
 
 
 
@@ -4287,9 +4579,24 @@ class AdminController extends Controller
                     ];
                     MailMessage::create($input);
 
-                    $newUsers = User::whereIn('id', $request->checkBoxArray)->get();
+                    $newUsersEmail = User::whereIn('id', $request->checkBoxArray)->get(['name', 'email'])->toArray();
 
-                    Notification::send($newUsers, new NewMessage($message, $newUsers));
+                    $user = [];
+                    foreach($newUsersEmail as $key => $value){
+                        $user[] = $value['name']. '|' . $value['email'];
+                    }
+
+                    // Notification::send($newUsers, new NewMessage($message, $newUsers));
+
+                    $explodedMails = implode(',', $user);
+
+                    $newContent =  [
+                        'body' => strip_tags($message->body),
+                     ];
+
+                    $content = view("emails.mainMessage", $newContent)->render();
+
+                    tribearcMail($message->subject, $content, $explodedMails);
 
                     return back()->with('success', 'Message sent!');
                 }
@@ -4309,85 +4616,33 @@ class AdminController extends Controller
                         'content' => json_encode([$message->name, $message->subject, $message->body])
                     ];
                     MailMessage::create($input);
-                    $users = json_decode($request->users);
-                    $data = (array) json_decode($request->data);
-                    // dd($request->data);
-                    // $newUsers = User::whereIn('id', $users)->get();
-                    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY;
+                    $users = json_decode($request->users); // users emails only
+                    $data = (array) json_decode($request->data); // users emails and names
 
-                    // Notification::send($newUsers, new NewMessage($message, $newUsers));
+                    $chunked_users = array_chunk($data, 500, true);  // chunk the array to 500 users per send
 
-                    $subject = $message->subject;
-                    // $emails = $users;
+                    foreach($chunked_users as $single_chunk) {
 
-                    // Mail::send('emails.newMessage', ['subject' => $message->subject, 'body' => $message->body], function($message) use ($emails, $subject)
-                    // {
-                    //     $message->to($emails)->subject($subject);
-                    // });
+                        $user = [];
+                        foreach($single_chunk as $key => $value){
+                            $user[] = $value. '|' . $key;
+                        }
 
+                        $explodedMails = implode(',', $user);
 
+                        $newContent =  [
+                            'body' => strip_tags($message->body),
+                        ];
 
-                    // $details = [
-                    //     'subject' => $message->subject,
-                    //     'body' => $message->body
-                    // ];
-                    // $job = (new SendBulkQueueEmail($details, $users));
+                        $content = view("emails.mainMessage", $newContent)->render();
 
-                    // dispatch($job);
+                        tribearcMail($message->subject, $content, $explodedMails);
+                    }
 
 
-
-                    // $recipientVariables = $data;
-                    // $rec = [
-                    //     'akpanemmanueledidiong99@gmail.com' => [
-                    //         'first' => 'Emmanuel',
-                    //         'id' =>1
-                    //     ],
-                    //     'akpanemmanueledidiong99@yahoo.com' => [
-                    //         'first' => 'Emmanuel',
-                    //         'id' =>2
-                    //     ],
-                    //     'kamsi@gmail.com' => [
-                    //         'first' => 'Kamsi',
-                    //         'id' =>3
-                    //     ],
-                    //     'edidiong@gmail.com' => [
-                    //         'first' => 'Test Org 4',
-                    //         'id' =>4
-                    //     ]
-                    // ];
-                    // $recipientVariables = json_encode($rec);
-                    // $chunked_users = array_chunk($users, 1000, true);
-                    // dd($chunked_users);
-                    // $chunks = array_chunk($data['recipient-variables'],500,true);
-                    // $result = [];
-
-                    // foreach($chunked_users as $single_chunk) {
-                    //     try {
-                    //         Mail::send('emails.newMessage', ['subject' => $message->subject, 'body' => $message->body], function($message) use ($single_chunk, $subject, $recipientVariables) {
-
-
-                    //             // $headerLine = $message->headerLine('X-Mailgun-Recipient-Variables', $recipientVariables);
-                    //             $message->getHeaders()->addTextHeader('X-Mailgun-Variables', $recipientVariables);
-                    //             $message->getBcc($single_chunk);
-                    //             $message->to($single_chunk);
-
-                    //             // $message->addCustomHeader($headerLine);
-
-                    //             // $message->addCustomHeader($headerLine);
-                    //             $message->subject($subject. '%recipient.first%');
-                    //             // $message->getHeaders()->addTextHeader('X-Mailgun-Recipient-Variables', $recipientVariables);
-                    //         });
-
-
-                    //     } catch (ModelNotFoundException $exception) {
-                    //         return back()->with('error1', 'Something went wrong');
-                    //     }
-                    // }
-
-                    // return back()->with('success', 'Messages are being sent');
-                    Session::flash('success1', 'Messages are being sent');
-                    return redirect()->route('send.bulk');
+                    return back()->with('success', 'Messages are being sent');
+                    // Session::flash('success1', 'Messages are being sent');
+                    // return redirect()->route('send.bulk');
                 }
                 return back()->with('error1', 'Please select a user to send a message to');
             }
@@ -4543,7 +4798,21 @@ class AdminController extends Controller
         $user_creds = User::create($user_input);
         $licensed_user = User::where('license_code', $license->license_code)->first();
             if($licensed_user) {
-                $licensed_user->notify(new LicenseCredentials($user_creds, $licensed_user));
+                // $licensed_user->notify(new LicenseCredentials($user_creds, $licensed_user));
+
+                $explodedMails = $licensed_user->name. '|' . $licensed_user->email;
+
+                $subject = 'License Credentials';
+                $newContent =  [
+                    'user' => $licensed_user->name,
+                    'email' => $licensed_user->email,
+                    'code' => $user_creds->license_code,
+                    'validity' => $license->license_days,
+                ];
+
+                $content = view("emails.licensedEmail", $newContent)->render();
+
+                tribearcMail($subject, $content, $explodedMails);
             }
         return back()->with('success', 'License created');
     }
@@ -4585,7 +4854,21 @@ class AdminController extends Controller
         $user->save();
         $licensed_user = User::where('license_code', $license->license_code)->first();
         if($licensed_user) {
-            $licensed_user->notify(new UpdatedLicenseCredentials($user, $licensed_user));
+            // $licensed_user->notify(new UpdatedLicenseCredentials($user, $licensed_user));
+
+            $explodedMails = $licensed_user->name. '|' . $licensed_user->email;
+
+            $subject = 'Updated License Credentials';
+            $newContent =  [
+                'user' => $licensed_user->name,
+                'email' => $licensed_user->email,
+                'code' => $user->license_code,
+                'validity' => $license->license_days,
+            ];
+
+            $content = view("emails.updatedLicensedEmail", $newContent)->render();
+
+            tribearcMail($subject, $content, $explodedMails);
         }
         return back()->with('success', 'License updated');
     }
@@ -4642,8 +4925,28 @@ class AdminController extends Controller
             'other_message' => strip_tags($request->other_message),
         ];
         $report = Report::create($input);
-        Notification::route('mail', $request->input('to_email'))->notify(new NewReport($report, $user));
-        $user->notify(new LegalpediaReport($user));
+        // Notification::route('mail', $request->input('to_email'))->notify(new NewReport($report, $user));
+        // $user->notify(new LegalpediaReport($user));
+        $explodedMails = 'Legalpedia |' . $request->to_email;
+        $explodedMail =  $report->name .'|' . $report->email;
+
+        $subject = 'New Report';
+        $newsubject = 'Legalpedia Report';
+        $newContent =  [
+            'user' => $report->name,
+            'email' => $report->email,
+            'report_type' => $report->report_type,
+            'report_message' => $report->report_message,
+            'other_message' => $report->other_message,
+        ];
+        $getContent = [
+            'user' => $report->name
+        ];
+        $content = view("emails.newReport", $newContent)->render();
+        $usercontent = view("emails.legapediaReport", $getContent)->render();
+
+        tribearcMail($subject, $content, $explodedMails); // send to admin
+        tribearcMail($newsubject, $usercontent, $explodedMail); // send to user
 
         return back()->with('success', 'Report sent, We\'ll get to you shortly');
     }

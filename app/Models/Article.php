@@ -11,7 +11,7 @@ class Article extends Model
 
     protected $fillable = [
         'title', 'description', 'content', 'user_id', 'article_type', 'display_type', 'link', 'photo', 'area_of_law', 'references',
-        'authur', 'category'
+        'authur', 'category', 'featured'
     ];
 
     public function getPhotoAttribute($value)

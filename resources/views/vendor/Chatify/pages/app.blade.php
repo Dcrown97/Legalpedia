@@ -21,10 +21,10 @@
                 <div class="messenger-listView-tabs">
                     <a href="#" @if($type == 'user') class="active-tab" @endif data-view="users">
                         <span class="fe fe-user"></span> Chats</a>
-                    <a href="#" @if($type == 'group') class="active-tab" @endif data-view="groups">
-                        <span class="fe fe-users"></span> Team Chat</a>
+                    {{-- <a href="#" @if($type == 'group') class="active-tab" @endif data-view="groups">
+                        <span class="fe fe-users"></span> Team Chat</a> --}}
                 </div>
-            </div>  
+            </div>
             {{-- tabs and lists --}}
             <div class="m-body contacts-container">
             {{-- Lists [Users/Group] --}}

@@ -40,19 +40,43 @@ class PackageController extends Controller
                 $exact_last_date = date('M d, Y', $last_notice_date);
                 $expiry_date = Carbon::parse($user->expiry_date)->toFormattedDateString();
 
+                $explodedMail =  $user->name .' | '. $user->email;
+                $subject = 'Package Renewal Notice';
+                $newContent =  [
+                    'user' => $user->name,
+                    'package' => $package
+                ];
+                $first = view("emails.firstRenewalNotice", $newContent)->render();
+                $second = view("emails.secondRenewalNotice", $newContent)->render();
+                $last = view("emails.lastRenewalNotice", $newContent)->render();
+
                 if($exact_first_date == $expiry_date) {
-                    $user->notify(new FirstRenewalNotice($user, $package));
+                    // $user->notify(new FirstRenewalNotice($user, $package));
+                    tribearcMail($subject, $first, $explodedMail);
                 }
                 if($exact_second_date == $expiry_date) {
-                    $user->notify(new SecondRenewalNotice($user, $package));
+                    // $user->notify(new SecondRenewalNotice($user, $package));
+                    tribearcMail($subject, $second, $explodedMail);
                 }
                 if($exact_last_date == $expiry_date) {
-                    $user->notify(new LastRenewalNotice($user, $package));
+                    // $user->notify(new LastRenewalNotice($user, $package));
+                    tribearcMail($subject, $last, $explodedMail);
                 }
             }
             if(isset($user->package_id) && $user->expiry_date < now()) {
                 if($user->status == 'active') {
-                    $user->notify(new ExpiredPackage($user, $package));
+                    // $user->notify(new ExpiredPackage($user, $package));
+
+                    $explodedMail =  $user->name .' | '. $user->email;
+                    $subject = 'Expired Package';
+                    $newContent =  [
+                        'user' => $user->name,
+                        'package_name' => $package->name,
+                        'package_price' => $package->price,
+                    ];
+                    $content = view("emails.expiredPackage", $newContent)->render();
+                    tribearcMail($subject, $content, $explodedMail);
+
                     $user->status = 'inactive';
                     $user->save();
                 }

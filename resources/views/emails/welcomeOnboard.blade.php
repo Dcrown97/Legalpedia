@@ -440,7 +440,7 @@
   <![endif]-->
   </head>
   <body>
-    <span class="preheader">Legalpedia.</span>
+    {{-- <span class="preheader">Legalpedia.</span> --}}
     <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
       <tr>
         <td align="center">
@@ -460,7 +460,6 @@
                   <tr>
                     <td class="content-cell">
                       <div class="f-fallback">
-                        <!-- <h1>Hi User</h1> -->
                         <table class="discount" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
                             <td align="center">
@@ -469,7 +468,7 @@
                           </tr>
                           <tr>
                             <td>
-                              <p class="f-fallback discount_body">Hello {{$user->name}}, You can now access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more! Subscribe to Legalpedia packages to get started</p>
+                              <p class="f-fallback discount_body">Hello {{$user}}, You can now access thousands of records of recent and old Judgments, Laws, Rules, Articles and so much more! Subscribe to Legalpedia packages to get started</p>
                             </td>
                           </tr>
                           <tr>

@@ -40,7 +40,7 @@
                                 <label class="form-label mb-1">
                                     Content
                                 </label>
-                                <textarea name="content" class="form-control" rows="5" placeholder="Enter description">{{$form->content}}</textarea>
+                                <textarea name="content" class="description form-control" rows="5" placeholder="Enter description">{{$form->content}}</textarea>
                             </div>
                             @if(Auth::user()->role->name == 'Admin')
                                 <div class="form-group">

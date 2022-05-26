@@ -68,14 +68,6 @@ class PaymentController extends Controller
         $err = curl_error($curl);
         curl_close($curl);
 
-        // if ($err) {
-        //     return "cURL Error #:" . $err;
-        // } else {
-        //     return $response;
-        // }
-        // return response()->json([
-        //     'response'=>$response,
-        // ]);
         $new_data = json_decode($response);
 
         $transact = Transaction::where('reference', $reference)->first();
@@ -111,7 +103,17 @@ class PaymentController extends Controller
         }
         $user->save();
 
-        $user->notify(new NewSubscriber($transact, $user));
+        // $user->notify(new NewSubscriber($transact, $user));
+
+        $explodedMail =  $user->name .' | '. $user->email;
+        $subject = 'New Subscriber';
+        $newContent =  [
+            'user' => $user->name,
+            'package_name' => $transact->package,
+            'package_price' => $transact->amount,
+        ];
+        $content = view("emails.newSubscriber", $newContent)->render();
+        tribearcMail($subject, $content, $explodedMail);
 
         $this->addSubscriber($user);
 
@@ -164,9 +166,37 @@ class PaymentController extends Controller
             }
             $user->save();
 
-            $user->notify(new NewBankSubscriber($transact, $user));
+            // $user->notify(new NewBankSubscriber($transact, $user));
 
-            Notification::route('mail', 'support@legalpediaonline.com')->notify(new NotifyAdminBankSubscriber($transact, $user));
+            // Notification::route('mail', 'support@legalpediaonline.com')->notify(new NotifyAdminBankSubscriber($transact, $user));
+
+            $explodedMail =  $user->name .' | '. $user->email;
+            $explodedMails =  'Legalpedia | support@legalpediaonline.com';
+            $subject = 'Purchase Successful';
+            $adminsubject = 'New Subscriber';
+            $newContent =  [
+                'user' => $user->name,
+                'package_name' => $transact->package,
+                'package_price' => $transact->amount,
+                'reference' => $transact->reference,
+                'date' => Carbon::parse($this->transact->created_at)->toFormattedDateString(),
+                'name' => $transact->name,
+                'email' => $transact->email,
+            ];
+            $mainContent =  [
+                'user' => $user->name,
+                'user_surname' => $user->surname,
+                'package_name' => $transact->package,
+                'package_price' => $transact->amount,
+                'reference' => $transact->reference,
+                'date' => Carbon::parse($this->transact->created_at)->toFormattedDateString(),
+                'name' => $transact->name,
+                'email' => $transact->email,
+            ];
+            $content = view("emails.newBankSubscriber", $newContent)->render();
+            $admincontent = view("emails.notifyAdminBankSubscriber", $mainContent)->render();
+            tribearcMail($subject, $content, $explodedMail); // send to user
+            tribearcMail($adminsubject, $admincontent, $explodedMails); // send to admin
 
             $this->addSubscriber($user);
 
@@ -200,7 +230,7 @@ class PaymentController extends Controller
         $user_data = json_decode($response);
 
         $get_data = (array) $user_data;
-        
+
         if(isset($get_data['contacts']) && !empty($get_data['contacts'])) { // if the user already exists in active campaign update the user's details
             $data['contact'] =  [
                 "email" => $user->email,

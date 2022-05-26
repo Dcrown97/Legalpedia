@@ -100,8 +100,3 @@
         document.getElementById('show-icon').style.display = 'none';
     }
 </script>
-<script type="text/javascript">
-    window.onload=function(){
-      document.getElementById("notify_sound").play();
-    }
-</script>

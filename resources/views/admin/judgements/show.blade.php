@@ -190,6 +190,29 @@
                         <p class="card-text mb-1">{!! $counsels ? $counsels->counsels : '' !!}</p>
                     </div>
                 </div>
+                {{-- <div class="d-flex">
+                    <a href="#" id="copy-text" class="cursor-pointer">
+                        <div id="showCopy" class="note">
+                            <span class="icon">
+                                <i class="mdi mdi-content-copy"></i>
+                            </span>
+                        </div>
+                    </a>
+                    <a href="#" class="cursor-pointer">
+                        <div id="showShare" class="note cml-6">
+                            <span class="icon">
+                                <i class="mdi mdi-share-variant-outline"></i>
+                            </span>
+                        </div>
+                    </a>
+                    <a href="#" class="cursor-pointer">
+                        <div id="showPrint" class="note cml-12">
+                            <span class="icon">
+                                <img src="{{asset('assets/images/printing-text.png')}}" alt="">
+                            </span>
+                        </div>
+                    </a>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -322,23 +345,77 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="fs-1 fw-boldest">Make your notes public or private</div>
+                    <h5 class="fs-1 fw-boldest">Make your notes public or private</h5>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
                         <span class="svg-icon svg-icon-2x">
                             <i class="mdi mdi-close"></i>
                         </span>
                     </div>
                 </div>
-                <div class="modal-body scroll-y mt-4">
+                <div class="modal-body scroll-y">
                     <div class="container">
-                        <div class="row justify-content-center">
+                        <div class="row text-center justify-content-center mt-2 mb-5">
+                            <div class="col-3">
+                                <a class="cursor-pointer publicText">
+                                    <div id="public" class="note12">
+                                        <span class="icon-1">
+                                            <i class="mdi mdi-account-group"></i>
+                                        </span>
+                                    </div>
+                                    <span class="t-1">
+                                        Public
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-3">
+                                <a id="copy-text" class="cursor-pointer copiedText">
+                                    <div id="copy" class="note12">
+                                        <span class="icon-1">
+                                            <i class="mdi mdi-content-copy"></i>
+                                        </span>
+                                    </div>
+                                    <span class="t-1" id="hide-copy">
+                                        Copy
+                                    </span>
+                                    <span class="t-1 text-color" id="show-copy" style="display: none">
+                                        copied!
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-3">
+                                <a class="cursor-pointer shareText">
+                                    <div id="share" class="note12">
+                                        <span class="icon-1">
+                                            <i class="mdi mdi-share-variant-outline"></i>
+                                        </span>
+                                    </div>
+                                    <span class="t-1">
+                                        Share
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-3">
+                                <a class="cursor-pointer printText">
+                                    <div id="print" class="note12">
+                                        <span class="icon-1">
+                                            <img src="{{asset('assets/images/printing-text-1.png')}}" alt="">
+                                        </span>
+                                    </div>
+                                    <span class="t-1">
+                                        Print
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center" id="main">
                           <div class="col-12">
                             <form class="tab-content pb-4" id="wizardSteps" action="{{route('update.anote')}}" method="POST">
                                 {{ csrf_field() }}
                                 {{ method_field('patch') }}
                                 <div class="row justify-content-center">
                                     <div class="text-center">
-                                        <p class="mb-5 text-muted">Make notes searchable</p>
+                                        <p class="mb-5 text-muted">Make notes searchable by saving to public</p>
+                                        <input type="text" id="input" style="opacity: 0; position: absolute">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -354,12 +431,169 @@
                             </form>
                           </div>
                         </div>
+                        <div class="row justify-content-center" id="shareToTeam" style="display: none">
+                            <div data-list='{"valueNames": ["name"]}'>
+                                <div class="card-header">
+                                    <h4 class="card-header-title" id="exampleModalCenterTitle">
+                                        Share Note to teams
+                                    </h4>
+                                </div>
+                                <form action="{{route('share.anote')}}" method="POST">
+                                    @csrf
+                                    <div class="card-header">
+                                        <div class="input-group input-group-flush input-group-merge input-group-reverse">
+                                            <input class="form-control list-search" type="search" placeholder="Search">
+                                            <div class="input-group-text">
+                                            <span class="fe fe-search"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="form-check mb-n2">
+                                                <input class="form-check-input list-checkbox-all" name="checkBoxArray" id="ordersSelectAll" type="checkbox">
+                                                <label class="form-check-label" for="ordersSelectAll">&nbsp;</label> All Teams
+                                            </div>
+                                        </div>
+                                        <div class="col-auto me-n3">
+                                            <input type="hidden" name="anote_id" id="anote-id">
+                                            <input type="hidden" name="comment_body" id="anote-content">
+                                            <button type="submit" name="share_all" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white w-100 btn-primary">
+                                                <span class="button__text"><i class="mdi mdi-share-variant-outline"></i> Share</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush list my-n3">
+                                            @if(count($teams) > 0)
+                                                @foreach($teams as $team)
+                                                    <li class="list-group-item">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-1">
+                                                                <div class="form-check mb-n2">
+                                                                    <input class="form-check-input list-checkbox" type="checkbox" name="checkBoxArray[]" id="ordersSelectOne" value="{{$team->team_id}}">
+                                                                    <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <?php $my_team = App\Models\Team::where('id', $team->team_id)->first(); ?>
+                                                                <a href="{{route('show.team', $team->team_id)}}" class="avatar avatar-lg">
+                                                                    <img src="{{$my_team->photo}}" class="avatar-img rounded-circle w-2 h-2" alt="{{$my_team->name}}">
+                                                                </a>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <h4 class="mb-1 name">
+                                                                    <a href="{{route('show.team', $team->team_id)}}">{{$my_team->name}}</a>
+                                                                </h4>
+                                                                <?php $team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $team->team_id)->count(); ?>
+                                                                <small class="text-muted">
+                                                                    {{$team_member_count}} members
+                                                                </small>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                                                <input type="hidden" name="team_id" value="{{$team->team_id}}">
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+                                                @else
+                                                <div class="text-center mt-8 mb-8">
+                                                    <h3 class="text-muted"><i class="fe fe-users"></i> You have no teams</h3>
+                                                </div>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center" id="printNote" style="display: none">
+                            <div class="col-12">
+                                <div class="card-header">
+                                    <h4 class="card-header-title" id="exampleModalCenterTitle">
+                                        Print note
+                                    </h4>
+                                    <a class="cursor-pointer btn btn-primary text-white printNow" onclick="printContent('printTag')">Print</a>
+                                </div>
+                                <div class="card-body">
+                                    <div id="printTag"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+
+        function printContent(elem)
+        {
+            var mywindow = window.open('', 'PRINT', 'height=800,width=1200');
+
+            mywindow.document.write('<html><head><title>' + document.title  + '</title>');
+            mywindow.document.write('</head><body >');
+            mywindow.document.write('<h1>' + document.title  + '</h1>');
+            mywindow.document.write(document.getElementById(elem).innerHTML);
+            mywindow.document.write('</body></html>');
+
+            mywindow.document.close(); // necessary for IE >= 10
+            mywindow.focus(); // necessary for IE >= 10*/
+
+            mywindow.print();
+            mywindow.close();
+
+            return true;
+        }
+
+        // var t = '';
+        // function gText(e) {
+        //     t = (document.all) ? document.selection.createRange().text : document.getSelection();
+
+        //     document.getElementById('input').value = t;
+        // }
+        // document.onmouseup = gText;
+        // if (!document.all) document.captureEvents(Event.MOUSEUP);
+
+
+    </script>
+
+    {{-- <script>
+        $(document).ready(function(){
+
+            $('html').click(function(e){
+                setTimeout(() => {
+                    mouseX=e.pageX;
+                    mouseY=e.pageY;
+                    var bodyTop = document.documentElement.scrollTop + document.body.scrollTop;
+                    var windowWidth  = $(window).outerWidth();
+                    var windowHeight = $(window).outerHeight();
+                    let left_p = parseInt($('.r6o-editor').css('left'));
+                    let top_p = parseInt($('.r6o-editor').css('top')) - 100;
+
+                    let left = left_p + 'px';
+                    let top = top_p + 'px';
+
+                    console.log(left, top);
+                    $('#showCopy').css({position:"absolute",top,left});
+                    $('#showCopy').show();
+                    $('#showShare').css({position:"absolute",top,left});
+                    $('#showShare').show();
+                    $('#showPrint').css({position:"absolute",top,left});
+                    $('#showPrint').show();
+
+                    if($('.r6o-editor').css('left') == undefined) {
+                        $('#showCopy').hide();
+                        $('#showShare').hide();
+                        $('#showPrint').hide();
+                    }
+                }, 1000);
+
+            });
+        });
+
+    </script> --}}
     <script>
         var data = null;
         function readFunction() {
@@ -386,96 +620,9 @@
 
         // r.loadAnnotations('annotations.w3c.json');
         var jid = {{$judgement_summary->id}};
-        r.loadAnnotations('fetch-annotations/' + jid).then(function() {
-            var anotes =
-
-            [
-                {
-                    "@context": "http://www.w3.org/ns/anno.jsonld",
-                    "id": "#13e491af-2bff-4f97-86fb-f4d9c3e4b619",
-                    "type": "Annotation",
-                    "body": [{
-                        "type": "TextualBody",
-                        "value": "This is a something",
-                        "purpose": "commenting"
-                    }],
-                    "target": {
-                        "selector": [{
-                            "type": "TextQuoteSelector",
-                            "exact": "eard the matter and placed under its Undefended List and after considering, the affidavits of the parties"
-                        }],
-                        "0": [{
-                            "type": "TextPositionSelector",
-                            "start":1253,
-                            "end":1358
-                        }]
-                    }
-                }
-            ];
-
-            // return anotes;
-
-            console.log(anotes)
-            // var id = {{$judgement_summary->id}};
-            // $.ajax({
-            //     type: 'GET',
-            //     url: "/admin/judgements/fetch-annotations/" + id,
-            //     dataType: 'json',
-            //     success: function (response) {
-            //         console.log(response.anotes);
-            //         // var myAnnotation = {
-            //         //     'id': 'https://www.example.com/recogito-js-example/foo',
-            //         //     'type': 'Annotation',
-            //         //     'body': [{
-            //         //     'type': 'TextualBody',
-            //         //     'value': 'This annotation was added via JS.'
-            //         //     }],
-            //         //     'target': {
-            //         //     'selector': [{
-            //         //         'type': 'TextQuoteSelector',
-            //         //         'exact': 'that ingenious hero'
-            //         //     }, {
-            //         //         'type': 'TextPositionSelector',
-            //         //         'start': 38,
-            //         //         'end': 57
-            //         //     }]
-            //         //     }
-            //         // };
-            //         $.each(response.anotes, function (key, item) {
-            //             console.log(item);
-            //             // $('#content').append(
-            //             //     myAnnotation = {
-            //             //         'id': item.note_id,
-            //             //         'type': item.content_type,
-            //             //         'body': [{
-            //             //             'type': item.comment.type,
-            //             //             'value': item.comment.value,
-            //             //         }],
-            //             //         'target': {
-            //             //             'selector': [{
-            //             //                 'type': item.content.type,
-            //             //                 'exact': item.content.exact,
-            //             //             }, {
-            //             //                 'type': item.content.type,
-            //             //                 'start': item.content.start,
-            //             //                 'end': item.content.end,
-            //             //             }]
-            //             //         }
-            //             //     }
-            //             // );
-            //             // anotes.push(myAnnotation())
-            //         });
-            //     }
-            // });
-
-
-        });
-
-        r.on('selectAnnotation', function(annote) {
-          console.log(annote);
-        });
 
         r.on('createAnnotation', function(annote) {
+            console.log(annote.target)
             var userId = "{{Auth::user()->id}}";
             var contentId = "{{$judgement_summary ? $judgement_summary->suit_no : ''}}";
             var resource_type = "judgement";
@@ -495,65 +642,149 @@
                 success: function (response) {
                     console.log(response);
                     document.getElementById('note-id').value = annote.id;
-                    $('#save_public').modal('show')
-                    // swal({
-                    //     title: "Success",
-                    //     text: 'Annotation saved',
-                    //     icon: "success",
-                    // });
+                    document.getElementById('anote-id').value = response.anote.id;
+                    document.getElementById('anote-content').value = response.anote.selector[0].exact;
+                    document.getElementById('printTag').innerHTML = response.anote.selector[0].exact;
+                    $('#save_public').modal('show');
+
+                    $('.copiedText').click(function() {
+                        var Url = document.getElementById("input");
+                        Url.value =  response.anote.selector[0].exact;
+                        Url.focus();
+                        Url.select();
+                        document.execCommand("Copy");
+                        document.getElementById('hide-copy').style.display = 'none';
+                        document.getElementById('show-copy').style.display = 'initial';
+                    });
+                    $('.shareText').click(function() {
+                        $('#main').hide();
+                        $('#shareToTeam').show();
+                        $('#printNote').hide();
+                    });
+                    $('.printText').click(function() {
+                        $('#main').hide();
+                        $('#shareToTeam').hide();
+                        $('#printNote').show();
+                    });
+                    $('.publicText').click(function() {
+                        $('#main').show();
+                        $('#shareToTeam').hide();
+                        $('#printNote').hide();
+                    });
                 }
-
             });
-
         });
 
         r.on('updateAnnotation', function(annotation, previous) {
           console.log('updated', previous, 'with', annotation);
         });
-
-        // // Wire the Add/Update/Remove buttons
-        // document.getElementById('add-annotation').addEventListener('click', function() {
-        //   r.addAnnotation(myAnnotation);
-        // });
-
-        // document.getElementById('update-annotation').addEventListener('click', function() {
-        //   r.addAnnotation(Object.assign({}, myAnnotation, {
-        //     'body': [{
-        //       'type': 'TextualBody',
-        //       'value': 'This annotation was added via JS, and has been updated now.'
-        //     }],
-        //     'target': {
-        //       'selector': [{
-        //         'type': 'TextQuoteSelector',
-        //         'exact': 'ingenious hero who'
-        //       }, {
-        //         'type': 'TextPositionSelector',
-        //         'start': 43,
-        //         'end': 61
-        //       }]
-        //     }
-        //   }));
-        // });
-
-        // document.getElementById('remove-annotation').addEventListener('click', function() {
-        //   r.removeAnnotation(myAnnotation);
-        // });
-
-        // // Switch annotation mode (annotation/relationships)
-        // var annotationMode = 'ANNOTATION'; // or 'RELATIONS'
-
-        // var toggleModeBtn = document.getElementById('toggle-mode');
-        // toggleModeBtn.addEventListener('click', function() {
-        //   if (annotationMode === 'ANNOTATION') {
-        //     toggleModeBtn.innerHTML = 'MODE: RELATIONS';
-        //     annotationMode = 'RELATIONS';
-        //   } else  {
-        //     toggleModeBtn.innerHTML = 'MODE: ANNOTATION';
-        //     annotationMode = 'ANNOTATION';
-        //   }
-
-        //   r.setMode(annotationMode);
-        // });
       })();
+    </script>
+    <script>
+        var caseId = {{$judgement_summary->id}};
+        $(document).ready(function () {
+            fetchAnote();
+        });
+        function fetchAnote() {
+            $.ajax({
+                type: 'GET',
+                url: "/admin/judgements/fetch-annotations/" + caseId,
+                success: function (response) {
+                    console.log(response);
+                    var array = response.anotes;
+                    var objTo = document.getElementById('content');
+                    $.each(array, function(key, element) {
+                        var co = JSON.parse(element.content)
+                        selectAndHighlightRange(objTo, co.selector[1].start, co.selector[1].end);
+                    });
+                }
+            });
+        }
+        function getTextNodesIn(node) {
+            var textNodes = [];
+            if (node.nodeType == 3) {
+                textNodes.push(node);
+            } else {
+                var children = node.childNodes;
+                for (var i = 0, len = children.length; i < len; ++i) {
+                    textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+                }
+            }
+            return textNodes;
+        }
+
+        function setSelectionRange(el, start, end) {
+            if (document.createRange && window.getSelection) {
+                var range = document.createRange();
+                range.selectNodeContents(el);
+                var textNodes = getTextNodesIn(el);
+                var foundStart = false;
+                var charCount = 0, endCharCount;
+
+                for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+                    endCharCount = charCount + textNode.length;
+                    if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
+                        range.setStart(textNode, start - charCount);
+                        foundStart = true;
+                    }
+                    if (foundStart && end <= endCharCount) {
+                        range.setEnd(textNode, end - charCount);
+                        break;
+                    }
+                    charCount = endCharCount;
+                }
+
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } else if (document.selection && document.body.createTextRange) {
+                var textRange = document.body.createTextRange();
+                textRange.moveToElementText(el);
+                textRange.collapse(true);
+                textRange.moveEnd("character", end);
+                textRange.moveStart("character", start);
+                textRange.select();
+            }
+        }
+
+        function makeEditableAndHighlight(colour) {
+            sel = window.getSelection();
+            if (sel.rangeCount && sel.getRangeAt) {
+                range = sel.getRangeAt(0);
+            }
+            document.designMode = "on";
+            if (range) {
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+            // Use HiliteColor since some browsers apply BackColor to the whole block
+            if (!document.execCommand("HiliteColor", false, colour)) {
+                document.execCommand("BackColor", false, colour);
+            }
+            document.designMode = "off";
+        }
+
+        function highlight(colour) {
+            var range, sel;
+            if (window.getSelection) {
+                // IE9 and non-IE
+                try {
+                    if (!document.execCommand("BackColor", false, colour)) {
+                        makeEditableAndHighlight(colour);
+                    }
+                } catch (ex) {
+                    makeEditableAndHighlight(colour)
+                }
+            } else if (document.selection && document.selection.createRange) {
+                // IE <= 8 case
+                range = document.selection.createRange();
+                range.execCommand("BackColor", false, colour);
+            }
+        }
+
+        function selectAndHighlightRange(id, start, end) {
+            setSelectionRange(document.getElementById("content"), start, end);
+            highlight("#ffa50033");
+        }
     </script>
 @endsection

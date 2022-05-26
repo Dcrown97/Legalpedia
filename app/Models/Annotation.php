@@ -10,7 +10,8 @@ class Annotation extends Model
     use HasFactory;
 
     protected $fillable = [
-    'user_id', 'note_id', 'content_id', 'content_type', 'content', 'comment', 'replies', 'text_target', 'tags', 'display', 'resource_type'
+    'user_id', 'note_id', 'content_id', 'content_type', 'content', 'comment', 'replies', 'text_target', 'tags', 'display', 'resource_type',
+    'featured'
     ];
 
     protected $table = 'annotations';

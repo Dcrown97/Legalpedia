@@ -5,6 +5,7 @@
 @endsection
 
 @section('content')
+<link rel="stylesheet" href="{{asset('assets/css/stories.css')}}">
     <style>
         .alert-primary {
             background-color: #E3EDFF !important;
@@ -58,6 +59,56 @@
                 display: none !important;
             }
         }
+        .w-300 {
+            width: 300px;
+        }
+        .custom-container {
+            margin-bottom: 20px;
+            padding: 0 !important;
+        }
+        .story-container .content {
+            text-align: left !important;
+        }
+
+        .carousel-cell {
+            width: 33.33%;
+            left: 0px;
+            top: 2rem;
+            margin-right: 2rem;
+            margin-bottom: 4rem;
+        }
+        .custom-cell {
+            width: 32.1% !important;
+            left: 7rem !important;
+            margin-bottom: 4rem;
+        }
+        .flickity-viewport {
+            height: 190px !important;
+            margin-top: -2rem !important;
+        }
+        .flickity-slider {
+            margin-left: -27rem;
+        }
+        .flickity-page-dots {
+            display: none;
+        }
+        .show-mobile {
+            display: none;
+        }
+        @media screen and (min-width: 250px) and (max-width: 1200px) {
+            .show-mobile {
+                display: initial;
+            }
+            .hide-mobile {
+                display: none;
+            }
+            .carousel-cell {
+                width: inherit !important;
+            }
+            .flickity-slider {
+                margin-left: 0;
+            }
+        }
     </style>
     <div class="header">
         <div class="container-fluid">
@@ -90,6 +141,906 @@
                     </button>
                 </div>
             </a>
+        @endif
+        @if(isset($featured_team) && isset($featured_user) && isset($featured_article) && isset($featured_form) && isset($featured_note))
+            <div class="row hide-mobile">
+                <div class="carousel" data-flickity='{ "autoPlay": true }'>
+                    <div class="carousel-cell">
+                        @php
+                            $user = App\Models\User::where('id', $featured_user->reference_id)->first();
+                        @endphp
+                        <a href="{{route('user.profile', $user->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Lawyer
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm avatar-online">
+                                                            @if($user->photo)
+                                                                <a href="{{route('user.profile', $user->id)}}">
+                                                                    <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                </a>
+                                                                @else
+                                                                <div class="initials">
+                                                                    <a href="{{route('user.profile', $user->id)}}" class="text-white"><span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span></a>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($user->name, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $featured_user->reference_id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('user.profile', $user->id)}}"><i class="mdi mdi-arrow-right"></i> View Profile</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="carousel-cell">
+                        @php
+                            $article = App\Models\Article::where('id', $featured_article->reference_id)->first();
+                        @endphp
+                        <a href="{{route('show.article', $article->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Article
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('show.article', $article->id)}}">
+                                                                <img src="{{$article->photo}}" class="avatar-img rounded-circle" alt="{{$article->title}}">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($article->title, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.article', $article->id)}}"><i class="mdi mdi-arrow-right"></i> View Article</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="carousel-cell">
+                        @php
+                            $team = App\Models\Team::where('id', $featured_team->reference_id)->first();
+                        @endphp
+                        <a href="{{route('show.team', $team->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Team
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('show.team', $team->id)}}">
+                                                                <img src="{{$team->photo}}" class="avatar-img rounded-circle" alt="{{$team->name}}">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($team->name, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.team', $team->id)}}"><i class="mdi mdi-arrow-right"></i> View Team</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="carousel-cell">
+                        @php
+                            $note = App\Models\Annotation::where('id', $featured_note->reference_id)->first();
+                        @endphp
+                        <a href="{{route('admin.notes')}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Note
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('admin.notes')}}" class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4 class="mb-1">
+                                                            @php
+                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
+                                                                $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
+                                                                $rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                $form = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                $article = App\Models\Rule::where('id', $note->content_id)->first();
+                                                            @endphp
+                                                            @if($note->resource_type == 'judgement')
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'fed')
+                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'rule')
+                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'state-rule')
+                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'form')
+                                                                <a href="{{route('show.form', $form ? $form->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'article')
+                                                                <a href="{{route('show.article', $article ? $article->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                            @endif
+                                                        </h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('admin.notes')}}"><i class="mdi mdi-arrow-right"></i> View Note</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="carousel-cell">
+                        @php
+                            $form = App\Models\FormsPrecedence::where('id', $featured_form->reference_id)->first();
+                        @endphp
+                        <a href="{{route('show.form', $form->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Form
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('show.form', $form->id)}}" class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($form->title, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.form', $form->id)}}"><i class="mdi mdi-arrow-right"></i> View Form</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row show-mobile">
+                <div class="carousel" data-flickity='{ "autoPlay": true }'>
+                    <div class="carousel-cell">
+                        <div class="col-12">
+                            @php
+                                $user = App\Models\User::where('id', $featured_user->reference_id)->first();
+                            @endphp
+                            <a href="{{route('user.profile', $user->id)}}" class="link_item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row align-items-center gx-0">
+                                            <div class="col">
+                                                <h6 class="text-uppercase text-muted mb-3">
+                                                    Featured Lawyer
+                                                </h6>
+                                                <span class="h2 mb-0">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm avatar-online">
+                                                                @if($user->photo)
+                                                                    <a href="{{route('user.profile', $user->id)}}">
+                                                                        <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                    </a>
+                                                                    @else
+                                                                    <div class="initials">
+                                                                        <a href="{{route('user.profile', $user->id)}}" class="text-white"><span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span></a>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <h4>{{Str::words($user->name, 3)}}</h4>
+                                                            @php
+                                                                $rating_count = App\Models\FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $featured_user->reference_id)->count();
+                                                                $rating = App\Models\FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->max('rating');
+                                                            @endphp
+                                                            @if ($rating_count > 0)
+                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                            @else
+                                                                <small class="text-muted">No rating</small>
+                                                            @endif
+                                                        </div>
+                                                        <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('user.profile', $user->id)}}"><i class="mdi mdi-arrow-right"></i> View Profile</a>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="carousel-cell">
+                        <div class="col-12">
+                            @php
+                                $article = App\Models\Article::where('id', $featured_article->reference_id)->first();
+                            @endphp
+                            <a href="{{route('show.article', $article->id)}}" class="link_item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row align-items-center gx-0">
+                                            <div class="col">
+                                                <h6 class="text-uppercase text-muted mb-3">
+                                                    Featured Article
+                                                </h6>
+                                                <span class="h2 mb-0">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm">
+                                                                <a href="{{route('show.article', $article->id)}}">
+                                                                    <img src="{{$article->photo}}" class="avatar-img rounded-circle" alt="{{$article->title}}">
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <h4>{{Str::words($article->title, 3)}}</h4>
+                                                            @php
+                                                                $rating_count = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
+                                                                $rating = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
+                                                            @endphp
+                                                            @if ($rating_count > 0)
+                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                            @else
+                                                                <small class="text-muted">No rating</small>
+                                                            @endif
+                                                        </div>
+                                                        <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.article', $article->id)}}"><i class="mdi mdi-arrow-right"></i> View Article</a>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="carousel-cell">
+                        <div class="col-12">
+                            @php
+                                $team = App\Models\Team::where('id', $featured_team->reference_id)->first();
+                            @endphp
+                            <a href="{{route('show.team', $team->id)}}" class="link_item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row align-items-center gx-0">
+                                            <div class="col">
+                                                <h6 class="text-uppercase text-muted mb-3">
+                                                    Featured Team
+                                                </h6>
+                                                <span class="h2 mb-0">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm">
+                                                                <a href="{{route('show.team', $team->id)}}">
+                                                                    <img src="{{$team->photo}}" class="avatar-img rounded-circle" alt="{{$team->name}}">
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <h4>{{Str::words($team->name, 3)}}</h4>
+                                                            @php
+                                                                $rating_count = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
+                                                                $rating = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
+                                                            @endphp
+                                                            @if ($rating_count > 0)
+                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                            @else
+                                                                <small class="text-muted">No rating</small>
+                                                            @endif
+                                                        </div>
+                                                        <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.team', $team->id)}}"><i class="mdi mdi-arrow-right"></i> View Team</a>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="carousel-cell">
+                        <div class="col-12">
+                            @php
+                                $note = App\Models\Annotation::where('id', $featured_note->reference_id)->first();
+                            @endphp
+                            <a href="{{route('admin.notes')}}" class="link_item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row align-items-center gx-0">
+                                            <div class="col">
+                                                <h6 class="text-uppercase text-muted mb-3">
+                                                    Featured Note
+                                                </h6>
+                                                <span class="h2 mb-0">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm">
+                                                                <a href="{{route('admin.notes')}}" class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                    <i class="fe fe-file"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <h4 class="mb-1">
+                                                                @php
+                                                                    $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
+                                                                    $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
+                                                                    $rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                    $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                    $form = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                    $article = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                @endphp
+                                                                @if($note->resource_type == 'judgement')
+                                                                    <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
+                                                                        @php
+                                                                            $note->comment = json_decode($note->comment);
+                                                                        @endphp
+                                                                        @if($note->comment)
+                                                                            @foreach ($note->comment as $comment_type)
+                                                                                {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                            @endforeach
+                                                                        @endif
+                                                                    </a>
+                                                                    @elseif($note->resource_type == 'fed')
+                                                                    <a href="{{route('show.fed', $fed ? $fed->id : '')}}">
+                                                                        @php
+                                                                            $note->comment = json_decode($note->comment);
+                                                                        @endphp
+                                                                        @if($note->comment)
+                                                                            @foreach ($note->comment as $comment_type)
+                                                                                {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                            @endforeach
+                                                                        @endif
+                                                                    </a>
+                                                                    @elseif($note->resource_type == 'rule')
+                                                                    <a href="{{route('show.rule', $rule ? $rule->id : '')}}">
+                                                                        @php
+                                                                            $note->comment = json_decode($note->comment);
+                                                                        @endphp
+                                                                        @if($note->comment)
+                                                                            @foreach ($note->comment as $comment_type)
+                                                                                {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                            @endforeach
+                                                                        @endif
+                                                                    </a>
+                                                                    @elseif($note->resource_type == 'state-rule')
+                                                                    <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}">
+                                                                        @php
+                                                                            $note->comment = json_decode($note->comment);
+                                                                        @endphp
+                                                                        @if($note->comment)
+                                                                            @foreach ($note->comment as $comment_type)
+                                                                                {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                            @endforeach
+                                                                        @endif
+                                                                    </a>
+                                                                    @elseif($note->resource_type == 'form')
+                                                                    <a href="{{route('show.form', $form ? $form->id : '')}}">
+                                                                        @php
+                                                                            $note->comment = json_decode($note->comment);
+                                                                        @endphp
+                                                                        @if($note->comment)
+                                                                            @foreach ($note->comment as $comment_type)
+                                                                                {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                            @endforeach
+                                                                        @endif
+                                                                    </a>
+                                                                    @elseif($note->resource_type == 'article')
+                                                                    <a href="{{route('show.article', $article ? $article->id : '')}}">
+                                                                        @php
+                                                                            $note->comment = json_decode($note->comment);
+                                                                        @endphp
+                                                                        @if($note->comment)
+                                                                            @foreach ($note->comment as $comment_type)
+                                                                                {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                            @endforeach
+                                                                        @endif
+                                                                    </a>
+                                                                @endif
+                                                            </h4>
+                                                            @php
+                                                                $rating_count = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->count();
+                                                                $rating = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->max('rating');
+                                                            @endphp
+                                                            @if ($rating_count > 0)
+                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                            @else
+                                                                <small class="text-muted">No rating</small>
+                                                            @endif
+                                                        </div>
+                                                        <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('admin.notes')}}"><i class="mdi mdi-arrow-right"></i> View Note</a>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="carousel-cell">
+                        <div class="col-12">
+                            @php
+                                $form = App\Models\FormsPrecedence::where('id', $featured_form->reference_id)->first();
+                            @endphp
+                            <a href="{{route('show.form', $form->id)}}" class="link_item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row align-items-center gx-0">
+                                            <div class="col">
+                                                <h6 class="text-uppercase text-muted mb-3">
+                                                    Featured Form
+                                                </h6>
+                                                <span class="h2 mb-0">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="avatar avatar-sm">
+                                                                <a href="{{route('show.form', $form->id)}}" class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                    <i class="fe fe-file"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <h4>{{Str::words($form->title, 3)}}</h4>
+                                                            @php
+                                                                $rating_count = App\Models\FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
+                                                                $rating = App\Models\FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
+                                                            @endphp
+                                                            @if ($rating_count > 0)
+                                                                <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                            @else
+                                                                <small class="text-muted">No rating</small>
+                                                            @endif
+                                                        </div>
+                                                        <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.form', $form->id)}}"><i class="mdi mdi-arrow-right"></i> View Form</a>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- <div class="custom-container w-100">
+                <div class="story-container" style="grid-auto-columns: unset;">
+                    <div class="content w-300">
+                        @php
+                            $team = App\Models\Team::where('id', $featured_team->reference_id)->first();
+                        @endphp
+                        <a href="{{route('show.team', $team->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Team
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('show.team', $team->id)}}">
+                                                                <img src="{{$team->photo}}" class="avatar-img rounded-circle" alt="{{$team->name}}">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($team->name, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.team', $team->id)}}"><i class="mdi mdi-arrow-right"></i> View Team</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="content w-300">
+                        @php
+                            $user = App\Models\User::where('id', $featured_user->reference_id)->first();
+                        @endphp
+                        <a href="{{route('user.profile', $user->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured User
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm avatar-online">
+                                                            @if($user->photo)
+                                                                <a href="{{route('user.profile', $user->id)}}">
+                                                                    <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                </a>
+                                                                @else
+                                                                <div class="initials">
+                                                                    <a href="{{route('user.profile', $user->id)}}" class="text-white"><span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span></a>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($user->name, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $featured_user->reference_id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('user.profile', $user->id)}}"><i class="mdi mdi-arrow-right"></i> View User</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="content w-300">
+                        @php
+                            $article = App\Models\Article::where('id', $featured_article->reference_id)->first();
+                        @endphp
+                        <a href="{{route('show.team', $team->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Article
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('show.article', $article->id)}}">
+                                                                <img src="{{$article->photo}}" class="avatar-img rounded-circle" alt="{{$article->title}}">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($article->title, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.article', $article->id)}}"><i class="mdi mdi-arrow-right"></i> View Article</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="content w-300">
+                        @php
+                            $form = App\Models\FormsPrecedence::where('id', $featured_form->reference_id)->first();
+                        @endphp
+                        <a href="{{route('show.form', $form->id)}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Form
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('show.form', $form->id)}}" class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4>{{Str::words($form->title, 3)}}</h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('show.form', $form->id)}}"><i class="mdi mdi-arrow-right"></i> View Form</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="content w-300">
+                        @php
+                            $note = App\Models\Annotation::where('id', $featured_note->reference_id)->first();
+                        @endphp
+                        <a href="{{route('admin.notes')}}" class="link_item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center gx-0">
+                                        <div class="col">
+                                            <h6 class="text-uppercase text-muted mb-3">
+                                                Featured Note
+                                            </h6>
+                                            <span class="h2 mb-0">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <div class="avatar avatar-sm">
+                                                            <a href="{{route('admin.notes')}}" class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                                <i class="fe fe-file"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <h4 class="mb-1">
+                                                            @php
+                                                                $judgement_summary = App\Models\JudgementSummary::where('suit_no', 'LIKE', '%'.$note->content_id.'%')->first();
+                                                                $fed = App\Models\LawOfFederation::where('id', $note->content_id)->first();
+                                                                $rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                $state_rule = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                $form = App\Models\Rule::where('id', $note->content_id)->first();
+                                                                $article = App\Models\Rule::where('id', $note->content_id)->first();
+                                                            @endphp
+                                                            @if($note->resource_type == 'judgement')
+                                                                <a href="{{route('show.judgement', $judgement_summary ? $judgement_summary->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'fed')
+                                                                <a href="{{route('show.fed', $fed ? $fed->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'rule')
+                                                                <a href="{{route('show.rule', $rule ? $rule->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'state-rule')
+                                                                <a href="{{route('show.state-rule', $state_rule ? $state_rule->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'form')
+                                                                <a href="{{route('show.form', $form ? $form->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                                @elseif($note->resource_type == 'article')
+                                                                <a href="{{route('show.article', $article ? $article->id : '')}}">
+                                                                    @php
+                                                                        $note->comment = json_decode($note->comment);
+                                                                    @endphp
+                                                                    @if($note->comment)
+                                                                        @foreach ($note->comment as $comment_type)
+                                                                            {{ucwords(strtolower(Str::words($comment_type->value, 3)))}}
+                                                                        @endforeach
+                                                                    @endif
+                                                                </a>
+                                                            @endif
+                                                        </h4>
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('reference_id', $note->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small>
+                                                        @endif
+                                                    </div>
+                                                    <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{route('admin.notes')}}"><i class="mdi mdi-arrow-right"></i> View Note</a>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div> --}}
         @endif
         <div class="row">
             <div class="col-12 col-xl-4">
@@ -479,6 +1430,8 @@
         </div>
     </div>
 
+    <input type='text' id='input' />
+{{-- Lorem ipsum, dolor sit amet consectetur adipisicing elit. Modi dignissimos sint, facilis atque exercitationem voluptas soluta nulla voluptates corporis debitis sequi, maiores labore fugiat dolor culpa, aliquid quae non tenetur. --}}
 
     <div class="modal fade" id="teamModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -580,6 +1533,16 @@
         </div>
     </div>
     <script>
+        var t = '';
+        function gText(e) {
+            t = (document.all) ? document.selection.createRange().text : document.getSelection();
+
+            document.getElementById('input').value = t;
+        }
+
+        document.onmouseup = gText;
+        if (!document.all) document.captureEvents(Event.MOUSEUP);
+
         $(document ).ready(function() {
             @if(Session::has('welcome') && Session::get('welcome') == 1)
                 $('#popModal').modal('show');
@@ -591,5 +1554,11 @@
             document.getElementById("anote-id").value = id;
             $('#teamModal').modal('show')
         }
+    </script>
+    <!-- Script to Activate the Carousel -->
+    <script>
+        $('.carousel').carousel({
+            interval: 5000 //changes the speed
+        })
     </script>
 @endsection

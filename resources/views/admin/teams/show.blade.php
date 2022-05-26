@@ -5,6 +5,7 @@
 @endsection
 
 @section('content')
+<script src='https://{{url()->current()}}/external_api.js'></script>
     <style>
         .header-img-top {
             height: 300px !important;
@@ -45,9 +46,32 @@
                         <h1 class="header-title">
                             {{$team->name}}
                         </h1>
+
                     </div>
-                    <div class="col-12 col-md-auto mt-2 mt-md-0 mb-md-3">
-                        @if(Auth::user()->id !== $team->user_id)
+                    <div class="col-12 col-md-auto mt-2 mt-md-0 mb-md-3 d-flex">
+                        <span class="pt-2 mr-4">
+                            @if ($rating_count > 0)
+                                <a href="#reviews"><small>{{number_format($rating_count)}} . {{getRating($rating)}} </small></a>
+                            @else
+                                <small class="text-muted">No rating</small>
+                            @endif
+                        </span>
+                        @if(Auth::user()->role->name == 'Admin')
+                            <span class="pt-2 mr-4">
+                                <a href="#" data-bs-target="#rate" data-bs-toggle="modal"><i class="mdi mdi-star"></i> <i class="mdi mdi-star"></i> Rate this Team</a></span>
+                            </span>
+                        @elseif(Auth::user()->id !== $team->user_id)
+                            @if(isset($team_member->user_id))
+                                @if(Auth::user()->id == $team_member->user_id)
+                                    <span class="pt-2 ml-2 mr-4">
+                                        <a href="#" data-bs-target="#rate" data-bs-toggle="modal"><i class="mdi mdi-star"></i> <i class="mdi mdi-star"></i> Rate this Team</a></span>
+                                    </span>
+                                @endif
+                            @endif
+                        @endif
+                        @if(Auth::user()->id == $team->user_id)
+                            <a data-bs-toggle="modal" data-bs-target="#startMeeting" class="btn-primary text-white btn"><i class="mdi mdi-play"></i> Start a Meeting</a>
+                        @elseif(Auth::user()->id !== $team->user_id)
                             @if(empty($send_request))
                                 <form action="{{route('send.request')}}" method="POST">
                                     @csrf
@@ -55,24 +79,25 @@
                                     <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                     <input type="hidden" name="team_id" value="{{$team->id}}">
                                     <input type="hidden" name="team_owner_id" value="{{$team->user_id}}">
-                                    <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="btn text-white btn-primary d-block d-md-inline-block">
+                                    <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="btn text-white button_load btn-primary d-block d-md-inline-block">
                                         <span class="button__text"><i class="mdi mdi-plus"></i> Request Access</span>
                                     </button>
                                 </form>
-                                @elseif($send_request->send_request == 0)
+                            @elseif($send_request->send_request == 0)
                                 <form action="{{route('send.request')}}" method="POST">
                                     @csrf
                                     <input type="hidden" name="send_request" value="1">
                                     <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                     <input type="hidden" name="team_id" value="{{$team->id}}">
                                     <input type="hidden" name="team_owner_id" value="{{$team->user_id}}">
-                                    <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="btn text-white btn-primary d-block d-md-inline-block">
+                                    <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white btn-primary d-block d-md-inline-block">
                                         <span class="button__text"><i class="mdi mdi-plus"></i> Request Access</span>
                                     </button>
                                 </form>
                                 @elseif($send_request->send_request == 1 && $send_request->approve_request == 0)
                                 <a style="cursor: not-allowed; text-align: center" class="px-5 bg-padding py-3 d-block d-md-inline-block font-medium leading-5 text-gray-400 transition-colors duration-150 bg-gray-100 hover:bg-gray-100 dark:bg-gray-700 border border-transparent rounded-lg">Request Sent</a>
                                 @elseif($send_request->send_request == 1 && $send_request->approve_request == 1)
+                                    <a data-bs-toggle="modal" data-bs-target="#startMeeting" class="btn-primary text-white btn"><i class="mdi mdi-play"></i> Start a Meeting</a>
                             @endif
                         @endif
                     </div>
@@ -93,6 +118,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="members-tab" data-toggle="tab" href="#members" role="tab" aria-controls="members" aria-selected="false">
                                     Members
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">
+                                    Reviews
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -400,8 +430,15 @@
                                                 <p>{!! $body[0] !!}</p>
                                                 <p>{!! $body[1] !!}</p>
                                                 <p><a href="{{$body[2]}}" class="text-color"><u>View full article <i class="fe fe-arrow-right"></i></u></a></p>
-                                                @else
-                                                {!! $comment->comment_body !!}
+                                            @elseif($comment->form_precedence_id)
+                                                @php
+                                                    $body = json_decode($comment->comment_body)
+                                                @endphp
+                                                <p>{!! $body[0] !!}</p>
+                                                <p>{!! $body[1] !!}</p>
+                                                <p><a href="{{$body[2]}}" class="text-color"><u>View full form <i class="fe fe-arrow-right"></i></u></a></p>
+                                            @else
+                                            {!! preg_replace("~[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]~", "<a href=\"\\0\" target='_blank' class='text-color'>\\0</a>", $comment->comment_body) !!}
                                             @endif
                                         </p>
                                         <p class="mb-4 text-center">
@@ -776,23 +813,23 @@
                                                     @endif
                                                     @if($comment->user_id == Auth::user()->id)
                                                         @if(empty($comment->article_id))
-                                                                <div class="dropdown">
-                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                        <i class="fe fe-more-vertical"></i>
+                                                            <div class="dropdown">
+                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditPost("{{$comment->comment_body}}", "{{$comment->id}}")' class="dropdown-item">
+                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
                                                                     </a>
-                                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                                        <a style="cursor: pointer" data-bs-toggle="modal" onclick='showEditPost("{{$comment->comment_body}}", "{{$comment->id}}")' class="dropdown-item">
-                                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
-                                                                        </a>
-                                                                        <form action="/admin/teams/comment/{{$comment->id}}" method="POST">
-                                                                            {{ csrf_field() }}
-                                                                            {{ method_field('DELETE') }}
-                                                                            <button type="submit" name="submit" onclick="return deletePost();" class="dropdown-item">
-                                                                                <i class="fe fe-trash mr-2"></i>Delete
-                                                                            </button>
-                                                                        </form>
-                                                                    </div>
+                                                                    <form action="/admin/teams/comment/{{$comment->id}}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{ method_field('DELETE') }}
+                                                                        <button type="submit" name="submit" onclick="return deletePost();" class="dropdown-item">
+                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                                        </button>
+                                                                    </form>
                                                                 </div>
+                                                            </div>
                                                         @endif
                                                     @endif
                                                 </div>
@@ -806,8 +843,15 @@
                                                 <p>{!! $body[0] !!}</p>
                                                 <p>{!! $body[1] !!}</p>
                                                 <p><a href="{{$body[2]}}" class="text-color"><u>View full article <i class="fe fe-arrow-right"></i></u></a></p>
-                                                @else
-                                                {!! $comment->comment_body !!}
+                                            @elseif($comment->form_precedence_id)
+                                                @php
+                                                    $body = json_decode($comment->comment_body)
+                                                @endphp
+                                                <p>{!! $body[0] !!}</p>
+                                                <p>{!! $body[1] !!}</p>
+                                                <p><a href="{{$body[2]}}" class="text-color"><u>View full form <i class="fe fe-arrow-right"></i></u></a></p>
+                                            @else
+                                                {!! preg_replace("~[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]~", "<a href=\"\\0\" target='_blank' class='text-color'>\\0</a>", $comment->comment_body) !!}
                                             @endif
                                         </p>
                                         <p class="mb-4 text-center">
@@ -992,6 +1036,7 @@
                                                             </div>
                                                             <p class="comment-text">
                                                                 {{$comment_reply->comment_reply_body}}
+                                                                {!! preg_replace("~[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]~", "<a href=\"\\0\" target='_blank' class='text-color'>\\0</a>", $comment_reply->comment_reply_body) !!}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -1551,7 +1596,14 @@
                                                 <p>{!! $body[0] !!}</p>
                                                 <p>{!! $body[1] !!}</p>
                                                 <p><a href="{{$body[2]}}" class="text-color"><u>View full article <i class="fe fe-arrow-right"></i></u></a></p>
-                                                @else
+                                            @elseif($comment->form_precedence_id)
+                                                @php
+                                                    $body = json_decode($comment->comment_body)
+                                                @endphp
+                                                <p>{!! $body[0] !!}</p>
+                                                <p>{!! $body[1] !!}</p>
+                                                <p><a href="{{$body[2]}}" class="text-color"><u>View full form <i class="fe fe-arrow-right"></i></u></a></p>
+                                            @else
                                                 {!! $comment->comment_body !!}
                                             @endif
                                         </p>
@@ -2481,6 +2533,48 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="comment-tab">
+                @if(count($reviews) > 0)
+                    @foreach($reviews as $review)
+                        <div class="mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="avatar avatar-sm">
+                                        <?php $user = App\Models\User::where('id', $review->user_id)->first(); ?>
+                                        @if($user->photo)
+                                            <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                            @else
+                                            <div class="initials">
+                                                <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>
+                                            </div>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="col ms-n2">
+                                    <h4 class="mb-1">
+                                        <a href="{{route('user.profile', $user->id)}}">
+                                            {{$user->name}}
+                                        </a>
+                                    </h4>
+                                    <p class="card-text small text-muted">
+                                        {{getRating($review->rating)}} . {{\Carbon\Carbon::parse($review->created_at)->toFormattedDateString()}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mb-4">
+                            {!! $review->review !!}
+                        </p>
+                        <hr class="my-4">
+                    @endforeach
+                @else
+                    <div class="mt-3 mb-3">
+                        <div class="row align-items-center text-center">
+                            <h4 class="text-muted"><i class="mdi mdi-file-outline"></i> No review</h4>
+                        </div>
+                    </div>
+                @endif
+            </div>
             <div class="tab-pane fade" id="resources" role="tabpanel" aria-labelledby="resources-tab">
                 <div data-list='{"valueNames": ["name"]}'>
                     <div class="" data-list='{"valueNames": ["name"], "listClass": "listAlias"}'>
@@ -2932,6 +3026,49 @@
         </div>
     </div>
 
+    <div class="modal fade" id="startMeeting" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="fs-1 fw-boldest">Start a Meeting</div>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-2x">
+                            <i class="mdi mdi-close"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y mt-4">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                          <div class="col-12">
+                            <div class="row justify-content-center">
+                                <div class="text-center">
+                                    <p class="mb-5 text-muted">Send meeting link for people to join</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Link
+                                </label>
+                                <input type="text" class="form-control" id="paste-box1"  value="{{url()->current()}}/meeting">
+                            </div>
+                            <a class="btn mb-5 button_load btn-custom w-100">
+                                <i class="fe fe-paperclip mr-2"></i><input type="button" class="custom-button" id="hide-copy1" value="Copy Meeting Link" onclick="CopyMeeting();" style="margin-top: -8px;">
+                                <span class="text-color" id="show-status1" style="display: none;">Link copied!</span>
+                            </a>
+                            <a href="{{route('team.meeting', $team->id)}}" class="btn button_load text-white w-100 btn-primary">
+                               <i class="mdi mdi-radiobox-marked"></i> Start Meeting
+                            </a>
+                            <div class="my-5">
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="join_team" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -3007,6 +3144,78 @@
                                 </div>
                             </form>
                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="rate" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="height: auto !important">
+                <div class="modal-card card" data-list='{"valueNames": ["name"]}'>
+                    <div class="card-header">
+                        <h4 class="card-header-title" id="exampleModalCenterTitle">
+                            Rate this Team
+                        </h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group justify-content-center">
+                                    <div class="d-flex p-2 text-center justify-content-center">
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="first-star-icon" onclick="first()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="second-star-icon" onclick="second()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="third-star-icon" onclick="third()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="mr-3">
+                                            <a href="#!" class="cursor-pointer" id="fourth-star-icon" onclick="fourth()">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                        <div class="">
+                                            <a href="#!" class="cursor-pointer" id="fifth-star-icon" onclick="fifth();">
+                                                <i class="mdi mdi-star-outline font-50"></i>
+                                            </a><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <form action="{{route('rate.team')}}" method="POST">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label class="form-label mb-1">
+                                            Your review
+                                        </label>
+                                        <input type="hidden" name="rating" id="rating">
+                                        <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                        <input type="hidden" name="type" value="team">
+                                        <input type="hidden" name="review_type" value="rating">
+                                        <input type="hidden" name="reference_id" value="{{$team->id}}">
+                                        <textarea name="review" id="review-input" class="form-control"></textarea>
+                                        <div class="mt-4">
+                                            <button type="submit" disabled id="reviewBtn" class="btn button_load text-white w-100 btn-primary" onclick="this.classList.toggle('button--loading')">
+                                                <div class="button__text"> Send Review</div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3116,6 +3325,19 @@
             document.getElementById('show-status').style.display = 'inline-block';
         }
 
+        function CopyMeeting()
+        {
+            var Url = document.getElementById("paste-box1");
+            // Url.value = window.location.href;
+            Url.value = "{{route('team.meeting', $team->id)}}";
+            Url.focus();
+            Url.select();
+            document.execCommand("Copy");
+
+            document.getElementById('hide-copy1').style.display = 'none';
+            document.getElementById('show-status1').style.display = 'inline-block';
+        }
+
         const searchPostBtn = document.getElementById('searchPostBtn')
         const postBtn = document.getElementById('remove-1')
         const postBtn1 = document.getElementById('show-1')
@@ -3168,7 +3390,6 @@
             }
         });
     }
-
     </script>
     <script>
         // liking team post function
@@ -3188,6 +3409,7 @@
             let user_id = userId;
             let comment_id = commentId;
             let team_id = teamId;
+            let type = 'team';
             let like = 1;
 
             $.ajax({
@@ -3198,6 +3420,7 @@
                     user_id:user_id,
                     team_id:team_id,
                     comment_id:comment_id,
+                    type:type,
                     like:like,
                 },
                 success:function(data){
@@ -3221,6 +3444,7 @@
             let user_id = userId;
             let comment_id = commentId;
             let team_id = teamId;
+            let type = 'team';
             let like = 0;
 
             $.ajax({
@@ -3231,6 +3455,7 @@
                     user_id:user_id,
                     team_id:team_id,
                     comment_id:comment_id,
+                    type:type,
                     like:like,
                 },
                 success:function(data){
@@ -3243,5 +3468,57 @@
             });
         }
 
+    </script>
+     <script>
+        const reviewBtn = document.getElementById('reviewBtn')
+        const review = document.getElementById('review-input')
+
+        const checkEnableButton = () => {
+            reviewBtn.disabled = !(
+                review.value
+            )
+        }
+        review.addEventListener('change', checkEnableButton)
+
+        function first() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('1')
+        }
+        function second() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('2')
+        }
+        function third() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('3')
+        }
+        function fourth() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star-outline font-50"></i>'
+            $('#rating').val('4')
+        }
+        function fifth() {
+            document.getElementById("first-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("second-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("third-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fourth-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            document.getElementById("fifth-star-icon").innerHTML = '<i class="mdi mdi-star text-yellow font-50"></i>'
+            $('#rating').val('5')
+        }
     </script>
 @endsection

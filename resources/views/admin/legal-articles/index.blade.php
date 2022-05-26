@@ -147,21 +147,40 @@
                                                     </div>
                                                     @if(Auth::user()->role->name == 'Admin')
                                                         <div class="col-auto">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                    <i class="fe fe-more-vertical"></i>
-                                                                </a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <a href="{{route('edit.article', $article->id)}}" class="dropdown-item">
-                                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
-                                                                    </a>
-                                                                    <form action="/admin/legal-articles/{{$article->id}}" method="POST">
-                                                                        {{ csrf_field() }}
-                                                                        {{ method_field('DELETE') }}
-                                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                            <div class="d-flex">
+                                                                {{-- @if($article->featured == 1)
+                                                                    <form action="{{route('feature.article', $article->id)}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="featured" value="0">
+                                                                        <button type="submit" name="remove_featured" class="btn-custom-2">
+                                                                            <span class="mr-4" data-bs-toggle="tooltip" title="Make featured"><i class="mdi mdi-star text-warning"></i></span>
                                                                         </button>
                                                                     </form>
+                                                                @elseif($article->featured == 0)
+                                                                    <form action="{{route('feature.article', $article->id)}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="featured" value="1">
+                                                                        <button type="submit" name="make_featured" class="btn-custom-1">
+                                                                            <span class="mr-4" data-bs-toggle="tooltip" title="Make featured"><i class="mdi mdi-star"></i></span>
+                                                                        </button>
+                                                                    </form>
+                                                                @endif --}}
+                                                                <div class="dropdown">
+                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        <i class="fe fe-more-vertical avatar-img rounded-circle"></i>
+                                                                    </a>
+                                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                                        <a href="{{route('edit.article', $article->id)}}" class="dropdown-item">
+                                                                            <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                                        </a>
+                                                                        <form action="/admin/legal-articles/{{$article->id}}" method="POST">
+                                                                            {{ csrf_field() }}
+                                                                            {{ method_field('DELETE') }}
+                                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                                <i class="fe fe-trash mr-2"></i>Delete
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -241,20 +260,50 @@
                                                             @endif
                                                         </p>
                                                     </div>
+                                                    <div class="col-auto">
+                                                        @php
+                                                            $rating_count = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
+                                                            $rating = App\Models\FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
+                                                        @endphp
+                                                        @if ($rating_count > 0)
+                                                            <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
+                                                        @else
+                                                            <small class="text-muted">No rating</small> 
+                                                        @endif
+                                                    </div>
                                                     @if(Auth::user()->role->name == 'Admin')
                                                         <div class="col-auto">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                    <i class="fe fe-more-vertical"></i>
-                                                                </a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <form action="/admin/legal-articles/{{$article->id}}" method="POST">
-                                                                        {{ csrf_field() }}
-                                                                        {{ method_field('DELETE') }}
-                                                                        <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
-                                                                            <i class="fe fe-trash mr-2"></i>Delete
+                                                            <div class="d-flex">
+                                                                {{-- @if($article->featured == 1)
+                                                                    <form action="{{route('feature.article', $article->id)}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="featured" value="0">
+                                                                        <button type="submit" name="remove_featured" class="btn-custom-2">
+                                                                            <span class="mr-4" data-bs-toggle="tooltip" title="Make featured"><i class="mdi mdi-star text-warning"></i></span>
                                                                         </button>
                                                                     </form>
+                                                                @elseif($article->featured == 0)
+                                                                    <form action="{{route('feature.article', $article->id)}}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="featured" value="1">
+                                                                        <button type="submit" name="make_featured" class="btn-custom-1">
+                                                                            <span class="mr-4" data-bs-toggle="tooltip" title="Make featured"><i class="mdi mdi-star"></i></span>
+                                                                        </button>
+                                                                    </form>
+                                                                @endif --}}
+                                                                <div class="dropdown">
+                                                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        <i class="fe fe-more-vertical"></i>
+                                                                    </a>
+                                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                                        <form action="/admin/legal-articles/{{$article->id}}" method="POST">
+                                                                            {{ csrf_field() }}
+                                                                            {{ method_field('DELETE') }}
+                                                                            <button type="submit" name="submit" onclick="return deleteFunction();" class="dropdown-item">
+                                                                                <i class="fe fe-trash mr-2"></i>Delete
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
