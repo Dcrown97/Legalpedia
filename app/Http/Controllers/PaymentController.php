@@ -179,7 +179,7 @@ class PaymentController extends Controller
                 'package_name' => $transact->package,
                 'package_price' => $transact->amount,
                 'reference' => $transact->reference,
-                'date' => Carbon::parse($this->transact->created_at)->toFormattedDateString(),
+                'date' => Carbon::parse($transact->created_at)->toFormattedDateString(),
                 'name' => $transact->name,
                 'email' => $transact->email,
             ];
@@ -189,7 +189,7 @@ class PaymentController extends Controller
                 'package_name' => $transact->package,
                 'package_price' => $transact->amount,
                 'reference' => $transact->reference,
-                'date' => Carbon::parse($this->transact->created_at)->toFormattedDateString(),
+                'date' => Carbon::parse($transact->created_at)->toFormattedDateString(),
                 'name' => $transact->name,
                 'email' => $transact->email,
             ];
