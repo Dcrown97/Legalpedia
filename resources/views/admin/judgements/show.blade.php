@@ -149,7 +149,7 @@
                                 <h4 class="text-muted" id="{{returnHighlightText($ratio->heading, $searchData) == true ? 'ratio' : '' }}">{!! highlightText($ratio->heading, $searchData) !!}</h4>
                                 <hr class="my-4">
                                 {{-- <p class="card-text mb-1">{!! nl2br(e(strip_tags($ratio->body))) !!}</p> --}}
-                                <p class="card-text mb-1" id="{{returnHighlightText($ratio->body, $searchData) == true ? 'ratio' : '' }}">{!! htmlspecialchars_decode(nl2br(e(highlightText($ratio->body, $searchData))), ENT_QUOTES) !!}</p>
+                                <p class="card-text mb-1" id="{{returnHighlightText($ratio->body, $searchData) == true ? 'ratio' : '' }}">{!! htmlspecialchars_decode(nl2br(e($ratio->body)), ENT_QUOTES) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
