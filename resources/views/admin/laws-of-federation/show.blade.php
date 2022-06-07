@@ -52,26 +52,29 @@
             <div class="col-12 col-lg-12 col-xl-12">
                 <div class="card">
                     <div class="card-body p-5" id="content">
-                        {{-- <h3>{{$fed->title}}</h3>
-                        <p class="card-text text-muted small mb-1">Law No. <span class="text-color">{{$fed->law_no}}</span></p>
-                        <p class="card-text text-muted small mb-1">Date: <span class="text-color">{{$fed->law_date}}</span></p>
-                        <p class="card-text text-muted small mb-1">Category: <span class="text-color">{{$fed->category}}</span></p>
-                        <p class="card-text text-muted small mb-1">Area of Law: <span class="text-color">{{$fed->area_of_law}}</span></p>
-                        <span>{!! $fed->description !!}</span>
-                        <hr class="my-5">
-                        <span>{!! $fed->subsidiary_legislation !!}</span> --}}
-                        <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->first() ;
-                            $fed_sections = App\Models\LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('section_header', 'ASC')->get() ;
+                        <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
+                            $fed_sections = App\Models\LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
+                            $fed_schedules = App\Models\LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
                         ?>
                         {{-- @if($fed_part)
                             <p class="card-text text-muted small mb-1">Part: <span class="text-color">{{$fed_part->part_header}}</span></p>
                         @endif --}}
-                        @if($fed_sections)
+
+                        @if(count($fed_sections) > 0)
                             <?php $fed_section_no = 1; ?>
                             @foreach($fed_sections as $fed_section)
                                 <h3 class="text-muted" id="{{returnHighlightText($fed_section->section_header, $searchData) == true ? 'section' : '' }}">{{$fed_section_no}}. {!! highlightText($fed_section->section_header, $searchData) !!}</h3>
                                 <?php $fed_section_no++; ?>
-                                <p class="card-text mb-1" id="{{returnHighlightText($fed_section->section_body, $searchData) == true ? 'section' : '' }}">{!! highlightText(nl2br(e(strip_tags($fed_section->section_body))), $searchData) !!}</p>
+                                <p class="card-text mb-1" id="{{returnHighlightText($fed_section->section_body, $searchData) == true ? 'section' : '' }}">{!! highlightText(htmlspecialchars_decode(nl2br(e(strip_tags($fed_section->section_body))), ENT_QUOTES), $searchData) !!}</p>
+                                <hr class="my-4">
+                            @endforeach
+                        @endif
+                        @if(count($fed_schedules) > 0)
+                            <?php $fed_schdule_no = 1; ?>
+                            @foreach($fed_schedules as $fed_schedule)
+                                <h3 class="text-muted" id="{{returnHighlightText($fed_schedule->schedule_header, $searchData) == true ? 'schedule' : '' }}">{{$fed_schedule_no}}. {!! highlightText($fed_schedule->schedule_header, $searchData) !!}</h3>
+                                <?php $fed_schdule_no++; ?>
+                                <p class="card-text mb-1" id="{{returnHighlightText($fed_schedule->schedule_body, $searchData) == true ? 'schedule' : '' }}">{!! highlightText(htmlspecialchars_decode(nl2br(e(strip_tags($fed_schedule->schedule_body))), ENT_QUOTES), $searchData) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
