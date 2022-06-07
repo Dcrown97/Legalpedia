@@ -1430,8 +1430,6 @@
         </div>
     </div>
 
-    <input type='text' id='input' />
-{{-- Lorem ipsum, dolor sit amet consectetur adipisicing elit. Modi dignissimos sint, facilis atque exercitationem voluptas soluta nulla voluptates corporis debitis sequi, maiores labore fugiat dolor culpa, aliquid quae non tenetur. --}}
 
     <div class="modal fade" id="teamModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -1533,15 +1531,15 @@
         </div>
     </div>
     <script>
-        var t = '';
-        function gText(e) {
-            t = (document.all) ? document.selection.createRange().text : document.getSelection();
+        // var t = '';
+        // function gText(e) {
+        //     t = (document.all) ? document.selection.createRange().text : document.getSelection();
 
-            document.getElementById('input').value = t;
-        }
+        //     document.getElementById('input').value = t;
+        // }
 
-        document.onmouseup = gText;
-        if (!document.all) document.captureEvents(Event.MOUSEUP);
+        // document.onmouseup = gText;
+        // if (!document.all) document.captureEvents(Event.MOUSEUP);
 
         $(document ).ready(function() {
             @if(Session::has('welcome') && Session::get('welcome') == 1)
