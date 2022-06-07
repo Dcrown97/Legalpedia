@@ -72,9 +72,9 @@
                         @if(count($fed_schedules) > 0)
                             <?php $fed_schdule_no = 1; ?>
                             @foreach($fed_schedules as $fed_schedule)
-                                <h3 class="text-muted" id="{{returnHighlightText($fed_schedule->schedule_header, $searchData) == true ? 'schedule' : '' }}">{{$fed_schedule_no}}. {!! highlightText($fed_schedule->schedule_header, $searchData) !!}</h3>
+                                <h3 class="text-muted" id="{{returnHighlightText($fed_schedule->sched_header, $searchData) == true ? 'schedule' : '' }}">{{$fed_schedule_no}}. {!! highlightText($fed_schedule->sched_header, $searchData) !!}</h3>
                                 <?php $fed_schdule_no++; ?>
-                                <p class="card-text mb-1" id="{{returnHighlightText($fed_schedule->schedule_body, $searchData) == true ? 'schedule' : '' }}">{!! highlightText(htmlspecialchars_decode(nl2br(e(strip_tags($fed_schedule->schedule_body))), ENT_QUOTES), $searchData) !!}</p>
+                                <p class="card-text mb-1" id="{{returnHighlightText($fed_schedule->sched_body, $searchData) == true ? 'schedule' : '' }}">{!! highlightText(htmlspecialchars_decode(nl2br(e(strip_tags($fed_schedule->sched_body))), ENT_QUOTES), $searchData) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
