@@ -110,13 +110,13 @@ class RegisterController extends Controller
             }
 
             // $user->notify(new WelcomeOnboard($user));
-            $explodedMail =  $user->name .' | '. $user->email;
+            $explodedMail =  $user->email;
             $subject = 'Welcome Onboard!';
             $newContent =  [
                 'user' => $user->name
             ];
             $content = view("emails.welcomeOnboard", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
 
             return $user;
 
@@ -147,13 +147,13 @@ class RegisterController extends Controller
 
 
             // $user->notify(new WelcomeOnboard($user));
-            $explodedMail =  $user->name .' | '. $user->email;
+            $explodedMail =  $user->email;
             $subject = 'Welcome Onboard!';
             $newContent =  [
                 'user' => $user->name
             ];
             $content = view("emails.welcomeOnboard", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
 
             return $user;
         }
