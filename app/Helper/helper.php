@@ -91,7 +91,7 @@ if(!function_exists('tribearcSendMail')){
         curl_setopt($curl, CURLOPT_POSTFIELDS, array(
             'api_key' => 'MEmpZy6IbBGEdkbqQmEr',
             'from_name' => 'Legalpedia',
-            'from_email' => 'legalpediapro@gmail.com',
+            'from_email' => ' legalpediapro@tribearc.net',
             'reply_to' => 'legalpediapro@gmail.com',
             'subject' => $subject,
             'html_text' => $content,
