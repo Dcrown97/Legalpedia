@@ -1776,6 +1776,7 @@ class AdminController extends Controller
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
                 $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes', 'teams'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
