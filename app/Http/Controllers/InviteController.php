@@ -70,7 +70,7 @@ class InviteController extends Controller
             'url' => $url
         ];
         $content = view("emails.teamInvite", $newContent)->render();
-        tribearcMail($subject, $content, $explodedMail);
+        tribearcSendMail($subject, $content, $explodedMail);
 
         return redirect()->back()->with('success', 'Your Invite has been sent');
     }

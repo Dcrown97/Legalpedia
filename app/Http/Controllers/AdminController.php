@@ -3197,7 +3197,7 @@ class AdminController extends Controller
         $transaction->update($input);
         // DB::table('transactions')->where('id', $request->transaction_id)->update($input);
         $user = User::where('id', $transaction->user_id)->first();
-        $explodedMail =  $user->name .'|' . $user->email;
+        $explodedMail =  $user->email;
         $activesubject = 'Package Activated';
         $pendingsubject = 'Pending Transaction';
         $failedsubject = 'Transaction Failed';
@@ -3214,15 +3214,15 @@ class AdminController extends Controller
         if($transaction->status == 'paid') {
             $user->status = 'active';
             // $user->notify(new ActivatedSubscriber($transaction, $user));
-            tribearcMail($activesubject, $activated, $explodedMail);
+            tribearcSendMail($activesubject, $activated, $explodedMail);
         } elseif($transaction->status == 'pending') {
             $user->status = 'inactive';
             // $user->notify(new PendingSubscriber($transaction, $user));
-            tribearcMail($pendingsubject, $pending, $explodedMail);
+            tribearcSendMail($pendingsubject, $pending, $explodedMail);
         }elseif($transaction->status == 'failed') {
             $user->status = 'inactive';
             // $user->notify(new FailedSubscriber($transaction, $user));
-            tribearcMail($failedsubject, $failed, $explodedMail);
+            tribearcSendMail($failedsubject, $failed, $explodedMail);
         }
         $user->save();
 
@@ -3420,7 +3420,7 @@ class AdminController extends Controller
         $team_admin = User::where('id', $request->team_owner_id)->first();
         if ($team_admin) {
             // $team_admin->notify(new TeamRequest($user, $team));
-            $explodedMail =  $team_admin->name .'|' . $team_admin->email;
+            $explodedMail =  $team_admin->email;
             $subject = 'New Team Member';
             $newContent =  [
                 'user' => $team_admin->name,
@@ -3429,7 +3429,7 @@ class AdminController extends Controller
                 'team_id' => $team->team_id,
             ];
             $content = view("emails.teamRequest", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'Request sent');
     }
@@ -3450,13 +3450,13 @@ class AdminController extends Controller
         $approved_member = User::where('id', $user->user_id)->first();
         if($approved_member) {
             // $approved_member->notify(new RequestApproved($user));
-            $explodedMail =  $approved_member->name .'|' . $approved_member->email;
+            $explodedMail =  $approved_member->email;
             $subject = 'Your request has been approved';
             $newContent =  [
                 'user' => $approved_member->name
             ];
             $content = view("emails.requestApproved", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You have just approved this member');
     }
@@ -3469,13 +3469,13 @@ class AdminController extends Controller
         $declined_member = User::where('id', $user->user_id)->first();
         if($declined_member) {
             // $declined_member->notify(new RequestDeclined($user));
-            $explodedMail =  $declined_member->name .'|' . $declined_member->email;
+            $explodedMail =  $declined_member->email;
             $subject = 'Your request has been declined';
             $newContent =  [
                 'user' => $declined_member->name
             ];
             $content = view("emails.requestDeclined", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You declined this member');
     }
@@ -3485,13 +3485,13 @@ class AdminController extends Controller
         $removed_user = User::where('id', $approved_member->user_id)->first();
         if($removed_user) {
             // $removed_user->notify(new MemberRemoval($approved_member));
-            $explodedMail =  $removed_user->name .'|' . $removed_user->email;
+            $explodedMail =  $removed_user->email;
             $subject = 'Your have been removed';
             $newContent =  [
                 'user' => $removed_user->name
             ];
             $content = view("emails.memberRemoval", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You have just removed a user');
     }
@@ -3501,13 +3501,13 @@ class AdminController extends Controller
         $left_user = User::where('id', $approved_member->user_id)->first();
         if($left_user) {
             // $left_user->notify(new MemberLeft($approved_member));
-            $explodedMail =  $left_user->name .'|' . $left_user->email;
+            $explodedMail =  $left_user->email;
             $subject = 'Your just left a team';
             $newContent =  [
                 'user' => $left_user->name
             ];
             $content = view("emails.memberLeft", $newContent)->render();
-            tribearcMail($subject, $content, $explodedMail);
+            tribearcSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You just left this team');
     }
@@ -4800,7 +4800,7 @@ class AdminController extends Controller
             if($licensed_user) {
                 // $licensed_user->notify(new LicenseCredentials($user_creds, $licensed_user));
 
-                $explodedMails = $licensed_user->name. '|' . $licensed_user->email;
+                $explodedMails = $licensed_user->email;
 
                 $subject = 'License Credentials';
                 $newContent =  [
@@ -4812,7 +4812,7 @@ class AdminController extends Controller
 
                 $content = view("emails.licensedEmail", $newContent)->render();
 
-                tribearcMail($subject, $content, $explodedMails);
+                tribearcSendMail($subject, $content, $explodedMails);
             }
         return back()->with('success', 'License created');
     }
@@ -4856,7 +4856,7 @@ class AdminController extends Controller
         if($licensed_user) {
             // $licensed_user->notify(new UpdatedLicenseCredentials($user, $licensed_user));
 
-            $explodedMails = $licensed_user->name. '|' . $licensed_user->email;
+            $explodedMails = $licensed_user->email;
 
             $subject = 'Updated License Credentials';
             $newContent =  [
@@ -4868,7 +4868,7 @@ class AdminController extends Controller
 
             $content = view("emails.updatedLicensedEmail", $newContent)->render();
 
-            tribearcMail($subject, $content, $explodedMails);
+            tribearcSendMail($subject, $content, $explodedMails);
         }
         return back()->with('success', 'License updated');
     }
@@ -4927,8 +4927,8 @@ class AdminController extends Controller
         $report = Report::create($input);
         // Notification::route('mail', $request->input('to_email'))->notify(new NewReport($report, $user));
         // $user->notify(new LegalpediaReport($user));
-        $explodedMails = 'Legalpedia |' . $request->to_email;
-        $explodedMail =  $report->name .'|' . $report->email;
+        $explodedMails = $request->to_email;
+        $explodedMail =  $report->email;
 
         $subject = 'New Report';
         $newsubject = 'Legalpedia Report';
@@ -4945,8 +4945,8 @@ class AdminController extends Controller
         $content = view("emails.newReport", $newContent)->render();
         $usercontent = view("emails.legapediaReport", $getContent)->render();
 
-        tribearcMail($subject, $content, $explodedMails); // send to admin
-        tribearcMail($newsubject, $usercontent, $explodedMail); // send to user
+        tribearcSendMail($subject, $content, $explodedMails); // send to admin
+        tribearcSendMail($newsubject, $usercontent, $explodedMail); // send to user
 
         return back()->with('success', 'Report sent, We\'ll get to you shortly');
     }

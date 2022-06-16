@@ -105,7 +105,7 @@ class PaymentController extends Controller
 
         // $user->notify(new NewSubscriber($transact, $user));
 
-        $explodedMail =  $user->name .' | '. $user->email;
+        $explodedMail =  $user->email;
         $subject = 'New Subscriber';
         $newContent =  [
             'user' => $user->name,
@@ -113,7 +113,7 @@ class PaymentController extends Controller
             'package_price' => $transact->amount,
         ];
         $content = view("emails.newSubscriber", $newContent)->render();
-        tribearcMail($subject, $content, $explodedMail);
+        tribearcSendMail($subject, $content, $explodedMail);
 
         $this->addSubscriber($user);
 
@@ -170,8 +170,8 @@ class PaymentController extends Controller
 
             // Notification::route('mail', 'support@legalpediaonline.com')->notify(new NotifyAdminBankSubscriber($transact, $user));
 
-            $explodedMail =  $user->name .' | '. $user->email;
-            $explodedMails =  'Legalpedia | support@legalpediaonline.com';
+            $explodedMail =  $user->email;
+            $explodedMails =  'support@legalpediaonline.com';
             $subject = 'Purchase Successful';
             $adminsubject = 'New Subscriber';
             $newContent =  [
@@ -195,8 +195,8 @@ class PaymentController extends Controller
             ];
             $content = view("emails.newBankSubscriber", $newContent)->render();
             $admincontent = view("emails.notifyAdminBankSubscriber", $mainContent)->render();
-            tribearcMail($subject, $content, $explodedMail); // send to user
-            tribearcMail($adminsubject, $admincontent, $explodedMails); // send to admin
+            tribearcSendMail($subject, $content, $explodedMail); // send to user
+            tribearcSendMail($adminsubject, $admincontent, $explodedMails); // send to admin
 
             $this->addSubscriber($user);
 
