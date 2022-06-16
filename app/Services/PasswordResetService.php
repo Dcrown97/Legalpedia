@@ -45,7 +45,7 @@ class PasswordResetService {
 
         // $user->notify(new ForgotPasswordNotification($user, $passwordReset, $url));
 
-        $explodedMail =  $user->name .' | '. $user->email;
+        $explodedMail =  $user->email;
         $subject = 'Reset Password';
         $newContent =  [
             'user' => $user->name,
@@ -53,7 +53,7 @@ class PasswordResetService {
             'url' => $url,
         ];
         $content = view("emails.forgotPassword", $newContent)->render();
-        tribearcMail($subject, $content, $explodedMail);
+        tribearcSendMail($subject, $content, $explodedMail);
 
         return back()->with('success', 'We have sent a password reset link to your email');
 
@@ -87,13 +87,13 @@ class PasswordResetService {
 
         // $user->notify(new PasswordResetSuccessNotification($user));
 
-        $explodedMail =  $user->name .' | '. $user->email;
+        $explodedMail =  $user->email;
         $subject = 'Password Reset Successful';
         $newContent =  [
             'user' => $user->name
         ];
         $content = view("emails.passwordResetSuccess", $newContent)->render();
-        tribearcMail($subject, $content, $explodedMail);
+        tribearcSendMail($subject, $content, $explodedMail);
 
 
         return redirect()->route('login')->with('success', 'Password reset successful login with your new password');
