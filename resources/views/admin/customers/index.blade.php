@@ -231,8 +231,8 @@
                                                 $package = App\Models\Package::where('id', $user->package_id)->first();
                                             @endphp
                                             <td class="orders-total">{{$package ? $package->name : ''}}</td>
-                                            <td class="orders-total">{{\Carbon\Carbon::parse($user->active_date)->toFormattedDateString()}}</td>
-                                            <td class="orders-total">{{\Carbon\Carbon::parse($user->expiry_date)->toFormattedDateString()}}</td>
+                                            <td class="orders-total">{{$user->active_date ? \Carbon\Carbon::parse($user->active_date)->toFormattedDateString() : '--'}}</td>
+                                            <td class="orders-total">{{$user->expiry_date ? \Carbon\Carbon::parse($user->expiry_date)->toFormattedDateString() : '--'}}</td>
                                             @if($user->status == 'active')
                                                 <td class="orders-status">
                                                     <div class="badge bg-success-soft">
