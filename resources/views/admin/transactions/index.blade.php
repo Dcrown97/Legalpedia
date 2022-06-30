@@ -250,7 +250,7 @@
                                         @endphp
                                         <td class="orders-product">
                                             @php
-                                                $main_user = App\Models\User::where('id', $transaction->user_id)->first();
+                                                $main_user = App\Models\User::where('id', 'LIKE', '%'. $transaction->user_id .'%')->first();
                                             @endphp
                                             <span> {{$main_user->surname}}</span>
                                         </td>
