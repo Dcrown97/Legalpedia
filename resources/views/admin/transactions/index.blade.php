@@ -250,12 +250,13 @@
                                         @endphp
                                         <td class="orders-product">
                                             @php
-                                                $main_user = App\Models\User::where('id', 'LIKE', '%'. $transaction->user_id .'%')->first();
+                                                $main_user = App\Models\User::where('id', $transaction->user_id)->first();
+                                                // dd($main_user->name);
                                             @endphp
-                                            <span> {{$main_user->surname}}</span>
+                                            <span>{{@$main_user->name}} {{@$main_user->surname}}</span>
                                         </td>
                                         <td class="orders-product">{{$transaction->email}}</td>
-                                        <td class="orders-product">{{$main_user->phone}}</td>
+                                        <td class="orders-product">{{@$main_user->phone}}</td>
                                         <td class="orders-date">{{$transaction->reference}}</td>
                                         <td class="orders-date">₦{{number_format($transaction->amount, 2)}}</td>
                                         <td class="orders-date">₦{{number_format($transaction->discounted_price, 2)}}</td>
