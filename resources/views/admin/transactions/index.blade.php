@@ -255,7 +255,7 @@
                                             <span>{{$main_user->name}} {{$main_user->surname}}</span>
                                         </td>
                                         <td class="orders-product">{{$transaction->email}}</td>
-                                        <td class="orders-product">{{$user->phone}}</td>
+                                        <td class="orders-product">{{$main_user->phone}}</td>
                                         <td class="orders-date">{{$transaction->reference}}</td>
                                         <td class="orders-date">₦{{number_format($transaction->amount, 2)}}</td>
                                         <td class="orders-date">₦{{number_format($transaction->discounted_price, 2)}}</td>
