@@ -219,6 +219,7 @@
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-order">s/n</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Name</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Email</a></th>
+                                <th><a href="#" class="text-muted list-sort" data-sort="orders-product">Phone Number</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-date">Payment Reference</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-total">Amount</a></th>
                                 <th><a href="#" class="text-muted list-sort" data-sort="orders-total">Discounted Price</a></th>
@@ -248,9 +249,13 @@
                                             $transaction_no++
                                         @endphp
                                         <td class="orders-product">
-                                            <span>{{$transaction->name}}</span>
+                                            @php
+                                                $main_user = App\Models\User::where('id', $transaction->user_id)->first();
+                                            @endphp
+                                            <span>{{$main_user->name}} {{$main_user->surname}}</span>
                                         </td>
                                         <td class="orders-product">{{$transaction->email}}</td>
+                                        <td class="orders-product">{{$user->phone}}</td>
                                         <td class="orders-date">{{$transaction->reference}}</td>
                                         <td class="orders-date">₦{{number_format($transaction->amount, 2)}}</td>
                                         <td class="orders-date">₦{{number_format($transaction->discounted_price, 2)}}</td>
