@@ -252,7 +252,7 @@
                                             @php
                                                 $main_user = App\Models\User::where('id', $transaction->user_id)->first();
                                             @endphp
-                                            <span>{{$main_user->name}} {{$main_user->surname}}</span>
+                                            <span> {{$main_user->surname}}</span>
                                         </td>
                                         <td class="orders-product">{{$transaction->email}}</td>
                                         <td class="orders-product">{{$main_user->phone}}</td>
