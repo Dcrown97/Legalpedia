@@ -44,7 +44,8 @@ class PackageController extends Controller
                 $subject = 'Package Renewal Notice';
                 $newContent =  [
                     'user' => $user->name,
-                    'package' => $package
+                    'package_name' => $package->name,
+                    'package_price' => $package->price,
                 ];
                 $first = view("emails.firstRenewalNotice", $newContent)->render();
                 $second = view("emails.secondRenewalNotice", $newContent)->render();
