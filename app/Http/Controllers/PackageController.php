@@ -26,7 +26,8 @@ class PackageController extends Controller
 
     ///////////////////////////////////////send expiry emails for packages//////////////////////////////////
     public function expiredPackage() {
-        $users = User::where('package_id','<>', null)->get();
+        // $users = User::where('package_id','<>', null)->get();
+        $users = User::where('status', 'active')->get();
         foreach($users as $user) {
             $package = Package::where('id', $user->package_id)->first();
             if(isset($user->package_id) && $user->expiry_date > now()) {
