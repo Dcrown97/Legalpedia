@@ -57,12 +57,10 @@ class LoginController extends Controller
 
         if(Auth::check()) {
 
-            // dd($join);
             $user = Auth::user();
 
             Session::put('join', 1);
             Session::put('welcome', 1);
-            // dd(Session::get('welcome'));
 
             if(!empty($user->license_code)) {
                 $license = LicensedUserSession::where('user_id', $user->id)->first();
@@ -104,9 +102,15 @@ class LoginController extends Controller
                         'session_no' => time(),
                     ]);
 
-                    // dd($_SESSION);
+                    return redirect()->intended();
+
                 }
             }
+
+
+            Auth::logoutOtherDevices($request->password);
+
+            return redirect()->intended();
         }
     }
 
