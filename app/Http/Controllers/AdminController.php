@@ -3029,6 +3029,9 @@ class AdminController extends Controller
     }
     public function deletePackage($id) {
         $package = Package::findOrFail($id);
+        if(User::where('package_id', $package->id)->first()){
+            return back()->with('error', 'Subscription package cannot be deleted as a user is already subscribed to the package');
+        } 
         $package->delete();
         return back()->with('success', 'Subscription package deleted');
     }
