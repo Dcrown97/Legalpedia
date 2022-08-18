@@ -85,7 +85,8 @@ class RegisterController extends Controller
                 'phone' => $data['phone'],
                 // 'referrer' => $data['referrer'],
                 'dob' => $data['dob'],
-                'call_to_bar_year' => $data['call_to_bar_year'],
+                'area_of_practice' => $data['area_of_practice'],
+                'nba_branch' => $data['nba_branch'],
                 'password' => Hash::make($data['password']),
             ]);
 
@@ -129,7 +130,8 @@ class RegisterController extends Controller
                 'phone' => $data['phone'],
                 // 'referrer' => $data['referrer'],
                 'dob' => $data['dob'],
-                'call_to_bar_year' => $data['call_to_bar_year'],
+                'area_of_practice' => $data['area_of_practice'],
+                'nba_branch' => $data['nba_branch'],
                 'password' => Hash::make($data['password']),
             ]);
 

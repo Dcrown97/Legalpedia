@@ -51,6 +51,9 @@ class User extends Authenticatable
         'social_display',
         'web_display',
         'featured',
+
+        'area_of_practice',
+        'nba_branch',
     ];
 
     /**

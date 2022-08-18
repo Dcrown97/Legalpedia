@@ -55,22 +55,22 @@
     @if(Auth::user()->role->name == 'Admin')
         <div class="container-fluid mt-51">
             <div class="header-body mb-4 mt-n5 mt-md-n6">
-            <div class="row align-items-center">
-                <div class="col">
-                    <ul class="nav nav-tabs nav-overflow header-tabs" id="myTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="true">
-                                Find Teams
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="false">
-                                My Teams
-                            </a>
-                        </li>
-                    </ul>
+                <div class="row align-items-center">
+                    <div class="col">
+                        <ul class="nav nav-tabs nav-overflow header-tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="all-team-tab" data-toggle="tab" href="#all-teams" role="tab" aria-controls="all-teams" aria-selected="true">
+                                    Find Teams
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="false">
+                                    My Teams
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     @elseif(Auth::user()->subscribedUser())
@@ -156,7 +156,7 @@
                                                                             @if ($rating_count > 0)
                                                                                 <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
                                                                             @else
-                                                                                <small class="text-muted">No rating</small> 
+                                                                                <small class="text-muted">No rating</small>
                                                                             @endif
                                                                         </div>
                                                                         <div class="col-auto">
@@ -287,7 +287,7 @@
                                                                             @if ($rating_count > 0)
                                                                                 <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
                                                                             @else
-                                                                                <small class="text-muted">No rating</small> 
+                                                                                <small class="text-muted">No rating</small>
                                                                             @endif
                                                                         </div>
                                                                         <div class="col-auto">
@@ -361,7 +361,7 @@
                                                             @if ($rating_count > 0)
                                                                 <small>{{number_format($rating_count)}} . {{getRating($rating)}} </small>
                                                             @else
-                                                                <small class="text-muted">No rating</small> 
+                                                                <small class="text-muted">No rating</small>
                                                             @endif
                                                         </div>
                                                         <div class="col-auto">

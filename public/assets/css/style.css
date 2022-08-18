@@ -134,6 +134,10 @@
     color: #fff !important;
 }
 
+.text-left {
+    text-align: left;
+}
+
 .navbar-nav{
     margin-top: 10%;
 }
