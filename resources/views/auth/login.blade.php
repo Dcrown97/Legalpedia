@@ -235,9 +235,6 @@
                                         <span class="button__text">Sign up</span>
                                     </button>
                                 </form>
-                                @if (Route::has('password.request'))
-                                    <a href="{{ route('password.request') }}" class="forgot-password-link">Forgot password?</a>
-                                @endif
                                 {{-- <p class="login-card-footer-text"><span style="color: #EC6959;">Don't have an account?</span> <a href="{{ url('/register') }}" class="text-reset">Sign up</a></p> --}}
                                 <!-- <nav class="login-card-footer-nav">
                                     <a href="#!">Terms of use.</a>
