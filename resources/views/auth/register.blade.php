@@ -94,10 +94,28 @@
                             </span>
                         @enderror
                     </div>
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <label for="call_to_bar_year">Call to Bar Year <span class="text-color">*<span></label>
                         <input id="datepicker" type="text" class="form-control @error('call_to_bar_year') is-invalid @enderror" placeholder="Call to Bar Year" name="call_to_bar_year" required>
                         @error('call_to_bar_year')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div> --}}
+                     <div class="form-group">
+                        <label for="area_of_practice">Area of Practice <span class="text-color">*<span></label>
+                        <input type="text" class="form-control @error('area_of_practice') is-invalid @enderror" placeholder="Area of Practice" name="area_of_practice" required value="{{ old('area_of_practice') }}">
+                        @error('area_of_practice')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="nba_branch">NBA Branch <span class="text-color">*<span></label>
+                        <input type="text" class="form-control @error('nba_branch') is-invalid @enderror" placeholder="NBA Branch" name="nba_branch" required value="{{ old('nba_branch') }}">
+                        @error('nba_branch')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
