@@ -230,10 +230,10 @@ class AdminUserController extends Controller
 
     public function userProfile($id) {
         $user = User::findOrFail($id);
-        $comments = Comment::with('comment_replies')->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->get();
-        $forms = FormsPrecedence::where('user_id', Auth::user()->id)->where('display_type', 'public')->orderBy('created_at', 'DESC')->limit(5)->get();
-        $articles = Article::where('user_id', Auth::user()->id)->where('display_type', 'public')->orderBy('created_at', 'DESC')->limit(5)->get();
-        $notes = Annotation::where('user_id', Auth::user()->id)->where('display', 'public')->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $comments = Comment::with('comment_replies')->where('user_id', $user->id)->orderBy('created_at', 'DESC')->limit(5)->get();
+        $forms = FormsPrecedence::where('user_id', $user->id)->where('display_type', 'public')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $articles = Article::where('user_id', $user->id)->where('display_type', 'public')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $notes = Annotation::where('user_id', $user->id)->where('display', 'public')->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
         $rating_count = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->count();
         $rating = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->max('rating');
         $reviews = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('reference_id', $user->id)->orderBy('created_at', 'DESC')->get();
