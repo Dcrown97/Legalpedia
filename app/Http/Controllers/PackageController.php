@@ -30,6 +30,7 @@ class PackageController extends Controller
         $users = User::where('status', 'active')->get();
         foreach($users as $user) {
             $package = Package::where('id', $user->package_id)->first();
+            dd($package);
             if(isset($user->package_id) && $user->expiry_date > now()) {
                 $date = Carbon::now();
                 $get_date = strtotime($date);
