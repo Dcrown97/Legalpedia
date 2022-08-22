@@ -85,9 +85,10 @@ class PackageController extends Controller
                         $user->save();
                     }
                 }
+            } else {
+                $user->status = 'inactive';
+                $user->save();
             }
-            $user->status = 'inactive';
-            $user->save();
         }
 
         info(['package_expiration_executed' => now()->toDayDateTimeString()]);
