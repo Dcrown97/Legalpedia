@@ -29,7 +29,7 @@ class PasswordResetService {
 
         $this->passwordReset->where('user_id', $user->id)->update(['expiry'=> now()]);
 
-        $expiry = now()->addMinutes(5);
+        $expiry = now()->addMinutes(30);  // change password reset from 5mins to 30mins
         $passwordReset =  $this->passwordReset->create([
             'user_id' => $user->id,
             'email' => $email,
