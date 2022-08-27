@@ -205,7 +205,7 @@
                                     $list = explode("\n", highlightText($full_judgement ? $full_judgement->judgement : '', $searchData));
                                     $tlist = '<ol>';
                                     foreach ($list as $num => $item) {
-                                        $tlist .= '<li class='nu'>' . htmlspecialchars_decode($item, ENT_QUOTES) . '</li>';
+                                        $tlist .= '<li class="nu">' . htmlspecialchars_decode($item, ENT_QUOTES) . '</li>';
                                     }
                                     $tlist .= '</ol>';
                                 @endphp
