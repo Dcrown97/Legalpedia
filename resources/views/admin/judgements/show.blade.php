@@ -163,7 +163,7 @@
                         <hr class="my-4">
                         <p class="card-text mb-1">{!! $judgement_summary->issues !!}</p>
                         <hr class="my-4">
-                        <h3 class="text-muted">RATIONEES</h3>
+                        <h3 class="text-muted">RATIONES DECIDENDI</h3>
                         <hr class="my-4">
                         <?php $ratios = App\Models\SummaryRatio::where('suit_no', $judgement_summary->suit_no)->get(); ?>
                         @if ($ratios)
