@@ -2311,11 +2311,11 @@ class AdminController extends Controller
             'content' => 'required',
             'description' => 'required',
             'authur' => 'required',
-            'link' => 'required',
+            // 'link' => 'required',
             'photo' => 'required',
             'category' => 'required',
             // 'area_of_law' => 'required',
-            'references' => 'required',
+            // 'references' => 'required',
         ]);
         $file = $request->file('photo');
         $path = $file->store('media', 'public');
@@ -2400,10 +2400,10 @@ class AdminController extends Controller
             'content' => 'required',
             'description' => 'required',
             'authur' => 'required',
-            'link' => 'required',
+            // 'link' => 'required',
             'category' => 'required',
             // 'area_of_law' => 'required',
-            'references' => 'required',
+            // 'references' => 'required',
         ]);
 
         if($file = $request->file('photo')) {
@@ -3031,7 +3031,7 @@ class AdminController extends Controller
         $package = Package::findOrFail($id);
         if(User::where('package_id', $package->id)->first()){
             return back()->with('error', 'Subscription package cannot be deleted as a user is already subscribed to the package');
-        } 
+        }
         $package->delete();
         return back()->with('success', 'Subscription package deleted');
     }
