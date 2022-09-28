@@ -91,7 +91,7 @@ class PackageController extends Controller
         }
 
         info(['package_expiration_executed' => now()->toDayDateTimeString()]);
-        return 'Ran';
+        return 'Ran successfully';
     }
 
 }
