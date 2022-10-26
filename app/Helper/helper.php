@@ -1,6 +1,11 @@
 <?php
 
-function highlightText($str, $search_term) {
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+use App\Models\LicensedUserSession;
+
+function highlightText($str, $search_term)
+{
     if (empty($search_term))
         return $str;
 
@@ -18,7 +23,8 @@ function highlightText($str, $search_term) {
 
 
 
-function returnHighlightText($str, $search_term) {
+function returnHighlightText($str, $search_term)
+{
     if (empty($search_term))
         return false;
 
@@ -27,28 +33,30 @@ function returnHighlightText($str, $search_term) {
     if ($pos !== false) {
         return true;
     } else {
-       return false;
+        return false;
     }
 }
 
-if(!function_exists('getRating')){
-    function getRating($rating){
-        if($rating > 0 && $rating < 2) {
-            echo("<i class='mdi mdi-star text-warning'></i>");
-        } else if($rating > 1 && $rating < 3){
-            echo("<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i>");
-        } else if($rating > 2 && $rating < 4){
+if (!function_exists('getRating')) {
+    function getRating($rating)
+    {
+        if ($rating > 0 && $rating < 2) {
+            echo ("<i class='mdi mdi-star text-warning'></i>");
+        } else if ($rating > 1 && $rating < 3) {
+            echo ("<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i>");
+        } else if ($rating > 2 && $rating < 4) {
             return "<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i></i><i class='mdi mdi-star text-warning'></i>";
-        } else if($rating > 3 && $rating < 5){
-            echo("<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i>");
-        } else if($rating == 5){
-            echo("<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i>");
+        } else if ($rating > 3 && $rating < 5) {
+            echo ("<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i>");
+        } else if ($rating == 5) {
+            echo ("<i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i><i class='mdi mdi-star text-warning'></i>");
         }
     }
 }
 
-if(!function_exists('tribearcMail')){
-    function tribearcMail($subject, $content, $mails){
+if (!function_exists('tribearcMail')) {
+    function tribearcMail($subject, $content, $mails)
+    {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, 'https://newsletter.tribearc.com/api/campaigns/send_email.php');
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -79,8 +87,9 @@ if(!function_exists('tribearcMail')){
     }
 }
 
-if(!function_exists('tribearcSendMail')){
-    function tribearcSendMail($subject, $content, $mails){
+if (!function_exists('tribearcSendMail')) {
+    function tribearcSendMail($subject, $content, $mails)
+    {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, 'https://newsletter.tribearc.com/api/campaigns/send_now.php');
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -112,3 +121,17 @@ if(!function_exists('tribearcSendMail')){
 }
 
 
+function checkUser()
+{
+    //check if I've been bounced by another user
+    $exist = Session::get('who');
+    $user = Auth::user();
+    if ($user->license_code) {
+        $bounced = LicensedUserSession::where('session_no', $exist)->first();
+        if (!$bounced) {
+            Auth::logout();
+            return false;
+        }
+    }
+    return true;
+}

@@ -42,6 +42,11 @@ return [
         ],
     ],
 
+    'api' => [
+        'driver' => 'passport', //update this line
+        'provider' => 'users',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | User Providers

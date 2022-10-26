@@ -97,7 +97,13 @@ class AdminController extends Controller
     }
 
     ///////////////////////dashboard///////////////////////////////////////////////
-    public function index() {
+    public function index()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $judgement_count = JudgementSummary::count();
         $fed_count = LawOfFederation::count();
         $rule_count = Rule::count();
@@ -109,7 +115,7 @@ class AdminController extends Controller
         $team_count = Team::count();
         $pop_message = Message::where('type', 'in-app')->orderBy('created_at', 'DESC')->orderBy('created_at', 'DESC')->first();
         $latest_judgements = JudgementSummary::orderBy('judgement_date', 'DESC')->limit(5)->get();
-        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type','!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
         $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
         $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->get();
         $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
@@ -126,15 +132,21 @@ class AdminController extends Controller
 
 
     //////////////////////////////////judgement//////////////////////////////////////
-    public function judgement(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function judgement(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+        
+        if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('rank', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             $judgement_summary = JudgementSummary::query();
-            if($request->filled('id') && !$request->filled('year')) {
+            if ($request->filled('id') && !$request->filled('year')) {
                 $judge = $judgement_summary->where('court_id', $request->id);
                 $judgement_count = $judge->count();
                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
@@ -144,8 +156,8 @@ class AdminController extends Controller
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            if(!$request->filled('id') && $request->filled('year')){
-                $judge = $judgement_summary->where('judgement_date','LIKE', '%'.$request->year.'%');
+            if (!$request->filled('id') && $request->filled('year')) {
+                $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $selected_year = [];
@@ -154,8 +166,8 @@ class AdminController extends Controller
                 $selected_court['court_id'] = '';
                 return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            if($request->filled('id') && $request->filled('year')){
-                $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
+            if ($request->filled('id') && $request->filled('year')) {
+                $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $selected_year = [];
@@ -164,15 +176,15 @@ class AdminController extends Controller
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            if($request->search_case) {
+            if ($request->search_case) {
                 $search = $request->search_case;
-                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')->orWhere('suit_no', 'LIKE', '%'.$search.'%');
+                $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')->orWhere('suit_no', 'LIKE', '%' . $search . '%');
                 $judgement_count =  $judge->count();
-                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orderBy('judgement_date', 'DESC')
-                ->simplePaginate()
-                ->withQueryString();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
                 $selected_year = [];
@@ -186,17 +198,16 @@ class AdminController extends Controller
             $selected_year = [];
             $selected_year['judgement_date'] = '';
             return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
-        }
-        else {
-            if(Auth::user()->subscribedUser()) {
+        } else {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->judgement_feature) {
+                if ($subscribed_package->judgement_feature) {
                     $courts = Package::where('id', Auth::user()->package_id)->first();
                     $years = Package::where('id', Auth::user()->package_id)->first();
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                     $categories = Category::orderBy('category', 'asc')->get();
                     $judgement_summary = JudgementSummary::query();
-                    if($request->filled('id') && !$request->filled('year')) {
+                    if ($request->filled('id') && !$request->filled('year')) {
                         $judge = $judgement_summary->where('court_id', $request->id);
                         $judgement_count = $judge->count();
                         $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
@@ -206,8 +217,8 @@ class AdminController extends Controller
                         $selected_court['court_id'] = $request->id;
                         return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                     }
-                    if(!$request->filled('id') && $request->filled('year')){
-                        $judge = $judgement_summary->where('judgement_date','LIKE', '%'.$request->year.'%');
+                    if (!$request->filled('id') && $request->filled('year')) {
+                        $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                         $judgement_count =  $judge->count();
                         $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                         $selected_year = [];
@@ -216,8 +227,8 @@ class AdminController extends Controller
                         $selected_court['court_id'] = '';
                         return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                     }
-                    if($request->filled('id') && $request->filled('year')){
-                        $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
+                    if ($request->filled('id') && $request->filled('year')) {
+                        $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                         $judgement_count =  $judge->count();
                         $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                         $selected_year = [];
@@ -226,24 +237,24 @@ class AdminController extends Controller
                         $selected_court['court_id'] = $request->id;
                         return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                     }
-                    if($request->search_case) {
+                    if ($request->search_case) {
                         $search = $request->search_case;
-                        $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                        ->orWhere('suit_no', 'LIKE', '%'.$search.'%');
+                        $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                            ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
                         $judgement_count =  $judge->count();
-                        $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                        ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                        ->orderBy('judgement_date', 'DESC')
-                        ->simplePaginate()
-                        ->withQueryString();
+                        $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                            ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                            ->orderBy('judgement_date', 'DESC')
+                            ->simplePaginate()
+                            ->withQueryString();
                         $selected_court = [];
                         $selected_court['court_id'] = '';
                         $selected_year = [];
                         $selected_year['judgement_date'] = '';
                         return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                     }
-                    $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year.'-01-00 24:00:00' : ''));
-                    $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year.'-12-31 00:00:00' : ''));
+                    $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
+                    $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
                     $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                     $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
                     $selected_court = [];
@@ -256,10 +267,15 @@ class AdminController extends Controller
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
-
     }
-    public function sbjMatter(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function sbjMatter(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('court', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
@@ -267,7 +283,7 @@ class AdminController extends Controller
             $categories = Category::orderBy('category', 'asc')->get();
             $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
             $judgement_summary = JudgementSummary::query();
-            if($request->filled('subject_matter_index')) {
+            if ($request->filled('subject_matter_index')) {
                 $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
                 $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
                 $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
@@ -278,16 +294,16 @@ class AdminController extends Controller
                 $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                 return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
             }
-            if($request->search_case) {
+            if ($request->search_case) {
                 $search = $request->search_case;
-                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%');
+                $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
                 $judgement_count =  $judge->count();
-                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orderBy('judgement_date', 'DESC')
-                ->simplePaginate()
-                ->withQueryString();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
                 $selected_subject_matter = [];
                 $selected_subject_matter['subject_matter_index'] = '';
                 return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
@@ -299,14 +315,14 @@ class AdminController extends Controller
             $selected_subject_matter['subject_matter_index'] = '';
             return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $courts = Package::where('id', Auth::user()->package_id)->first();
                 $years = Package::where('id', Auth::user()->package_id)->first();
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
                 $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
                 $judgement_summary = JudgementSummary::query();
-                if($request->filled('subject_matter_index')) {
+                if ($request->filled('subject_matter_index')) {
                     $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
                     $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
                     $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
@@ -317,16 +333,16 @@ class AdminController extends Controller
                     $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                     return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
                 }
-                if($request->search_case) {
+                if ($request->search_case) {
                     $search = $request->search_case;
-                    $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%');
+                    $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
                     $judgement_count =  $judge->count();
-                    $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                    ->orderBy('judgement_date', 'DESC')
-                    ->simplePaginate()
-                    ->withQueryString();
+                    $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                        ->orderBy('judgement_date', 'DESC')
+                        ->simplePaginate()
+                        ->withQueryString();
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = '';
                     return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
@@ -341,48 +357,54 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function legalCitation(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function legalCitation(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('court', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
-            if($request->search_case) {
+            if ($request->search_case) {
                 $search = $request->search_case;
-                $judge = JudgementSummary::where('title', 'LIKE', '%'.$search.'%')->orWhere('suit_no', 'LIKE', '%'.$search.'%');
+                $judge = JudgementSummary::where('title', 'LIKE', '%' . $search . '%')->orWhere('suit_no', 'LIKE', '%' . $search . '%');
                 $judgement_count =  $judge->count();
-                $judgement_summaries = JudgementSummary::where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orderBy('judgement_date', 'DESC')
-                ->simplePaginate()
-                ->withQueryString();
+                $judgement_summaries = JudgementSummary::where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
                 return view('admin.judgements.legal-citation',  compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
             }
             $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
             $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
             return view('admin.judgements.legal-citation', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $courts = Package::where('id', Auth::user()->package_id)->first();
                 $years = Package::where('id', Auth::user()->package_id)->first();
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
-                $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year.'-01-00 24:00:00' : ''));
-                $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year.'-12-31 00:00:00' : ''));
+                $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
+                $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
 
-                if($request->search_case) {
+                if ($request->search_case) {
                     $search = $request->search_case;
-                    $judge = JudgementSummary::query()->where('title', 'LIKE', '%'.$search.'%')
-                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                    ->whereBetween('judgement_date', [$start_date, $end_date]);
+                    $judge = JudgementSummary::query()->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                        ->whereBetween('judgement_date', [$start_date, $end_date]);
                     $judgement_count =  $judge->count();
-                    $judgement_summaries = JudgementSummary::query()->where('title', 'LIKE', '%'.$search.'%')
-                    ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                    ->whereBetween('judgement_date', [$start_date, $end_date])
-                    ->orderBy('judgement_date', 'DESC')
-                    ->simplePaginate()
-                    ->withQueryString();
+                    $judgement_summaries = JudgementSummary::query()->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                        ->whereBetween('judgement_date', [$start_date, $end_date])
+                        ->orderBy('judgement_date', 'DESC')
+                        ->simplePaginate()
+                        ->withQueryString();
                     return view('admin.judgements.legal-citation',  compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws'));
                 }
                 $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
@@ -392,9 +414,14 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function noSummary(Request $request) {
+    public function noSummary(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
 
-        if(Auth::user()->role->name == 'Admin') {
+        if (Auth::user()->role->name == 'Admin') {
 
             $courts = Court::orderBy('rank', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
@@ -402,7 +429,7 @@ class AdminController extends Controller
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             $judgement_summary = JudgementSummary::query();
-            if($request->filled('id') && !$request->filled('year')) {
+            if ($request->filled('id') && !$request->filled('year')) {
                 $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id);
                 $judgement_count = $judge->count();
                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
@@ -412,8 +439,8 @@ class AdminController extends Controller
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            if(!$request->filled('id') && $request->filled('year')){
-                $judge = $judgement_summary->where('summary_of_facts', NULL)->where('judgement_date','LIKE', '%'.$request->year.'%');
+            if (!$request->filled('id') && $request->filled('year')) {
+                $judge = $judgement_summary->where('summary_of_facts', NULL)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $selected_year = [];
@@ -422,8 +449,8 @@ class AdminController extends Controller
                 $selected_court['court_id'] = '';
                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            if($request->filled('id') && $request->filled('year')){
-                $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id)->where('judgement_date','LIKE', '%'.$request->year.'%');
+            if ($request->filled('id') && $request->filled('year')) {
+                $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                 $judgement_count =  $judge->count();
                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
                 $selected_year = [];
@@ -432,18 +459,18 @@ class AdminController extends Controller
                 $selected_court['court_id'] = $request->id;
                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
             }
-            if($request->search_case) {
+            if ($request->search_case) {
                 $search = $request->search_case;
-                $judge = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->where('summary_of_facts', NULL);
+                $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->where('summary_of_facts', NULL);
                 $judgement_count =  $judge->count();
-                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->where('summary_of_facts', NULL)
-                ->orderBy('judgement_date', 'DESC')
-                ->simplePaginate()
-                ->withQueryString();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->where('summary_of_facts', NULL)
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
                 $selected_year = [];
@@ -457,11 +484,17 @@ class AdminController extends Controller
             $selected_year = [];
             $selected_year['judgement_date'] = '';
             return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
-         }
+        }
         return redirect('admin/judgements');
     }
-    public function create() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function create()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('court', 'ASC')->get();
             $categories = Category::orderBy('category', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
@@ -472,27 +505,33 @@ class AdminController extends Controller
         }
         return redirect('admin/judgements');
     }
-    public function storeJudgement(Request $request) {
+    public function storeJudgement(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
-            'title'=>'required',
+            'title' => 'required',
             // 'summary_of_facts'=>'required',
-            'suit_no'=>'required',
+            'suit_no' => 'required',
             // 'held'=>'required',
-            'lp_citation'=>'required',
+            'lp_citation' => 'required',
             // 'issues'=>'required',
             // 'cases_cited'=>'required',
             // 'statutes_cited'=>'required',
             // 'judgement_date'=>'required',
             // 'other_citations'=>'required',
             // 'holden_at_id'=>'required',
-            'court_id'=>'required',
+            'court_id' => 'required',
             // 'party_a_type_id'=>'required',
             // 'party_b_type_id'=>'required',
             // 'category'=>'required',
             // 'area_of_law'=>'required',
         ]);
 
-        if(JudgementSummary::where('suit_no', 'LIKE', '%'.$request->suit_no. '%')->first()) {
+        if (JudgementSummary::where('suit_no', 'LIKE', '%' . $request->suit_no . '%')->first()) {
             return back()->withErrors('A judgement with this suit no already exists');
         }
 
@@ -502,29 +541,29 @@ class AdminController extends Controller
         $holden = Holden::create($holden_input);
 
         $judg_input = [
-            'title'=>$request->title,
-            'summary_of_facts'=>$request->summary_of_facts,
-            'suit_no'=>$request->suit_no,
-            'held'=>$request->held,
-            'lp_citation'=>$request->lp_citation,
-            'issues'=>$request->issues,
-            'cases_cited'=>$request->cases_cited,
-            'statutes_cited'=>$request->statutes_cited,
-            'judgement_date'=>Carbon::parse($request->judgement_date),
-            'other_citations'=>$request->other_citations,
-            'holden_at_id'=>$holden->id,
-            'court_id'=>$request->court_id,
-            'party_a_type_id'=>$request->party_a_type,
-            'party_b_type_id'=>$request->party_b_type,
-            'category'=>$request->category,
-            'area_of_law'=>$request->area_of_law
+            'title' => $request->title,
+            'summary_of_facts' => $request->summary_of_facts,
+            'suit_no' => $request->suit_no,
+            'held' => $request->held,
+            'lp_citation' => $request->lp_citation,
+            'issues' => $request->issues,
+            'cases_cited' => $request->cases_cited,
+            'statutes_cited' => $request->statutes_cited,
+            'judgement_date' => Carbon::parse($request->judgement_date),
+            'other_citations' => $request->other_citations,
+            'holden_at_id' => $holden->id,
+            'court_id' => $request->court_id,
+            'party_a_type_id' => $request->party_a_type,
+            'party_b_type_id' => $request->party_b_type,
+            'category' => $request->category,
+            'area_of_law' => $request->area_of_law
         ];
         $judg = JudgementSummary::create($judg_input);
 
-        if($request->subject) {
-            foreach($request->subject as $subject_input) {
+        if ($request->subject) {
+            foreach ($request->subject as $subject_input) {
                 $principle_input = [
-                    'subject_matter_index_id'=>$subject_input[0],
+                    'subject_matter_index_id' => $subject_input[0],
                     'principle' => $subject_input[1]
                 ];
                 $principle = Principle::create($principle_input);
@@ -537,10 +576,10 @@ class AdminController extends Controller
             }
         }
 
-        if($request->coram) {
-            foreach($request->coram as $coram_input) {
+        if ($request->coram) {
+            foreach ($request->coram as $coram_input) {
                 $coram_data = [
-                    'name'=>$coram_input[0]
+                    'name' => $coram_input[0]
                 ];
                 $coram = Coram::create($coram_data);
 
@@ -553,56 +592,62 @@ class AdminController extends Controller
         }
         // dd($request->party_a_names);
         $party_a_input = [
-            'party_a_names'=>$request->party_a_names,
-            'suit_no'=>$judg->suit_no
+            'party_a_names' => $request->party_a_names,
+            'suit_no' => $judg->suit_no
         ];
         JudgementPartyA::create($party_a_input);
         $party_b_input = [
-            'party_b_names'=>$request->party_b_names,
-            'suit_no'=>$judg->suit_no
+            'party_b_names' => $request->party_b_names,
+            'suit_no' => $judg->suit_no
         ];
         JudgementPartyB::create($party_b_input);
 
         $judg_counsel_input = [
-            'counsels'=>$request->counsels,
-            'suit_no'=>$judg->suit_no
+            'counsels' => $request->counsels,
+            'suit_no' => $judg->suit_no
         ];
         JudgementCounsel::create($judg_counsel_input);
 
-        if($request->ratio) {
-            foreach($request->ratio as $ratio_input) {
+        if ($request->ratio) {
+            foreach ($request->ratio as $ratio_input) {
                 $ratio_data = [
-                    'heading'=>$ratio_input[0],
-                    'body'=>$ratio_input[1],
-                    'suit_no'=>$judg->suit_no
+                    'heading' => $ratio_input[0],
+                    'body' => $ratio_input[1],
+                    'suit_no' => $judg->suit_no
                 ];
                 SummaryRatio::create($ratio_data);
             }
         }
 
         $full_judg = [
-            'judgement'=>$request->judgement,
-            'suit_no'=>$judg->suit_no
+            'judgement' => $request->judgement,
+            'suit_no' => $judg->suit_no
         ];
         Judgement::create($full_judg);
 
         return back()->with('success', 'Judgement added');
     }
-    public function updateJudgement(Request $request, $id) {
+    public function updateJudgement(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $judg = JudgementSummary::findOrFail($id);
         $validated = $request->validate([
-            'title'=>'required',
+            'title' => 'required',
             // 'summary_of_facts'=>'required',
-            'suit_no'=>'required',
+            'suit_no' => 'required',
             // 'held'=>'required',
-            'lp_citation'=>'required',
+            'lp_citation' => 'required',
             // 'issues'=>'required',
             // 'cases_cited'=>'required',
             // 'statutes_cited'=>'required',
             // 'judgement_date'=>'required',
             // 'other_citations'=>'required',
             // 'holden_at_id'=>'required',
-            'court_id'=>'required',
+            'court_id' => 'required',
             // 'party_a_type_id'=>'required',
             // 'party_b_type_id'=>'required',
             // 'category'=>'required',
@@ -615,29 +660,29 @@ class AdminController extends Controller
         DB::table('holdens')->where('id', $judg->holden_at_id)->update($holden_input);
 
         $judg_input = [
-            'title'=>$request->title,
-            'summary_of_facts'=>$request->summary_of_facts,
-            'suit_no'=>$request->suit_no,
-            'held'=>$request->held,
-            'lp_citation'=>$request->lp_citation,
-            'issues'=>$request->issues,
-            'cases_cited'=>$request->cases_cited,
-            'statutes_cited'=>$request->statutes_cited,
-            'judgement_date'=>Carbon::parse($request->judgement_date),
-            'other_citations'=>$request->other_citations,
-            'holden_at_id'=>$judg->holden_at_id,
-            'court_id'=>$request->court_id,
-            'party_a_type_id'=>$request->party_a_type,
-            'party_b_type_id'=>$request->party_b_type,
-            'category'=>$request->category,
-            'area_of_law'=>$request->area_of_law
+            'title' => $request->title,
+            'summary_of_facts' => $request->summary_of_facts,
+            'suit_no' => $request->suit_no,
+            'held' => $request->held,
+            'lp_citation' => $request->lp_citation,
+            'issues' => $request->issues,
+            'cases_cited' => $request->cases_cited,
+            'statutes_cited' => $request->statutes_cited,
+            'judgement_date' => Carbon::parse($request->judgement_date),
+            'other_citations' => $request->other_citations,
+            'holden_at_id' => $judg->holden_at_id,
+            'court_id' => $request->court_id,
+            'party_a_type_id' => $request->party_a_type,
+            'party_b_type_id' => $request->party_b_type,
+            'category' => $request->category,
+            'area_of_law' => $request->area_of_law
         ];
         $judg->update($judg_input);
 
-        if($request->subject) {
-            foreach($request->subject as $key => $subject_input) {
+        if ($request->subject) {
+            foreach ($request->subject as $key => $subject_input) {
                 $principle_input = [
-                    'subject_matter_index_id'=>$subject_input[0],
+                    'subject_matter_index_id' => $subject_input[0],
                     'principle' => $subject_input[1]
                 ];
                 DB::table('principles')->where('id', $key)->update($principle_input);
@@ -648,7 +693,7 @@ class AdminController extends Controller
                 ];
                 DB::table('judgement_principles')->where('id', $request->judg_principle_id)->update($judg_principle_input);
 
-                if($request->has('remove_principle')) {
+                if ($request->has('remove_principle')) {
                     $judg_principle = JudgementPrinciple::where('id', $request->judg_principle_id);
                     $judg_principle->delete();
                     $principle = Principle::where('id', $request->principle_id);
@@ -658,10 +703,10 @@ class AdminController extends Controller
             }
         }
 
-        if($request->new_subject) {
-            foreach($request->new_subject as $subject_input) {
+        if ($request->new_subject) {
+            foreach ($request->new_subject as $subject_input) {
                 $principle_input = [
-                    'subject_matter_index_id'=>$subject_input[0],
+                    'subject_matter_index_id' => $subject_input[0],
                     'principle' => $subject_input[1]
                 ];
                 $principle = Principle::create($principle_input);
@@ -676,10 +721,10 @@ class AdminController extends Controller
 
 
 
-        if($request->coram) {
-            foreach($request->coram as $key => $coram_input) {
+        if ($request->coram) {
+            foreach ($request->coram as $key => $coram_input) {
                 $coram_data = [
-                    'name'=>$coram_input[1]
+                    'name' => $coram_input[1]
                 ];
                 DB::table('corams')->where('id', $key)->update($coram_data);
 
@@ -689,7 +734,7 @@ class AdminController extends Controller
                 ];
                 DB::table('judgement_corams')->where('id', $coram_input[1])->update($judg_coram_data);
 
-                if($request->has('remove_coram')) {
+                if ($request->has('remove_coram')) {
                     $judg_coram = JudgementCoram::where('id', $request->judg_coram_id);
                     $judg_coram->delete();
                     $coram = Coram::where('id', $request->main_coram_id);
@@ -700,10 +745,10 @@ class AdminController extends Controller
         }
 
 
-        if($request->new_coram) {
-            foreach($request->new_coram as $coram_input) {
+        if ($request->new_coram) {
+            foreach ($request->new_coram as $coram_input) {
                 $coram_data = [
-                    'name'=>$coram_input[0]
+                    'name' => $coram_input[0]
                 ];
                 $coram = Coram::create($coram_data);
 
@@ -718,46 +763,46 @@ class AdminController extends Controller
         // dd($request->party_a_names);
 
         $party_a_input = [
-            'party_a_names'=>$request->party_a_names,
-            'suit_no'=>$judg->suit_no
+            'party_a_names' => $request->party_a_names,
+            'suit_no' => $judg->suit_no
         ];
-        if($request->party_a_name_id == null) {
+        if ($request->party_a_name_id == null) {
             JudgementPartyA::create($party_a_input);
         } else {
             DB::table('judgement_party_a_s')->where('id', $request->party_a_name_id)->update($party_a_input);
         }
 
         $party_b_input = [
-            'party_b_names'=>$request->party_b_names,
-            'suit_no'=>$judg->suit_no
+            'party_b_names' => $request->party_b_names,
+            'suit_no' => $judg->suit_no
         ];
-        if($request->party_b_name_id == null) {
+        if ($request->party_b_name_id == null) {
             JudgementPartyB::create($party_b_input);
         } else {
             DB::table('judgement_party_b_s')->where('id', $request->party_b_name_id)->update($party_b_input);
         }
 
         $judg_counsel_input = [
-            'counsels'=>$request->counsels,
-            'suit_no'=>$judg->suit_no
+            'counsels' => $request->counsels,
+            'suit_no' => $judg->suit_no
         ];
-        if($request->counsel_id == null) {
+        if ($request->counsel_id == null) {
             JudgementCounsel::create($judg_counsel_input);
         } else {
             DB::table('judgement_counsels')->where('id', $request->counsel_id)->update($judg_counsel_input);
         }
 
         // dd($request->ratio);
-        if($request->ratio) {
-            foreach($request->ratio as $key => $ratio_input) {
+        if ($request->ratio) {
+            foreach ($request->ratio as $key => $ratio_input) {
                 $ratio_data = [
-                    'heading'=>$ratio_input[0],
-                    'body'=>$ratio_input[1],
-                    'suit_no'=>$judg->suit_no
+                    'heading' => $ratio_input[0],
+                    'body' => $ratio_input[1],
+                    'suit_no' => $judg->suit_no
                 ];
                 DB::table('summary_ratios')->where('id', $key)->update($ratio_data);
 
-                if($request->has('remove_ratio')) {
+                if ($request->has('remove_ratio')) {
                     $ratio = SummaryRatio::where('id', $request->ratio_id);
                     $ratio->delete();
                     return back()->with('success', 'Ratio removed');
@@ -765,12 +810,12 @@ class AdminController extends Controller
             }
         }
 
-        if($request->new_ratio) {
-            foreach($request->new_ratio as $ratio_input) {
+        if ($request->new_ratio) {
+            foreach ($request->new_ratio as $ratio_input) {
                 $ratio_data = [
-                    'heading'=>$ratio_input[0],
-                    'body'=>$ratio_input[1],
-                    'suit_no'=>$judg->suit_no
+                    'heading' => $ratio_input[0],
+                    'body' => $ratio_input[1],
+                    'suit_no' => $judg->suit_no
                 ];
                 SummaryRatio::create($ratio_data);
             }
@@ -779,10 +824,10 @@ class AdminController extends Controller
         // dd($request->judgement_id);
 
         $full_judg = [
-            'judgement'=>$request->judgement,
-            'suit_no'=>$judg->suit_no
+            'judgement' => $request->judgement,
+            'suit_no' => $judg->suit_no
         ];
-        if($request->judgement_id == null) {
+        if ($request->judgement_id == null) {
             Judgement::create($full_judg);
         } else {
             DB::table('judgements')->where('id', $request->judgement_id)->update($full_judg);
@@ -791,12 +836,18 @@ class AdminController extends Controller
 
         return back()->with('success', 'Judgement updated');
     }
-    public function editJudgement($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editJudgement($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $judgement_summary = JudgementSummary::findOrFail($id);
             $courts = Court::orderBy('rank', 'ASC')->get();
-            $area_of_laws = AreaOfLaw::orderBy('area_of_law','ASC')->get();
-            $categories = Category::orderBy('category','ASC')->get();
+            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
+            $categories = Category::orderBy('category', 'ASC')->get();
             $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
             $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
             $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
@@ -804,10 +855,16 @@ class AdminController extends Controller
         }
         return redirect('admin/judgements');
     }
-    public function showJudgement($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function showJudgement($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $judgement_summary = JudgementSummary::findOrFail($id);
-            $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%'. trim($judgement_summary->suit_no) .'%')->get();
+            $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
             $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
             $courts = Court::orderBy('rank', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
@@ -815,13 +872,13 @@ class AdminController extends Controller
             $judgement_coram = JudgementCoram::select('suit_no')->first();
             // dd($judgement_coram);
             $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-            $area_of_laws = AreaOfLaw::orderBy('area_of_law','ASC')->get();
+            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
             // dd($corams);
             $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
 
             return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes', 'teams'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $judgement_summary = JudgementSummary::findOrFail($id);
                 $courts = Court::orderBy('rank', 'ASC')->get();
                 DB::statement("SET SQL_MODE=''");
@@ -829,10 +886,10 @@ class AdminController extends Controller
                 $judgement_coram = JudgementCoram::select('suit_no')->first();
                 // dd($judgement_coram);
                 $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law','ASC')->get();
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
                 $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
                 // dd($corams);
-                $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%'.trim($judgement_summary->suit_no).'%')->get();
+                $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
 
                 return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes', 'teams'));
@@ -840,7 +897,13 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function deleteJudgement($id) {
+    public function deleteJudgement($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $judgement_summary = JudgementSummary::findOrFail($id);
         $judgement_summary->delete();
         return back()->with('success', 'Judgement Deleted');
@@ -849,42 +912,66 @@ class AdminController extends Controller
 
 
     ////////////////////////////////////courts///////////////////////////////////////
-    public function court() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function court()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('rank', 'ASC')->get();
             $court_count = Court::count();
             return view('admin.judgements.courts', compact('courts', 'court_count'));
         }
         return redirect('admin/judgements');
     }
-    public function storeCourt(Request $request) {
+    public function storeCourt(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'court' => 'required',
             'rank' => 'required',
         ]);
-        if(Court::where('rank', $request->rank)->first()) {
+        if (Court::where('rank', $request->rank)->first()) {
             return back()->withErrors('Court rank already exists, choose another rank');
         }
         $input = $request->all();
         Court::create($input);
         return back()->with('success', 'Court added');
     }
-    public function updateCourt(Request $request) {
+    public function updateCourt(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'court' => 'required',
             'rank' => 'required',
         ]);
-        if(Court::where('rank', $request->rank)->first()) {
+        if (Court::where('rank', $request->rank)->first()) {
             return back()->withErrors('Court rank already exists, choose another rank');
         }
         $input = [
-          'court'=> $request->court,
-          'rank'=> $request->rank,
+            'court' => $request->court,
+            'rank' => $request->rank,
         ];
         DB::table('courts')->where('id', $request->court_id)->update($input);
         return back()->with('success', 'Court updated');
     }
-    public function deleteCourt($id) {
+    public function deleteCourt($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $court = Court::findOrFail($id);
         $court->delete();
         return back()->with('success', 'Court deleted');
@@ -893,15 +980,27 @@ class AdminController extends Controller
 
 
     /////////////////////subject matter index///////////////////////////////////////
-    public function getSbj() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function getSbj()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
             $subject_count = SubjectMatterIndex::count();
             return view('admin.judgements.subject-matter-index', compact('subject_matter_indices', 'subject_count'));
         }
         return redirect('admin/judgements');
     }
-    public function storeSbj(Request $request) {
+    public function storeSbj(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'subject_matter_index' => 'required',
         ]);
@@ -909,17 +1008,29 @@ class AdminController extends Controller
         SubjectMatterIndex::create($input);
         return back()->with('success', 'Subject Matter Index added');
     }
-    public function updateSbj(Request $request) {
+    public function updateSbj(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'subject_matter_index' => 'required',
         ]);
         $input = [
-          'subject_matter_index'=> $request->subject_matter_index,
+            'subject_matter_index' => $request->subject_matter_index,
         ];
         DB::table('subject_matter_indices')->where('id', $request->subject_id)->update($input);
         return back()->with('success', 'Subject Matter Index updated');
     }
-    public function deleteSbj($id) {
+    public function deleteSbj($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $subject_matter_index = SubjectMatterIndex::findOrFail($id);
         $subject_matter_index->delete();
         return back()->with('success', 'Subject Matter Index deleted');
@@ -928,33 +1039,57 @@ class AdminController extends Controller
 
 
     /////////////////////////////rule categories//////////////////////////////////////////
-    public function ruleCat() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function ruleCat()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
             $rule_category_count = RuleCategory::count();
             return view('admin.rules-of-court.categories', compact('rule_categories', 'rule_category_count'));
         }
         return redirect('admin/rules-of-court');
     }
-    public function storeRuleCat(Request $request) {
+    public function storeRuleCat(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
-            'name'=>'required'
+            'name' => 'required'
         ]);
         $input = $request->all();
         RuleCategory::create($input);
         return back()->with('success', 'Rule Category added');
     }
-    public function updateRuleCat(Request $request) {
+    public function updateRuleCat(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
         ]);
         $input = [
-          'name'=> $request->name,
+            'name' => $request->name,
         ];
         DB::table('rule_categories')->where('id', $request->rule_cat_id)->update($input);
         return back()->with('success', 'Rule Category updated');
     }
-    public function deleteRuleCat($id) {
+    public function deleteRuleCat($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $rule_category = RuleCategory::findOrFail($id);
         $rule_category->delete();
         return back()->with('success', 'Rule Category deleted');
@@ -962,29 +1097,35 @@ class AdminController extends Controller
 
 
     ////////////////////////rule of court/////////////////////////////////////////////////
-    public function rules(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function rules(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
-            if($request->has('fetch_rule')) {
-                $orders = Rule::where( function($query) use($request){
+            if ($request->has('fetch_rule')) {
+                $orders = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
-                $appendices = Rule::where( function($query) use($request){
+                $appendices = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
-                $schedules = Rule::where( function($query) use($request){
+                $schedules = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
-                $forms = Rule::where( function($query) use($request){
+                $forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
-                $civil_forms = Rule::where( function($query) use($request){
+                $civil_forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
-                $probate_forms = Rule::where( function($query) use($request){
+                $probate_forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
-                $parts = Rule::where( function($query) use($request){
+                $parts = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
                 $appendix_count = $appendices->count();
@@ -997,8 +1138,7 @@ class AdminController extends Controller
                 $selected_name = [];
                 $selected_name['name'] = $request->name;
                 return view('admin.rules-of-court.index', compact('orders', 'schedules', 'appendices', 'forms', 'civil_forms', 'probate_forms', 'parts', 'rule_categories', 'order_count', 'part_count', 'schedule_count', 'civil_count', 'probate_count', 'appendix_count', 'form_count', 'selected_name'));
-            }
-            else {
+            } else {
                 $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
                 $order_count = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
                 $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->get();
@@ -1018,31 +1158,31 @@ class AdminController extends Controller
                 return view('admin.rules-of-court.index', compact('orders', 'schedules', 'appendices', 'forms', 'civil_forms', 'probate_forms', 'parts', 'rule_categories', 'order_count', 'schedule_count', 'part_count', 'appendix_count', 'civil_count', 'probate_count', 'form_count', 'selected_name'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->roc_feature){
+                if ($subscribed_package->roc_feature) {
                     // $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                     $rule_categories = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_rule')) {
-                        $orders = Rule::where( function($query) use($request){
+                    if ($request->has('fetch_rule')) {
+                        $orders = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
-                        $appendices = Rule::where( function($query) use($request){
+                        $appendices = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
-                        $schedules = Rule::where( function($query) use($request){
+                        $schedules = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
-                        $forms = Rule::where( function($query) use($request){
+                        $forms = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
-                        $civil_forms = Rule::where( function($query) use($request){
+                        $civil_forms = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
-                        $probate_forms = Rule::where( function($query) use($request){
+                        $probate_forms = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
-                        $parts = Rule::where( function($query) use($request){
+                        $parts = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
                         $appendix_count = $appendices->count();
@@ -1055,8 +1195,7 @@ class AdminController extends Controller
                         $selected_name = [];
                         $selected_name['name'] = $request->name;
                         return view('admin.rules-of-court.index', compact('orders', 'schedules', 'appendices', 'forms', 'civil_forms', 'probate_forms', 'parts', 'rule_categories', 'order_count', 'part_count', 'schedule_count', 'civil_count', 'probate_count', 'appendix_count', 'form_count', 'selected_name'));
-                    }
-                    else {
+                    } else {
                         $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
                         $order_count = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
                         $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->get();
@@ -1080,79 +1219,84 @@ class AdminController extends Controller
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
-
     }
-    public function showRule($id){
-        if(Auth::user()->role->name == 'Admin') {
-            if(Rule::where('section', 'ORDERS')->first()) {
+    public function showRule($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            if (Rule::where('section', 'ORDERS')->first()) {
                 $order = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('order', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+            } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                 $schedule = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('schedule', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'APPENDIX')->first()) {
+            } elseif (Rule::where('section', 'APPENDIX')->first()) {
                 $appendix = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('appendix', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'FORMS')->first()) {
+            } elseif (Rule::where('section', 'FORMS')->first()) {
                 $form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('form', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+            } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                 $civil_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('civil_form', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+            } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                 $probate_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('probate_form', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'PARTS')->first()) {
+            } elseif (Rule::where('section', 'PARTS')->first()) {
                 $part = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.rules-of-court.show', compact('part', 'notes', 'teams'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
-                if(Rule::where('section', 'ORDERS')->first()) {
+            if (Auth::user()->subscribedUser()) {
+                if (Rule::where('section', 'ORDERS')->first()) {
                     $order = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.rules-of-court.show', compact('order', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+                } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                     $schedule = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.rules-of-court.show', compact('schedule', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'APPENDIX')->first()) {
+                } elseif (Rule::where('section', 'APPENDIX')->first()) {
                     $appendix = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.rules-of-court.show', compact('appendix', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'FORMS')->first()) {
+                } elseif (Rule::where('section', 'FORMS')->first()) {
                     $form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.rules-of-court.show', compact('form', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+                } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                     $civil_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.rules-of-court.show', compact('civil_form', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+                } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                     $probate_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.rules-of-court.show', compact('probate_form', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'PARTS')->first()) {
+                } elseif (Rule::where('section', 'PARTS')->first()) {
                     $part = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
@@ -1162,14 +1306,26 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function fetchRuleAnote($id) {
+    public function fetchRuleAnote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $rule = Rule::whereId($id)->first();
         $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $rule->id)->where('resource_type', 'rule')->get();
         return response()->json([
-            'anotes'=> $anotes,
+            'anotes' => $anotes,
         ]);
     }
-    public function storeRule(Request $request) {
+    public function storeRule(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'title' => 'required',
@@ -1188,33 +1344,39 @@ class AdminController extends Controller
         Rule::create($input);
         return back()->with('success', 'Rule of court added');
     }
-    public function editRule($id) {
-        if(Auth::user()->role->name == 'Admin') {
-            if(Rule::where('section', 'ORDERS')->first()) {
+    public function editRule($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            if (Rule::where('section', 'ORDERS')->first()) {
                 $order = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('order', 'rule_categories'));
-            }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+            } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                 $schedule = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('schedule', 'rule_categories'));
-            }elseif(Rule::where('section', 'APPENDIX')->first()) {
+            } elseif (Rule::where('section', 'APPENDIX')->first()) {
                 $appendix = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('appendix', 'rule_categories'));
-            }elseif(Rule::where('section', 'FORMS')->first()) {
+            } elseif (Rule::where('section', 'FORMS')->first()) {
                 $form = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('form', 'rule_categories'));
-            }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+            } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                 $civil_form = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('civil_form', 'rule_categories'));
-            }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+            } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                 $probate_form = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('probate_form', 'rule_categories'));
-            }elseif(Rule::where('section', 'PARTS')->first()) {
+            } elseif (Rule::where('section', 'PARTS')->first()) {
                 $part = Rule::findOrFail($id);
                 $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
                 return view('admin.rules-of-court.edit', compact('part', 'rule_categories'));
@@ -1222,20 +1384,26 @@ class AdminController extends Controller
         }
         return redirect('admin/rules-of-court');
     }
-    public function updateRule(Request $request, $id) {
-        if(Rule::where('section', 'ORDERS')->first()) {
+    public function updateRule(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Rule::where('section', 'ORDERS')->first()) {
             $order = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+        } elseif (Rule::where('section', 'SCHEDULES')->first()) {
             $schedule = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'APPENDIX')->first()) {
+        } elseif (Rule::where('section', 'APPENDIX')->first()) {
             $appendix = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'FORMS')->first()) {
+        } elseif (Rule::where('section', 'FORMS')->first()) {
             $form = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+        } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
             $civil_form = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+        } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
             $probate_form = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'PARTS')->first()) {
+        } elseif (Rule::where('section', 'PARTS')->first()) {
             $part = Rule::findOrFail($id);
         }
         $validated = $request->validate([
@@ -1253,43 +1421,49 @@ class AdminController extends Controller
             'type' => $request->type,
             'version_no' => $request->version_no
         ];
-        if($order) {
+        if ($order) {
             $order->update($input);
-        }elseif($schedule) {
+        } elseif ($schedule) {
             $schedule->update($input);
-        }elseif($part) {
+        } elseif ($part) {
             $part->update($input);
-        }elseif($form) {
+        } elseif ($form) {
             $form->update($input);
-        }elseif($appendix) {
+        } elseif ($appendix) {
             $appendix->update($input);
-        }elseif($probate_form) {
+        } elseif ($probate_form) {
             $probate_form->update($input);
-        }elseif($civil_form) {
+        } elseif ($civil_form) {
             $civil_form->update($input);
         }
         return back()->with('success', 'Rule of court updated');
     }
-    public function deleteRule($id) {
-        if(Rule::where('section', 'ORDERS')->first()) {
+    public function deleteRule($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Rule::where('section', 'ORDERS')->first()) {
             $order = Rule::findOrFail($id);
             $order->delete();
-        }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+        } elseif (Rule::where('section', 'SCHEDULES')->first()) {
             $schedule = Rule::findOrFail($id);
             $schedule->delete();
-        }elseif(Rule::where('section', 'APPENDIX')->first()) {
+        } elseif (Rule::where('section', 'APPENDIX')->first()) {
             $appendix = Rule::findOrFail($id);
             $appendix->delete();
-        }elseif(Rule::where('section', 'FORMS')->first()) {
+        } elseif (Rule::where('section', 'FORMS')->first()) {
             $form = Rule::findOrFail($id);
             $form->delete();
-        }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+        } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
             $civil_form = Rule::findOrFail($id);
             $civil_form->delete();
-        }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+        } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
             $probate_form = Rule::findOrFail($id);
             $probate_form->delete();
-        }elseif(Rule::where('section', 'PARTS')->first()) {
+        } elseif (Rule::where('section', 'PARTS')->first()) {
             $part = Rule::findOrFail($id);
             $part->delete();
         }
@@ -1299,29 +1473,35 @@ class AdminController extends Controller
 
 
     ///////////////////////////state rule of court////////////////////////////////////////
-    public function state_rules(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function state_rules(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $states = State::orderBy('name', 'ASC')->get();
-            if($request->has('fetch_rule')) {
-                $orders = Rule::where( function($query) use($request){
+            if ($request->has('fetch_rule')) {
+                $orders = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
-                $appendices = Rule::where( function($query) use($request){
+                $appendices = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
-                $schedules = Rule::where( function($query) use($request){
+                $schedules = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
-                $forms = Rule::where( function($query) use($request){
+                $forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
-                $civil_forms = Rule::where( function($query) use($request){
+                $civil_forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
-                $probate_forms = Rule::where( function($query) use($request){
+                $probate_forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
-                $parts = Rule::where( function($query) use($request){
+                $parts = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
                 $appendix_count = $appendices->count();
@@ -1334,8 +1514,7 @@ class AdminController extends Controller
                 $selected_name = [];
                 $selected_name['name'] = $request->name;
                 return view('admin.state-rules-of-court.index', compact('orders', 'schedules', 'appendices', 'forms', 'civil_forms', 'probate_forms', 'parts', 'states', 'order_count', 'part_count', 'schedule_count', 'civil_count', 'probate_count', 'appendix_count', 'form_count', 'selected_name'));
-            }
-            else {
+            } else {
                 $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->get();
                 $order_count = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->count();
                 $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->get();
@@ -1354,32 +1533,32 @@ class AdminController extends Controller
                 $selected_name['name'] = '';
                 return view('admin.state-rules-of-court.index', compact('orders', 'schedules', 'appendices', 'forms', 'civil_forms', 'probate_forms', 'parts', 'states', 'order_count', 'schedule_count', 'part_count', 'appendix_count', 'civil_count', 'probate_count', 'form_count', 'selected_name'));
             }
-        } else{
-            if(Auth::user()->subscribedUser()) {
+        } else {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->sroc_feature){
+                if ($subscribed_package->sroc_feature) {
                     // $states = State::orderBy('name', 'ASC')->get();
                     $states = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_rule')) {
-                        $orders = Rule::where( function($query) use($request){
+                    if ($request->has('fetch_rule')) {
+                        $orders = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
-                        $appendices = Rule::where( function($query) use($request){
+                        $appendices = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
-                        $schedules = Rule::where( function($query) use($request){
+                        $schedules = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
-                        $forms = Rule::where( function($query) use($request){
+                        $forms = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
-                        $civil_forms = Rule::where( function($query) use($request){
+                        $civil_forms = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
-                        $probate_forms = Rule::where( function($query) use($request){
+                        $probate_forms = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
-                        $parts = Rule::where( function($query) use($request){
+                        $parts = Rule::where(function ($query) use ($request) {
                             return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                         })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
                         $appendix_count = $appendices->count();
@@ -1392,8 +1571,7 @@ class AdminController extends Controller
                         $selected_name = [];
                         $selected_name['name'] = $request->name;
                         return view('admin.state-rules-of-court.index', compact('orders', 'schedules', 'appendices', 'forms', 'civil_forms', 'probate_forms', 'parts', 'states', 'order_count', 'part_count', 'schedule_count', 'civil_count', 'probate_count', 'appendix_count', 'form_count', 'selected_name'));
-                    }
-                    else {
+                    } else {
                         $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->get();
                         $order_count = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->count();
                         $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->get();
@@ -1418,77 +1596,83 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function showStateRule($id){
-        if(Auth::user()->role->name == 'Admin') {
-            if(Rule::where('section', 'ORDERS')->first()) {
+    public function showStateRule($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            if (Rule::where('section', 'ORDERS')->first()) {
                 $order = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('order', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+            } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                 $schedule = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('schedule', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'APPENDIX')->first()) {
+            } elseif (Rule::where('section', 'APPENDIX')->first()) {
                 $appendix = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('appendix', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'FORMS')->first()) {
+            } elseif (Rule::where('section', 'FORMS')->first()) {
                 $form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('form', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+            } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                 $civil_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('civil_form', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+            } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                 $probate_form = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('probate_form', 'notes', 'teams'));
-            }elseif(Rule::where('section', 'PARTS')->first()) {
+            } elseif (Rule::where('section', 'PARTS')->first()) {
                 $part = Rule::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return view('admin.state-rules-of-court.show', compact('part', 'notes', 'teams'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
-                if(Rule::where('section', 'ORDERS')->first()) {
+            if (Auth::user()->subscribedUser()) {
+                if (Rule::where('section', 'ORDERS')->first()) {
                     $order = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.state-rules-of-court.show', compact('order', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+                } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                     $schedule = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.state-rules-of-court.show', compact('schedule', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'APPENDIX')->first()) {
+                } elseif (Rule::where('section', 'APPENDIX')->first()) {
                     $appendix = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.state-rules-of-court.show', compact('appendix', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'FORMS')->first()) {
+                } elseif (Rule::where('section', 'FORMS')->first()) {
                     $form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.state-rules-of-court.show', compact('form', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+                } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                     $civil_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.state-rules-of-court.show', compact('civil_form', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+                } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                     $probate_form = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return view('admin.state-rules-of-court.show', compact('probate_form', 'notes', 'teams'));
-                }elseif(Rule::where('section', 'PARTS')->first()) {
+                } elseif (Rule::where('section', 'PARTS')->first()) {
                     $part = Rule::findOrFail($id);
                     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
@@ -1498,14 +1682,26 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function fetchStateRuleAnote($id) {
+    public function fetchStateRuleAnote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $state_rule = Rule::whereId($id)->first();
         $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $state_rule->id)->where('resource_type', 'state-rule')->get();
         return response()->json([
-            'anotes'=> $anotes,
+            'anotes' => $anotes,
         ]);
     }
-    public function storeStateRule(Request $request) {
+    public function storeStateRule(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'title' => 'required',
@@ -1524,33 +1720,39 @@ class AdminController extends Controller
         Rule::create($input);
         return back()->with('success', 'State Rule of court added');
     }
-    public function editStateRule($id) {
-        if(Auth::user()->role->name == 'Admin') {
-            if(Rule::where('section', 'ORDERS')->first()) {
+    public function editStateRule($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            if (Rule::where('section', 'ORDERS')->first()) {
                 $order = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('order', 'states'));
-            }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+            } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                 $schedule = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('schedule', 'states'));
-            }elseif(Rule::where('section', 'APPENDIX')->first()) {
+            } elseif (Rule::where('section', 'APPENDIX')->first()) {
                 $appendix = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('appendix', 'states'));
-            }elseif(Rule::where('section', 'FORMS')->first()) {
+            } elseif (Rule::where('section', 'FORMS')->first()) {
                 $form = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('form', 'states'));
-            }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+            } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                 $civil_form = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('civil_form', 'states'));
-            }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+            } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                 $probate_form = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('probate_form', 'states'));
-            }elseif(Rule::where('section', 'PARTS')->first()) {
+            } elseif (Rule::where('section', 'PARTS')->first()) {
                 $part = Rule::findOrFail($id);
                 $states = State::orderBy('name', 'ASC')->get();
                 return view('admin.state-rules-of-court.edit', compact('part', 'states'));
@@ -1558,20 +1760,26 @@ class AdminController extends Controller
         }
         return redirect('admin/state-rules-of-court');
     }
-    public function updateStateRule(Request $request, $id) {
-        if(Rule::where('section', 'ORDERS')->first()) {
+    public function updateStateRule(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Rule::where('section', 'ORDERS')->first()) {
             $order = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+        } elseif (Rule::where('section', 'SCHEDULES')->first()) {
             $schedule = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'APPENDIX')->first()) {
+        } elseif (Rule::where('section', 'APPENDIX')->first()) {
             $appendix = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'FORMS')->first()) {
+        } elseif (Rule::where('section', 'FORMS')->first()) {
             $form = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+        } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
             $civil_form = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+        } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
             $probate_form = Rule::findOrFail($id);
-        }elseif(Rule::where('section', 'PARTS')->first()) {
+        } elseif (Rule::where('section', 'PARTS')->first()) {
             $part = Rule::findOrFail($id);
         }
         $validated = $request->validate([
@@ -1589,43 +1797,49 @@ class AdminController extends Controller
             'type' => $request->type,
             'version_no' => $request->version_no
         ];
-        if($order) {
+        if ($order) {
             $order->update($input);
-        }elseif($schedule) {
+        } elseif ($schedule) {
             $schedule->update($input);
-        }elseif($part) {
+        } elseif ($part) {
             $part->update($input);
-        }elseif($form) {
+        } elseif ($form) {
             $form->update($input);
-        }elseif($appendix) {
+        } elseif ($appendix) {
             $appendix->update($input);
-        }elseif($probate_form) {
+        } elseif ($probate_form) {
             $probate_form->update($input);
-        }elseif($civil_form) {
+        } elseif ($civil_form) {
             $civil_form->update($input);
         }
         return back()->with('success', 'State Rule of court updated');
     }
-    public function deleteStateRule($id) {
-        if(Rule::where('section', 'ORDERS')->first()) {
+    public function deleteStateRule($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Rule::where('section', 'ORDERS')->first()) {
             $order = Rule::findOrFail($id);
             $order->delete();
-        }elseif(Rule::where('section', 'SCHEDULES')->first()) {
+        } elseif (Rule::where('section', 'SCHEDULES')->first()) {
             $schedule = Rule::findOrFail($id);
             $schedule->delete();
-        }elseif(Rule::where('section', 'APPENDIX')->first()) {
+        } elseif (Rule::where('section', 'APPENDIX')->first()) {
             $appendix = Rule::findOrFail($id);
             $appendix->delete();
-        }elseif(Rule::where('section', 'FORMS')->first()) {
+        } elseif (Rule::where('section', 'FORMS')->first()) {
             $form = Rule::findOrFail($id);
             $form->delete();
-        }elseif(Rule::where('section', 'CIVIL FORMS')->first()) {
+        } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
             $civil_form = Rule::findOrFail($id);
             $civil_form->delete();
-        }elseif(Rule::where('section', 'PROBATE FORMS')->first()) {
+        } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
             $probate_form = Rule::findOrFail($id);
             $probate_form->delete();
-        }elseif(Rule::where('section', 'PARTS')->first()) {
+        } elseif (Rule::where('section', 'PARTS')->first()) {
             $part = Rule::findOrFail($id);
             $part->delete();
         }
@@ -1635,13 +1849,19 @@ class AdminController extends Controller
 
 
     ////////////////////////////laws of federation/////////////////////////////////////////
-    public function fed(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function fed(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
-            if($request->has('fetch_fed')) {
+            if ($request->has('fetch_fed')) {
                 $fed = LawOfFederation::query();
-                if($request->filled('category')) {
+                if ($request->filled('category')) {
                     $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->get();
                     $fed_count = $feds->count();
                     $selected_category = [];
@@ -1656,15 +1876,15 @@ class AdminController extends Controller
                 return view('admin.laws-of-federation.index', compact('feds', 'area_of_laws', 'categories', 'fed_count', 'selected_category'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->lfn_feature){
+                if ($subscribed_package->lfn_feature) {
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                     // $categories = Category::orderBy('category', 'asc')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_fed')) {
+                    if ($request->has('fetch_fed')) {
                         $fed = LawOfFederation::query();
-                        if($request->filled('category')) {
+                        if ($request->filled('category')) {
                             $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->get();
                             $fed_count = $feds->count();
                             $selected_category = [];
@@ -1684,7 +1904,13 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeFed(Request $request) {
+    public function storeFed(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'title' => 'required',
             // 'area_of_law' => 'required',
@@ -1714,41 +1940,46 @@ class AdminController extends Controller
 
         // dd($request->part_header);
 
-        if($request->part_header) {
-            foreach($request->part_header as $part_header) {
+        if ($request->part_header) {
+            foreach ($request->part_header as $part_header) {
                 $fed_part_input = [
                     'part_header' => $part_header[0],
                     'law_of_federation_id' => $fed->id
                 ];
                 $fed_part = LawOfFedPart::create($fed_part_input);
-                foreach($part_header[10] as $section_input) {
+                foreach ($part_header[10] as $section_input) {
                     $data = [
-                        'section_header'=>$section_input[0],
-                        'section_body'=>$section_input[1],
-                        'law_of_federation_id'=> $fed->id,
-                        'law_of_fed_part_id'=> $fed_part->id,
+                        'section_header' => $section_input[0],
+                        'section_body' => $section_input[1],
+                        'law_of_federation_id' => $fed->id,
+                        'law_of_fed_part_id' => $fed_part->id,
                     ];
                     LawOfFedSection::create($data);
                 }
             }
         }
 
-        if($request->sched) {
-            foreach($request->sched as $sched_input) {
+        if ($request->sched) {
+            foreach ($request->sched as $sched_input) {
                 $data = [
-                    'sched_header'=>$sched_input[0],
-                    'sched_body'=>$sched_input[1],
-                    'law_of_federation_id'=> $fed->id,
+                    'sched_header' => $sched_input[0],
+                    'sched_body' => $sched_input[1],
+                    'law_of_federation_id' => $fed->id,
                 ];
                 LawOfFedSched::create($data);
             }
         }
 
         return back()->with('success', 'Law added');
-
     }
-    public function editFed($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editFed($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $fed = LawOfFederation::findOrFail($id);
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
@@ -1762,16 +1993,22 @@ class AdminController extends Controller
         }
         return redirect('admin/laws-of-federation');
     }
-    public function showFed($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function showFed($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $fed = LawOfFederation::findOrFail($id);
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
             $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
             return view('admin.laws-of-federation.show', compact('fed', 'area_of_laws', 'categories', 'notes', 'teams'));
-        } else{
-            if(Auth::user()->subscribedUser()) {
+        } else {
+            if (Auth::user()->subscribedUser()) {
                 $fed = LawOfFederation::findOrFail($id);
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
@@ -1782,14 +2019,26 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function fetchLawAnote($id) {
+    public function fetchLawAnote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $fed = LawOfFederation::whereId($id)->first();
         $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $fed->id)->where('resource_type', 'fed')->get();
         return response()->json([
-            'anotes'=> $anotes,
+            'anotes' => $anotes,
         ]);
     }
-    public function updateFed(Request $request, $id) {
+    public function updateFed(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $fed = LawOfFederation::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
@@ -1819,20 +2068,20 @@ class AdminController extends Controller
         // dd($request->section_part_header);
 
 
-        if($request->part_header) {
-            foreach($request->part_header as $key => $part_header) {
+        if ($request->part_header) {
+            foreach ($request->part_header as $key => $part_header) {
                 $fed_part_input = [
                     'part_header' => $part_header[0],
                     'law_of_federation_id' => $fed->id
                 ];
                 DB::table('law_of_fed_parts')->where('id', $key)->update($fed_part_input);
                 $fed_part = LawOfFedPart::where('id', $key)->first();
-                foreach($part_header[10] as $section_key => $section_input) {
+                foreach ($part_header[10] as $section_key => $section_input) {
                     $data = [
-                        'section_header'=>$section_input[0],
-                        'section_body'=>$section_input[1],
-                        'law_of_federation_id'=> $fed->id,
-                        'law_of_fed_part_id'=> $fed_part->id,
+                        'section_header' => $section_input[0],
+                        'section_body' => $section_input[1],
+                        'law_of_federation_id' => $fed->id,
+                        'law_of_fed_part_id' => $fed_part->id,
                     ];
                     DB::table('law_of_fed_sections')->where('id', $section_key)->update($data);
                 }
@@ -1840,34 +2089,34 @@ class AdminController extends Controller
         }
 
         //// saving a new section in a part
-        if($request->section_part_header) {
+        if ($request->section_part_header) {
             $fed_part = LawOfFedPart::where('id', $request->fed_section_part_id)->first();
-                foreach($request->section_part_header[$fed_part->id][10] as $key => $section_input) {
-                    $data = [
-                        'section_header'=>$section_input[0],
-                        'section_body'=>$section_input[1],
-                        'law_of_federation_id'=> $fed->id,
-                        'law_of_fed_part_id'=> $fed_part->id,
-                    ];
-                    LawOfFedSection::create($data);
-                }
+            foreach ($request->section_part_header[$fed_part->id][10] as $key => $section_input) {
+                $data = [
+                    'section_header' => $section_input[0],
+                    'section_body' => $section_input[1],
+                    'law_of_federation_id' => $fed->id,
+                    'law_of_fed_part_id' => $fed_part->id,
+                ];
+                LawOfFedSection::create($data);
+            }
         }
 
 
         // saving a new part and new section
-        if($request->new_part_header) {
-            foreach($request->new_part_header as $part_header) {
+        if ($request->new_part_header) {
+            foreach ($request->new_part_header as $part_header) {
                 $fed_part_input = [
                     'part_header' => $part_header[0],
                     'law_of_federation_id' => $fed->id
                 ];
                 $fed_part = LawOfFedPart::create($fed_part_input);
-                foreach($part_header[10] as $section_input) {
+                foreach ($part_header[10] as $section_input) {
                     $data = [
-                        'section_header'=>$section_input[0],
-                        'section_body'=>$section_input[1],
-                        'law_of_federation_id'=> $fed->id,
-                        'law_of_fed_part_id'=> $fed_part->id,
+                        'section_header' => $section_input[0],
+                        'section_body' => $section_input[1],
+                        'law_of_federation_id' => $fed->id,
+                        'law_of_fed_part_id' => $fed_part->id,
                     ];
                     LawOfFedSection::create($data);
                 }
@@ -1911,16 +2160,16 @@ class AdminController extends Controller
         //     }
         // }
 
-        if($request->sched) {
-            foreach($request->sched as $key => $sched_input) {
+        if ($request->sched) {
+            foreach ($request->sched as $key => $sched_input) {
                 $data = [
-                    'sched_header'=>$sched_input[1],
-                    'sched_body'=>$sched_input[2],
-                    'law_of_federation_id'=> $fed->id,
+                    'sched_header' => $sched_input[1],
+                    'sched_body' => $sched_input[2],
+                    'law_of_federation_id' => $fed->id,
                 ];
                 DB::table('law_of_fed_scheds')->where('id', $key)->update($data);
 
-                if($request->has('remove_sched')) {
+                if ($request->has('remove_sched')) {
                     $fed_sched = LawOfFedSched::where('id', $request->fed_sched_id);
                     $fed_sched->delete();
                     return back()->with('success', 'Law Federation Schedule removed');
@@ -1928,12 +2177,12 @@ class AdminController extends Controller
             }
         }
 
-        if($request->new_sched) {
-            foreach($request->new_sched as $sched_input) {
+        if ($request->new_sched) {
+            foreach ($request->new_sched as $sched_input) {
                 $data = [
-                    'sched_header'=>$sched_input[1],
-                    'sched_body'=>$sched_input[2],
-                    'law_of_federation_id'=> $fed->id,
+                    'sched_header' => $sched_input[1],
+                    'sched_body' => $sched_input[2],
+                    'law_of_federation_id' => $fed->id,
                 ];
                 LawOfFedSched::where('law_of_federation_id', $fed->id)->create($data);
             }
@@ -1941,18 +2190,36 @@ class AdminController extends Controller
 
         return back()->with('success', 'Law updated');
     }
-    public function removeSection(Request $request) {
+    public function removeSection(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $fed_section = LawOfFedSection::where('id', $request->id)->first();
         $fed_section->delete();
         return response()->json(['success', 'Law Federation Section removed']);
     }
-    public function removePart(Request $request) {
+    public function removePart(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $fed_part = LawOfFedPart::where('id', $request->id)->first();
         LawOfFedSection::where('law_of_fed_part_id', $request->id)->delete();
         $fed_part->delete();
         return response()->json(['success', 'Law Federation Part removed']);
     }
-    public function deleteFed($id) {
+    public function deleteFed($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $fed = LawOfFederation::findOrFail($id);
         LawOfFedPart::where('law_of_federation_id', $fed->id)->delete();
         LawOfFedSection::where('law_of_federation_id', $fed->id)->delete();
@@ -1964,14 +2231,26 @@ class AdminController extends Controller
 
 
     ///////////////////////////area of law/////////////////////////////////////////////////
-    public function area_of_law() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function area_of_law()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
             $area_count = AreaOfLaw::count();
             return view('admin.areas-of-laws.index', compact('area_of_laws', 'area_count'));
         }
     }
-    public function storeArea(Request $request) {
+    public function storeArea(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'area_of_law' => 'required',
         ]);
@@ -1979,32 +2258,56 @@ class AdminController extends Controller
         AreaOfLaw::create($input);
         return back()->with('success', 'Area of Law added');
     }
-    public function updateArea(Request $request) {
+    public function updateArea(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'area_of_law' => 'required',
         ]);
         $input = [
-          'area_of_law'=> $request->category,
+            'area_of_law' => $request->category,
         ];
         DB::table('areas_of_laws')->where('id', $request->area_id)->update($input);
         return back()->with('success', 'Area of law updated');
     }
-    public function deleteArea($id) {
+    public function deleteArea($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $area_of_law = AreaOfLaw::findOrFail($id);
         $area_of_law->delete();
         return back()->with('success', 'Area of law deleted');
     }
 
     /////////////////////////////////////categories////////////////////////////////////////
-    public function category() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function category()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $categories = Category::orderBy('category', 'ASC')->get();
             $category_count = Category::count();
             return view('admin.categories.index', compact('categories', 'category_count'));
         }
         return redirect('admin/dashboard');
     }
-    public function storeCategory(Request $request) {
+    public function storeCategory(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'category' => 'required',
         ]);
@@ -2012,17 +2315,29 @@ class AdminController extends Controller
         Category::create($input);
         return back()->with('success', 'Category added');
     }
-    public function updateCategory(Request $request) {
+    public function updateCategory(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'category' => 'required',
         ]);
         $input = [
-          'category'=> $request->category,
+            'category' => $request->category,
         ];
         DB::table('categories')->where('id', $request->category_id)->update($input);
         return back()->with('success', 'Category updated');
     }
-    public function deleteCategory($id) {
+    public function deleteCategory($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $category = Category::findOrFail($id);
         $category->delete();
         return back()->with('success', 'Category deleted');
@@ -2030,17 +2345,23 @@ class AdminController extends Controller
 
 
     /////////////////////////////////////Forms and Precedents///////////////////////////////
-    public function forms(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function forms(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $categories = Category::orderBy('category', 'ASC')->get();
-            if($request->has('fetch_form')) {
-                $forms = FormsPrecedence::where( function($query) use($request){
+            if ($request->has('fetch_form')) {
+                $forms = FormsPrecedence::where(function ($query) use ($request) {
                     return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
                 })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-                $my_forms = FormsPrecedence::where( function($query) use($request){
+                $my_forms = FormsPrecedence::where(function ($query) use ($request) {
                     return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
                 })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-                $public_forms = FormsPrecedence::where( function($query) use($request){
+                $public_forms = FormsPrecedence::where(function ($query) use ($request) {
                     return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
                 })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
                 $form_count = $forms->count();
@@ -2059,19 +2380,19 @@ class AdminController extends Controller
                 return view('admin.forms-and-precedents.index', compact('forms', 'public_forms', 'my_forms', 'form_count', 'public_form_count', 'categories', 'selected_category'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->form_feature){
+                if ($subscribed_package->form_feature) {
                     // $categories = Category::orderBy('category', 'ASC')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_form')) {
-                        $forms = FormsPrecedence::where( function($query) use($request){
+                    if ($request->has('fetch_form')) {
+                        $forms = FormsPrecedence::where(function ($query) use ($request) {
                             return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
                         })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-                        $my_forms = FormsPrecedence::where( function($query) use($request){
+                        $my_forms = FormsPrecedence::where(function ($query) use ($request) {
                             return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
                         })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-                        $public_forms = FormsPrecedence::where( function($query) use($request){
+                        $public_forms = FormsPrecedence::where(function ($query) use ($request) {
                             return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
                         })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
                         $form_count = $forms->count();
@@ -2095,7 +2416,14 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeForm(Request $request) {
+    public function storeForm(Request $request)
+    {
+
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'title' => 'required',
             // 'version_no' => 'required',
@@ -2107,18 +2435,23 @@ class AdminController extends Controller
         $input = $request->all();
         FormsPrecedence::create($input);
         return back()->with('success', 'Form added');
-
     }
-    public function editForm($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editForm($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $form = FormsPrecedence::findOrFail($id);
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             return view('admin.forms-and-precedents.edit-form', compact('form', 'area_of_laws', 'categories'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $form = FormsPrecedence::where('user_id', Auth::user()->id)->find($id);
-                if($form){
+                if ($form) {
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
                     return view('admin.forms-and-precedents.edit-form', compact('form', 'area_of_laws', 'categories'));
@@ -2128,8 +2461,14 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function showForm($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function showForm($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $form = FormsPrecedence::findOrFail($id);
             $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
             $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
@@ -2140,7 +2479,7 @@ class AdminController extends Controller
 
             return view('admin.forms-and-precedents.show', compact('form', 'notes', 'comments', 'reviews', 'rating_count', 'rating', 'teams'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $form = FormsPrecedence::findOrFail($id);
                 $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
@@ -2154,14 +2493,26 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function fetchFormAnote($id) {
+    public function fetchFormAnote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $form = FormsPrecedence::whereId($id)->first();
         $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $form->id)->where('resource_type', 'form')->get();
         return response()->json([
-            'anotes'=> $anotes,
+            'anotes' => $anotes,
         ]);
     }
-    public function updateForm(Request $request, $id) {
+    public function updateForm(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $form = FormsPrecedence::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
@@ -2175,33 +2526,57 @@ class AdminController extends Controller
         $form->update($input);
         return back()->with('success', 'Form updated');
     }
-    public function deleteForm($id) {
+    public function deleteForm($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $form = FormsPrecedence::findOrFail($id);
         $form->delete();
         return back()->with('success', 'form deleted');
     }
-    public function featureForm(Request $request, $id) {
+    public function featureForm(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $form = FormsPrecedence::find($id);
         $input = $request->all();
-        if($request->has('make_featured')) {
+        if ($request->has('make_featured')) {
             $form->update($input);
             return back()->with('success', 'Form featured');
         }
-        if($request->has('remove_featured')) {
+        if ($request->has('remove_featured')) {
             $form->update($input);
             return back()->with('success', 'Form not featured');
         }
     }
-    public function rateForm(Request $request) {
+    public function rateForm(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
         FeaturedContent::create($input);
         return back()->with('success', 'Review sent');
     }
-    public function likeForm(Request $request) {
+    public function likeForm(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
-        if($request->form_precedence_id) {
+        if ($request->form_precedence_id) {
             $like = Like::where('user_id', $request->user_id)->where('form_precedence_id', $request->form_precedence_id)->first();
-            if($like) {
+            if ($like) {
                 $like->update($input);
             } else {
                 Like::create($input);
@@ -2209,11 +2584,17 @@ class AdminController extends Controller
             return response()->json(['success' => 'Form liked']);
         }
     }
-    public function shareForm(Request $request, $id) {
+    public function shareForm(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $form = FormsPrecedence::find($id);
         $link = route('show.form', $form->id);
-        if($request->has('share_all') && !empty($request->checkBoxArray)) {
-            foreach($request->checkBoxArray as $team) {
+        if ($request->has('share_all') && !empty($request->checkBoxArray)) {
+            foreach ($request->checkBoxArray as $team) {
                 $input = [
                     'team_id' => $team,
                     'user_id' => $request->user_id,
@@ -2234,17 +2615,23 @@ class AdminController extends Controller
     }
 
     ///////////////////////////////////////Legal Articles///////////////////////////////////
-    public function articles(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function articles(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $categories = Category::orderBy('category', 'ASC')->get();
-            if($request->has('fetch_category')) {
-                $articles = Article::where( function($query) use($request){
+            if ($request->has('fetch_category')) {
+                $articles = Article::where(function ($query) use ($request) {
                     return $request->category ? $query->from('articles')->where('category', $request->category) : '';
                 })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-                $my_articles = Article::where( function($query) use($request){
+                $my_articles = Article::where(function ($query) use ($request) {
                     return $request->category ? $query->from('articles')->where('category', $request->category) : '';
                 })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-                $public_articles = Article::where( function($query) use($request){
+                $public_articles = Article::where(function ($query) use ($request) {
                     return $request->category ? $query->from('articles')->where('category', $request->category) : '';
                 })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
 
@@ -2266,20 +2653,20 @@ class AdminController extends Controller
                 return view('admin.legal-articles.index', compact('articles', 'article_count', 'my_articles', 'public_articles', 'categories', 'public_article_count', 'selected_category'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->article_feature){
+                if ($subscribed_package->article_feature) {
                     // $categories = Category::orderBy('category', 'ASC')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
                     // dd($categories);
-                    if($request->has('fetch_category')) {
-                        $articles = Article::where( function($query) use($request){
+                    if ($request->has('fetch_category')) {
+                        $articles = Article::where(function ($query) use ($request) {
                             return $request->category ? $query->from('articles')->where('category', $request->category) : '';
                         })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-                        $my_articles = Article::where( function($query) use($request){
+                        $my_articles = Article::where(function ($query) use ($request) {
                             return $request->category ? $query->from('articles')->where('category', $request->category) : '';
                         })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-                        $public_articles = Article::where( function($query) use($request){
+                        $public_articles = Article::where(function ($query) use ($request) {
                             return $request->category ? $query->from('articles')->where('category', $request->category) : '';
                         })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
 
@@ -2305,7 +2692,13 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeArticle(Request $request) {
+    public function storeArticle(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
@@ -2341,17 +2734,22 @@ class AdminController extends Controller
             'description' => $article->title
         ]);
         return back()->with('success', 'Article added');
-
     }
-    public function editArticle($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editArticle($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $article = Article::findOrFail($id);
             $categories = Category::orderBy('category', 'ASC')->get();
             return view('admin.legal-articles.edit-article', compact('article', 'categories'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $article = Article::where('user_id', Auth::user()->id)->find($id);
-                if($article) {
+                if ($article) {
                     $categories = Package::where('id', Auth::user()->package_id)->first();
                     return view('admin.legal-articles.edit-article', compact('article', 'categories'));
                 }
@@ -2360,8 +2758,14 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function showArticle($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function showArticle($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $article = Article::findOrFail($id);
             $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
             $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->get();
@@ -2372,7 +2776,7 @@ class AdminController extends Controller
             $rating = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
             return view('admin.legal-articles.show-article', compact('article', 'teams', 'notes', 'admin_notes', 'rating', 'rating_count', 'reviews', 'comments'));
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $article = Article::findOrFail($id);
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->get();
@@ -2386,14 +2790,26 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function fetchArticleAnote($id) {
+    public function fetchArticleAnote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $article = Article::whereId($id)->first();
         $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $article->id)->where('resource_type', 'article')->get();
         return response()->json([
-            'anotes'=> $anotes,
+            'anotes' => $anotes,
         ]);
     }
-    public function updateArticle(Request $request, $id) {
+    public function updateArticle(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $article = Article::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
@@ -2406,7 +2822,7 @@ class AdminController extends Controller
             // 'references' => 'required',
         ]);
 
-        if($file = $request->file('photo')) {
+        if ($file = $request->file('photo')) {
             $file = $request->file('photo');
             $path = $file->store('media', 'public');
             $input = [
@@ -2442,28 +2858,46 @@ class AdminController extends Controller
 
         return back()->with('success', 'Article updated');
     }
-    public function featureArticle(Request $request, $id) {
+    public function featureArticle(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $article = Article::find($id);
         $input = $request->all();
-        if($request->has('make_featured')) {
+        if ($request->has('make_featured')) {
             $article->update($input);
             return back()->with('success', 'Article featured');
         }
-        if($request->has('remove_featured')) {
+        if ($request->has('remove_featured')) {
             $article->update($input);
             return back()->with('success', 'Article not featured');
         }
     }
-    public function rateArticle(Request $request, $id) {
+    public function rateArticle(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
         FeaturedContent::create($input);
         return back()->with('success', 'Review sent');
     }
-    public function likeArticle(Request $request) {
+    public function likeArticle(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
-        if($request->article_id) {
+        if ($request->article_id) {
             $like = Like::where('user_id', $request->user_id)->where('article_id', $request->article_id)->first();
-            if($like) {
+            if ($like) {
                 $like->update($input);
             } else {
                 Like::create($input);
@@ -2471,16 +2905,28 @@ class AdminController extends Controller
             return response()->json(['success' => 'Article liked']);
         }
     }
-    public function deleteArticle($id) {
+    public function deleteArticle($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $article = Article::findOrFail($id);
         $article->delete();
         return back()->with('success', 'article deleted');
     }
-    public function shareArticle(Request $request, $id) {
+    public function shareArticle(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $article = Article::find($id);
         $link = route('show.article', $article->id);
-        if($request->has('share_all') && !empty($request->checkBoxArray)) {
-            foreach($request->checkBoxArray as $team) {
+        if ($request->has('share_all') && !empty($request->checkBoxArray)) {
+            foreach ($request->checkBoxArray as $team) {
                 $input = [
                     'team_id' => $team,
                     'user_id' => $request->user_id,
@@ -2504,11 +2950,17 @@ class AdminController extends Controller
 
 
     ////////////////////////////////////Legal Dictionary////////////////////////////////////
-    public function dictionary(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function dictionary(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $categories = Category::orderBy('category', 'ASC')->get();
-            if($request->has('fetch_category')) {
-                $words = Dictionary::where( function($query) use($request){
+            if ($request->has('fetch_category')) {
+                $words = Dictionary::where(function ($query) use ($request) {
                     return $request->category ? $query->from('dictionaries')->where('category', $request->category) : '';
                 })->orderBy('title', 'ASC')->get();
                 $word_count = $words->count();
@@ -2523,13 +2975,13 @@ class AdminController extends Controller
                 return view('admin.law-dictionary.index', compact('words', 'word_count', 'categories', 'selected_category'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->dict_feature){
+                if ($subscribed_package->dict_feature) {
                     // $categories = Category::orderBy('category', 'ASC')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_category')) {
-                        $words = Dictionary::where( function($query) use($request){
+                    if ($request->has('fetch_category')) {
+                        $words = Dictionary::where(function ($query) use ($request) {
                             return $request->category ? $query->from('dictionaries')->where('category', $request->category) : '';
                         })->orderBy('title', 'ASC')->get();
                         $word_count = $words->count();
@@ -2549,7 +3001,13 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeDictionary(Request $request) {
+    public function storeDictionary(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
@@ -2558,17 +3016,28 @@ class AdminController extends Controller
         $input = $request->all();
         Dictionary::create($input);
         return back()->with('success', 'Word Added');
-
     }
-    public function editDictionary($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editDictionary($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $word = Dictionary::findOrFail($id);
             $categories = Category::orderBy('category', 'ASC')->get();
             return view('admin.law-dictionary.edit-dictionary', compact('word', 'categories'));
         }
         return redirect('admin/law-dictionary');
     }
-    public function updateDictionary(Request $request, $id) {
+    public function updateDictionary(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $word = Dictionary::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
@@ -2579,7 +3048,13 @@ class AdminController extends Controller
         $word->update($input);
         return back()->with('success', 'Dictionary updated');
     }
-    public function deleteDictionary($id) {
+    public function deleteDictionary($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $word = Dictionary::findOrFail($id);
         $word->delete();
         return back()->with('success', 'Word deleted');
@@ -2588,11 +3063,17 @@ class AdminController extends Controller
 
 
     ////////////////////////////////////Legal Maxims///////////////////////////////////////
-    public function maxim(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function maxim(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $categories = Category::orderBy('category', 'ASC')->get();
-            if($request->has('fetch_category')) {
-                $maxims = Maxim::where( function($query) use($request){
+            if ($request->has('fetch_category')) {
+                $maxims = Maxim::where(function ($query) use ($request) {
                     return $request->category ? $query->from('maxims')->where('category', $request->category) : '';
                 })->orderBy('title', 'ASC')->get();
                 $maxim_count = $maxims->count();
@@ -2607,13 +3088,13 @@ class AdminController extends Controller
                 return view('admin.legal-maxims.index', compact('maxims', 'maxim_count', 'categories', 'selected_category'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->maxim_feature){
+                if ($subscribed_package->maxim_feature) {
                     // $categories = Category::orderBy('category', 'ASC')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_category')) {
-                        $maxims = Maxim::where( function($query) use($request){
+                    if ($request->has('fetch_category')) {
+                        $maxims = Maxim::where(function ($query) use ($request) {
                             return $request->category ? $query->from('maxims')->where('category', $request->category) : '';
                         })->orderBy('title', 'ASC')->get();
                         $maxim_count = $maxims->count();
@@ -2633,7 +3114,13 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeMaxim(Request $request) {
+    public function storeMaxim(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'title' => 'required',
             'content' => 'required',
@@ -2643,15 +3130,27 @@ class AdminController extends Controller
         Maxim::create($input);
         return back()->with('success', 'Maxim Added');
     }
-    public function editMaxim($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editMaxim($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $maxim = Maxim::findOrFail($id);
             $categories = Category::orderBy('category', 'asc')->get();
             return view('admin.legal-maxims.edit-maxims', compact('maxim', 'categories'));
         }
         return redirect('admin/legal-maxims');
     }
-    public function updateMaxim(Request $request, $id) {
+    public function updateMaxim(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $maxim = Maxim::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
@@ -2662,7 +3161,13 @@ class AdminController extends Controller
         $maxim->update($input);
         return back()->with('success', 'Maxim updated');
     }
-    public function deleteMaxim($id) {
+    public function deleteMaxim($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $maxim = Maxim::findOrFail($id);
         $maxim->delete();
         return back()->with('success', 'Maxim deleted');
@@ -2671,11 +3176,17 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////Foreign resources///////////////////////////////////
-    public function resource(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function resource(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $categories = Category::orderBy('category', 'ASC')->get();
-            if($request->has('fetch_category')) {
-                $resources = Resource::where( function($query) use($request){
+            if ($request->has('fetch_category')) {
+                $resources = Resource::where(function ($query) use ($request) {
                     return $request->category ? $query->from('resources')->where('category', $request->category) : '';
                 })->orderBy('title', 'ASC')->get();
                 $resource_count = $resources->count();
@@ -2690,13 +3201,13 @@ class AdminController extends Controller
                 return view('admin.resources.index', compact('resources', 'resource_count', 'categories', 'selected_category'));
             }
         } else {
-            if(Auth::user()->subscribedUser()) {
+            if (Auth::user()->subscribedUser()) {
                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                if($subscribed_package->resource_feature){
+                if ($subscribed_package->resource_feature) {
                     // $categories = Category::orderBy('category', 'ASC')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
-                    if($request->has('fetch_category')) {
-                        $resources = Resource::where( function($query) use($request){
+                    if ($request->has('fetch_category')) {
+                        $resources = Resource::where(function ($query) use ($request) {
                             return $request->category ? $query->from('resources')->where('category', $request->category) : '';
                         })->orderBy('title', 'ASC')->get();
                         $resource_count = $resources->count();
@@ -2716,7 +3227,13 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    public function storeResource(Request $request) {
+    public function storeResource(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'title' => 'required',
             'url' => 'required',
@@ -2726,17 +3243,28 @@ class AdminController extends Controller
         $input = $request->all();
         Resource::create($input);
         return back()->with('success', 'Resource Added');
-
     }
-    public function editResource($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editResource($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $resource = Resource::findOrFail($id);
             $categories = Category::orderBy('category', 'ASC')->get();
             return view('admin.resources.edit-resources', compact('resource', 'categories'));
         }
         return redirect('admin/resources');
     }
-    public function updateResource(Request $request, $id) {
+    public function updateResource(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $resource = Resource::findOrFail($id);
         $validated = $request->validate([
             'title' => 'required',
@@ -2747,7 +3275,13 @@ class AdminController extends Controller
         $resource->update($input);
         return back()->with('success', 'Resource updated');
     }
-    public function deleteResource($id) {
+    public function deleteResource($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $resource = Resource::findOrFail($id);
         $resource->delete();
         return back()->with('success', 'Resource deleted');
@@ -2758,7 +3292,13 @@ class AdminController extends Controller
 
 
     ////////////////////////////// featured content //////////////////////////////////////
-    public function featuredContent() {
+    public function featuredContent()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         DB::statement("SET SQL_MODE=''");
         $featured_teams = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->groupBy('reference_id')->get();
         $featured_users = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->groupBy('reference_id')->get();
@@ -2773,13 +3313,19 @@ class AdminController extends Controller
             'featured_notes' => $featured_notes,
         ]);
     }
-    public function saveFeature(Request $request, $id) {
-        if($request->has('make_featured')) {
+    public function saveFeature(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if ($request->has('make_featured')) {
             FeaturedContent::where('reference_id', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => $request->featured));
             FeaturedContent::where('reference_id', '<>', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => 0));
             return back()->with('success', 'Featured on Dashboard');
         }
-        if($request->has('remove_featured')) {
+        if ($request->has('remove_featured')) {
             FeaturedContent::where('reference_id', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => $request->featured));
             return back()->with('success', 'Feature removed from dashboard');
         }
@@ -2788,8 +3334,14 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////subscription package///////////////////////////////
-    public function subscription() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function subscription()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+        
+        if (Auth::user()->role->name == 'Admin') {
             $packages = Package::orderBy('name', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
@@ -2800,8 +3352,14 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
-    public function editPackage($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editPackage($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $package = Package::findOrFail($id);
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
@@ -2812,7 +3370,13 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
-    public function storePackage(Request $request) {
+    public function storePackage(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -2857,34 +3421,34 @@ class AdminController extends Controller
             'bookmark' => $request->bookamrk,
             'is_active' => $request->is_active,
         ];
-        if(!$request->maxim_cat) {
+        if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
         }
-        if(!$request->article_cat) {
+        if (!$request->article_cat) {
             $input['article_cat'] = $request->article_cat;
         }
-        if(!$request->form_cat) {
+        if (!$request->form_cat) {
             $input['form_cat'] = $request->form_cat;
         }
-        if(!$request->dict_cat) {
+        if (!$request->dict_cat) {
             $input['dict_cat'] = $request->dict_cat;
         }
-        if(!$request->resource_cat) {
+        if (!$request->resource_cat) {
             $input['resource_cat'] = $request->resource_cat;
         }
-        if(!$request->roc_cat) {
+        if (!$request->roc_cat) {
             $input['roc_cat'] = $request->roc_cat;
         }
-        if(!$request->sroc_state) {
+        if (!$request->sroc_state) {
             $input['sroc_state'] = $request->sroc_state;
         }
-        if(!$request->lfn_cat) {
+        if (!$request->lfn_cat) {
             $input['lfn_cat'] = $request->lfn_cat;
         }
-        if(!$request->judg_cat) {
+        if (!$request->judg_cat) {
             $input['judg_cat'] = $request->judg_cat;
         }
-        if(!$request->judg_court) {
+        if (!$request->judg_court) {
             $input['judg_court'] = $request->judg_court;
         }
 
@@ -2892,7 +3456,13 @@ class AdminController extends Controller
         Package::create($input);
         return back()->with('success', 'Package created');
     }
-    public function updatePackage(Request $request, $id) {
+    public function updatePackage(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $package = Package::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required',
@@ -2938,49 +3508,49 @@ class AdminController extends Controller
             'bookmark' => $request->bookamrk,
             'is_active' => $request->is_active,
         ];
-        if(!$request->maxim_cat) {
+        if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
         }
-        if(!$request->article_cat) {
+        if (!$request->article_cat) {
             $input['article_cat'] = $request->article_cat;
         }
-        if(!$request->form_cat) {
+        if (!$request->form_cat) {
             $input['form_cat'] = $request->form_cat;
         }
-        if(!$request->dict_cat) {
+        if (!$request->dict_cat) {
             $input['dict_cat'] = $request->dict_cat;
         }
-        if(!$request->resource_cat) {
+        if (!$request->resource_cat) {
             $input['resource_cat'] = $request->resource_cat;
         }
-        if(!$request->roc_cat) {
+        if (!$request->roc_cat) {
             $input['roc_cat'] = $request->roc_cat;
         }
-        if(!$request->sroc_state) {
+        if (!$request->sroc_state) {
             $input['sroc_state'] = $request->sroc_state;
         }
-        if(!$request->lfn_cat) {
+        if (!$request->lfn_cat) {
             $input['lfn_cat'] = $request->lfn_cat;
         }
-        if(!$request->judg_cat) {
+        if (!$request->judg_cat) {
             $input['judg_cat'] = $request->judg_cat;
         }
-        if(!$request->judg_court) {
+        if (!$request->judg_court) {
             $input['judg_court'] = $request->judg_court;
         }
-        if(!$request->maxim_cat) {
+        if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
         }
-        if(!$request->team) {
+        if (!$request->team) {
             $input['team'] = $request->team;
         }
-        if(!$request->note) {
+        if (!$request->note) {
             $input['note'] = $request->note;
         }
-        if(!$request->share) {
+        if (!$request->share) {
             $input['share'] = $request->share;
         }
-        if(!$request->judgement_feature) {
+        if (!$request->judgement_feature) {
             $input['judgement_feature'] = $request->judgement_feature;
             $input['judg_cat'] = NULL;
             $input['judg_court'] = NULL;
@@ -2988,38 +3558,38 @@ class AdminController extends Controller
             $input['judg_start_year'] = NULL;
             $input['judg_end_year'] = NULL;
         }
-        if(!$request->lfn_feature) {
+        if (!$request->lfn_feature) {
             $input['lfn_feature'] = $request->lfn_feature;
             $input['lfn_cat'] = NULL;
             $input['lfn_single_year'] = NULL;
             $input['lfn_start_year'] = NULL;
             $input['lfn_end_year'] = NULL;
         }
-        if(!$request->roc_feature) {
+        if (!$request->roc_feature) {
             $input['roc_feature'] = $request->roc_feature;
             $input['roc_cat'] = NULL;
         }
-        if(!$request->sroc_feature) {
+        if (!$request->sroc_feature) {
             $input['sroc_feature'] = $request->sroc_feature;
             $input['sroc_state'] = NULL;
         }
-        if(!$request->dict_feature) {
+        if (!$request->dict_feature) {
             $input['dict_feature'] = $request->dict_feature;
             $input['dict_cat'] = NULL;
         }
-        if(!$request->resource_feature) {
+        if (!$request->resource_feature) {
             $input['resource_feature'] = $request->resource_feature;
             $input['resource_cat'] = NULL;
         }
-        if(!$request->maxim_feature) {
+        if (!$request->maxim_feature) {
             $input['maxim_feature'] = $request->maxim_feature;
             $input['maxim_cat'] = NULL;
         }
-        if(!$request->article_feature) {
+        if (!$request->article_feature) {
             $input['article_feature'] = $request->article_feature;
             $input['article_cat'] = NULL;
         }
-        if(!$request->form_feature) {
+        if (!$request->form_feature) {
             $input['form_feature'] = $request->form_feature;
             $input['form_cat'] = NULL;
         }
@@ -3027,9 +3597,15 @@ class AdminController extends Controller
         $package->update($input);
         return back()->with('success', 'Package updated');
     }
-    public function deletePackage($id) {
+    public function deletePackage($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $package = Package::findOrFail($id);
-        if(User::where('package_id', $package->id)->first()){
+        if (User::where('package_id', $package->id)->first()) {
             return back()->with('error', 'Subscription package cannot be deleted as a user is already subscribed to the package');
         }
         $package->delete();
@@ -3039,8 +3615,14 @@ class AdminController extends Controller
 
 
     ////////////////////////////////////discount//////////////////////////////////////////
-    public function discount() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function discount()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $discounts = Discount::orderBy('name', 'asc')->get();
             $packages = Package::orderBy('name', 'asc')->get();
             $discount_code = $this->generateRandomString(6);
@@ -3048,7 +3630,13 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
-    public function generateRandomString($length = 20) {
+    public function generateRandomString($length = 20)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
@@ -3057,7 +3645,13 @@ class AdminController extends Controller
         }
         return $randomString;
     }
-    public function storeDiscount(Request $request) {
+    public function storeDiscount(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'validity_start_date' => 'required',
@@ -3071,7 +3665,13 @@ class AdminController extends Controller
         Discount::create($input);
         return back()->with('success', 'Discount Added');
     }
-    public function updateDiscount(Request $request) {
+    public function updateDiscount(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'validity_start_date' => 'required',
@@ -3082,19 +3682,25 @@ class AdminController extends Controller
             'package' => 'required',
         ]);
         $input = [
-          'name'=> $request->name,
-          'validity_start_date'=> $request->validity_start_date,
-          'validity_end_date'=> $request->validity_end_date,
-          'discount_code'=> $request->discount_code,
-          'usage'=> $request->usage,
-          'percentage'=> $request->percentage,
-          'package'=> $request->package,
-          'package_id'=> $request->package_id,
+            'name' => $request->name,
+            'validity_start_date' => $request->validity_start_date,
+            'validity_end_date' => $request->validity_end_date,
+            'discount_code' => $request->discount_code,
+            'usage' => $request->usage,
+            'percentage' => $request->percentage,
+            'package' => $request->package,
+            'package_id' => $request->package_id,
         ];
         DB::table('discounts')->where('id', $request->discount_id)->update($input);
         return back()->with('success', 'Discount updated');
     }
-    public function useDiscount(Request $request, $id) {
+    public function useDiscount(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $package = Package::findOrFail($id);
         $discount = Discount::where('package_id', $package->id)->where('discount_code', $request->used)->first();
         // dd($discount);
@@ -3104,15 +3710,15 @@ class AdminController extends Controller
                 'used' => 'required',
             ]
         );
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return back()->withErrors('Please enter a valid coupon');
         }
-        if(isset($discount->package_id)) {
-            if($discount->package_id == $package->id) {
+        if (isset($discount->package_id)) {
+            if ($discount->package_id == $package->id) {
                 // dd($discount->discount_code);
-                if($request->used == $discount->discount_code) {
-                    if($discount->validity_end_date > now()) {
-                        if($discount->used == null) {
+                if ($request->used == $discount->discount_code) {
+                    if ($discount->validity_end_date > now()) {
+                        if ($discount->used == null) {
                             $input = [
                                 'used' => 1,
                             ];
@@ -3121,8 +3727,7 @@ class AdminController extends Controller
                             $new_price = $package->price - $discounted_price;
                             Session::flash('success1', 'Discount applied');
                             return view('checkout.discount', compact('new_price', 'package'));
-
-                        } elseif($discount->used < $discount->usage) {
+                        } elseif ($discount->used < $discount->usage) {
                             $data = 1 + $discount->used;
                             $discount->used = $data;
                             $discount->save();
@@ -3141,7 +3746,13 @@ class AdminController extends Controller
         }
         return back()->with('error', 'Invalid coupon');
     }
-    public function deleteDiscount($id) {
+    public function deleteDiscount($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $discount = Discount::findOrFail($id);
         $discount->delete();
         return back()->with('success', 'Discount deleted');
@@ -3149,20 +3760,26 @@ class AdminController extends Controller
 
 
     /////////////////////////////////////transactions///////////////////////////////////////
-    public function transaction(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function transaction(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $packages = Package::orderBy('name', 'ASC')->get();
-            if($request->has('fetch_transaction')) {
+            if ($request->has('fetch_transaction')) {
                 $transaction = Transaction::query();
-                if($request->filled('end_date')) {
+                if ($request->filled('end_date')) {
                     $start_date = Carbon::parse($request->start_date)->toDateTimeString();
                     $end_date = Carbon::parse($request->end_date)->toDateTimeString();
                     $transactions = $transaction->whereBetween('created_at', [$start_date, $end_date])->orderBy('created_at', 'DESC')->get();
                 }
-                if( $request->filled('status')) {
+                if ($request->filled('status')) {
                     $transactions = $transaction->where('status', $request->status)->orderBy('created_at', 'DESC')->get();
                 }
-                if( $request->filled('package')) {
+                if ($request->filled('package')) {
                     $transactions = $transaction->where('package', $request->package)->orderBy('created_at', 'DESC')->get();
                 }
                 $transaction_count = $transactions->count();
@@ -3190,12 +3807,18 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
-    public function updateTransaction(Request $request) {
+    public function updateTransaction(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'status' => 'required',
         ]);
         $input = [
-          'status'=> $request->status,
+            'status' => $request->status,
         ];
         $transaction = Transaction::where('id', $request->transaction_id)->first();
         $transaction->update($input);
@@ -3215,15 +3838,15 @@ class AdminController extends Controller
         $pending = view("emails.pendingSubscriber", $newContent)->render();
         $failed = view("emails.failedSubscriber", $newContent)->render();
 
-        if($transaction->status == 'paid') {
+        if ($transaction->status == 'paid') {
             $user->status = 'active';
             // $user->notify(new ActivatedSubscriber($transaction, $user));
             tribearcSendMail($activesubject, $activated, $explodedMail);
-        } elseif($transaction->status == 'pending') {
+        } elseif ($transaction->status == 'pending') {
             $user->status = 'inactive';
             // $user->notify(new PendingSubscriber($transaction, $user));
             tribearcSendMail($pendingsubject, $pending, $explodedMail);
-        }elseif($transaction->status == 'failed') {
+        } elseif ($transaction->status == 'failed') {
             $user->status = 'inactive';
             // $user->notify(new FailedSubscriber($transaction, $user));
             tribearcSendMail($failedsubject, $failed, $explodedMail);
@@ -3232,7 +3855,13 @@ class AdminController extends Controller
 
         return back()->with('success', 'Transaction updated');
     }
-    public function deleteTransaction($id) {
+    public function deleteTransaction($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $transaction = Transaction::findOrFail($id);
         $transaction->delete();
         return back()->with('success', 'Transaction deleted');
@@ -3241,14 +3870,26 @@ class AdminController extends Controller
 
 
     //////////////////////////////////////Teams/////////////////////////////////////////////
-    public function team() {
+    public function team()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $teams = Team::get();
         $my_teams = Team::where('user_id', Auth::user()->id)->get();
         return view('admin.teams.index', compact('teams', 'my_teams'));
     }
-    public function storeTeam(Request $request) {
+    public function storeTeam(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
-            'photo'=>'required|mimes:png,jpeg,jpg,webp|max:10000',
+            'photo' => 'required|mimes:png,jpeg,jpg,webp|max:10000',
             'name' => 'required',
             'description' => 'required',
         ]);
@@ -3279,12 +3920,18 @@ class AdminController extends Controller
         ]);
         return redirect()->back()->with('success', 'Team created');
     }
-    public function updateTeam(Request $request) {
+    public function updateTeam(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'description' => 'required',
         ]);
-        if($file = $request->file('photo')) {
+        if ($file = $request->file('photo')) {
             $path = $file->store('media', 'public');
             $input = [
                 'user_id' => $request->user_id,
@@ -3305,21 +3952,33 @@ class AdminController extends Controller
         DB::table('teams')->where('id', $request->team_id)->update($input);
         return redirect()->back()->with('success', 'Team updated');
     }
-    public function settingsTeam(Request $request, $id) {
+    public function settingsTeam(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required',
             'description' => 'required',
         ]);
         $input = $request->all();
-        if($file = $request->file('photo')) {
+        if ($file = $request->file('photo')) {
             $path = $file->store('media', 'public');
             $input['photo'] = $path;
         }
         $team->update($input);
         return redirect()->back()->with('success', 'Team updated');
     }
-    public function showTeam(Request $request, $id) {
+    public function showTeam(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::findOrFail($id);
         $user = Auth::user()->id;
         $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->get();
@@ -3338,30 +3997,42 @@ class AdminController extends Controller
         $rating = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
         $reviews = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->orderBy('created_at', 'DESC')->get();
 
-        if(isset($request->search_post) && !empty($request->search_post)) {
+        if (isset($request->search_post) && !empty($request->search_post)) {
             $search = $request->search_post;
             $query_comment = Comment::query();
             $comments = $query_comment->with('comment_replies')
-                        ->where('team_id', $team->id)
-                        ->where('comment_body', 'LIKE', '%'.$search.'%')
-                        ->orderBy('created_at', 'DESC')
-                        ->get();
+                ->where('team_id', $team->id)
+                ->where('comment_body', 'LIKE', '%' . $search . '%')
+                ->orderBy('created_at', 'DESC')
+                ->get();
             return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts', 'rating_count', 'rating', 'reviews', 'team_member'));
         }
         $comments = Comment::with('comment_replies')->where('team_id', $team->id)->where('id', '<>', @$comment->id)->orderBy('created_at', 'DESC')->get();
         return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts', 'rating_count', 'rating', 'reviews', 'team_member'));
     }
-    public function teamMeeting($teamId) {
+    public function teamMeeting($teamId)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::find($teamId);
         return view('admin.teams.meeting', [
             'team' => $team
         ]);
     }
-    public function likeTeamPost(Request $request) {
+    public function likeTeamPost(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
-        if($request->comment_id) {
+        if ($request->comment_id) {
             $like = Like::where('user_id', $request->user_id)->where('comment_id', $request->comment_id)->first();
-            if($like) {
+            if ($like) {
                 $like->update($input);
             } else {
                 Like::create($input);
@@ -3369,26 +4040,37 @@ class AdminController extends Controller
             return response()->json(['success' => 'Team Post liked']);
         }
     }
-    public function saveTeamPost(Request $request) {
+    public function saveTeamPost(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
-        if($request->comment_id) {
+        if ($request->comment_id) {
             $saved_post = SavedPost::where('user_id', $request->user_id)->where('comment_id', $request->comment_id)->first();
-            if($saved_post) {
-                if($request->status == 1){
+            if ($saved_post) {
+                if ($request->status == 1) {
                     $saved_post->update($input);
                     return back()->with('success', 'Post saved');
                 } else {
                     $saved_post->update($input);
                     return back()->with('success', 'Post unsaved');
                 }
-
             } else {
                 SavedPost::create($input);
             }
             return back()->with('success', 'Post saved');
         }
     }
-    public function joinTeam($id) {
+    public function joinTeam($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::findOrFail($id);
         $user = Auth::user()->id;
         $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->get();
@@ -3402,7 +4084,13 @@ class AdminController extends Controller
         $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
         return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources'));
     }
-    public function joinedTeam(Request $request, $id) {
+    public function joinedTeam(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::findOrFail($id);
         $input = [
             'user_id' => $request->user_id,
@@ -3413,7 +4101,13 @@ class AdminController extends Controller
         UserTeam::create($input);
         return redirect()->route('show.team', $team->id)->with('success', 'You have joined this team');
     }
-    public function sendRequest(Request $request) {
+    public function sendRequest(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+        
         $input = [
             'send_request' => $request->send_request,
             'user_id' => $request->user_id,
@@ -3437,22 +4131,34 @@ class AdminController extends Controller
         }
         return redirect()->back()->with('success', 'Request sent');
     }
-    public function approveMember($id) {
-        if(UserTeam::where('user_id', Auth::user()->id)->first()) {
+    public function approveMember($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+        
+        if (UserTeam::where('user_id', Auth::user()->id)->first()) {
             $team = Team::findOrFail($id);
             $new_members = UserTeam::where('send_request', 1)->where('approve_request', 0)->where('team_id', $team->id)->get();
             return view('admin.teams.approve', compact('new_members'));
         } else
-        return redirect('admin/teams');
+            return redirect('admin/teams');
     }
-    public function approveRequest(Request $request, $id) {
+    public function approveRequest(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $user = UserTeam::findOrFail($id);
         $input = [
             'approve_request' => $request->approve_request,
         ];
         $user->update($input);
         $approved_member = User::where('id', $user->user_id)->first();
-        if($approved_member) {
+        if ($approved_member) {
             // $approved_member->notify(new RequestApproved($user));
             $explodedMail =  $approved_member->email;
             $subject = 'Your request has been approved';
@@ -3464,14 +4170,20 @@ class AdminController extends Controller
         }
         return redirect()->back()->with('success', 'You have just approved this member');
     }
-    public function declineRequest(Request $request, $id) {
+    public function declineRequest(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $user = UserTeam::findOrFail($id);
         $input = [
             'approve_request' => $request->approve_request,
         ];
         $user->update($input);
         $declined_member = User::where('id', $user->user_id)->first();
-        if($declined_member) {
+        if ($declined_member) {
             // $declined_member->notify(new RequestDeclined($user));
             $explodedMail =  $declined_member->email;
             $subject = 'Your request has been declined';
@@ -3483,11 +4195,17 @@ class AdminController extends Controller
         }
         return redirect()->back()->with('success', 'You declined this member');
     }
-    public function remove($id) {
+    public function remove($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $approved_member = UserTeam::findOrFail($id);
         $approved_member->delete();
         $removed_user = User::where('id', $approved_member->user_id)->first();
-        if($removed_user) {
+        if ($removed_user) {
             // $removed_user->notify(new MemberRemoval($approved_member));
             $explodedMail =  $removed_user->email;
             $subject = 'Your have been removed';
@@ -3499,11 +4217,17 @@ class AdminController extends Controller
         }
         return redirect()->back()->with('success', 'You have just removed a user');
     }
-    public function leave($id) {
+    public function leave($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $approved_member = UserTeam::findOrFail($id);
         $approved_member->delete();
         $left_user = User::where('id', $approved_member->user_id)->first();
-        if($left_user) {
+        if ($left_user) {
             // $left_user->notify(new MemberLeft($approved_member));
             $explodedMail =  $left_user->email;
             $subject = 'Your just left a team';
@@ -3515,25 +4239,43 @@ class AdminController extends Controller
         }
         return redirect()->back()->with('success', 'You just left this team');
     }
-    public function deleteTeam($id) {
+    public function deleteTeam($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::findOrFail($id);
         UserTeam::where('team_id', $team->id)->delete();
         $team->delete();
         return redirect('admin/teams')->with('success', 'Team deleted');
     }
-    public function featureTeam(Request $request, $id) {
+    public function featureTeam(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $team = Team::find($id);
         $input = $request->all();
-        if($request->has('make_featured')) {
+        if ($request->has('make_featured')) {
             $team->update($input);
             return back()->with('success', 'Team featured');
         }
-        if($request->has('remove_featured')) {
+        if ($request->has('remove_featured')) {
             $team->update($input);
             return back()->with('success', 'Team not featured');
         }
     }
-    public function rateTeam(Request $request) {
+    public function rateTeam(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
         FeaturedContent::create($input);
         return back()->with('success', 'Review sent');
@@ -3541,18 +4283,22 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////comment and replies/////////////////////////
-    public function comment(Request $request) {
+    public function comment(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
 
-
-        if($file = $request->file('file')) {
+        if ($file = $request->file('file')) {
             $validated = $request->validate(
                 [
                     // 'comment_body' => 'required',
-                    'file'=>'required|mimes:pdf,doc,docx,png,jpg,jpeg,gif,mp4|max:50000',
+                    'file' => 'required|mimes:pdf,doc,docx,png,jpg,jpeg,gif,mp4|max:50000',
                     'file_type' => 'required',
                 ],
                 [
-                    'file.max'=> 'The maximum file upload size is 50mb', // custom message
+                    'file.max' => 'The maximum file upload size is 50mb', // custom message
                 ]
             );
 
@@ -3577,7 +4323,7 @@ class AdminController extends Controller
                     'comment_body' => 'required',
                 ]
             );
-            if($validator->fails()) {
+            if ($validator->fails()) {
                 return back()->withErrors('Your post is empty');
             }
             $input = [
@@ -3589,8 +4335,14 @@ class AdminController extends Controller
             return redirect()->back()->with('success', 'You just posted to this team');
         }
     }
-    public function reply(Request $request) {
-        if($request->has('reply')) {
+    public function reply(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if ($request->has('reply')) {
             $validated = $request->validate([
                 'comment_reply_body' => 'required',
             ]);
@@ -3603,8 +4355,14 @@ class AdminController extends Controller
             return redirect()->back()->with('success', 'You just commented to this post');
         }
     }
-    public function updateComment(Request $request) {
-        if($request->has('pin_post')) {
+    public function updateComment(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if ($request->has('pin_post')) {
             $input = [
                 'pinned_post' => $request->pinned_post,
             ];
@@ -3612,7 +4370,7 @@ class AdminController extends Controller
             $comment = Comment::where('id', $request->comment_id)->first();
             $comment->update($input);
             return back()->with('success', 'Post pinned');
-        } elseif($request->has('unpin_post')) {
+        } elseif ($request->has('unpin_post')) {
             $input = [
                 'pinned_post' => $request->pinned_post,
             ];
@@ -3632,7 +4390,13 @@ class AdminController extends Controller
             return redirect()->back()->with('success', 'Post reposted');
         }
     }
-    public function deleteComment($id) {
+    public function deleteComment($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $comment = Comment::findorFail($id);
         $comment->delete();
         return redirect()->back()->with('success', 'Post deleted');
@@ -3641,13 +4405,19 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////Global search///////////////////////////////
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         // $empty_search = $request->input('search');
         // if($empty_search == '') {
         //     return back()->with('error1', 'No search input found');
         // }
 
-        if($request->input('search')) {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if ($request->input('search')) {
             $search = $request->input('search');
             $first_search = $request->input('search');
             $second_search = '';
@@ -3657,38 +4427,38 @@ class AdminController extends Controller
             /////////////// Judgement search //////////////////////
 
             $query_case['table'] = 'ratio';
-            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
-            ->orWhere('body', 'LIKE', '%'.$search.'%')
-            // ->orderBy('heading', 'ASC')
-            ->orderByRaw('CHAR_LENGTH(heading)')
-            ->simplePaginate(15)
-            ->withQueryString();
+            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%' . $search . '%')
+                ->orWhere('body', 'LIKE', '%' . $search . '%')
+                // ->orderBy('heading', 'ASC')
+                ->orderByRaw('CHAR_LENGTH(heading)')
+                ->simplePaginate(15)
+                ->withQueryString();
             // ->get();
 
 
             $query_ratio_count = SummaryRatio::query()
-            ->where('heading', 'LIKE', '%'.$search.'%')
-            ->orWhere('body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('heading', 'LIKE', '%' . $search . '%')
+                ->orWhere('body', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
-            if(count($query_case['search']) < 1) {
+            if (count($query_case['search']) < 1) {
                 $query_case['table'] = 'sum';
                 $query_case['search'] = JudgementSummary::query()
-                ->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
-                ->orWhere('issues', 'LIKE', '%'.$search.'%')
-                ->orderBy('judgement_date', 'DESC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orWhere('summary_of_facts', 'LIKE', '%' . $search . '%')
+                    ->orWhere('issues', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
             }
 
             $query_sum_count = JudgementSummary::query()
-                ->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
-                ->orWhere('issues', 'LIKE','%'.$search.'%')
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                ->orWhere('summary_of_facts', 'LIKE', '%' . $search . '%')
+                ->orWhere('issues', 'LIKE', '%' . $search . '%')
                 ->count();
 
             $query_case_count = $query_sum_count + $query_ratio_count;
@@ -3697,51 +4467,51 @@ class AdminController extends Controller
 
             $query_law['table'] = 'lfn';
             $query_law['search'] = LawOfFederation::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
-            ->orderBy('law_date', 'DESC')
-            ->simplePaginate(5)
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('subsidiary_legislation', 'LIKE', '%' . $search . '%')
+                ->orderBy('law_date', 'DESC')
+                ->simplePaginate(5)
+                ->withQueryString();
             // ->get();
 
             // dd($query_law['search']);
             $query_fed_count = LawOfFederation::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('subsidiary_legislation', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_law['search']) < 1) {
+            if (count($query_law['search']) < 1) {
                 $query_law['table'] = 'sched';
                 $query_law['search'] = LawOfFedSched::query()
-                ->where('sched_header', 'LIKE', '%'.$search.'%')
-                ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
-                ->orderBy('sched_header', 'ASC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('sched_header', 'LIKE', '%' . $search . '%')
+                    ->orWhere('sched_body', 'LIKE', '%' . $search . '%')
+                    ->orderBy('sched_header', 'ASC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
 
             $query_sched_count = LawOfFedSched::query()
-            ->where('sched_header', 'LIKE', '%'.$search.'%')
-            ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('sched_header', 'LIKE', '%' . $search . '%')
+                ->orWhere('sched_body', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_law['search']) < 1) {
+            if (count($query_law['search']) < 1) {
                 $query_law['table'] = 'sec';
                 $query_law['search'] = LawOfFedSection::query()
-                ->where('section_header', 'LIKE', '%'.$search.'%')
-                ->orWhere('section_body', 'LIKE', '%'.$search.'%')
-                ->orderBy('section_header', 'ASC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('section_header', 'LIKE', '%' . $search . '%')
+                    ->orWhere('section_body', 'LIKE', '%' . $search . '%')
+                    ->orderBy('section_header', 'ASC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
             $query_sec_count = LawOfFedSection::query()
-            ->where('section_header', 'LIKE', '%'.$search.'%')
-            ->orWhere('section_body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('section_header', 'LIKE', '%' . $search . '%')
+                ->orWhere('section_body', 'LIKE', '%' . $search . '%')
+                ->count();
 
             // dd($query_sec_count);
 
@@ -3752,77 +4522,77 @@ class AdminController extends Controller
             /////////////// Rules of court and state rules search //////////////////////
 
             $query_rule['search'] = Rule::query()
-            ->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('section', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('type', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('section', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('type', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_rule_count = Rule::query()
-            ->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('section', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('type', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('section', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('type', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
             /////////////// forms and precedents search //////////////////////
 
             $query_form['search'] = FormsPrecedence::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('category', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('category', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_form_count = FormsPrecedence::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('category', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('category', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
             /////////////// articles search //////////////////////
 
             $query_article['search'] = Article::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_article_count = Article::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
 
             /////////////// public notes search //////////////////////
             $query_note['search'] = Annotation::query()
-            ->where('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('comment', 'LIKE', '%'.$search.'%')
-            ->where('display', 'public')
-            ->where('resource_type', '!=', 'admin-note')
-            ->orderBy('comment', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('comment', 'LIKE', '%' . $search . '%')
+                ->where('display', 'public')
+                ->where('resource_type', '!=', 'admin-note')
+                ->orderBy('comment', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_note_count = Annotation::query()
-            ->where('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('comment', 'LIKE', '%'.$search.'%')
-            ->where('resource_type', '!=', 'admin-note')
-            ->where('display', 'public')
-            ->count();
+                ->where('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('comment', 'LIKE', '%' . $search . '%')
+                ->where('resource_type', '!=', 'admin-note')
+                ->where('display', 'public')
+                ->count();
 
 
             RecentActivity::create([
@@ -3839,7 +4609,7 @@ class AdminController extends Controller
             return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
         }
 
-        if($request->input('year_result')) {
+        if ($request->input('year_result')) {
             // $query_case['search'] = collect();
             $search = $request->input('year_result');
             $first_search = $request->input('search');
@@ -3851,51 +4621,51 @@ class AdminController extends Controller
 
             $query_law['table'] = 'lfn';
             $query_law['search'] = LawOfFederation::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
-            ->orderBy('law_date', 'DESC')
-            ->simplePaginate(5)
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('subsidiary_legislation', 'LIKE', '%' . $search . '%')
+                ->orderBy('law_date', 'DESC')
+                ->simplePaginate(5)
+                ->withQueryString();
             // ->get();
 
             // dd($query_law['search']);
             $query_fed_count = LawOfFederation::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('subsidiary_legislation', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_law['search']) < 1) {
+            if (count($query_law['search']) < 1) {
                 $query_law['table'] = 'sched';
                 $query_law['search'] = LawOfFedSched::query()
-                ->where('sched_header', 'LIKE', '%'.$search.'%')
-                ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
-                ->orderBy('sched_header', 'ASC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('sched_header', 'LIKE', '%' . $search . '%')
+                    ->orWhere('sched_body', 'LIKE', '%' . $search . '%')
+                    ->orderBy('sched_header', 'ASC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
 
             $query_sched_count = LawOfFedSched::query()
-            ->where('sched_header', 'LIKE', '%'.$search.'%')
-            ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('sched_header', 'LIKE', '%' . $search . '%')
+                ->orWhere('sched_body', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_law['search']) < 1) {
+            if (count($query_law['search']) < 1) {
                 $query_law['table'] = 'sec';
                 $query_law['search'] = LawOfFedSection::query()
-                ->where('section_header', 'LIKE', '%'.$search.'%')
-                ->orWhere('section_body', 'LIKE', '%'.$search.'%')
-                ->orderBy('section_header', 'ASC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('section_header', 'LIKE', '%' . $search . '%')
+                    ->orWhere('section_body', 'LIKE', '%' . $search . '%')
+                    ->orderBy('section_header', 'ASC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
             $query_sec_count = LawOfFedSection::query()
-            ->where('section_header', 'LIKE', '%'.$search.'%')
-            ->orWhere('section_body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('section_header', 'LIKE', '%' . $search . '%')
+                ->orWhere('section_body', 'LIKE', '%' . $search . '%')
+                ->count();
 
             // dd($query_sec_count);
 
@@ -3906,83 +4676,83 @@ class AdminController extends Controller
             /////////////// Rules of court and state rules search //////////////////////
 
             $query_rule['search'] = Rule::query()
-            ->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('section', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('type', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('section', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('type', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_rule_count = Rule::query()
-            ->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('section', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('type', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('section', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('type', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
             /////////////// forms and precedents search //////////////////////
 
             $query_form['search'] = FormsPrecedence::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('category', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('category', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_form_count = FormsPrecedence::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('category', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('category', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
             /////////////// articles search //////////////////////
 
             $query_article['search'] = Article::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_article_count = Article::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
 
             /////////////// public notes search //////////////////////
             $query_note['search'] = Annotation::query()
-            ->where('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('comment', 'LIKE', '%'.$search.'%')
-            ->where('display', 'public')
-            ->where('resource_type', '!=', 'admin-note')
-            ->orderBy('comment', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('comment', 'LIKE', '%' . $search . '%')
+                ->where('display', 'public')
+                ->where('resource_type', '!=', 'admin-note')
+                ->orderBy('comment', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_note_count = Annotation::query()
-            ->where('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('comment', 'LIKE', '%'.$search.'%')
-            ->where('resource_type', '!=', 'admin-note')
-            ->where('display', 'public')
-            ->count();
+                ->where('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('comment', 'LIKE', '%' . $search . '%')
+                ->where('resource_type', '!=', 'admin-note')
+                ->where('display', 'public')
+                ->count();
 
-            if($request->filled('year')) {
-                $suitNumbers = JudgementSummary::query()->where('judgement_date','LIKE', '%'.$request->year.'%')->get()->pluck('suit_no');
+            if ($request->filled('year')) {
+                $suitNumbers = JudgementSummary::query()->where('judgement_date', 'LIKE', '%' . $request->year . '%')->get()->pluck('suit_no');
                 $query_case['table'] = 'ratio';
-                $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
-                $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+                $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%' . $search . '%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+                $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%' . $search . '%')->orderByRaw('CHAR_LENGTH(heading)')->get();
                 $together = $heading->merge($body);
                 $query_case_count = $together->count();
                 $query_case['search'] =  $this->customPaginate($together)->withPath(url()->current())->withQueryString();
@@ -3991,26 +4761,25 @@ class AdminController extends Controller
                 return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
             }
             $query_case['table'] = 'ratio';
-            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
-            ->orWhere('body', 'LIKE', '%'.$search.'%')
-            ->orderByRaw('CHAR_LENGTH(heading)')
-            ->simplePaginate(15)
-            ->withQueryString();
+            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%' . $search . '%')
+                ->orWhere('body', 'LIKE', '%' . $search . '%')
+                ->orderByRaw('CHAR_LENGTH(heading)')
+                ->simplePaginate(15)
+                ->withQueryString();
 
 
             $query_ratio_count = SummaryRatio::query()
-            ->where('heading', 'LIKE', '%'.$search.'%')
-            ->orWhere('body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('heading', 'LIKE', '%' . $search . '%')
+                ->orWhere('body', 'LIKE', '%' . $search . '%')
+                ->count();
             $query_case_count = $query_ratio_count;
 
             $selected_year = [];
             $selected_year['judgement_date'] = '';
             return view('admin.search', compact('query_case', 'search', 'selected_year', 'first_search', 'second_search', 'query_law', 'query_case_count', 'query_law_count', 'query_rule', 'query_rule_count', 'query_form', 'query_form_count', 'query_article', 'query_article_count', 'query_note', 'query_note_count'));
-
         }
 
-        if($request->input('more_result')) {
+        if ($request->input('more_result')) {
             $search = $request->input('more_result');
             $second_search = $request->input('more_result');
             $first_search = '';
@@ -4018,51 +4787,51 @@ class AdminController extends Controller
             /////////////// Judgement search //////////////////////
 
             $query_case['table'] = 'ratio';
-            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%'.$search.'%')
-            ->orWhere('body', 'LIKE', '%'.$search.'%')
-            ->orderByRaw('CHAR_LENGTH(heading)')
-            ->simplePaginate(5)
-            ->withQueryString();
+            $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%' . $search . '%')
+                ->orWhere('body', 'LIKE', '%' . $search . '%')
+                ->orderByRaw('CHAR_LENGTH(heading)')
+                ->simplePaginate(5)
+                ->withQueryString();
             // ->get();
 
 
             $query_ratio_count = SummaryRatio::query()
-            ->where('heading', 'LIKE', '%'.$search.'%')
-            ->orWhere('body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('heading', 'LIKE', '%' . $search . '%')
+                ->orWhere('body', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_case['search']) < 1) {
+            if (count($query_case['search']) < 1) {
                 $query_case['table'] = 'sum';
                 $query_case['search'] = JudgementSummary::query()
-                ->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
-                ->orWhere('issues', 'LIKE', '%'.$search.'%')
-                ->orderBy('judgement_date', 'DESC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orWhere('summary_of_facts', 'LIKE', '%' . $search . '%')
+                    ->orWhere('issues', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
             }
 
             $query_sum_count = JudgementSummary::query()
-                ->where('title', 'LIKE', '%'.$search.'%')
-                ->orWhere('suit_no', 'LIKE', '%'.$search.'%')
-                ->orWhere('summary_of_facts', 'LIKE', '%'.$search.'%')
-                ->orWhere('issues', 'LIKE','%'.$search.'%')
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                ->orWhere('summary_of_facts', 'LIKE', '%' . $search . '%')
+                ->orWhere('issues', 'LIKE', '%' . $search . '%')
                 ->count();
 
-            if(count($query_case['search']) < 1) {
+            if (count($query_case['search']) < 1) {
                 $query_case['table'] = 'judgement';
                 $query_case['search'] = Judgement::query()
-                ->where('judgement', 'LIKE', '%'.$search.'%')
-                ->orderBy('judgement', 'DESC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('judgement', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement', 'DESC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
 
             $query_judg_count = Judgement::query()
-            ->where('judgement', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('judgement', 'LIKE', '%' . $search . '%')
+                ->count();
 
             $query_case_count = $query_ratio_count + $query_judg_count + $query_sum_count;
 
@@ -4072,51 +4841,51 @@ class AdminController extends Controller
 
             $query_law['table'] = 'lfn';
             $query_law['search'] = LawOfFederation::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
-            ->orderBy('law_date', 'DESC')
-            ->simplePaginate(5)
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('subsidiary_legislation', 'LIKE', '%' . $search . '%')
+                ->orderBy('law_date', 'DESC')
+                ->simplePaginate(5)
+                ->withQueryString();
             // ->get();
 
             // dd($query_law['search']);
             $query_fed_count = LawOfFederation::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->orWhere('subsidiary_legislation', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('subsidiary_legislation', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_law['search']) < 1) {
+            if (count($query_law['search']) < 1) {
                 $query_law['table'] = 'sched';
                 $query_law['search'] = LawOfFedSched::query()
-                ->where('sched_header', 'LIKE', '%'.$search.'%')
-                ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
-                ->orderBy('sched_header', 'ASC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('sched_header', 'LIKE', '%' . $search . '%')
+                    ->orWhere('sched_body', 'LIKE', '%' . $search . '%')
+                    ->orderBy('sched_header', 'ASC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
 
             $query_sched_count = LawOfFedSched::query()
-            ->where('sched_header', 'LIKE', '%'.$search.'%')
-            ->orWhere('sched_body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('sched_header', 'LIKE', '%' . $search . '%')
+                ->orWhere('sched_body', 'LIKE', '%' . $search . '%')
+                ->count();
 
-            if(count($query_law['search']) < 1) {
+            if (count($query_law['search']) < 1) {
                 $query_law['table'] = 'sec';
                 $query_law['search'] = LawOfFedSection::query()
-                ->where('section_header', 'LIKE', '%'.$search.'%')
-                ->orWhere('section_body', 'LIKE', '%'.$search.'%')
-                ->orderBy('section_header', 'ASC')
-                ->simplePaginate(5)
-                ->withQueryString();
+                    ->where('section_header', 'LIKE', '%' . $search . '%')
+                    ->orWhere('section_body', 'LIKE', '%' . $search . '%')
+                    ->orderBy('section_header', 'ASC')
+                    ->simplePaginate(5)
+                    ->withQueryString();
                 // ->get();
             }
             $query_sec_count = LawOfFedSection::query()
-            ->where('section_header', 'LIKE', '%'.$search.'%')
-            ->orWhere('section_body', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('section_header', 'LIKE', '%' . $search . '%')
+                ->orWhere('section_body', 'LIKE', '%' . $search . '%')
+                ->count();
 
             // dd($query_sec_count);
 
@@ -4127,77 +4896,77 @@ class AdminController extends Controller
             /////////////// Rules of court and state rules search //////////////////////
 
             $query_rule['search'] = Rule::query()
-            ->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('section', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('type', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('section', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('type', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_rule_count = Rule::query()
-            ->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('section', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('type', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('section', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('type', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
             /////////////// forms and precedents search //////////////////////
 
             $query_form['search'] = FormsPrecedence::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('category', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('category', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_form_count = FormsPrecedence::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('category', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('category', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
             /////////////// articles search //////////////////////
 
             $query_article['search'] = Article::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->orderBy('title', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->orderBy('title', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_article_count = Article::query()
-            ->where('title', 'LIKE', '%'.$search.'%')
-            ->orWhere('content', 'LIKE', '%'.$search.'%')
-            ->count();
+                ->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->count();
 
 
 
             /////////////// public notes search //////////////////////
             $query_note['search'] = Annotation::query()
-            ->where('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('comment', 'LIKE', '%'.$search.'%')
-            ->where('display', 'public')
-            ->where('resource_type', '!=', 'admin-note')
-            ->orderBy('comment', 'ASC')
-            ->simplePaginate()
-            ->withQueryString();
+                ->where('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('comment', 'LIKE', '%' . $search . '%')
+                ->where('display', 'public')
+                ->where('resource_type', '!=', 'admin-note')
+                ->orderBy('comment', 'ASC')
+                ->simplePaginate()
+                ->withQueryString();
             // ->get();
 
             $query_note_count = Annotation::query()
-            ->where('content', 'LIKE', '%'.$search.'%')
-            ->orWhere('comment', 'LIKE', '%'.$search.'%')
-            ->where('display', 'public')
-            ->where('resource_type', '!=', 'admin-note')
-            ->count();
+                ->where('content', 'LIKE', '%' . $search . '%')
+                ->orWhere('comment', 'LIKE', '%' . $search . '%')
+                ->where('display', 'public')
+                ->where('resource_type', '!=', 'admin-note')
+                ->count();
 
             $selected_year = [];
             $selected_year['judgement_date'] = '';
@@ -4267,31 +5036,43 @@ class AdminController extends Controller
 
 
     ////not in use/////
-    public function autocomplete(Request $request){
+    public function autocomplete(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $search = $request->input('search');
         $cases = SummaryRatio::query()
-        ->where('heading', 'LIKE', '%'.$search.'%')
-        ->orWhere('body', 'LIKE', '%'.$search.'%')
-        ->orderBy('heading', 'ASC')
-        ->get();
+            ->where('heading', 'LIKE', '%' . $search . '%')
+            ->orWhere('body', 'LIKE', '%' . $search . '%')
+            ->orderBy('heading', 'ASC')
+            ->get();
         return response()->json($cases);
     }
 
 
 
     ///////////////////////////////////////annotations//////////////////////////////////
-    public function anote(Request $request) {
+    public function anote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = [
-            'user_id'=> $request->user_id,
-            'note_id'=> $request->note_id,
-            'content_id'=> $request->content_id,
-            'content_type'=> $request->content_type,
-            'content'=> json_encode($request->content),
-            'comment'=> json_encode($request->comment),
-            'replies'=> $request->replies,
-            'text_target'=> $request->text_target,
-            'tags'=> $request->tags,
-            'resource_type'=> $request->resource_type,
+            'user_id' => $request->user_id,
+            'note_id' => $request->note_id,
+            'content_id' => $request->content_id,
+            'content_type' => $request->content_type,
+            'content' => json_encode($request->content),
+            'comment' => json_encode($request->comment),
+            'replies' => $request->replies,
+            'text_target' => $request->text_target,
+            'tags' => $request->tags,
+            'resource_type' => $request->resource_type,
         ];
         $anote = Annotation::create($input);
 
@@ -4306,18 +5087,30 @@ class AdminController extends Controller
             'anote' => json_decode($anote->content),
         ]);
     }
-    public function updateAnote(Request $request) {
+    public function updateAnote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+        
         // dd($request->all());
         $input = [
-           'display' => $request->display
+            'display' => $request->display
         ];
         DB::table('annotations')->where('note_id', $request->note_id)->update($input);
         return back()->with('success', 'Note saved');
         // return response()->json(['success', 'Annotation added']);
     }
-    public function shareAnote(Request $request) {
-        if($request->has('share_all') && !empty($request->checkBoxArray)) {
-            foreach($request->checkBoxArray as $team) {
+    public function shareAnote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if ($request->has('share_all') && !empty($request->checkBoxArray)) {
+            foreach ($request->checkBoxArray as $team) {
                 $input = [
                     'team_id' => $team,
                     'user_id' => $request->user_id,
@@ -4336,7 +5129,13 @@ class AdminController extends Controller
         }
         return back()->withErrors('Please select a team to share to');
     }
-    public function note() {
+    public function note()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $public_notes = Annotation::where('display', 'public')->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->get();
         $public_note_count = $public_notes->count();
         $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->get();
@@ -4346,7 +5145,13 @@ class AdminController extends Controller
         $admin_note_id = $this->generateAdminNoteId(21);
         return view('admin.notes', compact('public_notes', 'notes', 'public_note_count', 'note_count', 'teams', 'admin_note_id', 'admin_notes'));
     }
-    public function generateAdminNoteId($length = 32) {
+    public function generateAdminNoteId($length = 32)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
@@ -4355,7 +5160,13 @@ class AdminController extends Controller
         }
         return $randomString;
     }
-    public function storeNote(Request $request) {
+    public function storeNote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'comment' => 'required',
             'content' => 'required'
@@ -4365,7 +5176,13 @@ class AdminController extends Controller
         Annotation::create($input);
         return back()->with('success', 'Note added');
     }
-    public function updateNote(Request $request) {
+    public function updateNote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'comment' => 'required',
             'content' => 'required'
@@ -4375,33 +5192,57 @@ class AdminController extends Controller
         DB::table('annotations')->where('id', $request->admin_note_id)->update($input);
         return back()->with('success', 'Note updated');
     }
-    public function deleteNote($id) {
+    public function deleteNote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $note = Annotation::findOrFail($id);
         $note->delete();
         return back()->with('success', 'Note deleted');
     }
-    public function featureNote(Request $request, $id) {
+    public function featureNote(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $note = Annotation::find($id);
         $input = $request->all();
-        if($request->has('make_featured')) {
+        if ($request->has('make_featured')) {
             $note->update($input);
             return back()->with('success', 'Note featured');
         }
-        if($request->has('remove_featured')) {
+        if ($request->has('remove_featured')) {
             $note->update($input);
             return back()->with('success', 'Note not featured');
         }
     }
-    public function rateNote(Request $request) {
+    public function rateNote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
         FeaturedContent::create($input);
         return back()->with('success', 'Review sent');
     }
-     public function likeNote(Request $request) {
+    public function likeNote(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $input = $request->all();
-        if($request->annotation_id) {
+        if ($request->annotation_id) {
             $like = Like::where('user_id', $request->user_id)->where('annotation_id', $request->annotation_id)->first();
-            if($like) {
+            if ($like) {
                 $like->update($input);
             } else {
                 Like::create($input);
@@ -4410,26 +5251,38 @@ class AdminController extends Controller
         }
     }
 
-    public function fetchAnote($id) {
+    public function fetchAnote($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $judgement_summary = JudgementSummary::whereId($id)->first();
         $suit_no = trim($judgement_summary->suit_no);
         $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $suit_no)->where('resource_type', 'judgement')->get();
         return response()->json([
-            'anotes'=> $anotes,
+            'anotes' => $anotes,
         ]);
     }
 
 
 
     ///////////////////////////////////////messages//////////////////////////////////
-    public function message(Request $request) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function message(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $messages = Message::where('type', 'normal')->orderBy('created_at', 'DESC')->get();
             $all_messages = Message::orderBy('created_at', 'DESC')->get();
             $message_count = $all_messages->count();
             $packages = Package::orderBy('name', 'ASC')->get();
             $user = User::query();
-            if($request->filled('end_date')) {
+            if ($request->filled('end_date')) {
                 $start_date = Carbon::parse($request->start_date)->toDateTimeString();
                 $end_date = Carbon::parse($request->end_date)->toDateTimeString();
                 $users = $user->whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
@@ -4437,8 +5290,8 @@ class AdminController extends Controller
                 $data_array = User::whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->pluck('email', 'name')->toArray();
                 $user_count = User::whereBetween('active_date', [$start_date, $end_date])->orderBy('active_date', 'DESC')->count();
             }
-            if( $request->filled('status') && !$request->filled('package')) {
-                if($request->status == 'null') {
+            if ($request->filled('status') && !$request->filled('package')) {
+                if ($request->status == 'null') {
                     $users = $user->where('status', null)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
                     $user_array = User::where('status', null)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
                     $data_array = User::where('status', null)->orderBy('active_date', 'DESC')->pluck('name', 'email')->toArray();
@@ -4457,9 +5310,8 @@ class AdminController extends Controller
                 $selected_package = [];
                 $selected_package['package'] = '';
                 return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
-
             }
-            if( !$request->filled('status') && $request->filled('package')) {
+            if (!$request->filled('status') && $request->filled('package')) {
                 $package = Package::where('name', $request->package)->first();
                 $users = $user->where('package_id', $package->id)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
                 $user_array = User::where('package_id', $package->id)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
@@ -4472,9 +5324,8 @@ class AdminController extends Controller
                 $selected_package = [];
                 $selected_package['package'] = $request->package;
                 return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
-
             }
-            if( $request->filled('status') && $request->filled('package')) {
+            if ($request->filled('status') && $request->filled('package')) {
                 $package = Package::where('name', $request->package)->first();
                 $users = $user->where('package_id', $package->id)->where('status', $request->status)->orderBy('active_date', 'DESC')->simplePaginate(10)->withQueryString();
                 $user_array = User::where('package_id', $package->id)->where('status', $request->status)->orderBy('active_date', 'DESC')->pluck('email')->toArray();
@@ -4489,51 +5340,50 @@ class AdminController extends Controller
                 $selected_package = [];
                 $selected_package['package'] = $request->package;
                 return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
-
             }
 
-            if($request->search_customer) {
+            if ($request->search_customer) {
                 $search = $request->search_customer;
                 $user = User::query();
-                $users = $user->where('name', 'LIKE', '%'.$search.'%')
-                ->orWhere('surname', 'LIKE', '%'.$search.'%')
-                ->orWhere('email', 'LIKE', '%'.$search.'%')
-                ->orWhere('phone', 'LIKE', '%'.$search.'%')
-                ->orderBy('name', 'ASC')
-                ->simplePaginate(10)
-                ->withQueryString();
+                $users = $user->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('surname', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $search . '%')
+                    ->orderBy('name', 'ASC')
+                    ->simplePaginate(10)
+                    ->withQueryString();
 
-                $users_get = $user->where('name', 'LIKE', '%'.$search.'%')
-                ->orWhere('surname', 'LIKE', '%'.$search.'%')
-                ->orWhere('email', 'LIKE', '%'.$search.'%')
-                ->orWhere('phone', 'LIKE', '%'.$search.'%')
-                ->orderBy('name', 'ASC')
-                ->get();
+                $users_get = $user->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('surname', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $search . '%')
+                    ->orderBy('name', 'ASC')
+                    ->get();
 
-                $user_count = $user->where('name', 'LIKE', '%'.$search.'%')
-                ->orWhere('surname', 'LIKE', '%'.$search.'%')
-                ->orWhere('email', 'LIKE', '%'.$search.'%')
-                ->orWhere('phone', 'LIKE', '%'.$search.'%')
-                ->orderBy('name', 'ASC')
-                ->count();
+                $user_count = $user->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('surname', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $search . '%')
+                    ->orderBy('name', 'ASC')
+                    ->count();
                 $active_user_count = $users_get->where('status', 'active')->count();
                 $inactive_user_count = $users_get->where('status', '!=', 'active')->count();
                 $selected_status = [];
                 $selected_status['status'] = '';
                 $selected_package = [];
                 $selected_package['package'] = '';
-                $user_array = $user->where('name', 'LIKE', '%'.$search.'%')
-                ->orWhere('surname', 'LIKE', '%'.$search.'%')
-                ->orWhere('email', 'LIKE', '%'.$search.'%')
-                ->orWhere('phone', 'LIKE', '%'.$search.'%')
-                ->orderBy('name', 'ASC')
-                ->pluck('email')->toArray();
-                $data_array = $user->where('name', 'LIKE', '%'.$search.'%')
-                ->orWhere('surname', 'LIKE', '%'.$search.'%')
-                ->orWhere('email', 'LIKE', '%'.$search.'%')
-                ->orWhere('phone', 'LIKE', '%'.$search.'%')
-                ->orderBy('name', 'ASC')
-                ->pluck('email', 'name')->toArray();
+                $user_array = $user->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('surname', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $search . '%')
+                    ->orderBy('name', 'ASC')
+                    ->pluck('email')->toArray();
+                $data_array = $user->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('surname', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $search . '%')
+                    ->orderBy('name', 'ASC')
+                    ->pluck('email', 'name')->toArray();
                 return view('admin.messages.index', compact('all_messages', 'message_count', 'messages', 'users', 'user_array', 'data_array', 'user_count', 'active_user_count', 'inactive_user_count', 'packages', 'selected_status', 'selected_package'));
             }
             $users = User::orderBy('created_at', 'DESC')->simplePaginate(10)->withQueryString();
@@ -4550,13 +5400,25 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
-    public function createMessage() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function createMessage()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             return view('admin.messages.create');
         }
         return redirect('admin/dashboard');
     }
-    public function storeMessage(Request $request) {
+    public function storeMessage(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'name' => 'required',
             'subject' => 'required',
@@ -4570,10 +5432,16 @@ class AdminController extends Controller
         Message::create($input);
         return back()->with('success', 'Message created');
     }
-    public function sendMessages(Request $request) {
-        if($request->has('send_single_message')) {
-            if(!empty($request->message_id)) {
-                if(!empty($request->checkBoxArray)){
+    public function sendMessages(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if ($request->has('send_single_message')) {
+            if (!empty($request->message_id)) {
+                if (!empty($request->checkBoxArray)) {
 
                     $message = Message::where('id', $request->message_id)->first();
                     $input = [
@@ -4586,8 +5454,8 @@ class AdminController extends Controller
                     $newUsersEmail = User::whereIn('id', $request->checkBoxArray)->get(['name', 'email'])->toArray();
 
                     $user = [];
-                    foreach($newUsersEmail as $key => $value){
-                        $user[] = $value['name']. '|' . $value['email'];
+                    foreach ($newUsersEmail as $key => $value) {
+                        $user[] = $value['name'] . '|' . $value['email'];
                     }
 
                     // Notification::send($newUsers, new NewMessage($message, $newUsers));
@@ -4596,7 +5464,7 @@ class AdminController extends Controller
 
                     $newContent =  [
                         'body' => strip_tags($message->body),
-                     ];
+                    ];
 
                     $content = view("emails.mainMessage", $newContent)->render();
 
@@ -4609,9 +5477,9 @@ class AdminController extends Controller
             return back()->with('error1', 'Please select a message to send');
         }
 
-        if($request->has('send_multiple_message')) {
-            if(!empty($request->message_id)) {
-                if(!empty($request->checkBoxArray)){
+        if ($request->has('send_multiple_message')) {
+            if (!empty($request->message_id)) {
+                if (!empty($request->checkBoxArray)) {
 
                     $message = Message::where('id', $request->message_id)->first();
                     $input = [
@@ -4625,11 +5493,11 @@ class AdminController extends Controller
 
                     $chunked_users = array_chunk($data, 500, true);  // chunk the array to 500 users per send
 
-                    foreach($chunked_users as $single_chunk) {
+                    foreach ($chunked_users as $single_chunk) {
 
                         $user = [];
-                        foreach($single_chunk as $key => $value){
-                            $user[] = $value. '|' . $key;
+                        foreach ($single_chunk as $key => $value) {
+                            $user[] = $value . '|' . $key;
                         }
 
                         $explodedMails = implode(',', $user);
@@ -4654,7 +5522,13 @@ class AdminController extends Controller
         }
     }
 
-    public function sendBulk(Request $request) {
+    public function sendBulk(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $message = MailMessage::orderBy('created_at', 'DESC')->first();
         dd($message);
         $details = [
@@ -4669,7 +5543,7 @@ class AdminController extends Controller
         $job = (new SendBulkQueueEmail($details, $users))
             ->delay(
                 now()
-                ->addSeconds(1)
+                    ->addSeconds(1)
             );
 
         dispatch($job);
@@ -4687,18 +5561,24 @@ class AdminController extends Controller
 
     }
     ///////send new subscribers to active campaign subscriber list//////
-    public function sendEmail() {
+    public function sendEmail()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => '',
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS =>'{
+            CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => '{
             "contact": {
                 "email": "akpanemmanueledidiong99@yahoo.com",
                 "firstName": "Edidiong",
@@ -4706,27 +5586,38 @@ class AdminController extends Controller
                 "phone": "08127131208"
             }
         }',
-          CURLOPT_HTTPHEADER => array(
-            'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-            'Content-Type: application/json',
-            'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
-          ),
+            CURLOPT_HTTPHEADER => array(
+                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                'Content-Type: application/json',
+                'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+            ),
         ));
 
         $response = curl_exec($curl);
 
         curl_close($curl);
         return $response;
-
     }
-    public function editMessage($id) {
-        if(Auth::user()->role->name == 'Admin') {
+    public function editMessage($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $message = Message::findOrFail($id);
-            return view('admin.messages.edit', ['message'=>$message]);
+            return view('admin.messages.edit', ['message' => $message]);
         }
         return redirect('admin/dashboard');
     }
-    public function updateMessage(Request $request, $id) {
+    public function updateMessage(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $message = Message::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required',
@@ -4740,7 +5631,13 @@ class AdminController extends Controller
         $message->update($input);
         return back()->with('success', 'Message updated');
     }
-    public function deleteMessage($id) {
+    public function deleteMessage($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $message = Message::find($id);
         $mail_message = MailMessage::where('message_id', $message->id)->delete();
         $message->delete();
@@ -4750,15 +5647,27 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////licenses//////////////////////////////////
-    public function license() {
-        if(Auth::user()->role->name == 'Admin') {
+    public function license()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
             $licenses = License::orderBy('license_name', 'asc')->get();
             $packages = Package::orderBy('name', 'ASC')->get();
             return view('admin.licenses.index', compact('licenses', 'packages'));
         }
         return redirect('admin/dashboard');
     }
-    public function storeLicense(Request $request) {
+    public function storeLicense(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'license_name' => 'required',
             'license_days' => 'required',
@@ -4768,18 +5677,18 @@ class AdminController extends Controller
             'active_users' => 'required',
             'package_id' => 'required'
         ]);
-        if(User::where('email', $request->licensed_email)->first()) {
+        if (User::where('email', $request->licensed_email)->first()) {
             return back()->withErrors('This email already exists');
         }
         $input = [
-          'license_name'=> $request->license_name,
-          'license_days'=> $request->license_days,
-          'licensed_organisation'=> $request->licensed_organisation,
-          'licensed_email'=> $request->licensed_email,
-          'license_code'=> $request->license_code,
-          'active_users'=> $request->active_users,
-          'package'=> $request->package,
-          'package_id'=> $request->package_id,
+            'license_name' => $request->license_name,
+            'license_days' => $request->license_days,
+            'licensed_organisation' => $request->licensed_organisation,
+            'licensed_email' => $request->licensed_email,
+            'license_code' => $request->license_code,
+            'active_users' => $request->active_users,
+            'package' => $request->package,
+            'package_id' => $request->package_id,
         ];
         $license = License::create($input);
         $role = Role::where('name', 'Customer')->first();
@@ -4789,38 +5698,44 @@ class AdminController extends Controller
             'email' => $license->licensed_email,
             'license_code' => $license->license_code,
             'package_id' => $license->package_id,
-            'role_id'=> $role->id,
-            'active_date'=> $license->created_at,
-            'expiry_date'=> $license->created_at->addDays($license->license_days),
+            'role_id' => $role->id,
+            'active_date' => $license->created_at,
+            'expiry_date' => $license->created_at->addDays($license->license_days),
         ];
         $exp = $license->created_at->addDays($license->license_days);
-        if($exp > now()) {
+        if ($exp > now()) {
             $user_input['status'] = 'active';
         } else {
             $user_input['status'] = 'inactive';
         }
         $user_creds = User::create($user_input);
         $licensed_user = User::where('license_code', $license->license_code)->first();
-            if($licensed_user) {
-                // $licensed_user->notify(new LicenseCredentials($user_creds, $licensed_user));
+        if ($licensed_user) {
+            // $licensed_user->notify(new LicenseCredentials($user_creds, $licensed_user));
 
-                $explodedMails = $licensed_user->email;
+            $explodedMails = $licensed_user->email;
 
-                $subject = 'License Credentials';
-                $newContent =  [
-                    'user' => $licensed_user->name,
-                    'email' => $licensed_user->email,
-                    'code' => $user_creds->license_code,
-                    'validity' => $license->license_days,
-                ];
+            $subject = 'License Credentials';
+            $newContent =  [
+                'user' => $licensed_user->name,
+                'email' => $licensed_user->email,
+                'code' => $user_creds->license_code,
+                'validity' => $license->license_days,
+            ];
 
-                $content = view("emails.licensedEmail", $newContent)->render();
+            $content = view("emails.licensedEmail", $newContent)->render();
 
-                tribearcSendMail($subject, $content, $explodedMails);
-            }
+            tribearcSendMail($subject, $content, $explodedMails);
+        }
         return back()->with('success', 'License created');
     }
-    public function updateLicense(Request $request) {
+    public function updateLicense(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $validated = $request->validate([
             'license_name' => 'required',
             'license_days' => 'required',
@@ -4831,14 +5746,14 @@ class AdminController extends Controller
             'package_id' => 'required',
         ]);
         $input = [
-          'license_name'=> $request->license_name,
-          'license_days'=> $request->license_days,
-          'licensed_organisation'=> $request->licensed_organisation,
-          'licensed_email'=> $request->licensed_email,
-          'license_code'=> $request->license_code,
-          'active_users'=> $request->active_users,
-          'package'=> $request->package,
-          'package_id'=> $request->package_id,
+            'license_name' => $request->license_name,
+            'license_days' => $request->license_days,
+            'licensed_organisation' => $request->licensed_organisation,
+            'licensed_email' => $request->licensed_email,
+            'license_code' => $request->license_code,
+            'active_users' => $request->active_users,
+            'package' => $request->package,
+            'package_id' => $request->package_id,
         ];
         DB::table('licenses')->where('id', $request->license_id)->update($input);
         $license =  License::where('id', $request->license_id)->first();
@@ -4850,14 +5765,14 @@ class AdminController extends Controller
         $user->expiry_date = $license->created_at->addDays($license->license_days);
 
         $exp = $license->created_at->addDays($license->license_days);
-        if($exp > now()) {
+        if ($exp > now()) {
             $user_input['status'] = 'active';
         } else {
             $user_input['status'] = 'inactive';
         }
         $user->save();
         $licensed_user = User::where('license_code', $license->license_code)->first();
-        if($licensed_user) {
+        if ($licensed_user) {
             // $licensed_user->notify(new UpdatedLicenseCredentials($user, $licensed_user));
 
             $explodedMails = $licensed_user->email;
@@ -4876,7 +5791,13 @@ class AdminController extends Controller
         }
         return back()->with('success', 'License updated');
     }
-    public function deleteLicense($id) {
+    public function deleteLicense($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $license = License::findOrFail($id);
         $user = User::where('license_code', $license->license_code)->first();
         LicensedUserSession::where('user_id', $user->id)->delete();
@@ -4888,11 +5809,23 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////checkout//////////////////////////////////
-    public function checkout($id) {
+    public function checkout($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $package = Package::where('id', $id)->first();
         return view('checkout', compact('package'));
     }
-    public function checkoutDiscount($id) {
+    public function checkoutDiscount($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $package = Package::where('id', $id)->first();
         $discount = Discount::where('package_id', $package->id)->first();
         $discounted_price = ($package->price * $discount->percentage) / 100;
@@ -4904,21 +5837,33 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////pricing//////////////////////////////////
-    public function pricing() {
+    public function pricing()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
         $packages = Package::where('is_active', 1)->orderBy('price', 'ASC')->get();
         return view('admin.pricing', compact('packages'));
     }
 
 
     ///////////////////////////////////////send report//////////////////////////////////
-    public function sendReport(Request $request) {
+    public function sendReport(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+        
         $user = Auth::user();
         $validated = $request->validate([
             'name' => 'required',
             'email' => 'required',
             'report_type' => 'required',
         ]);
-        if(!isset($request->report_type)) {
+        if (!isset($request->report_type)) {
             return back()->withErrors('error', 'Please select a report type');
         }
         $input = [
@@ -4954,5 +5899,4 @@ class AdminController extends Controller
 
         return back()->with('success', 'Report sent, We\'ll get to you shortly');
     }
-
 }
