@@ -1,83 +1,45 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
+use App\Models\Invite;
 use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\Invite;
 use App\Models\UserTeam;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use App\Notifications\WelcomeOnboard;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 
-class RegisterController extends Controller
+class ApiRegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
-    use RegistersUsers;
-
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    //
+    public function register(Request $request)
     {
-        $this->middleware('guest');
-    }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
+        // $data = $request->validate([
+        //     'name' => ['required', 'string', 'max:255'],
+        //     'surname' => ['required', 'string', 'max:255'],
+        //     'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        //     'password' => ['required', 'string', 'min:8', 'confirmed'],
+        // ]);
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8']
         ]);
-    }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
-    protected function create(array $data)
-    {
-        $role = Role::where('name','Customer')->first();
-        if(!$role){
+        $data = $request->all();
+
+        // dd($data);
+
+        $role = Role::where('name', 'Customer')->first();
+        if (!$role) {
             return back()->withErrors('Role Customer not found please contact admin');
         }
-        
-        if(Invite::where('token', $data['token'])->first() !==null) {
+        $sendToken = isset($data['token']) ? $data['token'] : "";
+        if (Invite::where('token', $sendToken)->first() !== null) {
+            // dd('user with invite');
             $invite = Invite::where('token', $data['token'])->first();
-
             $user = User::create([
                 'name' => $data['name'],
                 'surname' => $data['surname'],
@@ -88,7 +50,7 @@ class RegisterController extends Controller
                 'dob' => $data['dob'],
                 'area_of_practice' => $data['area_of_practice'],
                 'nba_branch' => $data['nba_branch'],
-                'password' => Hash::make($data['password']),
+                'password' => bcrypt($request->password)
             ]);
 
             UserTeam::create([
@@ -99,10 +61,12 @@ class RegisterController extends Controller
                 'approve_request' => $data['approve_request'],
             ]);
 
+            $userToken = $user->createToken('API Token')->accessToken;
+
             // $role = Role::where('name','Admin')->first();
             // $admin_user = User::where('role_id', $role->id)->first();
             $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
-            if($team) {
+            if ($team) {
                 UserTeam::create([
                     'user_id' => $user->id,
                     'team_id' => $team ? $team->id : NULL,
@@ -120,9 +84,9 @@ class RegisterController extends Controller
             $content = view("emails.welcomeOnboard", $newContent)->render();
             tribearcSendMail($subject, $content, $explodedMail);
 
-            return $user;
-
+            return response(['user' => $user, 'token' => $userToken]);
         } else {
+            // dd('user without invite');
             $user = User::create([
                 'name' => $data['name'],
                 'surname' => $data['surname'],
@@ -133,13 +97,15 @@ class RegisterController extends Controller
                 'dob' => $data['dob'],
                 'area_of_practice' => $data['area_of_practice'],
                 'nba_branch' => $data['nba_branch'],
-                'password' => Hash::make($data['password']),
+                'password' => bcrypt($request->password)
             ]);
+
+            $userToken = $user->createToken('API Token')->accessToken;
 
             // $role = Role::where('name','Admin')->first();
             // $admin_user = User::where('role_id', $role->id)->first();
             $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
-            if($team) {
+            if ($team) {
                 UserTeam::create([
                     'user_id' => $user->id,
                     'team_id' => $team ? $team->id : NULL,
@@ -157,8 +123,7 @@ class RegisterController extends Controller
             ];
             $content = view("emails.welcomeOnboard", $newContent)->render();
             tribearcSendMail($subject, $content, $explodedMail);
-
-            return $user;
+            return response(['user' => $user, 'token' => $userToken]);
         }
     }
 }
