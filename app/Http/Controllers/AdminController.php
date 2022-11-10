@@ -97,7 +97,7 @@ class AdminController extends Controller
     }
 
     ///////////////////////dashboard///////////////////////////////////////////////
-    public function index()
+    public function index(Request $request)
     {
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
@@ -138,7 +138,7 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-        
+
         if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('rank', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
@@ -2792,6 +2792,7 @@ class AdminController extends Controller
     }
     public function fetchArticleAnote($id)
     {
+        // dd($id);
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
@@ -3340,7 +3341,7 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-        
+
         if (Auth::user()->role->name == 'Admin') {
             $packages = Package::orderBy('name', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
@@ -4107,7 +4108,7 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-        
+
         $input = [
             'send_request' => $request->send_request,
             'user_id' => $request->user_id,
@@ -4137,7 +4138,7 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-        
+
         if (UserTeam::where('user_id', Auth::user()->id)->first()) {
             $team = Team::findOrFail($id);
             $new_members = UserTeam::where('send_request', 1)->where('approve_request', 0)->where('team_id', $team->id)->get();
@@ -5093,7 +5094,7 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-        
+
         // dd($request->all());
         $input = [
             'display' => $request->display
@@ -5856,7 +5857,7 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-        
+
         $user = Auth::user();
         $validated = $request->validate([
             'name' => 'required',

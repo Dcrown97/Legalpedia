@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ApiLoginController extends Controller
 {
@@ -14,14 +15,34 @@ class ApiLoginController extends Controller
             'email' => 'email|required',
             'password' => 'required'
         ]);
-        
         if (!auth()->attempt($data)) {
             return response(['error_message' => 'Incorrect Details. 
             Please try again']);
         }
-
         $userToken = auth()->user()->createToken('API Token')->accessToken;
 
         return response(['user' => auth()->user(), 'token' => $userToken]);
+
+        // if(Auth::attempt([
+        //      'email' => $request->email,
+        //      'password' => $request->password
+        // ])) {
+        //     $user = Auth::user();
+        //     $userToken = [];
+        //     $userToken['token'] = $user->createToken('API Token')->accessToken;
+        //     $userToken['name'] = $user->name;
+        //     return response()->json($userToken, 200);
+        // }else{
+        //     return response(['errors' => 'Unauthorized Access'], 203);
+        // }
+    }
+
+    public function logout(Request $request)
+    {   
+        // dd($request->user()->token());
+        $token = $request->user()->token();
+        $token->revoke();
+        $response = ['message' => 'You have been successfully logged out!'];
+        return response($response, 200);
     }
 }

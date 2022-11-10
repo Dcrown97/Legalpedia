@@ -288,12 +288,12 @@
                 <div class="dropdown-menu dropdown-menu-end">
                     <a href="{{route('edit.customer', Auth::user()->id)}}" class="dropdown-item">Settings</a>
                     <hr class="dropdown-divider" />
-                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a class="dropdown-item" href="/logout">
                         <span class="mr-2" aria-hidden="true"><i class="mdi mdi-logout-variant"></i></span> Sign out
                     </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    {{-- <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
-                    </form>
+                    </form> --}}
                 </div>
             </div>
         </div>

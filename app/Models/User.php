@@ -6,7 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+// use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -105,6 +106,12 @@ class User extends Authenticatable implements JWTSubject
             return url('storage/'.$value);
         }
         return null;
+    }
+
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\MailResetPasswordNotification($token));
     }
 
 

@@ -126,7 +126,8 @@ function checkUser()
     //check if I've been bounced by another user
     $exist = Session::get('who');
     $user = Auth::user();
-    if ($user->license_code) {
+    $license_code = isset($user->license_code);
+    if ($license_code) {
         $bounced = LicensedUserSession::where('session_no', $exist)->first();
         if (!$bounced) {
             Auth::logout();

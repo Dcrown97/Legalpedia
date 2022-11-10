@@ -22,6 +22,8 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         // \App\Http\Middleware\LicensedUser::class,
+        \App\Http\Middleware\ForceJsonResponse::class,
+        \App\Http\Middleware\Cors::class,
     ];
 
     /**
@@ -67,6 +69,9 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         // 'licensedUser' => \App\Http\Middleware\LicensedUser::class,
         'subscribedUser' => \App\Http\Middleware\SubscribedUser::class,
+        'json.response' => \App\Http\Middleware\ForceJsonResponse::class,
+        'cors' => \App\Http\Middleware\Cors::class,
+        'api.authenticate' => \App\Http\Middleware\AuthenticatedUser::class,
 
     ];
 }
