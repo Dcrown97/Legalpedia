@@ -108,11 +108,11 @@ class ApiAdminController extends Controller
         $resource_count = Resource::count();
         $team_count = Team::count();
         $pop_message = Message::where('type', 'in-app')->orderBy('created_at', 'DESC')->orderBy('created_at', 'DESC')->first();
-        $latest_judgements = JudgementSummary::orderBy('judgement_date', 'DESC')->limit(5)->get();
-        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-        $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->get();
-        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+        $latest_judgements = JudgementSummary::orderBy('judgement_date', 'DESC')->limit(5)->paginate(10);
+        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+        $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
         $new_chat_count = ChMessage::where('to_id', Auth::user()->id)->where('seen', 0)->count();
         $all_count = $judgement_count + $fed_count + $rule_count + $form_count + $article_count + $dict_count + $maxim_count + $resource_count;
         DB::statement("SET SQL_MODE=''");
@@ -135,16 +135,16 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('rank', 'ASC')->get();
+                $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                 DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
+                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
                 $judgement_summary = JudgementSummary::query();
                 if ($request->filled('id') && !$request->filled('year')) {
                     $judge = $judgement_summary->where('court_id', $request->id);
                     $judgement_count = $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = '';
                     $selected_court = [];
@@ -154,7 +154,7 @@ class ApiAdminController extends Controller
                 if (!$request->filled('id') && $request->filled('year')) {
                     $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                     $judgement_count =  $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = $request->year;
                     $selected_court = [];
@@ -164,7 +164,7 @@ class ApiAdminController extends Controller
                 if ($request->filled('id') && $request->filled('year')) {
                     $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                     $judgement_count =  $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = $request->year;
                     $selected_court = [];
@@ -178,7 +178,7 @@ class ApiAdminController extends Controller
                     $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
                         ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                         ->orderBy('judgement_date', 'DESC')
-                        ->simplePaginate()
+                        ->paginate(10)
                         ->withQueryString();
                     $selected_court = [];
                     $selected_court['court_id'] = '';
@@ -186,7 +186,7 @@ class ApiAdminController extends Controller
                     $selected_year['judgement_date'] = '';
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                 }
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                 $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
@@ -199,13 +199,13 @@ class ApiAdminController extends Controller
                     if ($subscribed_package->judgement_feature) {
                         $courts = Package::where('id', Auth::user()->package_id)->first();
                         $years = Package::where('id', Auth::user()->package_id)->first();
-                        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                        $categories = Category::orderBy('category', 'asc')->get();
+                        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                        $categories = Category::orderBy('category', 'asc')->paginate(10);
                         $judgement_summary = JudgementSummary::query();
                         if ($request->filled('id') && !$request->filled('year')) {
                             $judge = $judgement_summary->where('court_id', $request->id);
                             $judgement_count = $judge->count();
-                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                             $selected_year = [];
                             $selected_year['judgement_date'] = '';
                             $selected_court = [];
@@ -215,7 +215,7 @@ class ApiAdminController extends Controller
                         if (!$request->filled('id') && $request->filled('year')) {
                             $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                             $judgement_count =  $judge->count();
-                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                             $selected_year = [];
                             $selected_year['judgement_date'] = $request->year;
                             $selected_court = [];
@@ -225,7 +225,7 @@ class ApiAdminController extends Controller
                         if ($request->filled('id') && $request->filled('year')) {
                             $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                             $judgement_count =  $judge->count();
-                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                             $selected_year = [];
                             $selected_year['judgement_date'] = $request->year;
                             $selected_court = [];
@@ -240,7 +240,7 @@ class ApiAdminController extends Controller
                             $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
                                 ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                                 ->orderBy('judgement_date', 'DESC')
-                                ->simplePaginate()
+                                ->paginate(10)
                                 ->withQueryString();
                             $selected_court = [];
                             $selected_court['court_id'] = '';
@@ -250,7 +250,7 @@ class ApiAdminController extends Controller
                         }
                         $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
                         $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
-                        $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                        $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                         $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
                         $selected_court = [];
                         $selected_court['court_id'] = '';
@@ -276,12 +276,12 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('court', 'ASC')->get();
+                $courts = Court::orderBy('court', 'ASC')->paginate(10);
                 DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
-                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
+                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
                 $judgement_summary = JudgementSummary::query();
                 if ($request->filled('subject_matter_index')) {
                     $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
@@ -289,7 +289,7 @@ class ApiAdminController extends Controller
                     $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
                     $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
                     $judgement_count = $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
@@ -302,15 +302,15 @@ class ApiAdminController extends Controller
                     $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
                         ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                         ->orderBy('judgement_date', 'DESC')
-                        ->simplePaginate()
+                        ->paginate(10)
                         ->withQueryString();
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = '';
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
                 }
-                $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
+                $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10);
                 $judgement_count = $count->count();
-                $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
+                $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10)->withQueryString();
                 $selected_subject_matter = [];
                 $selected_subject_matter['subject_matter_index'] = '';
                 return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
@@ -318,9 +318,9 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $courts = Package::where('id', Auth::user()->package_id)->first();
                     $years = Package::where('id', Auth::user()->package_id)->first();
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                    $categories = Category::orderBy('category', 'asc')->get();
-                    $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                    $categories = Category::orderBy('category', 'asc')->paginate(10);
+                    $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
                     $judgement_summary = JudgementSummary::query();
                     if ($request->filled('subject_matter_index')) {
                         $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
@@ -328,7 +328,7 @@ class ApiAdminController extends Controller
                         $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
                         $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
                         $judgement_count = $judge->count();
-                        $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                        $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                         $selected_subject_matter = [];
                         $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
@@ -341,15 +341,15 @@ class ApiAdminController extends Controller
                         $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
                             ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                             ->orderBy('judgement_date', 'DESC')
-                            ->simplePaginate()
+                            ->paginate(10)
                             ->withQueryString();
                         $selected_subject_matter = [];
                         $selected_subject_matter['subject_matter_index'] = '';
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
                     }
-                    $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
+                    $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10);
                     $judgement_count = $count->count();
-                    $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
+                    $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10)->withQueryString();
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = '';
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
@@ -370,11 +370,11 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('court', 'ASC')->get();
+                $courts = Court::orderBy('court', 'ASC')->paginate(10);
                 DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
+                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
                 if ($request->search_case) {
                     $search = $request->search_case;
                     $judge = JudgementSummary::where('title', 'LIKE', '%' . $search . '%')->orWhere('suit_no', 'LIKE', '%' . $search . '%');
@@ -382,19 +382,19 @@ class ApiAdminController extends Controller
                     $judgement_summaries = JudgementSummary::where('title', 'LIKE', '%' . $search . '%')
                         ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                         ->orderBy('judgement_date', 'DESC')
-                        ->simplePaginate()
+                        ->paginate(10)
                         ->withQueryString();
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
                 }
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                 $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                 return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $courts = Package::where('id', Auth::user()->package_id)->first();
                     $years = Package::where('id', Auth::user()->package_id)->first();
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                    $categories = Category::orderBy('category', 'asc')->get();
+                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                    $categories = Category::orderBy('category', 'asc')->paginate(10);
                     $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
                     $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
 
@@ -408,11 +408,11 @@ class ApiAdminController extends Controller
                             ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                             ->whereBetween('judgement_date', [$start_date, $end_date])
                             ->orderBy('judgement_date', 'DESC')
-                            ->simplePaginate()
+                            ->paginate(10)
                             ->withQueryString();
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
                     }
-                    $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
                 }
@@ -434,16 +434,16 @@ class ApiAdminController extends Controller
         try {
             if (Auth::user()->role->name == 'Admin') {
 
-                $courts = Court::orderBy('rank', 'ASC')->get();
+                $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                 DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
+                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
                 $judgement_summary = JudgementSummary::query();
                 if ($request->filled('id') && !$request->filled('year')) {
                     $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id);
                     $judgement_count = $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = '';
                     $selected_court = [];
@@ -453,7 +453,7 @@ class ApiAdminController extends Controller
                 if (!$request->filled('id') && $request->filled('year')) {
                     $judge = $judgement_summary->where('summary_of_facts', NULL)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                     $judgement_count =  $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = $request->year;
                     $selected_court = [];
@@ -463,7 +463,7 @@ class ApiAdminController extends Controller
                 if ($request->filled('id') && $request->filled('year')) {
                     $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
                     $judgement_count =  $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                     $selected_year = [];
                     $selected_year['judgement_date'] = $request->year;
                     $selected_court = [];
@@ -480,7 +480,7 @@ class ApiAdminController extends Controller
                         ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                         ->where('summary_of_facts', NULL)
                         ->orderBy('judgement_date', 'DESC')
-                        ->simplePaginate()
+                        ->paginate(10)
                         ->withQueryString();
                     $selected_court = [];
                     $selected_court['court_id'] = '';
@@ -488,7 +488,7 @@ class ApiAdminController extends Controller
                     $selected_year['judgement_date'] = '';
                     return response((['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]));
                 }
-                $judgement_summaries = JudgementSummary::where('summary_of_facts', NULL)->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                $judgement_summaries = JudgementSummary::where('summary_of_facts', NULL)->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
                 $judgement_count = JudgementSummary::where('summary_of_facts', NULL)->count();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
@@ -511,12 +511,12 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('court', 'ASC')->get();
-                $categories = Category::orderBy('category', 'ASC')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
-                $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-                $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
-                $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
+                $courts = Court::orderBy('court', 'ASC')->paginate(10);
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->paginate(10);
+                $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
+                $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->paginate(10);
+                $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->paginate(10);
                 return response(['courts' => $courts, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matters' => $subject_matters, 'party_a_types' => $party_a_types, 'party_b_types' => $party_b_types]);
             }
         } catch (\Exception $e) {
@@ -872,12 +872,12 @@ class ApiAdminController extends Controller
 
         if (Auth::user()->role->name == 'Admin') {
             $judgement_summary = JudgementSummary::findOrFail($id);
-            $courts = Court::orderBy('rank', 'ASC')->get();
-            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
-            $categories = Category::orderBy('category', 'ASC')->get();
-            $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-            $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
-            $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
+            $courts = Court::orderBy('rank', 'ASC')->paginate(10);
+            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->paginate(10);
+            $categories = Category::orderBy('category', 'ASC')->paginate(10);
+            $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
+            $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->paginate(10);
+            $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->paginate(10);
             return response(['judgement_summary' => $judgement_summary, 'courts' => $courts, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'subject_matters' => $subject_matters, 'party_a_types' => $party_a_types, 'party_b_types' => $party_b_types]);
         }
         // return redirect('admin/judgements');
@@ -894,32 +894,32 @@ class ApiAdminController extends Controller
         try {
             if (Auth::user()->role->name == 'Admin') {
                 $judgement_summary = JudgementSummary::findOrFail($id);
-                $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
-                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-                $courts = Court::orderBy('rank', 'ASC')->get();
+                $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->paginate(10);
+                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+                $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                 DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
                 $judgement_coram = JudgementCoram::select('suit_no')->first();
                 // dd($judgement_coram);
-                $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
+                $corams = Coram::orderBy('name', 'DESC')->limit(5)->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->paginate(10);
                 // dd($corams);
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                 return response(['judgement_summary' => $judgement_summary, 'courts' => $courts, 'years' => $years, 'corams' => $corams, 'judgement_coram' => $judgement_coram, 'area_of_laws' => $area_of_laws, 'notes' => $notes, 'admin_notes' => $admin_notes, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $judgement_summary = JudgementSummary::findOrFail($id);
-                    $courts = Court::orderBy('rank', 'ASC')->get();
+                    $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                     DB::statement("SET SQL_MODE=''");
-                    $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+                    $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
                     $judgement_coram = JudgementCoram::select('suit_no')->first();
                     // dd($judgement_coram);
-                    $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
-                    $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+                    $corams = Coram::orderBy('name', 'DESC')->limit(5)->paginate(10);
+                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->paginate(10);
+                    $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
                     // dd($corams);
-                    $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
 
                     return response(['judgement_summary' => $judgement_summary, 'courts' => $courts, 'years' => $years, 'corams' => $corams, 'judgement_coram' => $judgement_coram, 'area_of_laws' => $area_of_laws, 'notes' => $notes, 'admin_notes' => $admin_notes, 'teams' => $teams]);
                 }
@@ -952,7 +952,7 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('rank', 'ASC')->get();
+                $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                 $court_count = Court::count();
                 return response(['courts' => $courts, 'court_count' => $court_count]);
             }
@@ -972,7 +972,7 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
                 $subject_count = SubjectMatterIndex::count();
                 return response(['subject_matter_indices' => $subject_matter_indices, 'subject_count' => $subject_count]);
             }
@@ -992,7 +992,7 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
+                $rule_categories = RuleCategory::orderBy('name', 'ASC')->paginate(10);
                 $rule_category_count = RuleCategory::count();
                 return response(['rule_categories' => $rule_categories, 'rule_category_count' => $rule_category_count]);
             }
@@ -1012,29 +1012,29 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
+                $rule_categories = RuleCategory::orderBy('name', 'ASC')->paginate(10);
                 if ($request->has('fetch_rule')) {
                     $orders = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'ORDERS')->orderBy('title', 'ASC')->paginate(10);
                     $appendices = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->paginate(10);
                     $schedules = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->paginate(10);
                     $forms = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'FORMS')->orderBy('title', 'ASC')->paginate(10);
                     $civil_forms = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->paginate(10);
                     $probate_forms = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->paginate(10);
                     $parts = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'PARTS')->orderBy('title', 'ASC')->paginate(10);
                     $appendix_count = $appendices->count();
                     $order_count = $orders->count();
                     $schedule_count = $schedules->count();
@@ -1046,19 +1046,19 @@ class ApiAdminController extends Controller
                     $selected_name['name'] = $request->name;
                     return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                 } else {
-                    $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $order_count = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                    $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $schedule_count = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                    $appendices = Rule::where('section', 'APPENDIX')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $appendices = Rule::where('section', 'APPENDIX')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $appendix_count = Rule::where('section', 'APPENDIX')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                    $forms = Rule::where('section', 'FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $forms = Rule::where('section', 'FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $form_count = Rule::where('section', 'FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                    $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $civil_count = Rule::where('section', 'CIVIL FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                    $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $probate_count = Rule::where('section', 'PROBATE FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                    $parts = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                    $parts = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                     $part_count = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
                     $selected_name = [];
                     $selected_name['name'] = '';
@@ -1068,30 +1068,30 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->roc_feature) {
-                        // $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
+                        // $rule_categories = RuleCategory::orderBy('name', 'ASC')->paginate(10);
                         $rule_categories = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_rule')) {
                             $orders = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'ORDERS')->orderBy('title', 'ASC')->paginate(10);
                             $appendices = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->paginate(10);
                             $schedules = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->paginate(10);
                             $forms = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'FORMS')->orderBy('title', 'ASC')->paginate(10);
                             $civil_forms = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->paginate(10);
                             $probate_forms = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->paginate(10);
                             $parts = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'PARTS')->orderBy('title', 'ASC')->paginate(10);
                             $appendix_count = $appendices->count();
                             $order_count = $orders->count();
                             $schedule_count = $schedules->count();
@@ -1103,19 +1103,19 @@ class ApiAdminController extends Controller
                             $selected_name['name'] = $request->name;
                             return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         } else {
-                            $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $order_count = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                            $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $schedule_count = Rule::where('section', 'SCHEDULES')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                            $appendices = Rule::where('section', 'APPENDIX')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $appendices = Rule::where('section', 'APPENDIX')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $appendix_count = Rule::where('section', 'APPENDIX')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                            $forms = Rule::where('section', 'FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $forms = Rule::where('section', 'FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $form_count = Rule::where('section', 'FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                            $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $civil_count = Rule::where('section', 'CIVIL FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                            $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $probate_count = Rule::where('section', 'PROBATE FORMS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
-                            $parts = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->get();
+                            $parts = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $part_count = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
                             $selected_name = [];
                             $selected_name['name'] = '';
@@ -1142,76 +1142,76 @@ class ApiAdminController extends Controller
             if (Auth::user()->role->name == 'Admin') {
                 if (Rule::where('section', 'ORDERS')->first()) {
                     $order = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                     $schedule = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'APPENDIX')->first()) {
                     $appendix = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'FORMS')->first()) {
                     $form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                     $civil_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                     $probate_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'PARTS')->first()) {
                     $part = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
                 }
             } else {
                 if (Auth::user()->subscribedUser()) {
                     if (Rule::where('section', 'ORDERS')->first()) {
                         $order = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                         $schedule = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'APPENDIX')->first()) {
                         $appendix = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'FORMS')->first()) {
                         $form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                         $civil_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                         $probate_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PARTS')->first()) {
                         $part = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
                     }
                 }
@@ -1230,7 +1230,7 @@ class ApiAdminController extends Controller
         };
 
         $rule = Rule::whereId($id)->first();
-        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $rule->id)->where('resource_type', 'rule')->get();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $rule->id)->where('resource_type', 'rule')->paginate(10);
         return response()->json([
             'anotes' => $anotes,
         ]);
@@ -1246,29 +1246,29 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $states = State::orderBy('name', 'ASC')->get();
+                $states = State::orderBy('name', 'ASC')->paginate(10);
                 if ($request->has('fetch_rule')) {
                     $orders = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'ORDERS')->orderBy('title', 'ASC')->paginate(10);
                     $appendices = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->paginate(10);
                     $schedules = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->paginate(10);
                     $forms = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'FORMS')->orderBy('title', 'ASC')->paginate(10);
                     $civil_forms = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->paginate(10);
                     $probate_forms = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->paginate(10);
                     $parts = Rule::where(function ($query) use ($request) {
                         return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                    })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
+                    })->where('section', 'PARTS')->orderBy('title', 'ASC')->paginate(10);
                     $appendix_count = $appendices->count();
                     $order_count = $orders->count();
                     $schedule_count = $schedules->count();
@@ -1280,19 +1280,19 @@ class ApiAdminController extends Controller
                     $selected_name['name'] = $request->name;
                     return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'states' => $states, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                 } else {
-                    $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $order_count = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                    $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $schedule_count = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                    $appendices = Rule::where('section', 'APPENDIX')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $appendices = Rule::where('section', 'APPENDIX')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $appendix_count = Rule::where('section', 'APPENDIX')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                    $forms = Rule::where('section', 'FORMS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $forms = Rule::where('section', 'FORMS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $form_count = Rule::where('section', 'FORMS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                    $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $civil_count = Rule::where('section', 'CIVIL FORMS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                    $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $probate_count = Rule::where('section', 'PROBATE FORMS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                    $parts = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                    $parts = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                     $part_count = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->count();
                     $selected_name = [];
                     $selected_name['name'] = '';
@@ -1302,30 +1302,30 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->sroc_feature) {
-                        // $states = State::orderBy('name', 'ASC')->get();
+                        // $states = State::orderBy('name', 'ASC')->paginate(10);
                         $states = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_rule')) {
                             $orders = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'ORDERS')->orderBy('title', 'ASC')->paginate(10);
                             $appendices = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->paginate(10);
                             $schedules = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->paginate(10);
                             $forms = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'FORMS')->orderBy('title', 'ASC')->paginate(10);
                             $civil_forms = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->paginate(10);
                             $probate_forms = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->paginate(10);
                             $parts = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
-                            })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
+                            })->where('section', 'PARTS')->orderBy('title', 'ASC')->paginate(10);
                             $appendix_count = $appendices->count();
                             $order_count = $orders->count();
                             $schedule_count = $schedules->count();
@@ -1337,19 +1337,19 @@ class ApiAdminController extends Controller
                             $selected_name['name'] = $request->name;
                             return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'states' => $states, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         } else {
-                            $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $order_count = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                            $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $schedules = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $schedule_count = Rule::where('section', 'SCHEDULES')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                            $appendices = Rule::where('section', 'APPENDIX')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $appendices = Rule::where('section', 'APPENDIX')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $appendix_count = Rule::where('section', 'APPENDIX')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                            $forms = Rule::where('section', 'FORMS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $forms = Rule::where('section', 'FORMS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $form_count = Rule::where('section', 'FORMS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                            $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $civil_forms = Rule::where('section', 'CIVIL FORMS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $civil_count = Rule::where('section', 'CIVIL FORMS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                            $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $probate_forms = Rule::where('section', 'PROBATE FORMS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $probate_count = Rule::where('section', 'PROBATE FORMS')->where('type', 'State')->orderBy('title', 'ASC')->count();
-                            $parts = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->get();
+                            $parts = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $part_count = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->count();
                             $selected_name = [];
                             $selected_name['name'] = '';
@@ -1376,76 +1376,76 @@ class ApiAdminController extends Controller
             if (Auth::user()->role->name == 'Admin') {
                 if (Rule::where('section', 'ORDERS')->first()) {
                     $order = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                     $schedule = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'APPENDIX')->first()) {
                     $appendix = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'FORMS')->first()) {
                     $form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                     $civil_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                     $probate_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
                 } elseif (Rule::where('section', 'PARTS')->first()) {
                     $part = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
                 }
             } else {
                 if (Auth::user()->subscribedUser()) {
                     if (Rule::where('section', 'ORDERS')->first()) {
                         $order = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                         $schedule = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'APPENDIX')->first()) {
                         $appendix = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'FORMS')->first()) {
                         $form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                         $civil_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                         $probate_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PARTS')->first()) {
                         $part = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->get();
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                         return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
                     }
                 }
@@ -1464,7 +1464,7 @@ class ApiAdminController extends Controller
         };
 
         $state_rule = Rule::whereId($id)->first();
-        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $state_rule->id)->where('resource_type', 'state-rule')->get();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $state_rule->id)->where('resource_type', 'state-rule')->paginate(10);
         return response()->json([
             'anotes' => $anotes,
         ]);
@@ -1480,19 +1480,19 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
                 if ($request->has('fetch_fed')) {
                     $fed = LawOfFederation::query();
                     if ($request->filled('category')) {
-                        $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->get();
+                        $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->paginate(10);
                         $fed_count = $feds->count();
                         $selected_category = [];
                         $selected_category['category'] = $request->category;
                     }
                     return response(['feds' => $feds, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
                 } else {
-                    $feds = LawOfFederation::orderBy('title', 'ASC')->get();
+                    $feds = LawOfFederation::orderBy('title', 'ASC')->paginate(10);
                     $fed_count = LawOfFederation::count();
                     $selected_category = [];
                     $selected_category['category'] = '';
@@ -1502,20 +1502,20 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->lfn_feature) {
-                        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                        // $categories = Category::orderBy('category', 'asc')->get();
+                        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                        // $categories = Category::orderBy('category', 'asc')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_fed')) {
                             $fed = LawOfFederation::query();
                             if ($request->filled('category')) {
-                                $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->get();
+                                $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->paginate(10);
                                 $fed_count = $feds->count();
                                 $selected_category = [];
                                 $selected_category['category'] = $request->category;
                             }
                             return response(['feds' => $feds, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
                         } else {
-                            $feds = LawOfFederation::orderBy('title', 'ASC')->get();
+                            $feds = LawOfFederation::orderBy('title', 'ASC')->paginate(10);
                             $fed_count = LawOfFederation::count();
                             $selected_category = [];
                             $selected_category['category'] = '';
@@ -1541,18 +1541,18 @@ class ApiAdminController extends Controller
         try {
             if (Auth::user()->role->name == 'Admin') {
                 $fed = LawOfFederation::findOrFail($id);
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
-                $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
+                $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->paginate(10);
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                 return response(['fed' => $fed, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $fed = LawOfFederation::findOrFail($id);
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                    $categories = Category::orderBy('category', 'asc')->get();
-                    $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                    $categories = Category::orderBy('category', 'asc')->paginate(10);
+                    $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
                     return response(['fed' => $fed, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
@@ -1570,7 +1570,7 @@ class ApiAdminController extends Controller
         };
 
         $fed = LawOfFederation::whereId($id)->first();
-        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $fed->id)->where('resource_type', 'fed')->get();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $fed->id)->where('resource_type', 'fed')->paginate(10);
         return response()->json([
             'anotes' => $anotes,
         ]);
@@ -1586,7 +1586,7 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->paginate(10);
                 $area_count = AreaOfLaw::count();
                 return response(['area_of_laws' => $area_of_laws, 'area_count' => $area_count]);
             }
@@ -1605,7 +1605,7 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $categories = Category::orderBy('category', 'ASC')->get();
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
                 $category_count = Category::count();
                 return response(['categories' => $categories, 'category_count' => $category_count]);
             }
@@ -1625,28 +1625,28 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $categories = Category::orderBy('category', 'ASC')->get();
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
                 if ($request->has('fetch_form')) {
                     $forms = FormsPrecedence::where(function ($query) use ($request) {
                         return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                    })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+                    })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
                     $my_forms = FormsPrecedence::where(function ($query) use ($request) {
                         return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                    })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+                    })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
                     $public_forms = FormsPrecedence::where(function ($query) use ($request) {
                         return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                    })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                    })->where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
                     $form_count = $forms->count();
                     $public_form_count = $public_forms->count();
                     $selected_category = [];
                     $selected_category['category'] = $request->category;
                     return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                 } else {
-                    $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+                    $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
                     $form_count = $forms->count();
-                    $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                    $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
                     $public_form_count = $public_forms->count();
-                    $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+                    $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
                     $selected_category = [];
                     $selected_category['category'] = '';
                     return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'selected_category' => $selected_category]);
@@ -1655,29 +1655,29 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->form_feature) {
-                        // $categories = Category::orderBy('category', 'ASC')->get();
+                        // $categories = Category::orderBy('category', 'ASC')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_form')) {
                             $forms = FormsPrecedence::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                            })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+                            })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
                             $my_forms = FormsPrecedence::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+                            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
                             $public_forms = FormsPrecedence::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                            })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                            })->where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
                             $form_count = $forms->count();
                             $public_form_count = $public_forms->count();
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
                             return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                         } else {
-                            $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+                            $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
                             $form_count = $forms->count();
-                            $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                            $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
                             $public_form_count = $public_forms->count();
-                            $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+                            $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
                             $selected_category = [];
                             $selected_category['category'] = '';
                             return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'selected_category' => $selected_category]);
@@ -1702,20 +1702,20 @@ class ApiAdminController extends Controller
         try {
             if (Auth::user()->role->name == 'Admin') {
                 $form = FormsPrecedence::findOrFail($id);
-                $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                $comments = FeaturedContent::where('type', 'form')->where('review_type', 'comment')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
-                $reviews = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
+                $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                $comments = FeaturedContent::where('type', 'form')->where('review_type', 'comment')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->paginate(10);
+                $reviews = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->paginate(10);
                 $rating_count = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
                 $rating = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
                 return response(['form' => $form, 'notes' => $notes, 'comments' => $comments, 'reviews' => $reviews, 'rating_count' => $rating_count, 'rating' => $rating, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $form = FormsPrecedence::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                    $comments = FeaturedContent::where('type', 'form')->where('review_type', 'comment')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
-                    $reviews = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->get();
+                    $notes = Annotation::where('resource_type', 'form')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                    $comments = FeaturedContent::where('type', 'form')->where('review_type', 'comment')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->paginate(10);
+                    $reviews = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->orderBy('created_at', 'DESC')->paginate(10);
                     $rating_count = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->count();
                     $rating = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('reference_id', $form->id)->max('rating');
                     return response(['form' => $form, 'notes' => $notes, 'comments' => $comments, 'reviews' => $reviews, 'rating_count' => $rating_count, 'rating' => $rating, 'teams' => $teams]);
@@ -1735,7 +1735,7 @@ class ApiAdminController extends Controller
         };
 
         $form = FormsPrecedence::whereId($id)->first();
-        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $form->id)->where('resource_type', 'form')->get();
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $form->id)->where('resource_type', 'form')->paginate(10);
         return response()->json([
             'anotes' => $anotes,
         ]);
@@ -1751,17 +1751,17 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $categories = Category::orderBy('category', 'ASC')->get();
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
                 if ($request->has('fetch_category')) {
                     $articles = Article::where(function ($query) use ($request) {
                         return $request->category ? $query->from('articles')->where('category', $request->category) : '';
-                    })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+                    })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
                     $my_articles = Article::where(function ($query) use ($request) {
                         return $request->category ? $query->from('articles')->where('category', $request->category) : '';
-                    })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+                    })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
                     $public_articles = Article::where(function ($query) use ($request) {
                         return $request->category ? $query->from('articles')->where('category', $request->category) : '';
-                    })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                    })->where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
 
                     $article_count = $articles->count();
                     $public_article_count = $public_articles->count();
@@ -1769,10 +1769,10 @@ class ApiAdminController extends Controller
                     $selected_category['category'] = $request->category;
                     return response(['articles' => $articles, 'article_count' => $article_count, 'my_articles' => $my_articles, 'public_articles' => $public_articles, 'categories' => $categories, 'public_article_count' => $public_article_count, 'selected_category' => $selected_category]);
                 } else {
-                    $articles = Article::where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-                    $my_articles = Article::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-                    $public_articles = Article::where('display_type', 'public')->orderBy('title', 'ASC')->get();
-                    $categories = Category::orderBy('category', 'ASC')->get();
+                    $articles = Article::where('article_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
+                    $my_articles = Article::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
+                    $public_articles = Article::where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
+                    $categories = Category::orderBy('category', 'ASC')->paginate(10);
                     $article_count = $articles->count();
                     $public_article_count = $public_articles->count();
                     $selected_category = [];
@@ -1783,19 +1783,19 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->article_feature) {
-                        // $categories = Category::orderBy('category', 'ASC')->get();
+                        // $categories = Category::orderBy('category', 'ASC')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
                         // dd($categories);
                         if ($request->has('fetch_category')) {
                             $articles = Article::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('articles')->where('category', $request->category) : '';
-                            })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
+                            })->where('article_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
                             $my_articles = Article::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('articles')->where('category', $request->category) : '';
-                            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
+                            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
                             $public_articles = Article::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('articles')->where('category', $request->category) : '';
-                            })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                            })->where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
 
                             $article_count = $articles->count();
                             $public_article_count = $public_articles->count();
@@ -1803,9 +1803,9 @@ class ApiAdminController extends Controller
                             $selected_category['category'] = $request->category;
                             return response(['articles' => $articles, 'article_count' => $article_count, 'my_articles' => $my_articles, 'public_articles' => $public_articles, 'categories' => $categories, 'public_article_count' => $public_article_count, 'selected_category' => $selected_category]);
                         } else {
-                            $articles = Article::where('article_type', 'legalpedia')->orderBy('title', 'ASC')->get();
-                            $my_articles = Article::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
-                            $public_articles = Article::where('display_type', 'public')->orderBy('title', 'ASC')->get();
+                            $articles = Article::where('article_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
+                            $my_articles = Article::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
+                            $public_articles = Article::where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
                             $article_count = $articles->count();
                             $public_article_count = $public_articles->count();
                             $selected_category = [];
@@ -1832,22 +1832,22 @@ class ApiAdminController extends Controller
         try {
             if (Auth::user()->role->name == 'Admin') {
                 $article = Article::findOrFail($id);
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->get();
-                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-                $comments = FeaturedContent::where('type', 'article')->where('review_type', 'comment')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
-                $reviews = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->paginate(10);
+                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+                $comments = FeaturedContent::where('type', 'article')->where('review_type', 'comment')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->paginate(10);
+                $reviews = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->paginate(10);
                 $rating_count = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
                 $rating = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
                 return response(['article' => $article, 'teams' => $teams, 'notes' => $notes, 'admin_notes' => $admin_notes, 'rating' => $rating, 'rating_count' => $rating_count, 'reviews' => $reviews, 'comments' => $comments]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $article = Article::findOrFail($id);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                    $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->get();
-                    $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-                    $comments = FeaturedContent::where('type', 'article')->where('review_type', 'comment')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
-                    $reviews = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->get();
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                    $notes = Annotation::where('content_id', $article->id)->where('user_id', Auth::user()->id)->paginate(10);
+                    $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+                    $comments = FeaturedContent::where('type', 'article')->where('review_type', 'comment')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->paginate(10);
+                    $reviews = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->orderBy('created_at', 'DESC')->paginate(10);
                     $rating_count = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->count();
                     $rating = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('reference_id', $article->id)->max('rating');
                     return response(['article' => $article, 'teams' => $teams, 'notes' => $notes, 'admin_notes' => $admin_notes, 'rating' => $rating, 'rating_count' => $rating_count, 'reviews' => $reviews, 'comments' => $comments]);
@@ -1870,7 +1870,7 @@ class ApiAdminController extends Controller
         try {
             $article = Article::whereId($id)->first();
             dd($article);
-            $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $article->id)->where('resource_type', 'article')->get();
+            $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $article->id)->where('resource_type', 'article')->paginate(10);
             return response()->json([
                 'anotes' => $anotes,
             ]);
@@ -1889,17 +1889,17 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $categories = Category::orderBy('category', 'ASC')->get();
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
                 if ($request->has('fetch_category')) {
                     $words = Dictionary::where(function ($query) use ($request) {
                         return $request->category ? $query->from('dictionaries')->where('category', $request->category) : '';
-                    })->orderBy('title', 'ASC')->get();
+                    })->orderBy('title', 'ASC')->paginate(10);
                     $word_count = $words->count();
                     $selected_category = [];
                     $selected_category['category'] = $request->category;
                     return response(['words' => $words, 'word_count' => $word_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                 } else {
-                    $words = Dictionary::orderBy('title', 'ASC')->get();
+                    $words = Dictionary::orderBy('title', 'ASC')->paginate(10);
                     $word_count = Dictionary::count();
                     $selected_category = [];
                     $selected_category['category'] = '';
@@ -1909,18 +1909,18 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->dict_feature) {
-                        // $categories = Category::orderBy('category', 'ASC')->get();
+                        // $categories = Category::orderBy('category', 'ASC')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_category')) {
                             $words = Dictionary::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('dictionaries')->where('category', $request->category) : '';
-                            })->orderBy('title', 'ASC')->get();
+                            })->orderBy('title', 'ASC')->paginate(10);
                             $word_count = $words->count();
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
                             return response(['words' => $words, 'word_count' => $word_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                         } else {
-                            $words = Dictionary::orderBy('title', 'ASC')->get();
+                            $words = Dictionary::orderBy('title', 'ASC')->paginate(10);
                             $word_count = Dictionary::count();
                             $selected_category = [];
                             $selected_category['category'] = '';
@@ -1946,17 +1946,17 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $categories = Category::orderBy('category', 'ASC')->get();
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
                 if ($request->has('fetch_category')) {
                     $maxims = Maxim::where(function ($query) use ($request) {
                         return $request->category ? $query->from('maxims')->where('category', $request->category) : '';
-                    })->orderBy('title', 'ASC')->get();
+                    })->orderBy('title', 'ASC')->paginate(10);
                     $maxim_count = $maxims->count();
                     $selected_category = [];
                     $selected_category['category'] = $request->category;
                     return response(['maxims' => $maxims, 'maxim_count' => $maxim_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                 } else {
-                    $maxims = Maxim::orderBy('title', 'ASC')->get();
+                    $maxims = Maxim::orderBy('title', 'ASC')->paginate(10);
                     $maxim_count = Maxim::count();
                     $selected_category = [];
                     $selected_category['category'] = '';
@@ -1966,18 +1966,18 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->maxim_feature) {
-                        // $categories = Category::orderBy('category', 'ASC')->get();
+                        // $categories = Category::orderBy('category', 'ASC')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_category')) {
                             $maxims = Maxim::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('maxims')->where('category', $request->category) : '';
-                            })->orderBy('title', 'ASC')->get();
+                            })->orderBy('title', 'ASC')->paginate(10);
                             $maxim_count = $maxims->count();
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
                             return response(['maxims' => $maxims, 'maxim_count' => $maxim_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                         } else {
-                            $maxims = Maxim::orderBy('title', 'ASC')->get();
+                            $maxims = Maxim::orderBy('title', 'ASC')->paginate(10);
                             $maxim_count = Maxim::count();
                             $selected_category = [];
                             $selected_category['category'] = '';
@@ -2003,17 +2003,17 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $categories = Category::orderBy('category', 'ASC')->get();
+                $categories = Category::orderBy('category', 'ASC')->paginate(10);
                 if ($request->has('fetch_category')) {
                     $resources = Resource::where(function ($query) use ($request) {
                         return $request->category ? $query->from('resources')->where('category', $request->category) : '';
-                    })->orderBy('title', 'ASC')->get();
+                    })->orderBy('title', 'ASC')->paginate(10);
                     $resource_count = $resources->count();
                     $selected_category = [];
                     $selected_category['category'] = $request->category;
                     return response(['resources' => $resources, 'resource_count' => $resource_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                 } else {
-                    $resources = Resource::OrderBy('title', 'ASC')->get();
+                    $resources = Resource::OrderBy('title', 'ASC')->paginate(10);
                     $resource_count = Resource::count();
                     $selected_category = [];
                     $selected_category['category'] = '';
@@ -2023,18 +2023,18 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->resource_feature) {
-                        // $categories = Category::orderBy('category', 'ASC')->get();
+                        // $categories = Category::orderBy('category', 'ASC')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
                         if ($request->has('fetch_category')) {
                             $resources = Resource::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('resources')->where('category', $request->category) : '';
-                            })->orderBy('title', 'ASC')->get();
+                            })->orderBy('title', 'ASC')->paginate(10);
                             $resource_count = $resources->count();
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
                             return response(['resources' => $resources, 'resource_count' => $resource_count, 'categories' => $categories, 'selected_category' => $selected_category]);
                         } else {
-                            $resources = Resource::OrderBy('title', 'ASC')->get();
+                            $resources = Resource::OrderBy('title', 'ASC')->paginate(10);
                             $resource_count = Resource::count();
                             $selected_category = [];
                             $selected_category['category'] = '';
@@ -2060,11 +2060,11 @@ class ApiAdminController extends Controller
 
         try {
             DB::statement("SET SQL_MODE=''");
-            $featured_teams = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->groupBy('reference_id')->get();
-            $featured_users = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->groupBy('reference_id')->get();
-            $featured_articles = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->groupBy('reference_id')->get();
-            $featured_forms = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->groupBy('reference_id')->get();
-            $featured_notes = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->groupBy('reference_id')->get();
+            $featured_teams = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->groupBy('reference_id')->paginate(10);
+            $featured_users = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->groupBy('reference_id')->paginate(10);
+            $featured_articles = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->groupBy('reference_id')->paginate(10);
+            $featured_forms = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->groupBy('reference_id')->paginate(10);
+            $featured_notes = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->groupBy('reference_id')->paginate(10);
             return response([
                 'featured_teams' => $featured_teams,
                 'featured_users' => $featured_users,
@@ -2087,12 +2087,12 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $packages = Package::orderBy('name', 'ASC')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
-                $courts = Court::orderBy('court', 'ASC')->get();
-                $states = State::orderBy('name', 'ASC')->get();
-                $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
+                $packages = Package::orderBy('name', 'ASC')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                $categories = Category::orderBy('category', 'asc')->paginate(10);
+                $courts = Court::orderBy('court', 'ASC')->paginate(10);
+                $states = State::orderBy('name', 'ASC')->paginate(10);
+                $rule_categories = RuleCategory::orderBy('name', 'ASC')->paginate(10);
                 return response(['packages' => $packages, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'courts' => $courts, 'states' => $states, 'rule_categories' => $rule_categories]);
             }
             return redirect('admin/dashboard');
@@ -2111,8 +2111,8 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $discounts = Discount::orderBy('name', 'asc')->get();
-                $packages = Package::orderBy('name', 'asc')->get();
+                $discounts = Discount::orderBy('name', 'asc')->paginate(10);
+                $packages = Package::orderBy('name', 'asc')->paginate(10);
                 $discount_code = $this->generateRandomString(6);
                 return response(['discounts' => $discounts, 'packages' => $packages, 'discount_code' => $discount_code]);
             }
@@ -2210,19 +2210,19 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $packages = Package::orderBy('name', 'ASC')->get();
+                $packages = Package::orderBy('name', 'ASC')->paginate(10);
                 if ($request->has('fetch_transaction')) {
                     $transaction = Transaction::query();
                     if ($request->filled('end_date')) {
                         $start_date = Carbon::parse($request->start_date)->toDateTimeString();
                         $end_date = Carbon::parse($request->end_date)->toDateTimeString();
-                        $transactions = $transaction->whereBetween('created_at', [$start_date, $end_date])->orderBy('created_at', 'DESC')->get();
+                        $transactions = $transaction->whereBetween('created_at', [$start_date, $end_date])->orderBy('created_at', 'DESC')->paginate(10);
                     }
                     if ($request->filled('status')) {
-                        $transactions = $transaction->where('status', $request->status)->orderBy('created_at', 'DESC')->get();
+                        $transactions = $transaction->where('status', $request->status)->orderBy('created_at', 'DESC')->paginate(10);
                     }
                     if ($request->filled('package')) {
-                        $transactions = $transaction->where('package', $request->package)->orderBy('created_at', 'DESC')->get();
+                        $transactions = $transaction->where('package', $request->package)->orderBy('created_at', 'DESC')->paginate(10);
                     }
                     $transaction_count = $transactions->count();
                     $selected_status = [];
@@ -2235,7 +2235,7 @@ class ApiAdminController extends Controller
                     $bought_package =  $transactions->where('status', 'paid')->count();
                     return response(['transactions' => $transactions, 'transaction_count' => $transaction_count, 'gross_amount' => $gross_amount, 'net_amount' => $net_amount, 'bought_package' => $bought_package, 'packages' => $packages, 'selected_status' => $selected_status, 'selected_package' => $selected_package, 'discounted_sum' => $discounted_sum]);
                 }
-                $transactions = Transaction::orderBy('created_at', 'DESC')->get();
+                $transactions = Transaction::orderBy('created_at', 'DESC')->paginate(10);
                 $transaction_count = $transactions->count();
                 $gross_amount =  $transactions->sum('amount');
                 $discounted_sum =  $transactions->sum('discounted_price');
@@ -2263,7 +2263,7 @@ class ApiAdminController extends Controller
 
         try {
             $teams = Team::get();
-            $my_teams = Team::where('user_id', Auth::user()->id)->get();
+            $my_teams = Team::where('user_id', Auth::user()->id)->paginate(10);
             return response(['teams' => $teams, 'my_teams' => $my_teams]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -2280,21 +2280,21 @@ class ApiAdminController extends Controller
         try {
             $team = Team::findOrFail($id);
             $user = Auth::user()->id;
-            $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->get();
+            $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->paginate(10);
             $send_request = UserTeam::where('user_id', Auth::user()->id)->where('team_id', $team->id)->first();
-            $approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->get();
-            $some_approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->limit(4)->get();
+            $approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->paginate(10);
+            $some_approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->limit(4)->paginate(10);
             $approved_member = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->first();
             $approved_member_count = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->count();
             $comment = Comment::with('comment_replies')->where('team_id', $team->id)->where('pinned_post', 1)->first(); // pinned post
-            $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
-            $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
-            $saved_posts = SavedPost::where('team_id', $team->id)->where('user_id', Auth::user()->id)->where('status', 1)->orderBy('created_at', 'DESC')->get();
+            $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->paginate(10);
+            $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->paginate(10);
+            $saved_posts = SavedPost::where('team_id', $team->id)->where('user_id', Auth::user()->id)->where('status', 1)->orderBy('created_at', 'DESC')->paginate(10);
 
             $team_member = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->where('user_id', Auth::user()->id)->first();
             $rating_count = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->count();
             $rating = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->max('rating');
-            $reviews = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->orderBy('created_at', 'DESC')->get();
+            $reviews = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('reference_id', $team->id)->orderBy('created_at', 'DESC')->paginate(10);
 
             if (isset($request->search_post) && !empty($request->search_post)) {
                 $search = $request->search_post;
@@ -2303,10 +2303,10 @@ class ApiAdminController extends Controller
                     ->where('team_id', $team->id)
                     ->where('comment_body', 'LIKE', '%' . $search . '%')
                     ->orderBy('created_at', 'DESC')
-                    ->get();
+                    ->paginate(10);
                 return response(['team' => $team, 'users' => $users, 'send_request' => $send_request, 'approved_members' => $approved_members, 'some_approved_members' => $some_approved_members, 'approved_member' => $approved_member, 'approved_member_count' => $approved_member_count, 'comments' => $comments, 'shared_files' => $shared_files, 'shared_resources' => $shared_resources, 'comment' => $comment, 'saved_posts' => $saved_posts, 'rating_count' => $rating_count, 'rating' => $rating, 'reviews' => $reviews, 'team_member' => $team_member]);
             }
-            $comments = Comment::with('comment_replies')->where('team_id', $team->id)->where('id', '<>', @$comment->id)->orderBy('created_at', 'DESC')->get();
+            $comments = Comment::with('comment_replies')->where('team_id', $team->id)->where('id', '<>', @$comment->id)->orderBy('created_at', 'DESC')->paginate(10);
             // return view('admin.teams.show', compact('team', 'users', 'send_request', 'approved_members', 'some_approved_members', 'approved_member', 'approved_member_count', 'comments', 'shared_files', 'shared_resources', 'comment', 'saved_posts', 'rating_count', 'rating', 'reviews', 'team_member'));
             return response(['team' => $team, 'users' => $users, 'send_request' => $send_request, 'approved_members' => $approved_members, 'some_approved_members' => $some_approved_members, 'approved_member' => $approved_member, 'approved_member_count' => $approved_member_count, 'comments' => $comments, 'saved_posts' => $saved_posts, 'rating_count' => $rating_count, 'rating' => $rating, 'reviews' => $reviews, 'team_member' => $team_member]);
         } catch (\Exception $e) {
@@ -2324,15 +2324,15 @@ class ApiAdminController extends Controller
         try {
             $team = Team::findOrFail($id);
             $user = Auth::user()->id;
-            $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->get();
+            $users = User::select("*")->whereNotNull('last_seen')->orderBy('last_seen', 'DESC')->paginate(10);
             $send_request = UserTeam::where('user_id', Auth::user()->id)->where('team_id', $team->id)->first();
-            $approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->get();
-            $some_approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->limit(4)->get();
+            $approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->paginate(10);
+            $some_approved_members = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->limit(4)->paginate(10);
             $approved_member = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->first();
             $approved_member_count = UserTeam::where('approve_request', 1)->where('team_id', $team->id)->count();
-            $comments = Comment::with('comment_replies')->where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
-            $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->get();
-            $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->get();
+            $comments = Comment::with('comment_replies')->where('team_id', $team->id)->orderBy('created_at', 'DESC')->paginate(10);
+            $shared_files = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->limit(4)->paginate(10);
+            $shared_resources = Comment::where('team_id', $team->id)->orderBy('created_at', 'DESC')->paginate(10);
             return response(['team' => $team, 'users' => $users, 'send_request' => $send_request, 'approved_members' => $approved_members, 'some_approved_members' => $some_approved_members, 'approved_member' => $approved_member, 'approved_member_count' => $approved_member_count, 'comments' => $comments, 'shared_files' => $shared_files, 'shared_resources' => $shared_resources]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -2369,7 +2369,7 @@ class ApiAdminController extends Controller
                     ->orderByRaw('CHAR_LENGTH(heading)')
                     ->simplePaginate(15)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
 
                 $query_ratio_count = SummaryRatio::query()
@@ -2409,7 +2409,7 @@ class ApiAdminController extends Controller
                     ->orderBy('law_date', 'DESC')
                     ->simplePaginate(5)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 // dd($query_law['search']);
                 $query_fed_count = LawOfFederation::query()
@@ -2426,7 +2426,7 @@ class ApiAdminController extends Controller
                         ->orderBy('sched_header', 'ASC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
 
                 $query_sched_count = LawOfFedSched::query()
@@ -2442,7 +2442,7 @@ class ApiAdminController extends Controller
                         ->orderBy('section_header', 'ASC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
                 $query_sec_count = LawOfFedSection::query()
                     ->where('section_header', 'LIKE', '%' . $search . '%')
@@ -2464,9 +2464,9 @@ class ApiAdminController extends Controller
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orWhere('type', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_rule_count = Rule::query()
                     ->where('name', 'LIKE', '%' . $search . '%')
@@ -2484,9 +2484,9 @@ class ApiAdminController extends Controller
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orWhere('category', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_form_count = FormsPrecedence::query()
                     ->where('title', 'LIKE', '%' . $search . '%')
@@ -2501,9 +2501,9 @@ class ApiAdminController extends Controller
                     ->where('title', 'LIKE', '%' . $search . '%')
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_article_count = Article::query()
                     ->where('title', 'LIKE', '%' . $search . '%')
@@ -2519,9 +2519,9 @@ class ApiAdminController extends Controller
                     ->where('display', 'public')
                     ->where('resource_type', '!=', 'admin-note')
                     ->orderBy('comment', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_note_count = Annotation::query()
                     ->where('content', 'LIKE', '%' . $search . '%')
@@ -2567,7 +2567,7 @@ class ApiAdminController extends Controller
                     ->orderBy('law_date', 'DESC')
                     ->simplePaginate(5)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 // dd($query_law['search']);
                 $query_fed_count = LawOfFederation::query()
@@ -2584,7 +2584,7 @@ class ApiAdminController extends Controller
                         ->orderBy('sched_header', 'ASC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
 
                 $query_sched_count = LawOfFedSched::query()
@@ -2600,7 +2600,7 @@ class ApiAdminController extends Controller
                         ->orderBy('section_header', 'ASC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
                 $query_sec_count = LawOfFedSection::query()
                     ->where('section_header', 'LIKE', '%' . $search . '%')
@@ -2622,9 +2622,9 @@ class ApiAdminController extends Controller
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orWhere('type', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_rule_count = Rule::query()
                     ->where('name', 'LIKE', '%' . $search . '%')
@@ -2642,9 +2642,9 @@ class ApiAdminController extends Controller
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orWhere('category', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_form_count = FormsPrecedence::query()
                     ->where('title', 'LIKE', '%' . $search . '%')
@@ -2659,9 +2659,9 @@ class ApiAdminController extends Controller
                     ->where('title', 'LIKE', '%' . $search . '%')
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_article_count = Article::query()
                     ->where('title', 'LIKE', '%' . $search . '%')
@@ -2677,9 +2677,9 @@ class ApiAdminController extends Controller
                     ->where('display', 'public')
                     ->where('resource_type', '!=', 'admin-note')
                     ->orderBy('comment', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_note_count = Annotation::query()
                     ->where('content', 'LIKE', '%' . $search . '%')
@@ -2689,10 +2689,10 @@ class ApiAdminController extends Controller
                     ->count();
 
                 if ($request->filled('year')) {
-                    $suitNumbers = JudgementSummary::query()->where('judgement_date', 'LIKE', '%' . $request->year . '%')->get()->pluck('suit_no');
+                    $suitNumbers = JudgementSummary::query()->where('judgement_date', 'LIKE', '%' . $request->year . '%')->paginate(10)->pluck('suit_no');
                     $query_case['table'] = 'ratio';
-                    $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%' . $search . '%')->orderByRaw('CHAR_LENGTH(heading)')->get();
-                    $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%' . $search . '%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+                    $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%' . $search . '%')->orderByRaw('CHAR_LENGTH(heading)')->paginate(10);
+                    $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%' . $search . '%')->orderByRaw('CHAR_LENGTH(heading)')->paginate(10);
                     $together = $heading->merge($body);
                     $query_case_count = $together->count();
                     $query_case['search'] =  $this->customPaginate($together)->withPath(url()->current())->withQueryString();
@@ -2736,7 +2736,7 @@ class ApiAdminController extends Controller
                     ->orderByRaw('CHAR_LENGTH(heading)')
                     ->simplePaginate(5)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
 
                 $query_ratio_count = SummaryRatio::query()
@@ -2770,7 +2770,7 @@ class ApiAdminController extends Controller
                         ->orderBy('judgement', 'DESC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
 
                 $query_judg_count = Judgement::query()
@@ -2791,7 +2791,7 @@ class ApiAdminController extends Controller
                     ->orderBy('law_date', 'DESC')
                     ->simplePaginate(5)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 // dd($query_law['search']);
                 $query_fed_count = LawOfFederation::query()
@@ -2808,7 +2808,7 @@ class ApiAdminController extends Controller
                         ->orderBy('sched_header', 'ASC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
 
                 $query_sched_count = LawOfFedSched::query()
@@ -2824,7 +2824,7 @@ class ApiAdminController extends Controller
                         ->orderBy('section_header', 'ASC')
                         ->simplePaginate(5)
                         ->withQueryString();
-                    // ->get();
+                    // ->paginate(10);
                 }
                 $query_sec_count = LawOfFedSection::query()
                     ->where('section_header', 'LIKE', '%' . $search . '%')
@@ -2846,9 +2846,9 @@ class ApiAdminController extends Controller
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orWhere('type', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_rule_count = Rule::query()
                     ->where('name', 'LIKE', '%' . $search . '%')
@@ -2866,9 +2866,9 @@ class ApiAdminController extends Controller
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orWhere('category', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_form_count = FormsPrecedence::query()
                     ->where('title', 'LIKE', '%' . $search . '%')
@@ -2883,9 +2883,9 @@ class ApiAdminController extends Controller
                     ->where('title', 'LIKE', '%' . $search . '%')
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
                     ->orderBy('title', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_article_count = Article::query()
                     ->where('title', 'LIKE', '%' . $search . '%')
@@ -2901,9 +2901,9 @@ class ApiAdminController extends Controller
                     ->where('display', 'public')
                     ->where('resource_type', '!=', 'admin-note')
                     ->orderBy('comment', 'ASC')
-                    ->simplePaginate()
+                    ->paginate(10)
                     ->withQueryString();
-                // ->get();
+                // ->paginate(10);
 
                 $query_note_count = Annotation::query()
                     ->where('content', 'LIKE', '%' . $search . '%')
@@ -2924,11 +2924,11 @@ class ApiAdminController extends Controller
 
         /////////// for more year results////////////
         // if($request->filled('years')) {
-        //     $suitNumbers = JudgementSummary::query()->where('judgement_date','LIKE', '%'.$request->year.'%')->get()->pluck('suit_no');
+        //     $suitNumbers = JudgementSummary::query()->where('judgement_date','LIKE', '%'.$request->year.'%')->paginate(10)->pluck('suit_no');
 
         //     $query_case['table'] = 'ratio';
-        //     $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
-        //     $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->get();
+        //     $heading = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('heading', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->paginate(10);
+        //     $body = SummaryRatio::whereIn('suit_no', $suitNumbers)->where('body', 'LIKE', '%'.$search.'%')->orderByRaw('CHAR_LENGTH(heading)')->paginate(10);
         //     $together = $heading->merge($body);
         //     $query_ratio_count = $together->count();
         //     $query_case['search'] =  $together;
@@ -2944,7 +2944,7 @@ class ApiAdminController extends Controller
         //         ->orderBy('judgement_date', 'DESC')
         //         // ->simplePaginate(5)
         //         // ->withQueryString();
-        //         ->get());
+        //         ->paginate(10));
         //     }
 
         //     $query_sum_count = JudgementSummary::query()
@@ -2961,7 +2961,7 @@ class ApiAdminController extends Controller
         //         ->orderBy('judgement', 'DESC')
         //         // ->simplePaginate(5)
         //         // ->withQueryString();
-        //         ->get());
+        //         ->paginate(10));
         //     }
 
         //     $query_judg_count = Judgement::whereIn('suit_no', $suitNumbers)
