@@ -54,16 +54,13 @@ class LoginController extends Controller
 
     public function Authenticated(Request $request, User $user)
     {
-        // dd('this');
-        // dd(date("m/d/Y h:i:s A T", time()), (date("m/d/Y h:i:s A T", time() - 300)));
         if (Auth::check()) {
-            
 
             $user = Auth::user();
             $time = time();
             Session::put('join', 1);
             Session::put('welcome', 1);
-            Session::put('who',$time);
+            Session::put('who', $time);
 
             if (!empty($user->license_code)) {
                 // dd("has license");
@@ -78,7 +75,7 @@ class LoginController extends Controller
                     if ($license_count < $allowed_users) {
                         // $license->increment('session_no');
                         LicensedUserSession::create([
-                            'license_id' => $license->license_id+1,
+                            'license_id' => $license->license_id + 1,
                             'user_id' => $user->id,
                             'session_no' => $time,
                         ]);
@@ -89,13 +86,13 @@ class LoginController extends Controller
                         $to_logout = $logged_out_user->session_no;
                         $me = Session::get('who');
                         // dd($logged_out_user, $me, $me == $to_logout);
-                        if($me == $to_logout){
+                        if ($me == $to_logout) {
                             // dd('here');
                             $logged_out_user->delete();
                             Auth::logout();
                             Session::flash('error', 'Maximmum number of users reached');
                             return redirect('/login')->withErrors('Maximmum number of users reached');
-                        }else{
+                        } else {
                             LicensedUserSession::create([
                                 'license_id' => $license->license_id + 1,
                                 'user_id' => $user->id,
@@ -103,7 +100,6 @@ class LoginController extends Controller
                             ]);
                             $logged_out_user->delete();
                         }
-
                     }
                     // if ($license_count >= $allowed_users) {
 
@@ -135,7 +131,7 @@ class LoginController extends Controller
                 }
             }
 
-            // Auth::logoutOtherDevices($request['password']);
+            Auth::logoutOtherDevices($request['password']);
 
             return redirect()->intended();
         }
