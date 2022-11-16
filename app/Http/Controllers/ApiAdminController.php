@@ -92,8 +92,6 @@ class ApiAdminController extends Controller
 {
     public function index(Request $request)
     {
-        dd('sdfdf');
-
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
             return response(['errror' => 'You have been logged out by another user']);
