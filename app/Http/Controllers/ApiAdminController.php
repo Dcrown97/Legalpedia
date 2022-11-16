@@ -98,30 +98,34 @@ class ApiAdminController extends Controller
             return response(['errror' => 'You have been logged out by another user']);
         };
 
-        $judgement_count = JudgementSummary::count();
-        $fed_count = LawOfFederation::count();
-        $rule_count = Rule::count();
-        $form_count = FormsPrecedence::count();
-        $article_count = Article::count();
-        $dict_count = Dictionary::count();
-        $maxim_count = Maxim::count();
-        $resource_count = Resource::count();
-        $team_count = Team::count();
-        $pop_message = Message::where('type', 'in-app')->orderBy('created_at', 'DESC')->orderBy('created_at', 'DESC')->first();
-        $latest_judgements = JudgementSummary::orderBy('judgement_date', 'DESC')->limit(5)->paginate(10);
-        $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
-        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
-        $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
-        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-        $new_chat_count = ChMessage::where('to_id', Auth::user()->id)->where('seen', 0)->count();
-        $all_count = $judgement_count + $fed_count + $rule_count + $form_count + $article_count + $dict_count + $maxim_count + $resource_count;
-        DB::statement("SET SQL_MODE=''");
-        $featured_team = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('featured', 1)->first();
-        $featured_user = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('featured', 1)->first();
-        $featured_article = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('featured', 1)->first();
-        $featured_form = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('featured', 1)->first();
-        $featured_note = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('featured', 1)->first();
-        return response(["judgement_count" => $judgement_count, 'fed_count' => $fed_count, "rule_count" => $rule_count, "form_count" => $form_count, "article_count" => $article_count, "dict_count" => $dict_count, "maxim_count" => $maxim_count, "resource_count" => $resource_count, "all_count" => $all_count, "team_count" => $team_count, "latest_judgements" => $latest_judgements, "notes" => $notes, "admin_notes" => $admin_notes, "recent_activities" => $recent_activities, "teams" => $teams, "pop_message" => $pop_message, "new_chat_count" => $new_chat_count, "featured_user" => $featured_user, "featured_team" => $featured_team, "featured_article" => $featured_article, "featured_form" => $featured_form, "featured_note" => $featured_note]);
+        try {
+            $judgement_count = JudgementSummary::count();
+            $fed_count = LawOfFederation::count();
+            $rule_count = Rule::count();
+            $form_count = FormsPrecedence::count();
+            $article_count = Article::count();
+            $dict_count = Dictionary::count();
+            $maxim_count = Maxim::count();
+            $resource_count = Resource::count();
+            $team_count = Team::count();
+            $pop_message = Message::where('type', 'in-app')->orderBy('created_at', 'DESC')->orderBy('created_at', 'DESC')->first();
+            $latest_judgements = JudgementSummary::orderBy('judgement_date', 'DESC')->limit(5)->paginate(10);
+            $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+            $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+            $recent_activities = RecentActivity::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->limit(5)->paginate(10);
+            $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+            $new_chat_count = ChMessage::where('to_id', Auth::user()->id)->where('seen', 0)->count();
+            $all_count = $judgement_count + $fed_count + $rule_count + $form_count + $article_count + $dict_count + $maxim_count + $resource_count;
+            DB::statement("SET SQL_MODE=''");
+            $featured_team = FeaturedContent::where('type', 'team')->where('review_type', 'rating')->where('featured', 1)->first();
+            $featured_user = FeaturedContent::where('type', 'user')->where('review_type', 'rating')->where('featured', 1)->first();
+            $featured_article = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('featured', 1)->first();
+            $featured_form = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('featured', 1)->first();
+            $featured_note = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('featured', 1)->first();
+            return response(["judgement_count" => $judgement_count, 'fed_count' => $fed_count, "rule_count" => $rule_count, "form_count" => $form_count, "article_count" => $article_count, "dict_count" => $dict_count, "maxim_count" => $maxim_count, "resource_count" => $resource_count, "all_count" => $all_count, "team_count" => $team_count, "latest_judgements" => $latest_judgements, "notes" => $notes, "admin_notes" => $admin_notes, "recent_activities" => $recent_activities, "teams" => $teams, "pop_message" => $pop_message, "new_chat_count" => $new_chat_count, "featured_user" => $featured_user, "featured_team" => $featured_team, "featured_article" => $featured_article, "featured_form" => $featured_form, "featured_note" => $featured_note]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
 
