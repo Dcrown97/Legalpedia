@@ -1864,7 +1864,6 @@ class ApiAdminController extends Controller
 
     public function fetchArticleAnote($id)
     {
-        // dd($id);
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
             return response(['errror' => 'You have been logged out by another user']);
@@ -1872,7 +1871,6 @@ class ApiAdminController extends Controller
 
         try {
             $article = Article::whereId($id)->first();
-            dd($article);
             $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $article->id)->where('resource_type', 'article')->paginate(10);
             return response()->json([
                 'anotes' => $anotes,
