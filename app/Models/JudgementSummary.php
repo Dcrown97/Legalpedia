@@ -16,6 +16,11 @@ class JudgementSummary extends Model
 
     protected $table = 'judgement_summaries';
 
+    public function judgement_principle()
+    {
+        return $this->belongsTo(JudgementPrinciple::class);
+    }
+
     public function court() {
         return $this->belongsTo(Court::class);
     }

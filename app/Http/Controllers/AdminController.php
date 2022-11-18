@@ -261,6 +261,7 @@ class AdminController extends Controller
                     $selected_court['court_id'] = '';
                     $selected_year = [];
                     $selected_year['judgement_date'] = '';
+                    // dd($judgement_summaries, 'web');
                     return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                 }
                 return redirect('admin/dashboard')->with('error1', 'You need to upgrade your package to get access');
@@ -352,6 +353,7 @@ class AdminController extends Controller
                 $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
                 $selected_subject_matter = [];
                 $selected_subject_matter['subject_matter_index'] = '';
+                //  dd($judgement_summaries, 'web');
                 return view('admin.judgements.subject-matter', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'area_of_laws', 'subject_matter_indices', 'selected_subject_matter'));
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');

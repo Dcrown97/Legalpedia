@@ -190,6 +190,7 @@ class ApiAdminController extends Controller
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                 }
                 $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
+                dd($judgement_summaries, 'this');
                 $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
@@ -200,7 +201,7 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->judgement_feature) {
-                        $courts = Package::where('id', Auth::user()->package_id)->first();
+                        $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                         $years = Package::where('id', Auth::user()->package_id)->first();
                         $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
                         $categories = Category::orderBy('category', 'asc')->paginate(10);
@@ -259,6 +260,7 @@ class ApiAdminController extends Controller
                         $selected_court['court_id'] = '';
                         $selected_year = [];
                         $selected_year['judgement_date'] = '';
+                        dd($judgement_summaries, 'api');
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
@@ -279,12 +281,12 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('court', 'ASC')->paginate(10);
+                $courts = Court::orderBy('court', 'ASC')->get();
                 DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(10);
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
-                $categories = Category::orderBy('category', 'asc')->paginate(10);
-                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
+                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                $categories = Category::orderBy('category', 'asc')->get();
+                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
                 $judgement_summary = JudgementSummary::query();
                 if ($request->filled('subject_matter_index')) {
                     $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
@@ -316,10 +318,11 @@ class ApiAdminController extends Controller
                 $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10)->withQueryString();
                 $selected_subject_matter = [];
                 $selected_subject_matter['subject_matter_index'] = '';
+                // dd('fsdf');
                 return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    $courts = Package::where('id', Auth::user()->package_id)->first();
+                    $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                     $years = Package::where('id', Auth::user()->package_id)->first();
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
                     $categories = Category::orderBy('category', 'asc')->paginate(10);
@@ -355,6 +358,7 @@ class ApiAdminController extends Controller
                     $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10)->withQueryString();
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = '';
+                    //  dd($judgement_summaries, 'api');
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
@@ -394,7 +398,7 @@ class ApiAdminController extends Controller
                 return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    $courts = Package::where('id', Auth::user()->package_id)->first();
+                    $courts = Court::orderBy('rank', 'ASC')->paginate(10);
                     $years = Package::where('id', Auth::user()->package_id)->first();
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
                     $categories = Category::orderBy('category', 'asc')->paginate(10);
@@ -2915,10 +2919,9 @@ class ApiAdminController extends Controller
 
                 $selected_year = [];
                 $selected_year['judgement_date'] = '';
-                
+
                 return response(['query_case' => $query_case, 'selected_year' => $selected_year, 'search' => $search, 'first_search' => $first_search, 'second_search' => $second_search, 'query_law' => $query_law, 'query_case_count' => $query_case_count, 'query_law_count' => $query_law_count, 'query_rule' => $query_rule, 'query_rule_count' => $query_rule_count, 'query_form' => $query_form, 'query_form_count' => $query_form_count, 'query_article' => $query_article, 'query_article_count' => $query_article_count, 'query_note' => $query_note, 'query_note_count' => $query_note_count]);
             }
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
