@@ -260,7 +260,7 @@ class ApiAdminController extends Controller
                         $selected_court['court_id'] = '';
                         $selected_year = [];
                         $selected_year['judgement_date'] = '';
-                        dd($judgement_summaries, 'api');
+                        // dd($judgement_summaries, 'api');
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
