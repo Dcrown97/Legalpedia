@@ -269,6 +269,7 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
+    
     public function sbjMatter(Request $request)
     {
         if (checkUser() == false) {
