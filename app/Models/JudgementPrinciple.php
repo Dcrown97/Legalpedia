@@ -14,10 +14,4 @@ class JudgementPrinciple extends Model
     ];
 
     protected $table = 'judgement_principles';
-
-    // public function judgement_principle()
-    // {
-    //     return $this->belongsTo(JudgementPrinciple::class);
-    // }
-
 }
