@@ -279,71 +279,62 @@ class ApiAdminController extends Controller
         };
 
         try {
-                    $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-                    if ($subscribed_package->judgement_feature) {
-                        $courts = Package::where('id', Auth::user()->package_id)->first();
-                        $years = Package::where('id', Auth::user()->package_id)->first();
-                        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                        $categories = Category::orderBy('category', 'asc')->get();
-                        $judgement_summary = JudgementSummary::query();
-                        if ($request->filled('id') && !$request->filled('year')) {
-                            $judge = $judgement_summary->where('court_id', $request->id);
-                            $judgement_count = $judge->count();
-                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                            $selected_year = [];
-                            $selected_year['judgement_date'] = '';
-                            $selected_court = [];
-                            $selected_court['court_id'] = $request->id;
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                        }
-                        if (!$request->filled('id') && $request->filled('year')) {
-                            $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
-                            $judgement_count =  $judge->count();
-                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                            $selected_year = [];
-                            $selected_year['judgement_date'] = $request->year;
-                            $selected_court = [];
-                            $selected_court['court_id'] = '';
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                        }
-                        if ($request->filled('id') && $request->filled('year')) {
-                            $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
-                            $judgement_count =  $judge->count();
-                            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                            $selected_year = [];
-                            $selected_year['judgement_date'] = $request->year;
-                            $selected_court = [];
-                            $selected_court['court_id'] = $request->id;
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                        }
-                        if ($request->search_case) {
-                            $search = $request->search_case;
-                            $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                                ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
-                            $judgement_count =  $judge->count();
-                            $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                                ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
-                                ->orderBy('judgement_date', 'DESC')
-                                ->simplePaginate()
-                                ->withQueryString();
-                            $selected_court = [];
-                            $selected_court['court_id'] = '';
-                            $selected_year = [];
-                            $selected_year['judgement_date'] = '';
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                        }
-                        $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
-                        $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
-                        $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->get();
-                        $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
-                        $selected_court = [];
-                        $selected_court['court_id'] = '';
-                        $selected_year = [];
-                        $selected_year['judgement_date'] = '';
-                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                    }
-                    return response(['error' => 'You need to upgrade your package to get access']);
-                
+            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+            $categories = Category::orderBy('category', 'asc')->get();
+            $judgement_summary = JudgementSummary::query();
+            if ($request->filled('id') && !$request->filled('year')) {
+                $judge = $judgement_summary->where('court_id', $request->id);
+                $judgement_count = $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
+                $selected_year = [];
+                $selected_year['judgement_date'] = '';
+                $selected_court = [];
+                $selected_court['court_id'] = $request->id;
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+            }
+            if (!$request->filled('id') && $request->filled('year')) {
+                $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
+                $selected_year = [];
+                $selected_year['judgement_date'] = $request->year;
+                $selected_court = [];
+                $selected_court['court_id'] = '';
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+            }
+            if ($request->filled('id') && $request->filled('year')) {
+                $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
+                $selected_year = [];
+                $selected_year['judgement_date'] = $request->year;
+                $selected_court = [];
+                $selected_court['court_id'] = $request->id;
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+            }
+            if ($request->search_case) {
+                $search = $request->search_case;
+                $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->simplePaginate()
+                    ->withQueryString();
+                $selected_court = [];
+                $selected_court['court_id'] = '';
+                $selected_year = [];
+                $selected_year['judgement_date'] = '';
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+            }
+            $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
+            $judgement_count = JudgementSummary::count();
+            $selected_court = [];
+            $selected_court['court_id'] = '';
+            $selected_year = [];
+            $selected_year['judgement_date'] = '';
+            return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -461,50 +452,47 @@ class ApiAdminController extends Controller
         };
 
         try {
-                    $courts = Package::where('id', Auth::user()->package_id)->first();
-                    $years = Package::where('id', Auth::user()->package_id)->first();
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                    $categories = Category::orderBy('category', 'asc')->get();
-                    $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-                    $judgement_summary = JudgementSummary::query();
-                    if ($request->filled('subject_matter_index')) {
-                        $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
-                        $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
-                        $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
-                        $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
-                        $judgement_count = $judge->count();
-                        $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                        $selected_subject_matter = [];
-                        $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
-                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-                    }
-                    if ($request->search_case) {
-                        $search = $request->search_case;
-                        $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                            ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
-                        $judgement_count =  $judge->count();
-                        $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                            ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
-                            ->orderBy('judgement_date', 'DESC')
-                            ->get();
-                        $selected_subject_matter = [];
-                        $selected_subject_matter['subject_matter_index'] = '';
-                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-                    }
-                    $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
-                    $judgement_count = $count->count();
-                    $selected_subject_matter = [];
-                    $selected_subject_matter['subject_matter_index'] = '';
-                    $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
-                    $judge_summary = [];
-                    if (count($judgement_summaries) > 0) {
-                        foreach ($judgement_summaries as $judge) {
-                            $judgement_sum  = JudgementSummary::where('suit_no', $judge->suit_no)->first();
-                            $judge_summary[] = $judgement_sum;
-                        }
-                    }
-                    return response(['judge_summary' => $judge_summary, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-            
+            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+            $categories = Category::orderBy('category', 'asc')->get();
+            $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+            $judgement_summary = JudgementSummary::query();
+            if ($request->filled('subject_matter_index')) {
+                $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
+                $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
+                $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
+                $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
+                $judgement_count = $judge->count();
+                $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
+                $selected_subject_matter = [];
+                $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
+            }
+            if ($request->search_case) {
+                $search = $request->search_case;
+                $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
+                $judgement_count =  $judge->count();
+                $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                    ->orderBy('judgement_date', 'DESC')
+                    ->get();
+                $selected_subject_matter = [];
+                $selected_subject_matter['subject_matter_index'] = '';
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
+            }
+            $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
+            $judgement_count = $count->count();
+            $selected_subject_matter = [];
+            $selected_subject_matter['subject_matter_index'] = '';
+            $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
+            $judge_summary = [];
+            if (count($judgement_summaries) > 0) {
+                foreach ($judgement_summaries as $judge) {
+                    $judgement_sum  = JudgementSummary::where('suit_no', $judge->suit_no)->first();
+                    $judge_summary[] = $judgement_sum;
+                }
+            }
+            return response(['judge_summary' => $judge_summary, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
