@@ -353,17 +353,17 @@ class ApiAdminController extends Controller
                         $selected_subject_matter['subject_matter_index'] = '';
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
                     }
-                    $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10);
+                    $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
                     $judgement_count = $count->count();
-                    $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->paginate(10)->withQueryString();
+                    $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->simplePaginate()->withQueryString();
                     $judge_summary = [];
                     if (count($judgement_summaries) > 0) {
                         foreach ($judgement_summaries as $judge) {
                             $judgement_sum  = JudgementSummary::where('suit_no', $judge->suit_no)->first();
-                            $judge_summary[] = $judgement_sum;
+                            $judge_summary[] = $judgement_sum->paginate(10);
                         }
                     }
-                    
+
                     $selected_subject_matter = [];
                     $selected_subject_matter['subject_matter_index'] = '';
                     //  dd($judgement_summaries, 'api');
