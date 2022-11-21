@@ -279,7 +279,6 @@ class ApiAdminController extends Controller
         };
 
         try {
-                if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->judgement_feature) {
                         $courts = Package::where('id', Auth::user()->package_id)->first();
@@ -345,7 +344,6 @@ class ApiAdminController extends Controller
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
                 
-            }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -463,8 +461,6 @@ class ApiAdminController extends Controller
         };
 
         try {
-            
-                if (Auth::user()->subscribedUser()) {
                     $courts = Package::where('id', Auth::user()->package_id)->first();
                     $years = Package::where('id', Auth::user()->package_id)->first();
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
@@ -508,8 +504,6 @@ class ApiAdminController extends Controller
                         }
                     }
                     return response(['judge_summary' => $judge_summary, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-                }
-                return response(['error' => 'You need to subscribe to a package to get access']);
             
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
