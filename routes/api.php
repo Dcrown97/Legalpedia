@@ -30,6 +30,8 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
     Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
     Route::get('/admin/judgements/allsubject-matter', [ApiAdminController::class, 'allSbjMatter'])->name('judgement.sbj-matter');
+    Route::get('/admin/judgements/all-legal-citation', [ApiAdminController::class, 'allLegalCitation'])->name('judgement.citation');
+
 });
 
 Route::middleware('auth:api')->group(function () {

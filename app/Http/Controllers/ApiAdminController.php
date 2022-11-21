@@ -560,6 +560,33 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function allLegalCitation(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                $categories = Category::orderBy('category', 'asc')->get();
+
+                if ($request->search_case) {
+                    $search = $request->search_case;
+                    $judge = JudgementSummary::query()->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
+                    $judgement_count =  $judge->count();
+                    $judgement_summaries = JudgementSummary::query()->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+                        ->orderBy('judgement_date', 'DESC')
+                        ->get();
+                    return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
+                }
+                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
+                $judgement_count = JudgementSummary::count();
+                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws]);
+    
+    }
+
     public function noSummary(Request $request)
     {
         // dd($request->all());
