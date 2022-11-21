@@ -27,6 +27,9 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     // public routes
     Route::post('/register', [ApiRegisterController::class, "register"]);
     Route::post('/login', [ApiLoginController::class, "login"]);
+    Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
+    Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
+    Route::get('/admin/judgements/allsubject-matter', [ApiAdminController::class, 'allSbjMatter'])->name('judgement.sbj-matter');
 });
 
 Route::middleware('auth:api')->group(function () {
@@ -42,10 +45,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/admin/judgements/subject-matter-index', [ApiAdminController::class, 'getSbj'])->name('get.sbj');
 
     //Judgement routes
-    Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
     Route::get('/admin/judgements', [ApiAdminController::class, 'judgement'])->name('admin.judgement');
     Route::get('/admin/judgements/legal-citation', [ApiAdminController::class, 'legalCitation'])->name('judgement.citation');
-    Route::get('/admin/judgements/allsubject-matter', [ApiAdminController::class, 'allSbjMatter'])->name('judgement.sbj-matter');
     Route::get('/admin/judgements/subject-matter', [ApiAdminController::class, 'sbjMatter'])->name('judgement.sbj-matter');
     Route::get('/admin/judgements/no-summary', [ApiAdminController::class, 'noSummary'])->name('judgement.no-summary');
     Route::get('/admin/judgements/create', [ApiAdminController::class, 'create'])->name('judge.create');
