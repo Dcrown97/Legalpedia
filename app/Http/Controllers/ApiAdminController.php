@@ -279,66 +279,6 @@ class ApiAdminController extends Controller
         };
 
         try {
-            if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('rank', 'ASC')->get();
-                DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
-                $judgement_summary = JudgementSummary::query();
-                if ($request->filled('id') && !$request->filled('year')) {
-                    $judge = $judgement_summary->where('court_id', $request->id);
-                    $judgement_count = $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                    $selected_year = [];
-                    $selected_year['judgement_date'] = '';
-                    $selected_court = [];
-                    $selected_court['court_id'] = $request->id;
-                    return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                }
-                if (!$request->filled('id') && $request->filled('year')) {
-                    $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
-                    $judgement_count =  $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                    $selected_year = [];
-                    $selected_year['judgement_date'] = $request->year;
-                    $selected_court = [];
-                    $selected_court['court_id'] = '';
-                    return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                }
-                if ($request->filled('id') && $request->filled('year')) {
-                    $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
-                    $judgement_count =  $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                    $selected_year = [];
-                    $selected_year['judgement_date'] = $request->year;
-                    $selected_court = [];
-                    $selected_court['court_id'] = $request->id;
-                    return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                }
-                if ($request->search_case) {
-                    $search = $request->search_case;
-                    $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')->orWhere('suit_no', 'LIKE', '%' . $search . '%');
-                    $judgement_count =  $judge->count();
-                    $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
-                        ->orderBy('judgement_date', 'DESC')
-                        ->simplePaginate()
-                        ->withQueryString();
-                    $selected_court = [];
-                    $selected_court['court_id'] = '';
-                    $selected_year = [];
-                    $selected_year['judgement_date'] = '';
-                    return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-                }
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
-                $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
-                $selected_court = [];
-                $selected_court['court_id'] = '';
-                $selected_year = [];
-                $selected_year['judgement_date'] = '';
-                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
-            } else {
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->judgement_feature) {
@@ -404,8 +344,7 @@ class ApiAdminController extends Controller
                         return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
-                }
-                return response(['error' => 'You need to subscribe to a package to get access']);
+                
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -524,44 +463,7 @@ class ApiAdminController extends Controller
         };
 
         try {
-            if (Auth::user()->role->name == 'Admin') {
-                $courts = Court::orderBy('court', 'ASC')->get();
-                DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
-                $categories = Category::orderBy('category', 'asc')->get();
-                $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-                $judgement_summary = JudgementSummary::query();
-                if ($request->filled('subject_matter_index')) {
-                    $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
-                    $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
-                    $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
-                    $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
-                    $judgement_count = $judge->count();
-                    $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
-                    $selected_subject_matter = [];
-                    $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
-                    return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-                }
-                if ($request->search_case) {
-                    $search = $request->search_case;
-                    $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%');
-                    $judgement_count =  $judge->count();
-                    $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
-                        ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
-                        ->orderBy('judgement_date', 'DESC')->get();
-                    $selected_subject_matter = [];
-                    $selected_subject_matter['subject_matter_index'] = '';
-                    return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-                }
-                $count = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
-                $judgement_count = $count->count();
-                $judgement_summaries = JudgementPrinciple::select('suit_no')->groupBy('suit_no')->get();
-                $selected_subject_matter = [];
-                $selected_subject_matter['subject_matter_index'] = '';
-                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-            } else {
+            
                 if (Auth::user()->subscribedUser()) {
                     $courts = Package::where('id', Auth::user()->package_id)->first();
                     $years = Package::where('id', Auth::user()->package_id)->first();
@@ -608,7 +510,7 @@ class ApiAdminController extends Controller
                     return response(['judge_summary' => $judge_summary, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
-            }
+            
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
