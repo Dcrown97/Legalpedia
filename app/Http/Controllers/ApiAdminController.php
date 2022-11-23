@@ -224,7 +224,7 @@ class ApiAdminController extends Controller
                             $selected_year['judgement_date'] = $request->year;
                             $selected_court = [];
                             $selected_court['court_id'] = '';
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts,'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                         }
                         if ($request->filled('id') && $request->filled('year')) {
                             $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
@@ -234,7 +234,7 @@ class ApiAdminController extends Controller
                             $selected_year['judgement_date'] = $request->year;
                             $selected_court = [];
                             $selected_court['court_id'] = $request->id;
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts,'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                         }
                         if ($request->search_case) {
                             $search = $request->search_case;
@@ -250,7 +250,7 @@ class ApiAdminController extends Controller
                             $selected_court['court_id'] = '';
                             $selected_year = [];
                             $selected_year['judgement_date'] = '';
-                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts,'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                         }
                         $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
                         $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
@@ -261,7 +261,7 @@ class ApiAdminController extends Controller
                         $selected_year = [];
                         $selected_year['judgement_date'] = '';
                         // dd($judgement_summaries, 'api');
-                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts,'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
                 }
@@ -281,6 +281,7 @@ class ApiAdminController extends Controller
 
         try {
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+            $courts = Court::orderBy('rank', 'ASC')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             $judgement_summary = JudgementSummary::query();
             if ($request->filled('id') && !$request->filled('year')) {
@@ -291,7 +292,7 @@ class ApiAdminController extends Controller
                 $selected_year['judgement_date'] = '';
                 $selected_court = [];
                 $selected_court['court_id'] = $request->id;
-                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
             }
             if (!$request->filled('id') && $request->filled('year')) {
                 $judge = $judgement_summary->where('judgement_date', 'LIKE', '%' . $request->year . '%');
@@ -301,7 +302,7 @@ class ApiAdminController extends Controller
                 $selected_year['judgement_date'] = $request->year;
                 $selected_court = [];
                 $selected_court['court_id'] = '';
-                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
             }
             if ($request->filled('id') && $request->filled('year')) {
                 $judge = $judgement_summary->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
@@ -311,7 +312,7 @@ class ApiAdminController extends Controller
                 $selected_year['judgement_date'] = $request->year;
                 $selected_court = [];
                 $selected_court['court_id'] = $request->id;
-                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
             }
             if ($request->search_case) {
                 $search = $request->search_case;
@@ -327,7 +328,7 @@ class ApiAdminController extends Controller
                 $selected_court['court_id'] = '';
                 $selected_year = [];
                 $selected_year['judgement_date'] = '';
-                return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
             }
             $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->get();
             $judgement_count = JudgementSummary::count();
@@ -335,7 +336,7 @@ class ApiAdminController extends Controller
             $selected_court['court_id'] = '';
             $selected_year = [];
             $selected_year['judgement_date'] = '';
-            return response(['judgement_summaries' => $judgement_summaries, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+            return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -589,8 +590,85 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    
     }
+
+    // public function allNoSummary(Request $request)
+    // {
+    //     if (checkUser() == false) {
+    //         Session::flash('error', 'You have been logged out by another user');
+    //         return redirect('/login')->withErrors('You have been logged out by another user');
+    //     };
+
+    //     try {
+    //         if (Auth::user()->role->name == 'Admin') {
+
+    //             $courts = Court::orderBy('rank', 'ASC')->get();
+    //             DB::statement("SET SQL_MODE=''");
+    //             $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+    //             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+    //             $categories = Category::orderBy('category', 'asc')->get();
+    //             $judgement_summary = JudgementSummary::query();
+    //             if ($request->filled('id') && !$request->filled('year')) {
+    //                 $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id);
+    //                 $judgement_count = $judge->count();
+    //                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+    //                 $selected_year = [];
+    //                 $selected_year['judgement_date'] = '';
+    //                 $selected_court = [];
+    //                 $selected_court['court_id'] = $request->id;
+    //                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+    //             }
+    //             if (!$request->filled('id') && $request->filled('year')) {
+    //                 $judge = $judgement_summary->where('summary_of_facts', NULL)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
+    //                 $judgement_count =  $judge->count();
+    //                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+    //                 $selected_year = [];
+    //                 $selected_year['judgement_date'] = $request->year;
+    //                 $selected_court = [];
+    //                 $selected_court['court_id'] = '';
+    //                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+    //             }
+    //             if ($request->filled('id') && $request->filled('year')) {
+    //                 $judge = $judgement_summary->where('summary_of_facts', NULL)->where('court_id', $request->id)->where('judgement_date', 'LIKE', '%' . $request->year . '%');
+    //                 $judgement_count =  $judge->count();
+    //                 $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+    //                 $selected_year = [];
+    //                 $selected_year['judgement_date'] = $request->year;
+    //                 $selected_court = [];
+    //                 $selected_court['court_id'] = $request->id;
+    //                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+    //             }
+    //             if ($request->search_case) {
+    //                 $search = $request->search_case;
+    //                 $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+    //                     ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+    //                     ->where('summary_of_facts', NULL);
+    //                 $judgement_count =  $judge->count();
+    //                 $judgement_summaries = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
+    //                     ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
+    //                     ->where('summary_of_facts', NULL)
+    //                     ->orderBy('judgement_date', 'DESC')
+    //                     ->simplePaginate()
+    //                     ->withQueryString();
+    //                 $selected_court = [];
+    //                 $selected_court['court_id'] = '';
+    //                 $selected_year = [];
+    //                 $selected_year['judgement_date'] = '';
+    //                 return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+    //             }
+    //             $judgement_summaries = JudgementSummary::where('summary_of_facts', NULL)->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+    //             $judgement_count = JudgementSummary::where('summary_of_facts', NULL)->count();
+    //             $selected_court = [];
+    //             $selected_court['court_id'] = '';
+    //             $selected_year = [];
+    //             $selected_year['judgement_date'] = '';
+    //             return view('admin.judgements.no-summary', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
+    //         }
+    //         return redirect('admin/judgements');
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
 
     public function noSummary(Request $request)
     {
