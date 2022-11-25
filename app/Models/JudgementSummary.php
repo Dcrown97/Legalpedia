@@ -25,4 +25,8 @@ class JudgementSummary extends Model
     {
         return $this->hasOne(Judgement::class, 'suit_no', 'suit_no');
     }
+    public function areaOfLaw()
+    {
+        return $this->hasOne(AreaOfLaw::class, 'id', 'area_of_law');
+    }
 }

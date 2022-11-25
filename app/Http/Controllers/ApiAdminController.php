@@ -1155,19 +1155,13 @@ class ApiAdminController extends Controller
                 return response(['judgement_summary' => $judgement_summary, 'courts' => $courts, 'years' => $years, 'corams' => $corams, 'judgement_coram' => $judgement_coram, 'area_of_laws' => $area_of_laws, 'notes' => $notes, 'admin_notes' => $admin_notes, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    $judgement_summary = JudgementSummary::findOrFail($id);
+                    $judgement_summary = JudgementSummary::with('areaOfLaw')->findOrFail($id);
                     $courts = Court::orderBy('rank', 'ASC')->get();
                     $court_name = Court::where('id', $judgement_summary->court_id)->first();
                     $holden = Holden::where('id', $judgement_summary->holden_at_id)->first();
                     DB::statement("SET SQL_MODE=''");
-                    $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
                     $judg_coram = JudgementCoram::with('coram')->where('suit_no', $judgement_summary->suit_no)->get();
                     $judgement_coram = JudgementCoram::select('suit_no')->first();
-                    // dd($judgement_coram);
-                    $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
-                    $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-                    // dd($corams);
                     $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     $party_a_name = JudgementPartyA::where('suit_no', $judgement_summary->suit_no)->first();
@@ -1178,7 +1172,7 @@ class ApiAdminController extends Controller
                     $full_judgement = Judgement::where('suit_no', 'LIKE', '%' . $judgement_summary->suit_no . '%')->first();
                     $counsels = JudgementCounsel::where('suit_no', $judgement_summary->suit_no)->first();
 
-                    return response(['judgement_summary' => $judgement_summary, 'full_judgement' => $full_judgement, 'court_name' => $court_name, 'holden' => $holden, 'judg_coram' => $judg_coram, 'judgement_coram' => $judgement_coram, 'party_a_name' => $party_a_name, 'party_a_type' => $party_a_type, 'party_b_name' => $party_b_name, 'party_b_type' => $party_b_type, 'ratios' => $ratios, 'counsels' => $counsels, 'area_of_laws' => $area_of_laws, 'notes' => $notes]);
+                    return response(['judgement_summary' => $judgement_summary, 'full_judgement' => $full_judgement, 'court_name' => $court_name, 'holden' => $holden, 'judg_coram' => $judg_coram, 'judgement_coram' => $judgement_coram, 'party_a_name' => $party_a_name, 'party_a_type' => $party_a_type, 'party_b_name' => $party_b_name, 'party_b_type' => $party_b_type, 'ratios' => $ratios, 'counsels' => $counsels, 'notes' => $notes]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
             }
