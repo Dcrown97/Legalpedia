@@ -1178,7 +1178,7 @@ class ApiAdminController extends Controller
                     $full_judgement = Judgement::where('suit_no', 'LIKE', '%' . $judgement_summary->suit_no . '%')->first();
                     $counsels = JudgementCounsel::where('suit_no', $judgement_summary->suit_no)->first();
 
-                    return response(['judgement_summary' => $judgement_summary, 'full_judgement' => $full_judgement, 'court_name' => $court_name, 'courts' => $courts, 'holden' => $holden, 'years' => $years, 'corams' => $corams, 'judg_coram' => $judg_coram, 'judgement_coram' => $judgement_coram, 'party_a_name' => $party_a_name, 'party_a_type' => $party_a_type, 'party_b_name' => $party_b_name, 'party_b_type' => $party_b_type, 'ratios' => $ratios, 'counsels' => $counsels, 'area_of_laws' => $area_of_laws, 'notes' => $notes, 'admin_notes' => $admin_notes, 'teams' => $teams]);
+                    return response(['judgement_summary' => $judgement_summary, 'full_judgement' => $full_judgement, 'court_name' => $court_name, 'courts' => $courts, 'holden' => $holden, 'years' => $years, 'corams' => $corams, 'judg_coram' => $judg_coram, 'judgement_coram' => $judgement_coram, 'party_a_name' => $party_a_name, 'party_a_type' => $party_a_type, 'party_b_name' => $party_b_name, 'party_b_type' => $party_b_type, 'ratios' => $ratios, 'counsels' => $counsels, 'area_of_laws' => $area_of_laws, 'notes' => $notes]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
             }
