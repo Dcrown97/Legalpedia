@@ -1321,6 +1321,11 @@ class ApiAdminController extends Controller
                     if ($subscribed_package->roc_feature) {
                         // $rule_categories = RuleCategory::orderBy('name', 'ASC')->paginate(10);
                         $rule_categories = Package::where('id', Auth::user()->package_id)->first();
+                        $all_rule_categories = json_decode($rule_categories->roc_cat);
+                        $main_category = [];
+                        foreach ($all_rule_categories as $rule_category) {
+                            $main_category[] = RuleCategory::where('name', $rule_category)->first();
+                        }
                         if ($request->has('fetch_rule')) {
                             $orders = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
@@ -1352,7 +1357,7 @@ class ApiAdminController extends Controller
                             $part_count = $parts->count();
                             $selected_name = [];
                             $selected_name['name'] = $request->name;
-                            return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
+                            return response(['orders' => $orders, 'main_category' => $main_category, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         } else {
                             $orders = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->paginate(10);
                             $order_count = Rule::where('section', 'ORDERS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
@@ -1370,7 +1375,7 @@ class ApiAdminController extends Controller
                             $part_count = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
                             $selected_name = [];
                             $selected_name['name'] = '';
-                            return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'schedule_count' => $schedule_count, 'part_count' => $part_count, 'appendix_count' => $appendix_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
+                            return response(['orders' => $orders,'main_category' => $main_category, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'schedule_count' => $schedule_count, 'part_count' => $part_count, 'appendix_count' => $appendix_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         }
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
@@ -1380,6 +1385,11 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function allRules () {
+        $allRules = Rule::all();
+        return response(['allRules' => $allRules]);
     }
 
     public function showRule($id)
@@ -1731,19 +1741,19 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
-                $categories = Category::orderBy('category', 'asc')->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                $categories = Category::orderBy('category', 'asc')->get();
                 if ($request->has('fetch_fed')) {
                     $fed = LawOfFederation::query();
                     if ($request->filled('category')) {
-                        $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->paginate(10);
+                        $feds = $fed->where('category', $request->category)->orderBy('title', 'ASC')->get();
                         $fed_count = $feds->count();
                         $selected_category = [];
                         $selected_category['category'] = $request->category;
                     }
                     return response(['feds' => $feds, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
                 } else {
-                    $feds = LawOfFederation::orderBy('title', 'ASC')->paginate(10);
+                    $feds = LawOfFederation::orderBy('title', 'ASC')->get();
                     $fed_count = LawOfFederation::count();
                     $selected_category = [];
                     $selected_category['category'] = '';
@@ -1753,9 +1763,14 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
                     if ($subscribed_package->lfn_feature) {
-                        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
-                        // $categories = Category::orderBy('category', 'asc')->paginate(10);
+                        // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                        // $categories = Category::orderBy('category', 'asc')->get();
                         $categories = Package::where('id', Auth::user()->package_id)->first();
+                        $all_categories = json_decode($categories->lfn_cat);
+                        $main_category = [];
+                        foreach ($all_categories as $category) {
+                            $main_category[] = Category::where('category', $category)->first();
+                        }
                         if ($request->has('fetch_fed')) {
                             $fed = LawOfFederation::query();
                             if ($request->filled('category')) {
@@ -1764,13 +1779,13 @@ class ApiAdminController extends Controller
                                 $selected_category = [];
                                 $selected_category['category'] = $request->category;
                             }
-                            return response(['feds' => $feds, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
+                            return response(['feds' => $feds, 'main_category' => $main_category, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
                         } else {
                             $feds = LawOfFederation::orderBy('title', 'ASC')->paginate(10);
                             $fed_count = LawOfFederation::count();
                             $selected_category = [];
                             $selected_category['category'] = '';
-                            return response(['feds' => $feds, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
+                            return response(['feds' => $feds, 'main_category' => $main_category, 'categories' => $categories, 'fed_count' => $fed_count, 'selected_category' => $selected_category]);
                         }
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
@@ -1800,11 +1815,14 @@ class ApiAdminController extends Controller
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $fed = LawOfFederation::findOrFail($id);
-                    $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+                    $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->paginate(10);
+                    $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->paginate(10);
+                    $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->paginate(10);
+                    // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
                     $categories = Category::orderBy('category', 'asc')->paginate(10);
                     $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->paginate(10);
                     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['fed' => $fed, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
+                    return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
             }
@@ -2185,6 +2203,11 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function allDictionary () {
+        $allDictionary = Dictionary::all();
+        return response(['allDicitonary' => $allDictionary]);
+    }
+
     ////////////////////////////////////Legal Maxims///////////////////////////////////////
     public function maxim(Request $request)
     {
@@ -2240,6 +2263,11 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function allMaxim () {
+        $allMaxim = Maxim::all();
+        return response(['allMaxim' => $allMaxim]);
     }
 
     ///////////////////////////////////Foreign resources///////////////////////////////////

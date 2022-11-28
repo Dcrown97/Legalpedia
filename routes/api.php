@@ -59,6 +59,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/admin/judgements/{id}', [ApiAdminController::class, 'deleteJudgement'])->name('delete.judgement');
 
     Route::get('/admin/rules-of-court', [ApiAdminController::class, 'rules'])->name('admin.rules-of-court');
+    Route::get('/admin/all-rules-of-court', [ApiAdminController::class, 'allRules'])->name('admin.rules-of-court');
 
     Route::get('/admin/rules-of-court/categories', [ApiAdminController::class, 'ruleCat'])->name('admin.rule_cat');
 
@@ -87,8 +88,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/admin/legal-articles/{id}', [ApiAdminController::class, 'showArticle'])->name('show.article');
 
     Route::get('/admin/law-dictionary', [ApiAdmincontroller::class, 'dictionary'])->name('admin.law-dictionary');
+    Route::get('/admin/all-law-dictionary', [ApiAdmincontroller::class, 'allDictionary'])->name('admin.law-dictionary');
 
     Route::get('/admin/legal-maxims', [ApiAdminController::class, 'maxim'])->name('admin.legal-maxims');
+    Route::get('/admin/all-legal-maxims', [ApiAdminController::class, 'allMaxim'])->name('admin.legal-maxims');
 
     Route::get('/admin/resources', [ApiAdminController::class, 'resource'])->name('admin.resources');
 

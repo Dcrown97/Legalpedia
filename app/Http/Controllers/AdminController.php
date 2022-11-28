@@ -269,7 +269,7 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
-    
+
     public function sbjMatter(Request $request)
     {
         if (checkUser() == false) {
@@ -1885,6 +1885,7 @@ class AdminController extends Controller
                     $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                     // $categories = Category::orderBy('category', 'asc')->get();
                     $categories = Package::where('id', Auth::user()->package_id)->first();
+                    // dd($categories->lfn_cat);
                     if ($request->has('fetch_fed')) {
                         $fed = LawOfFederation::query();
                         if ($request->filled('category')) {
