@@ -449,7 +449,8 @@ class ApiAdminController extends Controller
     public function subject_matter_indices()
     {
         $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
-        return response(['subject_matter_indices' => $subject_matter_indices]);
+        $courts = Court::orderBy('rank', 'ASC')->get();
+        return response(['subject_matter_indices' => $subject_matter_indices, 'courts' => $courts,]);
     }
 
     public function allSbjMatter(Request $request)
