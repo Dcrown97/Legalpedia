@@ -446,6 +446,12 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function subject_matter_indices()
+    {
+        $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+        return response(['subject_matter_indices' => $subject_matter_indices]);
+    }
+
     public function allSbjMatter(Request $request)
     {
         if (checkUser() == false) {
@@ -1375,7 +1381,7 @@ class ApiAdminController extends Controller
                             $part_count = Rule::where('section', 'PARTS')->where('type', 'Other')->orderBy('title', 'ASC')->count();
                             $selected_name = [];
                             $selected_name['name'] = '';
-                            return response(['orders' => $orders,'main_category' => $main_category, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'schedule_count' => $schedule_count, 'part_count' => $part_count, 'appendix_count' => $appendix_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
+                            return response(['orders' => $orders, 'main_category' => $main_category, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'rule_categories' => $rule_categories, 'order_count' => $order_count, 'schedule_count' => $schedule_count, 'part_count' => $part_count, 'appendix_count' => $appendix_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         }
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
@@ -1387,7 +1393,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allRules () {
+    public function allRules()
+    {
         $allRules = Rule::paginate(500);
         return response(['allRules' => $allRules]);
     }
@@ -2203,7 +2210,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allDictionary () {
+    public function allDictionary()
+    {
         $allDictionary = Dictionary::all();
         return response(['allDicitonary' => $allDictionary]);
     }
@@ -2265,7 +2273,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allMaxim () {
+    public function allMaxim()
+    {
         $allMaxim = Maxim::all();
         return response(['allMaxim' => $allMaxim]);
     }
