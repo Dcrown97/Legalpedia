@@ -1388,7 +1388,7 @@ class ApiAdminController extends Controller
     }
 
     public function allRules () {
-        $allRules = Rule::all();
+        $allRules = Rule::paginate(500);
         return response(['allRules' => $allRules]);
     }
 
