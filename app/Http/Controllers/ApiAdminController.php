@@ -1395,7 +1395,7 @@ class ApiAdminController extends Controller
 
     public function allRules()
     {
-        $allRules = Rule::paginate(500);
+        $allRules = Rule::get();
         return response(['allRules' => $allRules]);
     }
 
@@ -2212,7 +2212,7 @@ class ApiAdminController extends Controller
 
     public function allDictionary()
     {
-        $allDictionary = Dictionary::all();
+        $allDictionary = Dictionary::get();
         return response(['allDicitonary' => $allDictionary]);
     }
 
@@ -2275,7 +2275,7 @@ class ApiAdminController extends Controller
 
     public function allMaxim()
     {
-        $allMaxim = Maxim::all();
+        $allMaxim = Maxim::get();
         return response(['allMaxim' => $allMaxim]);
     }
 
