@@ -1573,6 +1573,11 @@ class ApiAdminController extends Controller
                     if ($subscribed_package->sroc_feature) {
                         // $states = State::orderBy('name', 'ASC')->paginate(10);
                         $states = Package::where('id', Auth::user()->package_id)->first();
+                        $all_states = json_decode($states->sroc_state);
+                        $main_state = [];
+                        foreach ($all_states as $states) {
+                            $main_state[] = State::where('name', $states)->first();
+                        }
                         if ($request->has('fetch_rule')) {
                             $orders = Rule::where(function ($query) use ($request) {
                                 return $request->name ? $query->from('rules')->where('name', $request->name) : '';
@@ -1604,7 +1609,7 @@ class ApiAdminController extends Controller
                             $part_count = $parts->count();
                             $selected_name = [];
                             $selected_name['name'] = $request->name;
-                            return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'states' => $states, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
+                            return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'states' => $states, 'main_state' => $main_state, 'order_count' => $order_count, 'part_count' => $part_count, 'schedule_count' => $schedule_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'appendix_count' => $appendix_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         } else {
                             $orders = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->paginate(10);
                             $order_count = Rule::where('section', 'ORDERS')->where('type', 'State')->orderBy('title', 'ASC')->count();
@@ -1622,7 +1627,7 @@ class ApiAdminController extends Controller
                             $part_count = Rule::where('section', 'PARTS')->where('type', 'State')->orderBy('title', 'ASC')->count();
                             $selected_name = [];
                             $selected_name['name'] = '';
-                            return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'states' => $states, 'order_count' => $order_count, 'schedule_count' => $schedule_count, 'part_count' => $part_count, 'appendix_count' => $appendix_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
+                            return response(['orders' => $orders, 'schedules' => $schedules, 'appendices' => $appendices, 'forms' => $forms, 'civil_forms' => $civil_forms, 'probate_forms' => $probate_forms, 'parts' => $parts, 'states' => $states, 'main_state' => $main_state, 'order_count' => $order_count, 'schedule_count' => $schedule_count, 'part_count' => $part_count, 'appendix_count' => $appendix_count, 'civil_count' => $civil_count, 'probate_count' => $probate_count, 'form_count' => $form_count, 'selected_name' => $selected_name]);
                         }
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
