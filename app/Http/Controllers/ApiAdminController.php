@@ -272,6 +272,14 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function years () {
+        if (Auth::user()->subscribedUser()) {
+                $years = Package::where('id', Auth::user()->package_id)->first();
+                $year_range = range($years->judg_start_year, $years->judg_end_year);
+                return response(['year_range' => $year_range]);
+        }
+    }
+
     public function allJudgement(Request $request)
     {
         if (checkUser() == false) {
@@ -1939,30 +1947,36 @@ class ApiAdminController extends Controller
                     if ($subscribed_package->form_feature) {
                         // $categories = Category::orderBy('category', 'ASC')->paginate(10);
                         $categories = Package::where('id', Auth::user()->package_id)->first();
+                        $all_categories = json_decode($categories->lfn_cat);
+                        $main_category = [];
+                        foreach ($all_categories as $category) {
+                            $main_category[] = Category::where('category', $category)->first();
+                        }
+
                         if ($request->has('fetch_form')) {
                             $forms = FormsPrecedence::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                            })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
+                            })->where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
                             $my_forms = FormsPrecedence::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
+                            })->where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
                             $public_forms = FormsPrecedence::where(function ($query) use ($request) {
                                 return $request->category ? $query->from('form_precedences')->where('category', $request->category) : '';
-                            })->where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
+                            })->where('display_type', 'public')->orderBy('title', 'ASC')->get();
                             $form_count = $forms->count();
                             $public_form_count = $public_forms->count();
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
-                            return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'selected_category' => $selected_category]);
+                            return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'main_category' => $main_category, 'selected_category' => $selected_category]);
                         } else {
-                            $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->paginate(10);
+                            $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
                             $form_count = $forms->count();
-                            $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->paginate(10);
+                            $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->get();
                             $public_form_count = $public_forms->count();
-                            $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->paginate(10);
+                            $my_forms = FormsPrecedence::where('user_id', Auth::user()->id)->orderBy('title', 'ASC')->get();
                             $selected_category = [];
                             $selected_category['category'] = '';
-                            return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'selected_category' => $selected_category]);
+                            return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'main_category' => $main_category, 'selected_category' => $selected_category]);
                         }
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);

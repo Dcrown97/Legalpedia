@@ -114,6 +114,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/admin/search', [ApiAdminController::class, 'search'])->name('search');
 
+    Route::get('/admin/year', [ApiAdminController::class, 'years']);
+
     Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
 });
 
