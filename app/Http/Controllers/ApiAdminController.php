@@ -1821,7 +1821,8 @@ class ApiAdminController extends Controller
 
     public function allFed () {
         $all_laws_of_federation = LawOfFederation::get();
-        return response (['all_laws_of_federation' => $all_laws_of_federation]);
+        $categories = Category::orderBy('category', 'asc')->get();
+        return response (['all_laws_of_federation' => $all_laws_of_federation, 'categories' => $categories]);
     }
 
     public function showFed($id)
