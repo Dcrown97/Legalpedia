@@ -27,7 +27,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     // public routes
     Route::post('/register', [ApiRegisterController::class, "register"]);
     Route::post('/login', [ApiLoginController::class, "login"]);
-    Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
+    // Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
     Route::get('/admin/all-judgements', [ApiAdminController::class, 'allJudgement'])->name('admin.judgement');
     Route::get('/admin/judgements/allsubject-matter', [ApiAdminController::class, 'allSbjMatter'])->name('judgement.sbj-matter');
     Route::get('/admin/judgements/all-legal-citation', [ApiAdminController::class, 'allLegalCitation'])->name('judgement.citation');
@@ -35,6 +35,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/admin/all-rules-of-court', [ApiAdminController::class, 'allRules'])->name('admin.rules-of-court');
     Route::get('/admin/all-legal-maxims', [ApiAdminController::class, 'allMaxim'])->name('admin.legal-maxims');
     Route::get('/admin/all-law-dictionary', [ApiAdmincontroller::class, 'allDictionary'])->name('admin.law-dictionary');
+    Route::get('/admin/all-law-of-fed', [ApiAdmincontroller::class, 'allFed']);
 
 });
 

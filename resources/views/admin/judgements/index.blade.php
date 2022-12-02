@@ -282,7 +282,6 @@
                                                             {{ $year }}</option>
                                                     @endforeach
                                                 </select>
-                                                
                                             @elseif($single_year)
                                                 <select name="year" class="form-select form-control-flush mr-4"
                                                     data-choices='{"searchEnabled": true}'>

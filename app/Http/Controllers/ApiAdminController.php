@@ -272,11 +272,12 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function years () {
+    public function years()
+    {
         if (Auth::user()->subscribedUser()) {
-                $years = Package::where('id', Auth::user()->package_id)->first();
-                $year_range = range($years->judg_start_year, $years->judg_end_year);
-                return response(['year_range' => $year_range]);
+            $years = Package::where('id', Auth::user()->package_id)->first();
+            $year_range = range($years->judg_start_year, $years->judg_end_year);
+            return response(['year_range' => $year_range]);
         }
     }
 
@@ -1816,6 +1817,11 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function allFed () {
+        $all_laws_of_federation = LawOfFederation::get();
+        return response (['all_laws_of_federation' => $all_laws_of_federation]);
     }
 
     public function showFed($id)
