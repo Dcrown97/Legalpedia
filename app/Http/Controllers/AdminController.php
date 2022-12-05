@@ -323,6 +323,7 @@ class AdminController extends Controller
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
                 $categories = Category::orderBy('category', 'asc')->get();
                 $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+                // dd($subject_matter_indices);
                 $judgement_summary = JudgementSummary::query();
                 if ($request->filled('subject_matter_index')) {
                     $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();

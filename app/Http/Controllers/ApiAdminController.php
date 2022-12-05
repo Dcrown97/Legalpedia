@@ -407,17 +407,6 @@ class ApiAdminController extends Controller
                     $categories = Category::orderBy('category', 'asc')->paginate(10);
                     $subject_matter_indices = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->paginate(10);
                     $judgement_summary = JudgementSummary::query();
-                    if ($request->filled('subject_matter_index')) {
-                        $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
-                        $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
-                        $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
-                        $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
-                        $judgement_count = $judge->count();
-                        $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
-                        $selected_subject_matter = [];
-                        $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
-                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'subject_matter_indices' => $subject_matter_indices, 'selected_subject_matter' => $selected_subject_matter]);
-                    }
                     if ($request->search_case) {
                         $search = $request->search_case;
                         $judge = $judgement_summary->where('title', 'LIKE', '%' . $search . '%')
@@ -452,6 +441,20 @@ class ApiAdminController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function filterSbj (Request $request) {
+        $judgement_summary = JudgementSummary::query();
+        if ($request->filled('subject_matter_index')) {
+            $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
+            $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
+            $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
+            $judge = $judgement_summary->where('suit_no', $judg_principle->suit_no);
+            $judgement_summaries = $judge->orderBy('judgement_date', 'DESC')->get();
+            $selected_subject_matter = [];
+            $selected_subject_matter['subject_matter_index'] = $request->subject_matter_index;
+            return response(['judgement_summaries' => $judgement_summaries,]);
         }
     }
 

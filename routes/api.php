@@ -54,7 +54,7 @@ Route::middleware('auth:api')->group(function () {
     //Judgement routes
     Route::get('/admin/judgements', [ApiAdminController::class, 'judgement'])->name('admin.judgement');
     Route::get('/admin/judgements/legal-citation', [ApiAdminController::class, 'legalCitation'])->name('judgement.citation');
-    Route::get('/admin/judgements/subject-matter', [ApiAdminController::class, 'sbjMatter'])->name('judgement.sbj-matter');
+    Route::get('/admin/judgements/subject-matter', [ApiAdminController::class, 'sbjMatter']);
     Route::get('/admin/judgements/no-summary', [ApiAdminController::class, 'noSummary'])->name('judgement.no-summary');
     Route::get('/admin/judgements/create', [ApiAdminController::class, 'create'])->name('judge.create');
     Route::post('/admin/judgements', [ApiAdminController::class, 'storeJudgement'])->name('store.judgement');
@@ -116,6 +116,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/admin/search', [ApiAdminController::class, 'search'])->name('search');
 
     Route::get('/admin/year', [ApiAdminController::class, 'years']);
+
+    Route::get('/admin/filter-sbj', [ApiAdminController::class, 'filterSbj'])->name('judgement.sbj-matter');
 
     Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
 });
