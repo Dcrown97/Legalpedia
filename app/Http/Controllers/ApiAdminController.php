@@ -1838,21 +1838,21 @@ class ApiAdminController extends Controller
         try {
             if (Auth::user()->role->name == 'Admin') {
                 $fed = LawOfFederation::findOrFail($id);
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
-                $categories = Category::orderBy('category', 'asc')->paginate(10);
-                $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->paginate(10);
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                $categories = Category::orderBy('category', 'asc')->get();
+                $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                 return response(['fed' => $fed, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $fed = LawOfFederation::findOrFail($id);
-                    $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->paginate(10);
-                    $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->paginate(10);
-                    $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->paginate(10);
-                    // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
-                    $categories = Category::orderBy('category', 'asc')->paginate(10);
-                    $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                    $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                    $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                    $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                    // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                    $categories = Category::orderBy('category', 'asc')->get();
+                    $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
+                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
                     return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
