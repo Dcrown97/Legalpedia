@@ -14,4 +14,10 @@ class SummaryRatio extends Model
     ];
 
     protected $table = 'summary_ratios';
+
+    public function suit_no()
+    {
+        return $this->hasOne(JudgementSummary::class, 'suit_no', 'suit_no');
+    }
+
 }

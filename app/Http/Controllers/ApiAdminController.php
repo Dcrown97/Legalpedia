@@ -444,7 +444,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function filterSbj (Request $request) {
+    public function filterSbj(Request $request)
+    {
         $judgement_summary = JudgementSummary::query();
         if ($request->filled('subject_matter_index')) {
             $sbj = SubjectMatterIndex::where('subject_matter_index', $request->subject_matter_index)->first();
@@ -1461,38 +1462,38 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     if (Rule::where('section', 'ORDERS')->first()) {
                         $order = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                         $schedule = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'APPENDIX')->first()) {
                         $appendix = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'FORMS')->first()) {
                         $form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                         $civil_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                         $probate_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PARTS')->first()) {
                         $part = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
                     }
                 }
@@ -1511,7 +1512,7 @@ class ApiAdminController extends Controller
         };
 
         $rule = Rule::whereId($id)->first();
-        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $rule->id)->where('resource_type', 'rule')->paginate(10);
+        $anotes = Annotation::where('user_id', Auth::user()->id)->where('content_id', $rule->id)->where('resource_type', 'rule');
         return response()->json([
             'anotes' => $anotes,
         ]);
@@ -1651,6 +1652,10 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function allStateRule() {
+        $all_state_rules = Rule
+    }
+
     public function showStateRule($id)
     {
         if (checkUser() == false) {
@@ -1700,38 +1705,38 @@ class ApiAdminController extends Controller
                 if (Auth::user()->subscribedUser()) {
                     if (Rule::where('section', 'ORDERS')->first()) {
                         $order = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'SCHEDULES')->first()) {
                         $schedule = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'APPENDIX')->first()) {
                         $appendix = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'FORMS')->first()) {
                         $form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
                         $civil_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
                         $probate_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
                     } elseif (Rule::where('section', 'PARTS')->first()) {
                         $part = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
                         return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
                     }
                 }
@@ -1822,10 +1827,11 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allFed () {
+    public function allFed()
+    {
         $all_laws_of_federation = LawOfFederation::get();
         $categories = Category::orderBy('category', 'asc')->get();
-        return response (['all_laws_of_federation' => $all_laws_of_federation, 'categories' => $categories]);
+        return response(['all_laws_of_federation' => $all_laws_of_federation, 'categories' => $categories]);
     }
 
     public function showFed($id)
@@ -2680,7 +2686,7 @@ class ApiAdminController extends Controller
 
                 $query_case['table'] = 'ratio';
                 $query_case['search'] = SummaryRatio::query()->where('heading', 'LIKE', '%' . $search . '%')
-                    ->orWhere('body', 'LIKE', '%' . $search . '%')
+                    ->orWhere('body', 'LIKE', '%' . $search . '%')->with('suit_no')
                     // ->orderBy('heading', 'ASC')
                     ->orderByRaw('CHAR_LENGTH(heading)')
                     ->simplePaginate(15)
@@ -2701,6 +2707,7 @@ class ApiAdminController extends Controller
                         ->orWhere('suit_no', 'LIKE', '%' . $search . '%')
                         ->orWhere('summary_of_facts', 'LIKE', '%' . $search . '%')
                         ->orWhere('issues', 'LIKE', '%' . $search . '%')
+                        ->with('court')
                         ->orderBy('judgement_date', 'DESC')
                         ->simplePaginate(5)
                         ->withQueryString();
@@ -2714,6 +2721,16 @@ class ApiAdminController extends Controller
                     ->count();
 
                 $query_case_count = $query_sum_count + $query_ratio_count;
+                // $judgement_summary = [];
+                // $court = [];
+                if($query_case['table'] == 'ratio'){
+                    foreach($query_case['search'] as $case){
+                        $judgement_summary1 = JudgementSummary::where('suit_no', $case->suit_no)->first();
+                        // dd($judgement_summary);
+                        $court1 = Court::where('id', $judgement_summary1 ? $judgement_summary1->court_id : '')->first();
+                        // array_push($judgement_summary);
+                    }
+                }
 
                 /////////////// Law of Federation search //////////////////////
 
@@ -2858,7 +2875,7 @@ class ApiAdminController extends Controller
                 $selected_year = [];
                 $selected_year['judgement_date'] = '';
 
-                return response(['query_case' => $query_case, 'search' => $search, 'selected_year' => $selected_year, 'first_search' => $first_search, 'second_search' => $second_search, 'query_law' => $query_law, 'query_case_count' => $query_case_count, 'query_law_count' => $query_law_count, 'query_rule' => $query_rule, 'query_rule_count' => $query_rule_count, 'query_form' => $query_form, 'query_form_count' => $query_form_count, 'query_article' => $query_article, 'query_article_count' => $query_article_count, 'query_note' => $query_note, 'query_note_count' => $query_note_count]);
+                return response(['query_case' => $query_case, 'judgement_summary1' => $judgement_summary1, 'court1' => $court1, 'search' => $search, 'selected_year' => $selected_year, 'first_search' => $first_search, 'second_search' => $second_search, 'query_law' => $query_law, 'query_case_count' => $query_case_count, 'query_law_count' => $query_law_count, 'query_rule' => $query_rule, 'query_rule_count' => $query_rule_count, 'query_form' => $query_form, 'query_form_count' => $query_form_count, 'query_article' => $query_article, 'query_article_count' => $query_article_count, 'query_note' => $query_note, 'query_note_count' => $query_note_count]);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
