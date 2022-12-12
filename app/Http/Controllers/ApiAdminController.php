@@ -1652,10 +1652,6 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allStateRule() {
-        $all_state_rules = Rule
-    }
-
     public function showStateRule($id)
     {
         if (checkUser() == false) {
