@@ -36,6 +36,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/admin/all-legal-maxims', [ApiAdminController::class, 'allMaxim'])->name('admin.legal-maxims');
     Route::get('/admin/all-law-dictionary', [ApiAdmincontroller::class, 'allDictionary'])->name('admin.law-dictionary');
     Route::get('/admin/all-law-of-fed', [ApiAdmincontroller::class, 'allFed']);
+    Route::get('/admin/all-forms', [ApiAdmincontroller::class, 'allForms']);
 
 });
 

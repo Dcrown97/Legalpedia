@@ -121,6 +121,7 @@ class ApiAdminController extends Controller
             $featured_article = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('featured', 1)->first();
             $featured_form = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('featured', 1)->first();
             $featured_note = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('featured', 1)->first();
+            $package = Package::where('id', Auth::user()->package_id)->first();
             return response(["judgement_count" => $judgement_count, 'fed_count' => $fed_count, "rule_count" => $rule_count, "form_count" => $form_count, "article_count" => $article_count, "dict_count" => $dict_count, "maxim_count" => $maxim_count, "resource_count" => $resource_count, "all_count" => $all_count, "team_count" => $team_count, "latest_judgements" => $latest_judgements, "notes" => $notes, "admin_notes" => $admin_notes, "recent_activities" => $recent_activities, "teams" => $teams, "pop_message" => $pop_message, "new_chat_count" => $new_chat_count, "featured_user" => $featured_user, "featured_team" => $featured_team, "featured_article" => $featured_article, "featured_form" => $featured_form, "featured_note" => $featured_note]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -1998,6 +1999,11 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function allForms() {
+        $all_forms = FormsPrecedence::get();
+        return response(['all_forms' => $all_forms]);
     }
 
     public function showForm($id)

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,8 +22,15 @@ class ApiLoginController extends Controller
             Please try again']);
         }
         $userToken = auth()->user()->createToken('API Token')->accessToken;
+        $user = User::where('id', Auth::user()->id)->with('package')->first();
+        $messages = Message::where('type', 'in-app')
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('created_at', 'DESC')
+            ->limit(3)
+            ->get();
+        $message_count = $messages->count();
 
-        return response(['user' => auth()->user(), 'token' => $userToken]);
+        return response(['user' => $user, 'messages' => $messages, 'message_count' => $message_count, 'token' => $userToken]);
 
         // if(Auth::attempt([
         //      'email' => $request->email,
