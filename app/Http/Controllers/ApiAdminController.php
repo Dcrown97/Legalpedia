@@ -1414,6 +1414,11 @@ class ApiAdminController extends Controller
         return response(['allRules' => $allRules]);
     }
 
+    public function allRuleCategorie () {
+        $all_rule_categories = RuleCategory::get();
+        return response(['all_rule_categories' => $all_rule_categories]);
+    }
+
     public function showRule($id)
     {
         if (checkUser() == false) {
@@ -1981,7 +1986,7 @@ class ApiAdminController extends Controller
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
                             return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'main_category' => $main_category, 'selected_category' => $selected_category]);
-                        } else {
+                        } else {    
                             $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
                             $form_count = $forms->count();
                             $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->get();
