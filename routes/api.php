@@ -38,6 +38,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/admin/all-law-of-fed', [ApiAdmincontroller::class, 'allFed']);
     Route::get('/admin/all-forms', [ApiAdmincontroller::class, 'allForms']);
     Route::get('/admin/all-rule-categories', [ApiAdmincontroller::class, 'allRuleCategorie']);
+    // Route::get('/admin/all-state', [ApiAdmincontroller::class, 'allState']);
 
 });
 

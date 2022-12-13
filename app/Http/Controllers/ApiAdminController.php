@@ -1416,7 +1416,8 @@ class ApiAdminController extends Controller
 
     public function allRuleCategorie () {
         $all_rule_categories = RuleCategory::get();
-        return response(['all_rule_categories' => $all_rule_categories]);
+        $all_state = State::get();
+        return response(['all_rule_categories' => $all_rule_categories, 'all_state' => $all_state]);
     }
 
     public function showRule($id)
@@ -1657,6 +1658,11 @@ class ApiAdminController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // public function allState() {
+    //     $all_state = State::get();
+    //     return response(['all_state' => $all_state]);
+    // }
 
     public function showStateRule($id)
     {
