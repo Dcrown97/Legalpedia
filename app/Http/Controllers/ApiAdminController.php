@@ -2147,6 +2147,11 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function allArticles () {
+        $all_articles = Article::get();
+        return response(['all_articles' => $all_articles]);
+    }
+
     public function showArticle($id)
     {
         if (checkUser() == false) {
@@ -2383,6 +2388,11 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function allForeignResources() {
+        $all_foreign_resources = Resource::get();
+        return response(['all_foreign_resources' => $all_foreign_resources]);
     }
 
     ////////////////////////////// featured content //////////////////////////////////////
