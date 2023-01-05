@@ -2152,6 +2152,51 @@ class ApiAdminController extends Controller
         return response(['all_articles' => $all_articles]);
     }
 
+    public function storeArticle(Request $request)
+    {
+        // dd($request->all());
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        $validated = $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+            'description' => 'required',
+            'authur' => 'required',
+            // 'link' => 'required',
+            'photo' => 'required',
+            'category' => 'required',
+            // 'area_of_law' => 'required',
+            // 'references' => 'required',
+        ]);
+        $file = $request->file('photo');
+        $path = $file->store('media', 'public');
+        $input = [
+            'user_id' => $request->user_id,
+            'title' => $request->title,
+            'photo' => $path,
+            'content' => $request->content,
+            'description' => $request->description,
+            'authur' => $request->authur,
+            'link' => $request->link,
+            'display_type' => $request->display_type,
+            'article_type' => $request->article_type,
+            'category' => $request->category,
+            'area_of_law' => $request->area_of_law,
+            'references' => $request->references,
+        ];
+        $article = Article::create($input);
+        $recent_activity = RecentActivity::create([
+            'user_id' => Auth::user()->id,
+            'type' => 'article',
+            'name' => 'You recently published an article',
+            'description' => $article->title
+        ]);
+        return response(['message' => 'article created successfully', 'article' => $article, 'recent_activity' => $recent_activity]);
+    }
+
     public function showArticle($id)
     {
         if (checkUser() == false) {
@@ -2187,6 +2232,19 @@ class ApiAdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+     public function rateArticle(Request $request, $id)
+    {
+        // dd($request->all());
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        $input = $request->all();
+        $featured_content = FeaturedContent::create($input);
+        return response(['message' => 'Review sent successfully', 'featured_content' => $featured_content]);
     }
 
     public function fetchArticleAnote($id)

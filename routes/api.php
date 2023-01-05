@@ -94,7 +94,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/admin/legal-articles/fetch-annotations/{id}', [ApiAdminController::class, 'fetchArticleAnote'])->name('fetch.article-anote');
     Route::get('/admin/legal-articles', [ApiAdminController::class, 'articles'])->name('admin.articles');
+    Route::post('/admin/legal-articles/create', [ApiAdminController::class, 'storeArticle'])->name('store.article');
     Route::get('/admin/legal-articles/{id}', [ApiAdminController::class, 'showArticle'])->name('show.article');
+    Route::post('/admin/legal-articles/rate-article/{id}', [ApiAdminController::class, 'rateArticle'])->name('rate.article');
 
     Route::get('/admin/law-dictionary', [ApiAdmincontroller::class, 'dictionary'])->name('admin.law-dictionary');
 

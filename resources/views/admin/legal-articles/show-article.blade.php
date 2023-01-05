@@ -30,7 +30,7 @@
     @endphp
     <div class="header">
         @if($article->photo)
-            <img src="{{$article ? $article->photo : ''}}" class="header-img-top" alt="{{$article->title}}">
+            <img src="{{'/storage/' . $article ? $article->photo : ''}}" class="header-img-top" alt="{{$article->title}}">
         @endif
         <div class="container-fluid">
             <div class="header-body">
@@ -324,7 +324,7 @@
                                                         <span class="avatar avatar-sm">
                                                             <?php $user = App\Models\User::where('id', $review->user_id)->first(); ?>
                                                             @if($user->photo)
-                                                                <img src="{{$user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
+                                                                <img src="{{'/storage/' . $user->photo}}" class="avatar-img rounded-circle" alt="{{$user->name}}">
                                                                 @else
                                                                 <div class="initials">
                                                                     <span>{{Str::limit($user->name, 1, '')}}{{Str::limit($user->surname, 1, '')}}</span>

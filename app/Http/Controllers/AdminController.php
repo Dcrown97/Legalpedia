@@ -2699,6 +2699,7 @@ class AdminController extends Controller
     }
     public function storeArticle(Request $request)
     {
+        // dd($request->all());
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
