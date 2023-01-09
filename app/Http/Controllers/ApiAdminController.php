@@ -2166,7 +2166,7 @@ class ApiAdminController extends Controller
             'description' => 'required',
             'authur' => 'required',
             // 'link' => 'required',
-            'photo' => 'required',
+            // 'photo' => 'required',
             'category' => 'required',
             // 'area_of_law' => 'required',
             // 'references' => 'required',
