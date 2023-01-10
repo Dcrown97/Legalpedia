@@ -2265,6 +2265,43 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function note()
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        try {
+            $public_notes = Annotation::where('display', 'public')->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->get();
+            $public_note_count = $public_notes->count();
+            $notes = Annotation::where('user_id', Auth::user()->id)->where('resource_type', '!=', 'admin-note')->orderBy('created_at', 'DESC')->get();
+            $note_count = $notes->count();
+            $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->get();
+            $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+            $admin_note_id = $this->generateAdminNoteId(21);
+            return response(['public_notes' => $public_notes, 'notes' => $notes, 'public_note_count' => $public_note_count, 'note_count' => $note_count, 'teams' => $teams, 'admin_note_id' => $admin_note_id, 'admin_notes' => $admin_notes]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function generateAdminNoteId($length = 32)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
     ////////////////////////////////////Legal Dictionary////////////////////////////////////
     public function dictionary(Request $request)
     {

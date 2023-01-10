@@ -126,6 +126,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/admin/filter-sbj', [ApiAdminController::class, 'filterSbj'])->name('judgement.sbj-matter');
 
+    Route::get('/admin/notes', [ApiAdminController::class, 'note'])->name('admin.notes');
+
     Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
 });
 
