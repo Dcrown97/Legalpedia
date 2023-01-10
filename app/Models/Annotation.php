@@ -13,6 +13,18 @@ class Annotation extends Model
     'user_id', 'note_id', 'content_id', 'content_type', 'content', 'comment', 'replies', 'text_target', 'tags', 'display', 'resource_type',
     'featured'
     ];
+    protected $appends = ['user'];
+
 
     protected $table = 'annotations';
+
+    // public function users()
+    // {
+    //     return $this->hasOne(User::class, 'id', 'user_id');
+    // }
+
+    public function getUserAttribute () {
+        $user = User::find($this->user_id);
+        return $user->name;
+    }
 }
