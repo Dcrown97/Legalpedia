@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::group(['middleware' => ['cors', 'json.response']], function () {
+Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {
     // public routes
     Route::post('/register', [ApiRegisterController::class, "register"]);
     Route::post('/login', [ApiLoginController::class, "login"]);
@@ -44,7 +44,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 
 });
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'XSS'])->group(function () {
     // Protected Routes are in here
     Route::post('/logout', [ApiLoginController::class, "logout"]);
 

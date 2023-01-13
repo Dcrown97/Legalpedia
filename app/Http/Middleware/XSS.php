@@ -14,8 +14,13 @@ class XSS
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next)
     {
+        $userInput = $request->all();
+        array_walk_recursive($userInput, function (&$userInput) {
+            $userInput = strip_tags($userInput);
+        });
+        $request->merge($userInput);
         return $next($request);
     }
 }
