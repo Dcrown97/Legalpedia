@@ -20,6 +20,7 @@ use App\Models\Report;
 use App\Models\Article;
 use App\Models\Comment;
 use App\Models\License;
+use App\Models\Setting;
 use App\Models\Message;
 use App\Models\Package;
 use App\Models\Category;
@@ -516,6 +517,8 @@ class AdminController extends Controller
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
 
+        // DB::beginTransaction();
+
         $validated = $request->validate([
             'title' => 'required',
             // 'summary_of_facts'=>'required',
@@ -629,6 +632,13 @@ class AdminController extends Controller
         ];
         Judgement::create($full_judg);
 
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
+        // DB::commit();
         return back()->with('success', 'Judgement added');
     }
     public function updateJudgement(Request $request, $id)
@@ -837,6 +847,11 @@ class AdminController extends Controller
             DB::table('judgements')->where('id', $request->judgement_id)->update($full_judg);
         }
 
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
 
         return back()->with('success', 'Judgement updated');
     }
@@ -910,6 +925,13 @@ class AdminController extends Controller
 
         $judgement_summary = JudgementSummary::findOrFail($id);
         $judgement_summary->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Judgement Deleted');
     }
 
@@ -946,6 +968,13 @@ class AdminController extends Controller
         }
         $input = $request->all();
         Court::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Court added');
     }
     public function updateCourt(Request $request)
@@ -967,6 +996,13 @@ class AdminController extends Controller
             'rank' => $request->rank,
         ];
         DB::table('courts')->where('id', $request->court_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Court updated');
     }
     public function deleteCourt($id)
@@ -978,6 +1014,13 @@ class AdminController extends Controller
 
         $court = Court::findOrFail($id);
         $court->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Court deleted');
     }
 
@@ -1010,6 +1053,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         SubjectMatterIndex::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Subject Matter Index added');
     }
     public function updateSbj(Request $request)
@@ -1026,6 +1076,13 @@ class AdminController extends Controller
             'subject_matter_index' => $request->subject_matter_index,
         ];
         DB::table('subject_matter_indices')->where('id', $request->subject_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Subject Matter Index updated');
     }
     public function deleteSbj($id)
@@ -1037,6 +1094,13 @@ class AdminController extends Controller
 
         $subject_matter_index = SubjectMatterIndex::findOrFail($id);
         $subject_matter_index->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Subject Matter Index deleted');
     }
 
@@ -1069,6 +1133,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         RuleCategory::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Rule Category added');
     }
     public function updateRuleCat(Request $request)
@@ -1085,6 +1156,13 @@ class AdminController extends Controller
             'name' => $request->name,
         ];
         DB::table('rule_categories')->where('id', $request->rule_cat_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Rule Category updated');
     }
     public function deleteRuleCat($id)
@@ -1096,6 +1174,13 @@ class AdminController extends Controller
 
         $rule_category = RuleCategory::findOrFail($id);
         $rule_category->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Rule Category deleted');
     }
 
@@ -1346,6 +1431,13 @@ class AdminController extends Controller
             'version_no' => $request->version_no
         ];
         Rule::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Rule of court added');
     }
     public function editRule($id)
@@ -1440,6 +1532,13 @@ class AdminController extends Controller
         } elseif ($civil_form) {
             $civil_form->update($input);
         }
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Rule of court updated');
     }
     public function deleteRule($id)
@@ -1471,6 +1570,13 @@ class AdminController extends Controller
             $part = Rule::findOrFail($id);
             $part->delete();
         }
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Rule deleted');
     }
 
@@ -1722,6 +1828,13 @@ class AdminController extends Controller
             'version_no' => $request->version_no
         ];
         Rule::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'State Rule of court added');
     }
     public function editStateRule($id)
@@ -1816,6 +1929,13 @@ class AdminController extends Controller
         } elseif ($civil_form) {
             $civil_form->update($input);
         }
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'State Rule of court updated');
     }
     public function deleteStateRule($id)
@@ -1847,6 +1967,13 @@ class AdminController extends Controller
             $part = Rule::findOrFail($id);
             $part->delete();
         }
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'State rule deleted');
     }
 
@@ -1974,6 +2101,12 @@ class AdminController extends Controller
                 LawOfFedSched::create($data);
             }
         }
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
 
         return back()->with('success', 'Law added');
     }
@@ -2193,6 +2326,12 @@ class AdminController extends Controller
             }
         }
 
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Law updated');
     }
     public function removeSection(Request $request)
@@ -2203,6 +2342,13 @@ class AdminController extends Controller
         };
 
         $fed_section = LawOfFedSection::where('id', $request->id)->first();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         $fed_section->delete();
         return response()->json(['success', 'Law Federation Section removed']);
     }
@@ -2216,6 +2362,13 @@ class AdminController extends Controller
         $fed_part = LawOfFedPart::where('id', $request->id)->first();
         LawOfFedSection::where('law_of_fed_part_id', $request->id)->delete();
         $fed_part->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return response()->json(['success', 'Law Federation Part removed']);
     }
     public function deleteFed($id)
@@ -2230,6 +2383,13 @@ class AdminController extends Controller
         LawOfFedSection::where('law_of_federation_id', $fed->id)->delete();
         LawOfFedSched::where('law_of_federation_id', $fed->id)->delete();
         $fed->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Law deleted');
     }
 
@@ -2261,6 +2421,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         AreaOfLaw::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Area of Law added');
     }
     public function updateArea(Request $request)
@@ -2277,6 +2444,13 @@ class AdminController extends Controller
             'area_of_law' => $request->category,
         ];
         DB::table('areas_of_laws')->where('id', $request->area_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Area of law updated');
     }
     public function deleteArea($id)
@@ -2288,6 +2462,13 @@ class AdminController extends Controller
 
         $area_of_law = AreaOfLaw::findOrFail($id);
         $area_of_law->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Area of law deleted');
     }
 
@@ -2318,6 +2499,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         Category::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Category added');
     }
     public function updateCategory(Request $request)
@@ -2334,6 +2522,13 @@ class AdminController extends Controller
             'category' => $request->category,
         ];
         DB::table('categories')->where('id', $request->category_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Category updated');
     }
     public function deleteCategory($id)
@@ -2345,6 +2540,13 @@ class AdminController extends Controller
 
         $category = Category::findOrFail($id);
         $category->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Category deleted');
     }
 
@@ -2439,6 +2641,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         FormsPrecedence::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Form added');
     }
     public function editForm($id)
@@ -2529,6 +2738,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         $form->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Form updated');
     }
     public function deleteForm($id)
@@ -2540,6 +2756,13 @@ class AdminController extends Controller
 
         $form = FormsPrecedence::findOrFail($id);
         $form->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'form deleted');
     }
     public function featureForm(Request $request, $id)
@@ -2553,10 +2776,24 @@ class AdminController extends Controller
         $input = $request->all();
         if ($request->has('make_featured')) {
             $form->update($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return back()->with('success', 'Form featured');
         }
         if ($request->has('remove_featured')) {
             $form->update($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return back()->with('success', 'Form not featured');
         }
     }
@@ -2569,6 +2806,13 @@ class AdminController extends Controller
 
         $input = $request->all();
         FeaturedContent::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Review sent');
     }
     public function likeForm(Request $request)
@@ -2583,8 +2827,20 @@ class AdminController extends Controller
             $like = Like::where('user_id', $request->user_id)->where('form_precedence_id', $request->form_precedence_id)->first();
             if ($like) {
                 $like->update($input);
+
+                $version = Setting::first();
+                $input = [
+                    'version' => $version->version + 0.1,
+                ];
+                $version->update($input);
             } else {
                 Like::create($input);
+
+                $version = Setting::first();
+                $input = [
+                    'version' => $version->version + 0.1,
+                ];
+                $version->update($input);
             }
             return response()->json(['success' => 'Form liked']);
         }
@@ -2739,6 +2995,13 @@ class AdminController extends Controller
             'name' => 'You recently published an article',
             'description' => $article->title
         ]);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Article added');
     }
     public function editArticle($id)
@@ -2863,6 +3126,12 @@ class AdminController extends Controller
         ];
         $article->update($input);
 
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Article updated');
     }
     public function featureArticle(Request $request, $id)
@@ -2876,10 +3145,24 @@ class AdminController extends Controller
         $input = $request->all();
         if ($request->has('make_featured')) {
             $article->update($input);
+
+            $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+            
             return back()->with('success', 'Article featured');
         }
         if ($request->has('remove_featured')) {
             $article->update($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return back()->with('success', 'Article not featured');
         }
     }
@@ -2892,6 +3175,13 @@ class AdminController extends Controller
 
         $input = $request->all();
         FeaturedContent::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Review sent');
     }
     public function likeArticle(Request $request)
@@ -2906,8 +3196,22 @@ class AdminController extends Controller
             $like = Like::where('user_id', $request->user_id)->where('article_id', $request->article_id)->first();
             if ($like) {
                 $like->update($input);
+
+                $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
             } else {
                 Like::create($input);
+
+                $version = Setting::first();
+                $input = [
+                        'version' => $version->version + 0.1,
+                    ];
+                $version->update($input);
+
             }
             return response()->json(['success' => 'Article liked']);
         }
@@ -2921,6 +3225,13 @@ class AdminController extends Controller
 
         $article = Article::findOrFail($id);
         $article->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'article deleted');
     }
     public function shareArticle(Request $request, $id)
@@ -2943,6 +3254,13 @@ class AdminController extends Controller
                     'file_type' => 'image',
                 ];
                 Comment::create($input);
+
+                $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
             }
             RecentActivity::create([
                 'user_id' => Auth::user()->id,
@@ -2950,6 +3268,13 @@ class AdminController extends Controller
                 'name' => 'You recently shared an article',
                 'description' => $article->title
             ]);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return back()->with('success', 'Article shared');
         }
         return back()->withErrors('Please select a team to share to');
@@ -3022,6 +3347,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         Dictionary::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Word Added');
     }
     public function editDictionary($id)
@@ -3053,6 +3385,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         $word->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Dictionary updated');
     }
     public function deleteDictionary($id)
@@ -3064,6 +3403,13 @@ class AdminController extends Controller
 
         $word = Dictionary::findOrFail($id);
         $word->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Word deleted');
     }
 
@@ -3135,6 +3481,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         Maxim::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Maxim Added');
     }
     public function editMaxim($id)
@@ -3166,6 +3519,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         $maxim->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Maxim updated');
     }
     public function deleteMaxim($id)
@@ -3177,6 +3537,13 @@ class AdminController extends Controller
 
         $maxim = Maxim::findOrFail($id);
         $maxim->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Maxim deleted');
     }
 
@@ -3249,6 +3616,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         Resource::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Resource Added');
     }
     public function editResource($id)
@@ -3280,6 +3654,13 @@ class AdminController extends Controller
         ]);
         $input = $request->all();
         $resource->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Resource updated');
     }
     public function deleteResource($id)
@@ -3291,6 +3672,13 @@ class AdminController extends Controller
 
         $resource = Resource::findOrFail($id);
         $resource->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Resource deleted');
     }
 
@@ -3925,6 +4313,13 @@ class AdminController extends Controller
             'name' => 'You recently created a team',
             'description' => $team->name
         ]);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return redirect()->back()->with('success', 'Team created');
     }
     public function updateTeam(Request $request)
@@ -3957,6 +4352,13 @@ class AdminController extends Controller
             'description' => $request->description
         ];
         DB::table('teams')->where('id', $request->team_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return redirect()->back()->with('success', 'Team updated');
     }
     public function settingsTeam(Request $request, $id)
@@ -3977,6 +4379,13 @@ class AdminController extends Controller
             $input['photo'] = $path;
         }
         $team->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return redirect()->back()->with('success', 'Team updated');
     }
     public function showTeam(Request $request, $id)
@@ -4041,8 +4450,22 @@ class AdminController extends Controller
             $like = Like::where('user_id', $request->user_id)->where('comment_id', $request->comment_id)->first();
             if ($like) {
                 $like->update($input);
+
+                $version = Setting::first();
+                $input = [
+                        'version' => $version->version + 0.1,
+                    ];
+                $version->update($input);
+
             } else {
                 Like::create($input);
+
+                $version = Setting::first();
+                $input = [
+                        'version' => $version->version + 0.1,
+                    ];
+                $version->update($input);
+
             }
             return response()->json(['success' => 'Team Post liked']);
         }
@@ -4060,9 +4483,23 @@ class AdminController extends Controller
             if ($saved_post) {
                 if ($request->status == 1) {
                     $saved_post->update($input);
+
+                    $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
                     return back()->with('success', 'Post saved');
                 } else {
                     $saved_post->update($input);
+
+                    $version = Setting::first();
+                    $input = [
+                        'version' => $version->version + 0.1,
+                    ];
+                    $version->update($input);
+
                     return back()->with('success', 'Post unsaved');
                 }
             } else {
@@ -4106,6 +4543,13 @@ class AdminController extends Controller
             'approve_request' => $request->approve_request,
         ];
         UserTeam::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return redirect()->route('show.team', $team->id)->with('success', 'You have joined this team');
     }
     public function sendRequest(Request $request)
@@ -4256,6 +4700,13 @@ class AdminController extends Controller
         $team = Team::findOrFail($id);
         UserTeam::where('team_id', $team->id)->delete();
         $team->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return redirect('admin/teams')->with('success', 'Team deleted');
     }
     public function featureTeam(Request $request, $id)
@@ -4322,6 +4773,13 @@ class AdminController extends Controller
                 'comment_body' => $request->comment_body
             ];
             Comment::create($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return redirect()->back()->with('success', 'You just posted to this team');
         } else {
             $validator = Validator::make(
@@ -4339,6 +4797,13 @@ class AdminController extends Controller
                 'comment_body' => $request->comment_body
             ];
             Comment::create($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return redirect()->back()->with('success', 'You just posted to this team');
         }
     }
@@ -4359,6 +4824,13 @@ class AdminController extends Controller
                 'comment_reply_body' => $request->comment_reply_body
             ];
             CommentReply::create($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return redirect()->back()->with('success', 'You just commented to this post');
         }
     }
@@ -4376,6 +4848,13 @@ class AdminController extends Controller
             DB::table('comments')->where('team_id', $request->team_id)->where('pinned_post', 1)->update(array('pinned_post' => 0));
             $comment = Comment::where('id', $request->comment_id)->first();
             $comment->update($input);
+
+            $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
             return back()->with('success', 'Post pinned');
         } elseif ($request->has('unpin_post')) {
             $input = [
@@ -4383,6 +4862,13 @@ class AdminController extends Controller
             ];
             $comment = Comment::where('id', $request->comment_id)->first();
             $comment->update($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return back()->with('success', 'Post unpinned');
         } else {
             $validated = $request->validate([
@@ -4394,6 +4880,13 @@ class AdminController extends Controller
                 'comment_body' => $request->comment_body
             ];
             DB::table('comments')->where('id', $request->comment_id)->update($input);
+
+            $version = Setting::first();
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return redirect()->back()->with('success', 'Post reposted');
         }
     }
@@ -4406,6 +4899,13 @@ class AdminController extends Controller
 
         $comment = Comment::findorFail($id);
         $comment->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return redirect()->back()->with('success', 'Post deleted');
     }
 
@@ -5089,6 +5589,13 @@ class AdminController extends Controller
             'name' => 'You recently made a note',
             'description' => $anote->content
         ]);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+        
         return response()->json([
             'success' => 'Note added',
             'anote' => json_decode($anote->content),
@@ -5106,6 +5613,13 @@ class AdminController extends Controller
             'display' => $request->display
         ];
         DB::table('annotations')->where('note_id', $request->note_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Note saved');
         // return response()->json(['success', 'Annotation added']);
     }
@@ -5181,6 +5695,13 @@ class AdminController extends Controller
         $input = $request->all();
         // dd($input);
         Annotation::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Note added');
     }
     public function updateNote(Request $request)
@@ -5197,6 +5718,13 @@ class AdminController extends Controller
         $input = $request->all();
         // dd($input);
         DB::table('annotations')->where('id', $request->admin_note_id)->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Note updated');
     }
     public function deleteNote($id)
@@ -5208,6 +5736,13 @@ class AdminController extends Controller
 
         $note = Annotation::findOrFail($id);
         $note->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Note deleted');
     }
     public function featureNote(Request $request, $id)
@@ -5437,6 +5972,13 @@ class AdminController extends Controller
         $input = $request->all();
         // dd($input);
         Message::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
         return back()->with('success', 'Message created');
     }
     public function sendMessages(Request $request)
