@@ -849,7 +849,7 @@ class ApiAdminController extends Controller
             'category' => $request->category,
             'area_of_law' => $request->area_of_law
         ];
-        
+
         $judg = JudgementSummary::create($judg_input);
 
         if ($request->subject) {
@@ -1417,7 +1417,8 @@ class ApiAdminController extends Controller
         return response(['allRules' => $allRules]);
     }
 
-    public function allRuleCategorie () {
+    public function allRuleCategorie()
+    {
         $all_rule_categories = RuleCategory::get();
         $all_state = State::get();
         return response(['all_rule_categories' => $all_rule_categories, 'all_state' => $all_state]);
@@ -1859,7 +1860,12 @@ class ApiAdminController extends Controller
                 $categories = Category::orderBy('category', 'asc')->get();
                 $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
                 $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                return response(['fed' => $fed, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
+
+                $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+
+                return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $fed = LawOfFederation::findOrFail($id);
@@ -1995,7 +2001,7 @@ class ApiAdminController extends Controller
                             $selected_category = [];
                             $selected_category['category'] = $request->category;
                             return response(['forms' => $forms, 'public_forms' => $public_forms, 'my_forms' => $my_forms, 'form_count' => $form_count, 'public_form_count' => $public_form_count, 'categories' => $categories, 'main_category' => $main_category, 'selected_category' => $selected_category]);
-                        } else {    
+                        } else {
                             $forms = FormsPrecedence::where('form_type', 'legalpedia')->orderBy('title', 'ASC')->get();
                             $form_count = $forms->count();
                             $public_forms = FormsPrecedence::where('display_type', 'public')->orderBy('title', 'ASC')->get();
@@ -2015,7 +2021,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allForms() {
+    public function allForms()
+    {
         $all_forms = FormsPrecedence::get();
         return response(['all_forms' => $all_forms]);
     }
@@ -2150,7 +2157,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allArticles () {
+    public function allArticles()
+    {
         $all_articles = Article::get();
         return response(['all_articles' => $all_articles]);
     }
@@ -2237,7 +2245,7 @@ class ApiAdminController extends Controller
         }
     }
 
-     public function rateArticle(Request $request, $id)
+    public function rateArticle(Request $request, $id)
     {
         // dd($request->all());
         if (checkUser() == false) {
@@ -2488,7 +2496,8 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function allForeignResources() {
+    public function allForeignResources()
+    {
         $all_foreign_resources = Resource::get();
         return response(['all_foreign_resources' => $all_foreign_resources]);
     }
@@ -2844,8 +2853,8 @@ class ApiAdminController extends Controller
                 $query_case_count = $query_sum_count + $query_ratio_count;
                 // $judgement_summary = [];
                 // $court = [];
-                if($query_case['table'] == 'ratio'){
-                    foreach($query_case['search'] as $case){
+                if ($query_case['table'] == 'ratio') {
+                    foreach ($query_case['search'] as $case) {
                         $judgement_summary1 = JudgementSummary::where('suit_no', $case->suit_no)->first();
                         // dd($judgement_summary);
                         $court1 = Court::where('id', $judgement_summary1 ? $judgement_summary1->court_id : '')->first();
