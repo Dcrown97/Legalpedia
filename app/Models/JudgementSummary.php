@@ -25,6 +25,18 @@ class JudgementSummary extends Model
     {
         return $this->hasOne(Judgement::class, 'suit_no', 'suit_no');
     }
+    public function holden()
+    {
+        return $this->belongsTo(Holden::class);
+    }
+    public function partyAType()
+    {
+        return $this->belongsTo(PartyAType::class);
+    }
+    public function partyBType()
+    {
+        return $this->belongsTo(PartyBType::class);
+    }
     public function areaOfLaw()
     {
         return $this->hasOne(AreaOfLaw::class, 'id', 'area_of_law');
