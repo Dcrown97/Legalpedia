@@ -296,11 +296,11 @@ class ApiAdminController extends Controller
     {
         // dd('sffdfsdf');  
         DB::statement("SET SQL_MODE=''");
-        $courts = Court::orderBy('rank', 'ASC')->paginate(10);
-        $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
-        $categories = Category::orderBy('category', 'asc')->paginate(10);
-        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement')->paginate(10)->withQueryString();
+        $courts = Court::orderBy('rank', 'ASC')->paginate(20);
+        $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(20);
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(20);
+        $categories = Category::orderBy('category', 'asc')->paginate(20);
+        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement')->paginate(20)->withQueryString();
         $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
 
         $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
