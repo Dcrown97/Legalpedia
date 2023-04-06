@@ -292,6 +292,25 @@ class ApiAdminController extends Controller
         }
     }
 
+    public function judgementDetails()
+    {
+        // dd('sffdfsdf');  
+        DB::statement("SET SQL_MODE=''");
+        $courts = Court::orderBy('rank', 'ASC')->paginate(10);
+        $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
+        $categories = Category::orderBy('category', 'asc')->paginate(10);
+        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement')->paginate(10)->withQueryString();
+        $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
+
+        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $judgement_coram = JudgementCoram::select('suit_no')->first();
+        // dd($judgement_coram);
+        $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
+        // dd($corams);
+        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'admin_notes' => $admin_notes, 'judgement_coram' => $judgement_coram, 'corams' => $corams]);
+    }
+
     public function years()
     {
         if (Auth::user()->subscribedUser()) {

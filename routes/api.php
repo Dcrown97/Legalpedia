@@ -40,6 +40,7 @@ Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {
     Route::get('/admin/all-rule-categories', [ApiAdmincontroller::class, 'allRuleCategorie']);
     Route::get('/admin/all-articles', [ApiAdmincontroller::class, 'allArticles']);
     Route::get('/admin/all-foreign-resources', [ApiAdmincontroller::class, 'allForeignResources']);
+    Route::get('/admin/judgements/details', [ApiAdminController::class, 'judgementDetails']);
     // Route::get('/admin/all-state', [ApiAdmincontroller::class, 'allState']);
 
 });
