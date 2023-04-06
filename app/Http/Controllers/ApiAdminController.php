@@ -147,6 +147,7 @@ class ApiAdminController extends Controller
                 $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(10);
                 $categories = Category::orderBy('category', 'asc')->paginate(10);
                 $judgement_summary = JudgementSummary::query();
+
                 if ($request->filled('id') && !$request->filled('year')) {
                     $judge = $judgement_summary->where('court_id', $request->id);
                     $judgement_count = $judge->count();
@@ -192,13 +193,21 @@ class ApiAdminController extends Controller
                     $selected_year['judgement_date'] = '';
                     return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
                 }
-                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
+                $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement')->paginate(10)->withQueryString();
+
+                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+                $judgement_coram = JudgementCoram::select('suit_no')->first();
+                // dd($judgement_coram);
+                $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
+                // dd($corams);
+                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+
                 $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                 $selected_court = [];
                 $selected_court['court_id'] = '';
                 $selected_year = [];
                 $selected_year['judgement_date'] = '';
-                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year, 'admin_notes' => $admin_notes, 'judgement_coram' => $judgement_coram, 'corams' => $corams, 'teams' => $teams]);
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
@@ -257,14 +266,22 @@ class ApiAdminController extends Controller
                         }
                         $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
                         $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
-                        $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->paginate(10)->withQueryString();
+                        $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->with('judgement')->paginate(10)->withQueryString();
                         $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
+
+                        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+                        $judgement_coram = JudgementCoram::select('suit_no')->first();
+                        // dd($judgement_coram);
+                        $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
+                        // dd($corams);
+                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+
                         $selected_court = [];
                         $selected_court['court_id'] = '';
                         $selected_year = [];
                         $selected_year['judgement_date'] = '';
                         // dd($judgement_summaries, 'api');
-                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
+                        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'year_range' => $year_range, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year, 'admin_notes' => $admin_notes, 'judgement_coram' => $judgement_coram, 'corams' => $corams, 'teams' => $teams]);
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
                 }
