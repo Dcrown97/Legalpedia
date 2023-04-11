@@ -300,7 +300,7 @@ class ApiAdminController extends Controller
         $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(20);
         $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(20);
         $categories = Category::orderBy('category', 'asc')->paginate(20);
-        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement', 'court','holden', 'partyAType', 'partyBType', 'areaOfLaw')->paginate(20)->withQueryString();
+        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement', 'court', 'holden', 'partyAType', 'partyBType', 'ratios', 'counsels', 'partyAName', 'partyBName', 'judgCoram', 'areaOfLaw')->paginate(20)->withQueryString();
         $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
 
         $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
