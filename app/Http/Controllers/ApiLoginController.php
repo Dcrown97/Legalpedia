@@ -13,6 +13,7 @@ class ApiLoginController extends Controller
 
     public function login(Request $request)
     {
+        // dd($request->all());
         $data = $request->validate([
             'email' => 'email|required',
             'password' => 'required'
