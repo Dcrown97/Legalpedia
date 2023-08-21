@@ -185,7 +185,7 @@ class AiDocumentSummarizerController extends Controller
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)
-        $textParts = static::breakText($longText, 9500);
+        $textParts = static::breakText($longText, 8500);
         // dd($textParts, strlen($longText));
         // Initialize the conversation with a system message
         $conversation = [
