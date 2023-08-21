@@ -144,6 +144,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Team::class, 'user_team');
     }
 
+    public function canUseAi(){
+        if(isset($this->package_id) && !empty($this->package_id) && $this->expiry_date > now() && $this->status == 'active') {
+            $packages = Package::find($this->package_id);
+            if($packages->ai_feature){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+        
+    }
+
     // public function user_teams() {
     //     return $this->belongsToMany(UserTeam::class);
     // }

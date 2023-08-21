@@ -27,6 +27,16 @@ Route::post('password-reset', [ForgotPasswordController::class, 'passwordResetPo
 Route::group(['middleware'=>'auth'], function(){
 // Route::group(['middleware'=>['auth', 'verified']], function(){
 
+    Route::post("/ask", [AdminController::class, 'summarize'])->name('admin.ask');
+    Route::get('/admin/ai-assistant', [AdminController::class, 'aiAssistant'])->name('admin.ai');
+    Route::post('/admin/ai-assistant', [AdminController::class, 'aiAssistant'])->name('admin.ai');
+
+    Route::post('/admin/ai-assistant-summary', [AdminController::class, 'aiAssistantSummary'])->name('admin.aiSummary');
+    Route::get('/admin/ai-assistant-judgement-summary/{id}', [AdminController::class, 'aiAssistantJudgementSummary'])->name('admin.aiJudgementSummary');
+    Route::get('/admin/ai-assistant-laws-of-fed/{id}', [AdminController::class, 'aiAssistantLawsOfFedSummary'])->name('admin.aiLawsOfFedSummary');
+
+
+
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/admin/judgements/courts', [AdminController::class, 'court'])->name('admin.court');

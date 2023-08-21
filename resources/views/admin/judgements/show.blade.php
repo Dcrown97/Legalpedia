@@ -81,6 +81,14 @@
                             </a>
                         </div>
                     @endif
+                    @if(Auth::user()->canUseAi())
+                    <div class="col-auto">
+                        <a href="{{ route('admin.aiJudgementSummary', $judgement_summary->id) }}"
+                            class="btn text-white btn-primary">
+                            Summarize with AI
+                        </a>
+                    </div>
+                    @endif
                 </div>
                 <div class="row align-items-end">
                     <div class="col text-center">

@@ -85,8 +85,9 @@ use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\UpdatedLicenseCredentials;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use Smalot\PdfParser\Parser;
 // use NunoMaduro\Collision\Adapters\Phpunit\State;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -96,6 +97,107 @@ class AdminController extends Controller
         // $this->middleware(['auth', 'subscribedUser', 'verified']);
     }
 
+    /////////////////////////AI Assistant////////////////////////////////////////
+    public function ask(Request $request){
+        $question = $request->query('question');
+        
+    }
+
+    private function uploadPdfToStorage($pdfFile)
+    {
+        $imageName = rand(10000,99999).time().'.'.$pdfFile->extension();  
+        $path = Storage::disk('s3')->put('/', $pdfFile);
+        $path = Storage::disk('s3')->url($path);
+
+        return $path;
+    }
+
+
+    public function aiAssistant(Request $request)
+    {
+        return view('admin.ai_assistant');
+    }
+
+    public function aiAssistantSummary(Request $request)
+    {
+
+        try {
+            $validateUser = Validator::make(
+                $request->all(),
+                [
+                    'uploadedFile' => 'required|mimes:pdf|max:10000',
+                ]
+            );
+
+            if ($validateUser->fails()) {
+                return back()->withErrors($validateUser->errors()->first(),);
+            }
+            $pdfPath = $request->file('uploadedFile');
+            $name_gen = time() . '.' . $pdfPath->getClientOriginalExtension();
+            $data = $pdfPath->storeAs('pdfs', $name_gen, 'public');
+            // dd($data);
+            $pdfParser = new Parser();
+            $pdf = $pdfParser->parseFile('storage/' . $data);
+            $text = $pdf->getText();
+            $res = AiDocumentSummarizerController::summarize($text);
+            // dd($res);
+            $summary = implode(' ', $res);
+            $teams = Team::where('user_id', Auth::user()->id)->get();
+            $result_title = 'AI Analysis Result';
+            return view('admin.ai_assistant_result', compact('summary', 'teams', 'result_title'));
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors('An error occurred');
+        }
+    }
+
+    public function aiAssistantJudgementSummary(Request $request, $id)
+    {
+        try {
+            $judgement_summary = JudgementSummary::find($id);
+            $full_judgement = Judgement::where('suit_no', 'LIKE', '%' . $judgement_summary->suit_no . '%')->first();
+            $text = 'Hello AI';
+            if($full_judgement !== null){
+                $text = $full_judgement->judgement;
+            }
+            $res = AiDocumentSummarizerController::summarize($text);
+            // dd($res);
+            $summary = implode(' ', $res);
+            $teams = Team::where('user_id', Auth::user()->id)->get();
+            $result_title = $judgement_summary->title;
+            return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
+        } catch (\Exception $e) {
+            return back()->withErrors('An error occurred');
+        }
+    }
+
+
+    public function aiAssistantLawsOfFedSummary(Request $request, $id)
+    {
+        try {
+            $text = '';
+            $fed = LawOfFederation::findOrFail($id);
+            $fed_part = LawOfFedPart::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get() ;
+            $fed_sections = LawOfFedSection::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get() ;
+            $fed_schedules = LawOfFedSched::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get() ;
+
+            foreach($fed_sections as $fed_section){
+                $text .= '\n ' . $fed_section->section_body;
+            }
+
+            foreach($fed_schedules as $fed_schedule){
+                $text .= '\n ' . $fed_schedule->sched_body;
+            }
+
+            $res = AiDocumentSummarizerController::summarizeLFN($text);
+            $summary = implode(' ', $res);
+            $teams = Team::where('user_id', Auth::user()->id)->get();
+            $result_title = $fed->title;
+            return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
+        } catch (\Exception $e) {
+            return back()->withErrors('An error occurred');
+        }
+    }
     ///////////////////////dashboard///////////////////////////////////////////////
     public function index()
     {

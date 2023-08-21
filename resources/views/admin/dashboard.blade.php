@@ -114,17 +114,26 @@
         <div class="container-fluid">
             <div class="header-body">
                 <div class="row align-items-end">
-                    <div class="col">
-                        <h6 class="header-pretitle">
-                        </h6>
-                        <h1 class="header-title">
-                            @if(Auth::user()->role->name == 'Admin')
-                                Hi, Admin
-                                @else
-                                Hi, {{Str::words(Auth::user()->name, 1, '')}}
-                            @endif
-                        </h1>
+                    <div class="row" style="justify-content: space-between;">
+                        <div class="col">
+                            <h6 class="header-pretitle">
+                            </h6>
+                            <h1 class="header-title">
+                                @if(Auth::user()->role->name == 'Admin')
+                                    Hi, Admin
+                                    @else
+                                    Hi, {{Str::words(Auth::user()->name, 1, '')}}
+                                @endif
+                            </h1>
+                        </div>
+                        <div class="col-sm-2">
+                            <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
+                                <span class="button__text">AI Assistant</span>
+                            </a>
+                        </div>
                     </div>
+                    
+                    
                     @include('elements.notifications')
                 </div>
             </div>
