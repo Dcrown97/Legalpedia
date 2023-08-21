@@ -84,7 +84,8 @@
                     @if(Auth::user()->canUseAi())
                     <div class="col-auto">
                         <a href="{{ route('admin.aiJudgementSummary', $judgement_summary->id) }}"
-                            class="btn text-white btn-primary">
+                            class="btn text-white btn-primary"
+                            onclick="this.classList.toggle('button--loading')">
                             Summarize with AI
                         </a>
                     </div>
