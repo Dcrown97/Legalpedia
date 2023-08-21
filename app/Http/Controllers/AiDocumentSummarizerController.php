@@ -37,39 +37,30 @@ class AiDocumentSummarizerController extends Controller
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)
-        $textParts = static::breakText($longText, 10000);
+        $textParts = static::breakText($longText, 8500);
         // dd($textParts, strlen($longText));
         // Initialize the conversation with a system message
         $conversation = [
             [
                 "role" => "system", 
                 "content" => "You are a Nigerian lawyer, who works with Judgements from all courts in Nigeria, you analyze and summarize case laws based on the Nigerian laws and constitution, Analyze and summerise this case law, and here is how your response should go 
-
                 Case Background:
                 What are the essential facts of the case?
                 What legal issues are being disputed?
                 What were the arguments presented by both parties?
-                
-                
                 Identifying Ratio Decidendi:
                 Get at least 8 ratio decidendi
                 What are the key principles of law that were applied to this case?
                 What legal precedent or statutory law guided the court's decision?
                 What were the specific findings of fact that led to the decision?
-                
-                
                 Exploring the Ratios:
                 For each ratio decidendi, how did the court interpret and apply the relevant laws or precedents?
                 What were the court's specific reasoning and conclusions on each ratio decidendi?
                 How does each ratio decidendi align with existing Nigerian laws and the constitution?
-                
-                
                 Assessing the Implications:
                 What is the broader legal significance of this judgment?
                 How might this decision influence future cases in similar legal contexts?
                 Are there any dissenting or concurring opinions that provide additional insights or contrasting viewpoints?
-                
-                
                 Summarizing the Judgment:
                 What is a concise summary of the court's decision that encapsulates the essential points?
                 How does this case contribute to or alter the existing body of case law in Nigeria?
@@ -185,24 +176,17 @@ class AiDocumentSummarizerController extends Controller
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)
-        $textParts = static::breakText($longText, 8500);
+        $textParts = static::breakText($longText, 10000);
         // dd($textParts, strlen($longText));
         // Initialize the conversation with a system message
         $conversation = [
             [
                 "role" => "system", 
                 "content" => "You are a Nigerian lawyer who analysis legal agreements. Please analyse this agreement and do the following;
-
                 Identify and highlight the crucial points in the following legal agreement from the context of the Federation of Nigeria. Emphasize any terms, conditions, or obligations that are particularly significant or may have substantial legal implications.
-                
                 Extract and detail the specific clauses from the legal agreement. For each clause, define the expectations from each party, the obligations they are under, and any potential penalties or remedies for non-compliance.
-                
-                
                 Provide a comprehensive summary of the legal agreement. Include an overview of the main obligations, rights, penalties, dispute resolution mechanisms, and any specific provisions that set this agreement apart.
-                
-                
                 Analyze the legal agreement and compare its clauses with standard or commonly accepted practices in the legal jurisdiction of the Federation of Nigeria. Highlight any unusual or unique clauses, and explain their potential implications or risks.
-                
                 Interpret the  legal agreement, identifying any potential issues, ambiguities, or contradictions that may arise. Provide insights into how different provisions might interact, and highlight any areas that may require clarification or further negotiation."
             ]
         ];
