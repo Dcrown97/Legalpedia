@@ -139,14 +139,19 @@ class AdminController extends Controller
             $pdfParser = new Parser();
             $pdf = $pdfParser->parseFile('storage/' . $data);
             $text = $pdf->getText();
-            $res = AiDocumentSummarizerController::summarize($text);
+            if($request->type == 'judgement'){
+                $res = AiDocumentSummarizerController::summarize($text);
+            }else if($request->type == 'lfn'){
+                $res = AiDocumentSummarizerController::summarizeLFN($text);
+            }else{
+                $res = AiDocumentSummarizerController::summarizeAgreement($text);
+            }   
             // dd($res);
             $summary = implode(' ', $res);
             $teams = Team::where('user_id', Auth::user()->id)->get();
             $result_title = 'AI Analysis Result';
             return view('admin.ai_assistant_result', compact('summary', 'teams', 'result_title'));
         } catch (\Exception $e) {
-            dd($e->getMessage());
             return back()->withErrors('An error occurred');
         }
     }
