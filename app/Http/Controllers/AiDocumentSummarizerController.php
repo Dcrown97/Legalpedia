@@ -37,7 +37,7 @@ class AiDocumentSummarizerController extends Controller
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)
-        $textParts = static::breakText($longText, 8500);
+        $textParts = static::breakText($longText, 10000);
         // dd($textParts, strlen($longText));
         // Initialize the conversation with a system message
         $conversation = [
@@ -105,7 +105,7 @@ class AiDocumentSummarizerController extends Controller
                 'json' => [
                     'model'=> "gpt-3.5-turbo-16k",
                     'messages' => $conversation,
-                    'max_tokens' => 1000, // Adjust the summary length as needed
+                    'max_tokens' => 1500, // Adjust the summary length as needed
                     "temperature" => 0.7,
                 ],
             ]);

@@ -152,7 +152,7 @@ class AdminController extends Controller
             $result_title = 'AI Analysis Result';
             return view('admin.ai_assistant_result', compact('summary', 'teams', 'result_title'));
         } catch (\Exception $e) {
-            return back()->withErrors('An error occurred');
+            return back()->withErrors($e->getMessage());
         }
     }
 
@@ -172,8 +172,7 @@ class AdminController extends Controller
             $result_title = $judgement_summary->title;
             return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
         } catch (\Exception $e) {
-            dd($e);
-            return back()->withErrors('An error occurred');
+            return back()->withErrors($e->getMessage());
         }
     }
 
@@ -201,8 +200,7 @@ class AdminController extends Controller
             $result_title = $fed->title;
             return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
         } catch (\Exception $e) {
-            dd($e);
-            return back()->withErrors('An error occurred');
+            return back()->withErrors($e->getMessage());
         }
     }
     ///////////////////////dashboard///////////////////////////////////////////////
