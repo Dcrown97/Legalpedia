@@ -43,7 +43,7 @@ class AiDocumentSummarizerController extends Controller
         $conversation = [
             [
                 "role" => "system", 
-                "content" => "You are a Nigerian lawyer, who works with Judgements from all courts in Nigeria, you analyze and summarize case laws based on the Nigerian laws and constitution, Analyze and summerise this case law, and here is how your response should go 
+                "content" => "You are a Nigerian lawyer, who works with Judgements from all courts in Nigeria, you analyze and summarize case laws based on the Nigerian laws and constitution, Analyze and summarize this case law, and here is how your response should go (well formatted in html with adequate spacing)
                 Case Background:
                 What are the essential facts of the case?
                 What legal issues are being disputed?
@@ -119,6 +119,7 @@ class AiDocumentSummarizerController extends Controller
         // $summary = json_decode($response->getBody(), true)['choices'][0]['text'];
 
         // // Display the summary in your view or return it as a response
+        // dd();
         return $summaries;
     }
 
@@ -135,7 +136,7 @@ class AiDocumentSummarizerController extends Controller
                 "role" => "system", 
                 "content" => "You are a Nigerian Lawyer who is a Legal editor for the Laws of the Federation of Nigeria. Please summarize this law and point out the key provisions, principles, and obligations in the law. Highlight any specific terms, conditions, or exceptions that should be noted.
 
-                Then provide an executive summary of the law, focusing on its practical applications and implications. Explain how the law might be interpreted by courts, government agencies, or businesses in Nigeria."
+                Then provide an executive summary of the law, focusing on its practical applications and implications. Explain how the law might be interpreted by courts, government agencies, or businesses in Nigeria. (Well formatted in html with adequate spacing)"
             ]
         ];
 
@@ -182,7 +183,7 @@ class AiDocumentSummarizerController extends Controller
         $conversation = [
             [
                 "role" => "system", 
-                "content" => "You are a Nigerian lawyer who analysis legal agreements. Please analyse this agreement and do the following;
+                "content" => "You are a Nigerian lawyer who analysis legal agreements. Please analyse this agreement and do the following (in well formatted in html with adequate spacing);
                 Identify and highlight the crucial points in the following legal agreement from the context of the Federation of Nigeria. Emphasize any terms, conditions, or obligations that are particularly significant or may have substantial legal implications.
                 Extract and detail the specific clauses from the legal agreement. For each clause, define the expectations from each party, the obligations they are under, and any potential penalties or remedies for non-compliance.
                 Provide a comprehensive summary of the legal agreement. Include an overview of the main obligations, rights, penalties, dispute resolution mechanisms, and any specific provisions that set this agreement apart.

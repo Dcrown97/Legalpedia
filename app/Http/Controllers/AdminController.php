@@ -148,6 +148,7 @@ class AdminController extends Controller
             }   
             // dd($res);
             $summary = implode(' ', $res);
+            $summary = nl2br($summary);
             $teams = Team::where('user_id', Auth::user()->id)->get();
             $result_title = 'AI Analysis Result';
             return view('admin.ai_assistant_result', compact('summary', 'teams', 'result_title'));
@@ -168,6 +169,7 @@ class AdminController extends Controller
             $res = AiDocumentSummarizerController::summarize($text);
             // dd($res);
             $summary = implode(' ', $res);
+            $summary = nl2br($summary);
             $teams = Team::where('user_id', Auth::user()->id)->get();
             $result_title = $judgement_summary->title;
             return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
@@ -196,6 +198,7 @@ class AdminController extends Controller
 
             $res = AiDocumentSummarizerController::summarizeLFN($text);
             $summary = implode(' ', $res);
+            $summary = nl2br($summary);
             $teams = Team::where('user_id', Auth::user()->id)->get();
             $result_title = $fed->title;
             return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
@@ -4390,6 +4393,16 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////comment and replies/////////////////////////
+    public function commentApi(Request $request){
+        $input = [
+            'user_id' => $request->user_id,
+            'team_id' => $request->team_id,
+            'comment_body' => $request->comment_body
+        ];
+        Comment::create($input);
+        return response()->json([ 'data' => true]);
+    }
+
     public function comment(Request $request)
     {
         if (checkUser() == false) {

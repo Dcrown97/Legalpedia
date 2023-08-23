@@ -203,6 +203,9 @@ Route::group(['middleware'=>'auth'], function(){
     Route::patch('/checkout/{id}', [AdminController::class, 'useDiscount'])->name('use.discount');
 
     Route::post('/admin/teams/comment', [AdminController::class, 'comment'])->name('post.comment');
+    Route::post('/admin/teams/comment-api', [AdminController::class, 'commentApi'])->name('post.commentApi');
+
+    
     Route::patch('/admin/teams/comment', [AdminController::class, 'updateComment'])->name('update.comment');
     Route::post('/admin/teams/reply', [AdminController::class, 'reply'])->name('reply.comment');
     Route::delete('/admin/teams/comment/{id}', [AdminController::class, 'deleteComment'])->name('delete.comment');

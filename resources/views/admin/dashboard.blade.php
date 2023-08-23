@@ -1052,7 +1052,35 @@
             </div> --}}
         @endif
         <div class="row">
-            <div class="col-12 col-xl-4">
+            <div class="col-12 col-xl-3">
+                <a href="{{url('admin/judgements')}}" class="link_item">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center gx-0">
+                                <div class="col">
+                                    <h6 class="text-uppercase text-muted mb-3">
+                                        AI Assistant
+                                    </h6>
+                                    <span class="h2 mb-0">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <a href="{{url('admin/ai-assistant')}}">
+                                                    <img src="{{asset('assets/images/ai.jpg')}}" alt="AI Assistant" class="card-img-top h-90">
+                                                </a>
+                                            </div>
+                                            <div class="col">
+                                                <span class="text-3xl">AI Assistant</span>
+                                            </div>
+                                            <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{url('admin/ai-assistant')}}"><i class="mdi mdi-arrow-right"></i> AI Assistant</a>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-xl-3">
                 <a href="{{url('admin/judgements')}}" class="link_item">
                     <div class="card">
                         <div class="card-body">
@@ -1080,7 +1108,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-12 col-xl-4">
+            <div class="col-12 col-xl-3">
                 <a href="{{url('admin/teams')}}" class="link_item">
                     <div class="card">
                         <div class="card-body">
@@ -1108,7 +1136,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-12 col-xl-4">
+            <div class="col-12 col-xl-3">
                 <a href="{{url('admin/articles')}}" class="link_item">
                     <div class="card">
                         <div class="card-body">

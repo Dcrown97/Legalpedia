@@ -39,7 +39,7 @@
     <div class="header-body">
         <div class="row align-items-end mb-4">
             <div class="col">
-                <a href="{{ url('admin/judgements') }}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i>
+                <a href="{{ url('admin/ai-assistant') }}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i>
                     Back</a>
             </div>
         </div>
@@ -48,13 +48,10 @@
             <h3 style="color: #D93C3D;">{{$result_title}}</h3>
         </div>
         <div class="col-lg-6">
-            <button class="btn">
-                <i class="fe fe-bookmark"></i> Save for Later
-            </button>
-            <button class="btn">
+            <a class="btn" href="mailto:{{Auth()->user()->email}}?body={{$summary}}">
                 <i class="fe fe-share"></i> Share via Email 
-            </button>
-            <button class="btn btn-primary bgRed text-white">
+            </a>
+            <button class="btn btn-primary bgRed text-white" data-bs-toggle="modal" data-bs-target="#popModal" id="kt_toolbar_primary_button">
                 <i class="fe fe-users"></i> Share with Team
             </button>
         </div>
@@ -62,7 +59,7 @@
     </div>
     
     <div style="background-color: #FFF; padding: 20px">
-        {{$summary}}
+        {!! $summary !!}
     </div>
 
     <script>
@@ -75,6 +72,35 @@
             $('#fileName').html(filename)
             console.log($('input[type=file]')[0].files)
         })
+
+        function sendToTeam(team_id){
+            var user_id = "{{Auth::user() ? Auth::user()->id : ''}}";
+            var comment_body = $('#summaryText').html()
+            $.ajax({
+                type:'POST',
+                url: "{{route('post.commentApi')}}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id:user_id,
+                    team_id:team_id,
+                    comment_body:comment_body,
+                },
+                success:function(data){
+                    swal({
+                        title: "Success!",
+                        text: 'Shared with team successfully',
+                        icon: "success",
+                    });
+                },
+                error: function(error) {
+                    swal({
+                        title: "Error!",
+                        text: 'Couldn\'t share with team at the moment, please try again later',
+                        icon: "error",
+                    });
+                }
+            });
+        }
     </script>
 </div>
 

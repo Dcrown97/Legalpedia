@@ -93,7 +93,7 @@
         @yield('content')
         @include('elements.send-report')
     </div>
-
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src='../api.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
     <!-- Vendor JS -->
     <script src="{{asset('assets/js/vendor.bundle.js')}}"></script>

@@ -63,8 +63,8 @@
             <div class="mx-auto row p-4">
                 <div class="col-lg-3"></div>
                 <div class="col-lg-6">
-                    <label for="">Type</label>
-                    <select name="type" class="form-control">
+                    <label for="">Select Type</label>
+                    <select name="type" class="form-select">
                         <option value="judgement">Judgement</option>
                         <option value="lfn">Laws of Federation</option>
                         <option value="agreement">Agreement</option>
