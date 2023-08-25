@@ -40,13 +40,13 @@
         color: #000;
         font-family: Helvetica;
         font-size: 14px;
-        border: 1px solid #FFF;
+        border: 1px solid #000;
         border-radius: 5px;
     }
 
     .aiBtn3 {
         border-radius: 5px;
-        background: red;
+        background: rgb(254 0 0 / 100%);
         color: #fff;
         font-family: Helvetica;
         font-size: 14px;
@@ -58,7 +58,7 @@
         display: flex;
         gap: 10px;
         justify-content: flex-end;
-        background-color: #F3F7FF;
+        background-color: #FFF;
         padding: 20px;
     }
 </style>
@@ -69,7 +69,7 @@
     <form method="post" action="{{route('admin.aiSummary')}}" enctype="multipart/form-data">
         @csrf
         <div class="row">
-            <div class="col-lg-6 p-5">
+            <div class="col-lg-6 p-5" style="height:90vh; background-color: rgb(254 0 0 / 3%);">
                 <h1 style="font-size: 48px; color: red; font-weight: 800; margin-top:10px; margin-bottom: 0px">Legalpedia<span style="color: #000;">Lens</span></h1>
                 <p style="font-size: 20px;">AI Powered Document Assistant</p>
                 <br>
@@ -84,18 +84,18 @@
                         <br>
                         <h1 style="font-size: 42px; font-weight: 800;">Analyze</h1>
                         <ol>
-                            <li style="font-size: 20px;">Decided Cases</li>
-                            <li style="font-size: 20px;">Laws</li>
-                            <li style="font-size: 20px;">Legal Agreements</li>
+                            <li style="font-size: 31.5px;">Decided Cases</li>
+                            <li style="font-size: 31.5px;">Laws</li>
+                            <li style="font-size: 31.5px;">Legal Agreements</li>
                         </ol>
                     </div>
                     <div class="carousel-item">
                         <br>
                         <h1 style="font-size: 42px; font-weight: 800;">In 3 simple steps</h1>
                         <ol>
-                            <li style="font-size: 20px;">Upload your document</li>
-                            <li style="font-size: 20px;">Select the type of document</li>
-                            <li style="font-size: 20px;">Let LegalpediaLens do its magic</li>
+                            <li style="font-size: 31.5px;">Upload your document</li>
+                            <li style="font-size: 31.5px;">Select the type of document</li>
+                            <li style="font-size: 31.5px;">Let LegalpediaLens do its magic</li>
                         </ol>
                     </div>
                 </div>
@@ -109,8 +109,8 @@
                 </a>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="py-5 mt-5 mx-auto" style="background-color: #F8FAFF; border: 1px dashed #F3F7FF">
+            <div class="col-lg-6 p-0">
+                <div class="py-5 mt-5 mx-auto" style="background-color: #FFF; height: 90vh;">
                     <div style="text-align:center">
                         <h4 style="font-weight: bold">Upload a Document </h4>
                         <p>Upload the document you need Legalpedia AI help you summarise and analyse</p>
@@ -135,9 +135,9 @@
                     </div>
                     <br>
 
-                    <div class="mx-auto row p-4">
-                        <div class="col-lg-3"></div>
-                        <div class="col-lg-6">
+                    <div class="mx-auto row px-2 py-4">
+                        <div class="col-lg-1"></div>
+                        <div class="col-lg-10">
                             <label for="">Select Type</label>
                             <select name="type" class="form-select">
                                 <option value="judgement">Judgement</option>
@@ -173,7 +173,7 @@
 
         $(document).ready(function(){
             $('.carousel').carousel({
-                interval: 2000
+                interval: 5000
             })
         })
        
