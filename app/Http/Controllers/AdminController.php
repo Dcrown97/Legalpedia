@@ -3618,6 +3618,7 @@ class AdminController extends Controller
             'resource_feature' => $request->resource_feature,
             'resource_cat' => json_encode($request->resource_cat),
             'ai_cat' => json_encode($request->ai_cat),
+            'ai_feature' => $request->ai_feature,
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
@@ -3648,6 +3649,7 @@ class AdminController extends Controller
         if (!$request->lfn_cat) {
             $input['lfn_cat'] = $request->lfn_cat;
         }
+       
         if (!$request->judg_cat) {
             $input['judg_cat'] = $request->judg_cat;
         }
@@ -3712,9 +3714,9 @@ class AdminController extends Controller
 
         if (!$request->ai_feature) {
             $input['ai_feature'] = $request->ai_feature;
-            $input['ai_cat'] = NULL;
+            $input['ai_cat'] = null;
         }
-        // dd($input, $request->ai_feature);
+        // dd($input, $request->ai_feature, $request->ai_cat);
         $package->update($input);
         return back()->with('success', 'Package updated');
     }
