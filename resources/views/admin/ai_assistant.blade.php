@@ -117,7 +117,7 @@
                     </div>
 
 
-                    <div class="mx-auto mt-5 row p-4" style="width: 60%; border: 1px dashed rgba(0, 0, 0, 0.25); background: #fff">
+                    <div class="mx-auto mt-5 row p-4" style="width: 80%; border: 1px dashed rgba(0, 0, 0, 0.25); background: #fff">
                         <input type="file" name="uploadedFile" id="uploadedFile" accept="application/pdf" style="display: none">
                         <div class="col-lg-2">
                             <img src="{{asset('assets/images/upload.svg')}}" alt="upload" height="48px">
