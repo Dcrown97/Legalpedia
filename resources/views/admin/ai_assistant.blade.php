@@ -6,6 +6,13 @@
 
 @section('content')
 <style>
+    @font-face {
+    font-family: 'AI';
+        src:
+        url("{{asset('assets/fonts/FuturaBoldfont.ttf')}}") format('truetype');
+        font-weight: bold;
+        font-style: normal;
+    }
     .overlay {
         display: none;
         position: fixed;
@@ -69,9 +76,9 @@
     <form method="post" action="{{route('admin.aiSummary')}}" enctype="multipart/form-data">
         @csrf
         <div class="row">
-            <div class="col-lg-6 p-5" style="height:90vh; background-color: rgb(254 0 0 / 3%);">
+            <div class="col-lg-6 p-5" style="height:90vh; background-color: rgb(254 0 0 / 3%); font-family: AI">
                 <h1 style="font-size: 48px; color: red; font-weight: 800; margin-top:10px; margin-bottom: 0px">Legalpedia<span style="color: #000;">Lens</span></h1>
-                <p style="font-size: 20px;">AI Powered Document Assistant</p>
+                <p style="font-size: 20px; font-family: AI">AI Powered Document Assistant</p>
                 <br>
                 <br>
                 <br>
@@ -79,10 +86,10 @@
                 
 
                 <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
+                <div class="carousel-inner" style="font-family: AI">
                     <div class="carousel-item active">
                         <br>
-                        <h1 style="font-size: 42px; font-weight: 800;">Analyze</h1>
+                        <h1 style="font-size: 42px; font-weight: 800; font-family: AI">Analyze</h1>
                         <ol>
                             <li style="font-size: 31.5px;">Decided Cases</li>
                             <li style="font-size: 31.5px;">Laws</li>
@@ -91,7 +98,7 @@
                     </div>
                     <div class="carousel-item">
                         <br>
-                        <h1 style="font-size: 42px; font-weight: 800;">In 3 simple steps</h1>
+                        <h1 style="font-size: 42px; font-weight: 800; font-family: AI">In 3 simple steps</h1>
                         <ol>
                             <li style="font-size: 31.5px;">Upload your document</li>
                             <li style="font-size: 31.5px;">Select the type of document</li>
