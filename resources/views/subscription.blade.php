@@ -325,6 +325,7 @@
                             <i class="fas fa-times-circle text-secondary"></i> <span>Forms and Precedents</span>
                         </div>
                     @endif
+                    
                     @if($package->team)
                         <div class="col-md-6 pad_bot">
                             <i class="fas fa-check-circle text-success"></i> <span>Teams</span>

@@ -86,7 +86,7 @@
                         <a href="{{ route('admin.aiJudgementSummary', $judgement_summary->id) }}"
                             class="btn text-white btn-primary"
                             onclick="this.classList.toggle('button--loading')">
-                            Summarize with AI
+                            Summarize with LegalpediaLens
                         </a>
                     </div>
                     @endif

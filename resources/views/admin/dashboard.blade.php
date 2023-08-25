@@ -128,7 +128,7 @@
                         </div>
                         <div class="col-sm-2">
                             <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
-                                <span class="button__text">AI Assistant</span>
+                                <span class="button__text">LegalpediaLens</span>
                             </a>
                         </div>
                     </div>
@@ -1065,11 +1065,11 @@
                                         <div class="row align-items-center">
                                             <div class="col-auto">
                                                 <a href="{{url('admin/ai-assistant')}}">
-                                                    <img src="{{asset('assets/images/ai.jpg')}}" alt="AI Assistant" class="card-img-top h-90">
+                                                    <img src="{{asset('assets/images/ai.jpg')}}" alt="LegalpediaLens" class="card-img-top h-90">
                                                 </a>
                                             </div>
                                             <div class="col">
-                                                <span class="text-3xl">AI Assistant</span>
+                                                <span class="text-3xl">LegalpediaLens</span>
                                             </div>
                                             <a class="small justify-content-end text-right align-items-end text-color" style="float: right" href="{{url('admin/ai-assistant')}}"><i class="mdi mdi-arrow-right"></i> AI Assistant</a>
                                         </div>

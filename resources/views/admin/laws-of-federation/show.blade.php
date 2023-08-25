@@ -46,7 +46,7 @@
                         <a href="{{ route('admin.aiLawsOfFedSummary', $fed->id) }}"
                             class="btn text-white btn-primary"
                             onclick="this.classList.toggle('button--loading')">
-                            Summarize with AI
+                            Summarize with LegalpediaLens
                         </a>
                     </div>
                     @endif

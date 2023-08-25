@@ -34,6 +34,7 @@ class AiDocumentSummarizerController extends Controller
 
     public static function summarize(String $text)
     {
+        set_time_limit(600);
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)
@@ -125,6 +126,7 @@ class AiDocumentSummarizerController extends Controller
 
     public static function summarizeLFN(String $text)
     {
+        set_time_limit(600);
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)
@@ -174,6 +176,7 @@ class AiDocumentSummarizerController extends Controller
 
     public static function summarizeAgreement(String $text)
     {
+        set_time_limit(600);
         // Get the input document text from the request
         $longText = $text;
         // Split the long text into smaller parts (adjust as needed)

@@ -6,6 +6,27 @@
 
 @section('content')
 <style>
+    .overlay {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        background: rgba(255, 255, 255, 0.8) url("{{asset('assets/images/loading.gif')}}") center no-repeat;
+    }
+
+    /* Turn off scrollbar when body element has the loading class */
+    body.loading {
+        overflow: hidden;
+    }
+
+    /* Make spinner image visible when body element has the loading class */
+    body.loading .overlay {
+        display: block;
+    }
+
     .selectFile {
         border-radius: 5px;
         border: 1px solid var(--legal-sec-red, #EC6959);
@@ -20,6 +41,17 @@
         font-family: Helvetica;
         font-size: 14px;
         border: 1px solid #FFF;
+        border-radius: 5px;
+    }
+
+    .aiBtn3 {
+        border-radius: 5px;
+        background: red;
+        color: #fff;
+        font-family: Helvetica;
+        font-size: 14px;
+        border: 1px solid #FFF;
+        border-radius: 5px;
     }
 
     .btn-row {
@@ -32,59 +64,105 @@
 </style>
 
 <div class="container-fluid" style="background-color: #fff;">
+    <div class="overlay"></div>
     @include('elements.notifications')
     <form method="post" action="{{route('admin.aiSummary')}}" enctype="multipart/form-data">
         @csrf
-        <div class="py-5 mt-5 mx-auto" style="background-color: #F8FAFF; border: 1px dashed #F3F7FF">
-            <div style="text-align:center">
-                <h4 style="font-weight: bold">Upload a Document </h4>
-                <p>Upload the document you need Legalpedia AI help you summarise and analyse</p>
+        <div class="row">
+            <div class="col-lg-6 p-5">
+                <h1 style="font-size: 48px; color: red; font-weight: 800; margin-top:10px; margin-bottom: 0px">Legalpedia<span style="color: #000;">Lens</span></h1>
+                <p style="font-size: 20px;">AI Powered Document Assistant</p>
+                <br>
+                <br>
+                <br>
+                <br>
+                
+
+                <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <br>
+                        <h1 style="font-size: 42px; font-weight: 800;">Analyze</h1>
+                        <ol>
+                            <li style="font-size: 20px;">Decided Cases</li>
+                            <li style="font-size: 20px;">Laws</li>
+                            <li style="font-size: 20px;">Legal Agreements</li>
+                        </ol>
+                    </div>
+                    <div class="carousel-item">
+                        <br>
+                        <h1 style="font-size: 42px; font-weight: 800;">In 3 simple steps</h1>
+                        <ol>
+                            <li style="font-size: 20px;">Upload your document</li>
+                            <li style="font-size: 20px;">Select the type of document</li>
+                            <li style="font-size: 20px;">Let LegalpediaLens do its magic</li>
+                        </ol>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+                </div>
             </div>
+            <div class="col-lg-6">
+                <div class="py-5 mt-5 mx-auto" style="background-color: #F8FAFF; border: 1px dashed #F3F7FF">
+                    <div style="text-align:center">
+                        <h4 style="font-weight: bold">Upload a Document </h4>
+                        <p>Upload the document you need Legalpedia AI help you summarise and analyse</p>
+                    </div>
 
 
-            <div class="mx-auto mt-5 row p-4" style="width: 60%; border: 1px dashed rgba(0, 0, 0, 0.25); background: #fff">
-                <input type="file" name="uploadedFile" id="uploadedFile" accept="application/pdf" style="display: none">
-                <div class="col-lg-2">
-                    <img src="{{asset('assets/images/upload.svg')}}" alt="upload" height="48px">
+                    <div class="mx-auto mt-5 row p-4" style="width: 60%; border: 1px dashed rgba(0, 0, 0, 0.25); background: #fff">
+                        <input type="file" name="uploadedFile" id="uploadedFile" accept="application/pdf" style="display: none">
+                        <div class="col-lg-2">
+                            <img src="{{asset('assets/images/upload.svg')}}" alt="upload" height="48px">
+                        </div>
+                        <div class="col-lg-7">
+                            <h4>Select a file</h4>
+                            <p style="color: rgba(0, 0, 0, 0.40);">PDF, file size no more than 10MB</p>
+                            <p id="fileName"></p>
+                        </div>
+                        <div class="col-lg-3">
+                            <button class="selectFile p-2" type="button" onclick="handleSelectFile()">
+                                Select File
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class="mx-auto row p-4">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-6">
+                            <label for="">Select Type</label>
+                            <select name="type" class="form-select">
+                                <option value="judgement">Judgement</option>
+                                <option value="lfn">Laws of Federation</option>
+                                <option value="agreement">Agreement</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr style="margin-bottom: 0px;">
+                    <div class="btn-row">
+                        <button class="aiBtn2 p-2" type="button">
+                            Cancel
+                        </button>
+                        <!-- <button type="submit" id="sb" class="aiBtn2 p-2">
+                            Save Document
+                        </button> -->
+                        <button type="submit" id="sb" class="aiBtn3 p-2">
+                            Analyse
+                        </button>
+                    </div>
                 </div>
-                <div class="col-lg-7">
-                    <h4>Select a file</h4>
-                    <p style="color: rgba(0, 0, 0, 0.40);">PDF, file size no more than 10MB</p>
-                    <p id="fileName"></p>
-                </div>
-                <div class="col-lg-3">
-                    <button class="selectFile p-2" type="button" onclick="handleSelectFile()">
-                        Select File
-                    </button>
-                </div>
-            </div>
-            <br>
-            
-            <div class="mx-auto row p-4">
-                <div class="col-lg-3"></div>
-                <div class="col-lg-6">
-                    <label for="">Select Type</label>
-                    <select name="type" class="form-select">
-                        <option value="judgement">Judgement</option>
-                        <option value="lfn">Laws of Federation</option>
-                        <option value="agreement">Agreement</option>
-                    </select>
-                </div> 
-            </div>
-            
-            <hr style="margin-bottom: 0px;">
-            <div class="btn-row">
-                <button class="aiBtn2 p-2">
-                    Cancel
-                </button>
-                <button type="submit" class="aiBtn2 p-2">
-                    Save Document
-                </button>
-                <button type="submit" class="aiBtn2 p-2">
-                    Analyse
-                </button>
             </div>
         </div>
+
     </form>
 
     <script>
@@ -92,10 +170,21 @@
             $('#uploadedFile').click()
         }
 
-        $('#uploadedFile').change(function(){
+        $(document).ready(function(){
+            $('.carousel').carousel({
+                interval: 2000
+            })
+        })
+       
+
+        $('#uploadedFile').change(function() {
             var filename = $('input[type=file]').val().replace(/C:\\fakepath\\/i, '')
             $('#fileName').html(filename)
             console.log($('input[type=file]')[0].files)
+        })
+
+        $('#sb').click(function() {
+            $("body").addClass("loading");
         })
     </script>
 </div>

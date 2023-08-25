@@ -44,11 +44,11 @@
             </div>
         </div>
         <div class="row">
-        <div class="col-lg-6">
-            <h3 style="color: #D93C3D;">{{$result_title}}</h3>
+        <div class="col-lg-7">
+            <h1 style="color: #D93C3D; font-weight: 700; font-size: larger;">{{$result_title}}</h1>
         </div>
-        <div class="col-lg-6">
-            <a class="btn" href="mailto:{{Auth()->user()->email}}?body={{$summary}}">
+        <div class="col-lg-5">
+            <a class="btn" href="mailto:{{Auth()->user()->email}}">
                 <i class="fe fe-share"></i> Share via Email 
             </a>
             <button class="btn btn-primary bgRed text-white" data-bs-toggle="modal" data-bs-target="#popModal" id="kt_toolbar_primary_button">
@@ -60,6 +60,35 @@
     
     <div style="background-color: #FFF; padding: 20px">
         {!! $summary !!}
+    </div>
+
+    <div class="modal fade" id="popModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div>
+                    <div class="modal-card card">
+                        <div class="card-body">
+                            <h1 class="card-title">Share With Teams</h1>
+                            <p class="mb-5">Share your AI Summarized document with your teams</p>
+                            @foreach($teams as $team)
+                                <div class="row mb-3">
+                                    <div class="col-lg-8">
+                                        <h4 class="mb-2 name">
+                                            <a href="{{route('show.team', $team->id)}}">{{$team->name}}</a>
+                                        </h4>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button class="btn btn-primary bgRed text-white" onclick='sendToTeam({{$team->id}})'>
+                                            <i class="fe fe-share"></i> Share with Team
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>

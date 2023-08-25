@@ -3525,6 +3525,8 @@ class AdminController extends Controller
             'dict_cat' => json_encode($request->dict_cat),
             'resource_feature' => $request->resource_feature,
             'resource_cat' => json_encode($request->resource_cat),
+            'ai_feature' => $request->ai_feature,
+            'ai_cat' => json_encode($request->ai_cat),
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
@@ -3560,6 +3562,9 @@ class AdminController extends Controller
         }
         if (!$request->judg_court) {
             $input['judg_court'] = $request->judg_court;
+        }
+        if (!$request->ai_feature) {
+            $input['ai_feature'] = $request->ai_feature;
         }
 
         // dd($input);
@@ -3612,6 +3617,7 @@ class AdminController extends Controller
             'dict_cat' => json_encode($request->dict_cat),
             'resource_feature' => $request->resource_feature,
             'resource_cat' => json_encode($request->resource_cat),
+            'ai_cat' => json_encode($request->ai_cat),
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
@@ -3703,7 +3709,12 @@ class AdminController extends Controller
             $input['form_feature'] = $request->form_feature;
             $input['form_cat'] = NULL;
         }
-        // dd($input);
+
+        if (!$request->ai_feature) {
+            $input['ai_feature'] = $request->ai_feature;
+            $input['ai_cat'] = NULL;
+        }
+        // dd($input, $request->ai_feature);
         $package->update($input);
         return back()->with('success', 'Package updated');
     }
