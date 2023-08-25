@@ -115,7 +115,11 @@ class AdminController extends Controller
 
     public function aiAssistant(Request $request)
     {
-        return view('admin.ai_assistant');
+        if (Auth::user()->subscribedUser()){
+            return view('admin.ai_assistant');
+        }
+        
+        return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
     }
 
     public function aiAssistantSummary(Request $request)
