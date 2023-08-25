@@ -648,7 +648,7 @@
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
                                     @if($package->ai_feature !== NULL)
-                                        <div id="show_resource_content">
+                                        <div id="show_ai_content">
                                             <div class="form-group">
                                                 <label class="form-label mb-1">
                                                     Category
@@ -665,7 +665,7 @@
                                             </div>
                                         </div>
                                         @else
-                                        <div id="show_resource_content" style="display: none">
+                                        <div id="show_ai_content" style="display: none">
                                             <div class="form-group">
                                                 <label class="form-label mb-1">
                                                     Category
@@ -850,6 +850,13 @@
                     $("#show_resource_content").show();
                 } else {
                     $("#show_resource_content").hide();
+                }
+            });
+            $("#aiCheck").click(function () {
+                if ($(this).is(":checked")) {
+                    $("#show_ai_content").show();
+                } else {
+                    $("#show_ai_content").hide();
                 }
             });
         });
