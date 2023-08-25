@@ -149,15 +149,16 @@
 
                     <hr style="margin-bottom: 0px;">
                     <div class="btn-row">
+                        <button type="submit" id="sb" class="aiBtn3 p-2">
+                            Analyse
+                        </button>
                         <button class="aiBtn2 p-2" type="button">
                             Cancel
                         </button>
                         <!-- <button type="submit" id="sb" class="aiBtn2 p-2">
                             Save Document
                         </button> -->
-                        <button type="submit" id="sb" class="aiBtn3 p-2">
-                            Analyse
-                        </button>
+                        
                     </div>
                 </div>
             </div>
