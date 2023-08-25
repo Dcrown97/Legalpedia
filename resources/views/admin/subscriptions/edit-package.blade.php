@@ -643,7 +643,7 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check mb-n2">
-                                        <input class="form-check-input list-checkbox" type="checkbox" name="ai_feature" id="resourceCheck" value="ai" {{ $package->ai_feature !==NULL ? 'checked' : '' }}>
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="ai_feature" id="aiCheck" value="ai" {{ $package->ai_feature !==NULL ? 'checked' : '' }}>
                                         <h5 class="pt-2 pl-2">LegalpediaLens</h5>
                                         <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
                                     </div>
