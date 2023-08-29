@@ -6,6 +6,26 @@
 
 @section('content')
     <style>
+        .overlay {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.8) url("{{asset('assets/images/loading.gif')}}") center no-repeat;
+        }
+
+        /* Turn off scrollbar when body element has the loading class */
+        body.loading {
+            overflow: hidden;
+        }
+
+        /* Make spinner image visible when body element has the loading class */
+        body.loading .overlay {
+            display: block;
+        }
         .text-green {
             color: #009900 !important;
         }
@@ -85,7 +105,7 @@
                     <div class="col-auto">
                         <a href="{{ route('admin.aiJudgementSummary', $judgement_summary->id) }}"
                             class="btn text-white btn-primary"
-                            onclick="this.classList.toggle('button--loading')">
+                            onclick="this.classList.toggle('button--loading')" id="sb">
                             Summarize with LegalpediaLens
                         </a>
                     </div>
@@ -858,6 +878,14 @@
         function selectAndHighlightRange(id, start, end) {
             setSelectionRange(document.getElementById("content"), start, end);
             highlight("#ffa50033");
+        }
+
+        $('#sb').click(function() {
+            $("body").addClass("loading");
+        })
+
+        function loading(){
+            $("body").addClass("loading");
         }
     </script>
 @endsection

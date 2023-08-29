@@ -116,6 +116,7 @@ if (!function_exists('tribearcSendMail')) {
 
         $response = curl_exec($curl);
         $res = json_decode($response);
+        // dd($response);
         curl_close($curl);
     }
 }

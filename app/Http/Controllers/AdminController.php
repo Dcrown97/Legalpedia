@@ -115,7 +115,7 @@ class AdminController extends Controller
 
     public function aiAssistant(Request $request)
     {
-        if (Auth::user()->subscribedUser()){
+        if (Auth::user()->subscribedUser() && Auth::user()->canUseAi()){
             return view('admin.ai_assistant');
         }
         

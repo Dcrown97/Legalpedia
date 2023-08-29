@@ -147,7 +147,7 @@ class User extends Authenticatable implements JWTSubject
     public function canUseAi(){
         if(isset($this->package_id) && !empty($this->package_id) && $this->expiry_date > now() && $this->status == 'active') {
             $packages = Package::find($this->package_id);
-            if($packages->ai_feature){
+            if($packages->ai_feature !== null){
                 return true;
             }else{
                 return false;
