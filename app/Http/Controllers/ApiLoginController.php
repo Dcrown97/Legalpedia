@@ -16,11 +16,10 @@ class ApiLoginController extends Controller
         ]);
         
         if (!auth()->attempt($data)) {
-            return response(['error_message' => 'Incorrect Details. 
-            Please try again']);
+            return response(['error_message' => 'Incorrect Details. Please try again']);
         }
 
-        $userToken = auth()->user()->createToken('API Token')->accessToken;
+        $userToken = auth()->user()->createToken('API Token')->plainTextToken;
 
         return response(['user' => auth()->user(), 'token' => $userToken]);
     }
