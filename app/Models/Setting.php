@@ -2,19 +2,15 @@
 
 namespace App\Models;
 
-use Complex\Functions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JudgementCoram extends Model
+class Setting extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'coram_id', 'suit_no'
+        'version'
     ];
 
-    public function coram () {
-        return $this->hasOne(Coram::class, 'id', 'coram_id');
-    }
 }

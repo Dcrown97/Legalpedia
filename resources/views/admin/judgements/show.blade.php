@@ -75,15 +75,15 @@
         }
     </style>
     @php
-    if (isset(request()->search) && !empty(request()->search)) {
-        $searchData = request()->search;
-    } elseif (isset(request()->year_result) && !empty(request()->year_result)) {
-        $searchData = request()->year_result;
-    } elseif (isset(request()->more_result) && !empty(request()->more_result)) {
-        $searchData = request()->more_result;
-    } else {
-        $searchData = '';
-    }
+        if (isset(request()->search) && !empty(request()->search)) {
+            $searchData = request()->search;
+        } elseif (isset(request()->year_result) && !empty(request()->year_result)) {
+            $searchData = request()->year_result;
+        } elseif (isset(request()->more_result) && !empty(request()->more_result)) {
+            $searchData = request()->more_result;
+        } else {
+            $searchData = '';
+        }
     @endphp
     <div class="header">
         <div class="container-fluid">

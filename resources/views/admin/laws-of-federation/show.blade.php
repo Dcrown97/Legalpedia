@@ -61,7 +61,7 @@
             <div class="col-12 col-lg-12 col-xl-12">
                 <div class="card">
                     <div class="card-body p-5" id="content">
-                        <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
+                        <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
                             $fed_sections = App\Models\LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
                             $fed_schedules = App\Models\LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
                         ?>

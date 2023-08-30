@@ -16,16 +16,20 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\SendBulkMessageController;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
+Route::get('/logout', function () {
+    Auth::logout();
+    return redirect("/login");
+});
 
 Auth::routes();
 // Auth::routes(['verify' => true]);
 
-Route::post('forgot-password', [ForgotPasswordController::class, 'forgotPasswordPost'] )->name('forgot.password.post');
-Route::get('password-reset', [ForgotPasswordController::class, 'passwordReset'] )->name('password.reset');
-Route::post('password-reset', [ForgotPasswordController::class, 'passwordResetPost'] )->name('password.reset.post');
+Route::post('forgot-password', [ForgotPasswordController::class, 'forgotPasswordPost'])->name('forgot.password.post');
+Route::get('password-reset', [ForgotPasswordController::class, 'passwordReset'])->name('password.reset');
+Route::post('password-reset', [ForgotPasswordController::class, 'passwordResetPost'])->name('password.reset.post');
 
-Route::group(['middleware'=>'auth'], function(){
-// Route::group(['middleware'=>['auth', 'verified']], function(){
+Route::group(['middleware' => 'auth'], function () {
+    // Route::group(['middleware'=>['auth', 'verified']], function(){
 
     Route::post("/ask", [AdminController::class, 'summarize'])->name('admin.ask');
     Route::get('/admin/ai-assistant', [AdminController::class, 'aiAssistant'])->name('admin.ai');
@@ -287,10 +291,6 @@ Route::get('/send-birthday-message', [AutomatedController::class, 'birthdayMessa
 
 Route::get('/clear-license-session', [AutomatedController::class, 'clearSession'])->name('clear.session');
 
-Route::get('execute', function(){
+Route::get('execute', function () {
     Artisan::call('schedule:run');
 });
-
-
-
-

@@ -16,7 +16,49 @@ class JudgementSummary extends Model
 
     protected $table = 'judgement_summaries';
 
-    public function court() {
+    public function court()
+    {
         return $this->belongsTo(Court::class);
+    }
+
+    public function judgement()
+    {
+        return $this->hasOne(Judgement::class, 'suit_no', 'suit_no');
+    }
+    public function holden()
+    {
+        return $this->belongsTo(Holden::class, 'holden_at_id', 'id');
+    }
+    public function partyAType()
+    {
+        return $this->belongsTo(PartyAType::class);
+    }
+    public function partyBType()
+    {
+        return $this->belongsTo(PartyBType::class);
+    }
+    public function ratios()
+    {
+        return $this->belongsTo(SummaryRatio::class,'suit_no', 'suit_no');
+    }
+    public function counsels()
+    {
+        return $this->belongsTo(JudgementCounsel::class,'suit_no', 'suit_no');
+    }
+    public function partyAName()
+    {
+        return $this->belongsTo(JudgementPartyA::class,'suit_no', 'suit_no');
+    }
+    public function partyBName()
+    {
+        return $this->belongsTo(JudgementPartyB::class,'suit_no', 'suit_no');
+    }
+    public function judgCoram()
+    {
+        return $this->belongsTo(JudgementCoram::class,'suit_no', 'suit_no');
+    }
+    public function areaOfLaw()
+    {
+        return $this->hasOne(AreaOfLaw::class, 'id', 'area_of_law');
     }
 }

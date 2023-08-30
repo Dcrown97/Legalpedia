@@ -8,6 +8,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Models\UserTeam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ApiRegisterController extends Controller
 {
@@ -15,18 +16,23 @@ class ApiRegisterController extends Controller
     public function register(Request $request)
     {
 
-        // $data = $request->validate([
-        //     'name' => ['required', 'string', 'max:255'],
-        //     'surname' => ['required', 'string', 'max:255'],
-        //     'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-        //     'password' => ['required', 'string', 'min:8', 'confirmed'],
-        // ]);
-        $request->validate([
+        $data = Validator::make($request->all(),[
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8']
+            'password' => ['required', 'string', 'min:8'],
         ]);
+
+        if ($data->fails()) {
+            return response(['errors' => $data->errors()->all()], 422);
+        }
+
+        // $request->validate([
+        //     'name' => ['required', 'string', 'max:255'],
+        //     'surname' => ['required', 'string', 'max:255'],
+        //     'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        //     'password' => ['required', 'string', 'min:8']
+        // ]);
 
         $data = $request->all();
 
@@ -61,6 +67,10 @@ class ApiRegisterController extends Controller
                 'approve_request' => $data['approve_request'],
             ]);
 
+            // $userToken = [];
+            // $userToken['token'] = $user->createToken('API Token')->accessToken;
+            // $userToken['name'] = $user->name;
+
             $userToken = $user->createToken('API Token')->accessToken;
 
             // $role = Role::where('name','Admin')->first();
@@ -85,6 +95,7 @@ class ApiRegisterController extends Controller
             tribearcSendMail($subject, $content, $explodedMail);
 
             return response(['user' => $user, 'token' => $userToken]);
+            // return response([$userToken, 200]);
         } else {
             // dd('user without invite');
             $user = User::create([
@@ -100,6 +111,10 @@ class ApiRegisterController extends Controller
                 'password' => bcrypt($request->password)
             ]);
 
+            // $userToken = [];
+            // $userToken['token'] = $user->createToken('API Token')->accessToken;
+            // $userToken['name'] = $user->name;
+            
             $userToken = $user->createToken('API Token')->accessToken;
 
             // $role = Role::where('name','Admin')->first();
@@ -123,7 +138,9 @@ class ApiRegisterController extends Controller
             ];
             $content = view("emails.welcomeOnboard", $newContent)->render();
             tribearcSendMail($subject, $content, $explodedMail);
+
             return response(['user' => $user, 'token' => $userToken]);
+            // return response([$userToken, 200]);
         }
     }
 }
