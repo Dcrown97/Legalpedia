@@ -126,10 +126,20 @@
                                 @endif
                             </h1>
                         </div>
-                        <div class="col-sm-2">
-                            <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
-                                <span class="button__text">LegalpediaLens</span>
-                            </a>
+                        <div class="col-sm-3">
+                            <div class="flex">
+                                <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
+                                    <span class="button__text">LegalpediaLens</span>
+                                </a>
+                                @if(Auth::user()->subscribedUser() && Auth::user()->canUseAiCounsel())
+                                <a target="_blank" href="{{env('AI_COUNSEL')}}/legalpedia/{{base64_encode(Auth::user()->email)}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
+                                <span class="button__text">AI Counsel</span>
+                                </a>
+                                
+                                @endif
+                           
+                            </div>
+                           
                         </div>
                     </div>
                     

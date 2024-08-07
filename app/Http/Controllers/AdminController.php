@@ -130,6 +130,7 @@ class AdminController extends Controller
             $validateUser = Validator::make(
                 $request->all(),
                 [
+                    // 'uploadedFile' => 'required|mimes:pdf',
                     'uploadedFile' => 'required|mimes:pdf|max:10000',
                 ]
             );
@@ -145,7 +146,9 @@ class AdminController extends Controller
             $pdf = $pdfParser->parseFile('storage/' . $data);
             $text = $pdf->getText();
             if($request->type == 'judgement'){
-                $res = AiDocumentSummarizerController::summarize($text);
+                // $res = AiDocumentSummarizerController::summarize($text);
+                $res = AiDocumentSummarizerController::summarizeText($text);
+                
             }else if($request->type == 'lfn'){
                 $res = AiDocumentSummarizerController::summarizeLFN($text);
             }else{
@@ -3926,6 +3929,8 @@ class AdminController extends Controller
             'resource_cat' => json_encode($request->resource_cat),
             'ai_feature' => $request->ai_feature,
             'ai_cat' => json_encode($request->ai_cat),
+            'ai_counsel' => $request->ai_counsel,
+            'ai_counsel_cat' => json_encode($request->ai_counsel_cat),
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
@@ -3964,6 +3969,9 @@ class AdminController extends Controller
         }
         if (!$request->ai_feature) {
             $input['ai_feature'] = $request->ai_feature;
+        }
+        if (!$request->ai_counsel) {
+            $input['ai_counsel'] = $request->ai_counsel;
         }
 
         // dd($input);
@@ -4018,6 +4026,8 @@ class AdminController extends Controller
             'resource_cat' => json_encode($request->resource_cat),
             'ai_cat' => json_encode($request->ai_cat),
             'ai_feature' => $request->ai_feature,
+            'ai_counsel' => $request->ai_counsel,
+            'ai_counsel_cat' => json_encode($request->ai_counsel_cat),
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
@@ -4114,6 +4124,10 @@ class AdminController extends Controller
         if (!$request->ai_feature) {
             $input['ai_feature'] = $request->ai_feature;
             $input['ai_cat'] = null;
+        }
+        if (!$request->ai_counsel) {
+            $input['ai_counsel'] = $request->ai_counsel;
+            $input['ai_counsel_cat'] = null;
         }
         // dd($input, $request->ai_feature, $request->ai_cat);
         $package->update($input);

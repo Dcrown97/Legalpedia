@@ -226,4 +226,52 @@ class AiDocumentSummarizerController extends Controller
         // // Display the summary in your view or return it as a response
         return $summaries;
     }
+
+    public static function summarizeText(String $text)
+    {
+        set_time_limit(600);
+        // Get the input document text from the request
+        $longText = $text;
+        // Split the long text into smaller parts (adjust as needed)
+        $textParts = static::breakText($longText, 10000);
+        // dd($textParts, strlen($longText));
+        // Initialize the conversation with a system message
+        $conversation = [
+            [
+                "role" => "system", 
+                "content" => "Please summarize this content to minimum of 6 pages"
+            ]
+        ];
+
+        // Make a request to the ChatGPT API to summarize the document
+        $apiKey = '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';
+        $url = 'https://api.openai.com/v1/chat/completions';
+        $headers = [
+            'Authorization' => 'Bearer ' . $apiKey,
+        ];
+        foreach ($textParts as $part) {
+            // dd($part);
+            $conversation[] = ["role" => "user", "content" => $part];
+            $client = new Client();
+            $response = $client->post($url, [
+                'headers' => $headers,
+                'json' => [
+                    'model'=> "gpt-3.5-turbo-16k",
+                    'messages' => $conversation,
+                    'max_tokens' => 1000, // Adjust the summary length as needed
+                    "temperature" => 0.7,
+                ],
+            ]);
+            $summary = json_decode($response->getBody(), true)['choices'][0]['message']['content'];
+            // dd($summary, json_decode($response->getBody(), true), strlen($longText));
+            $summaries[] = $summary;
+        }
+       
+        
+        // // Extract the summary from the API response
+        // $summary = json_decode($response->getBody(), true)['choices'][0]['text'];
+
+        // // Display the summary in your view or return it as a response
+        return $summaries;
+    }
 }

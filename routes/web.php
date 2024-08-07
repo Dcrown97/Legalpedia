@@ -14,6 +14,9 @@ use App\Http\Controllers\AutomatedController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\SendBulkMessageController;
+use App\Models\Article;
+use App\Models\Judgement;
+use App\Models\JudgementSummary;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::get('/logout', function () {
@@ -293,4 +296,13 @@ Route::get('/clear-license-session', [AutomatedController::class, 'clearSession'
 
 Route::get('execute', function () {
     Artisan::call('schedule:run');
+});
+
+
+Route::get('agolia-search', function() {
+    $query = 'NIGERIA'; // <-- Change the query for testing.
+
+    $articles = Article::search($query)->get();
+
+    return $articles;
 });

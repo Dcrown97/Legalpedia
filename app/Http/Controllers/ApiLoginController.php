@@ -21,6 +21,7 @@ class ApiLoginController extends Controller
         if (!auth()->attempt($data)) {
             return response(['error_message' => 'Incorrect Details. Please try again']);
         }
+       
         $userToken = auth()->user()->createToken('API Token')->accessToken;
         $user = User::where('id', Auth::user()->id)->with('package')->first();
         $messages = Message::where('type', 'in-app')

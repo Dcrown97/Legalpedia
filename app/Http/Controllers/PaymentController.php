@@ -313,6 +313,7 @@ class PaymentController extends Controller
 
         $user_data = json_decode($response);
         $get_data = (array) $user_data;
+        dd($get_data);
         $data['contactList'] =  [
             "list" => 117,
             "contact" => $get_data['contact']->id,

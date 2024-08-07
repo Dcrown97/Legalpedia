@@ -410,6 +410,19 @@
                                                 </div>
                                             @endif
                                         </li>
+                                        <li class="list-group-item align-items-center justify-content-between px-0">
+                                            @if($package->ai_counsel)
+                                                <a class="d-flex justify-content-between">
+                                                    <small>AI Counsel</small>
+                                                    <i class="fe fe-check-circle text-success"></i>
+                                                </a>
+                                                @else
+                                                <div class="d-flex justify-content-between">
+                                                    <small>AI Counsel</small>
+                                                     <i class="fe fe-x-circle text-secondary"></i>
+                                                </div>
+                                            @endif
+                                        </li>
                                     </ul>
                                 </div>
                                 @if(Auth::user()->package_id == $package->id)

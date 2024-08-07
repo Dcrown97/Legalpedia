@@ -518,6 +518,26 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <div class="form-check mb-n2">
+                                        <input class="form-check-input list-checkbox" type="checkbox" name="ai_counsel" id="aiCounselCheck" value="ai_counsel">
+                                        <h5 class="pt-2 pl-2">AI Counsel</h5>
+                                        <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                    </div>
+                                    <div id="show_ai_counsel" style="display: none">
+                                        <div class="form-group">
+                                            <label class="form-label mb-1">
+                                                Category
+                                            </label>
+                                            <select name="ai_counsel_cat[]" multiple class="form-select form-select-sm form-control-flush" data-choices='{"searchEnabled": true}'>
+                                                <option value="">Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->category}}">{{$category->category}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <hr class="my-5">
                                 <div class="nav row align-items-center">
                                     <div class="col-auto">
@@ -684,6 +704,13 @@
                 $("#show_ai_content").show();
             } else {
                 $("#show_ai_content").hide();
+            }
+        });
+        $("#aiCounselCheck").click(function () {
+            if ($(this).is(":checked")) {
+                $("#show_ai_counsel").show();
+            } else {
+                $("#show_ai_counsel").hide();
             }
         });
     });

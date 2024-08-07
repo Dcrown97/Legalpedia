@@ -165,6 +165,20 @@ class User extends Authenticatable implements JWTSubject
         
     }
 
+    public function canUseAiCounsel(){
+        if(isset($this->package_id) && !empty($this->package_id) && $this->expiry_date > now() && $this->status == 'active') {
+            $packages = Package::find($this->package_id);
+            if($packages->ai_counsel !== null){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+        
+    }
+
     // public function user_teams() {
     //     return $this->belongsToMany(UserTeam::class);
     // }
