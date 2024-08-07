@@ -19,7 +19,7 @@ class CreateLawsOfFederationsTable extends Migration
             $table->string('title')->nullable();
             $table->date('law_date')->nullable();
             $table->text('description')->nullable();
-            $table->text('subsidiary_legislation')->nullable();
+            $table->longText('subsidiary_legislation')->nullable();
             $table->string('tags')->nullable();
             $table->text('category')->nullable();
             $table->text('area_of_law')->nullable();

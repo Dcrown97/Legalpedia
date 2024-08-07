@@ -14,6 +14,8 @@ class JudgementCoram extends Model
         'coram_id', 'suit_no'
     ];
 
+    protected $with = ['coram'];
+
     public function coram () {
         return $this->hasOne(Coram::class, 'id', 'coram_id');
     }

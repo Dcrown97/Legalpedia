@@ -71,7 +71,10 @@
                                     <select name="name" class="form-select mr-8" data-choices='{"searchEnabled": true}'>
                                         @foreach ($all_rule_categories as $rule_category)
                                             @php
-                                                $main_category = App\Models\RuleCategory::where('name', $rule_category)->first();
+                                                $main_category = App\Models\RuleCategory::where(
+                                                    'name',
+                                                    $rule_category,
+                                                )->first();
                                             @endphp
                                             <option value="{{ $main_category->name }}"
                                                 {{ $main_category->name == $selected_name['name'] ? 'selected' : '' }}>
@@ -839,7 +842,7 @@
 
     @if (Auth::user()->role->name == 'Admin')
         <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen p-9">
+            <div class="modal-dialog modal-lg modal-fullscreen p-9">
                 <div class="modal-content rounded">
                     <div class="modal-header">
                         <div class="fs-1 fw-boldest">Create Rule of Court</div>
@@ -907,7 +910,7 @@
                                             <label class="form-label mb-1">
                                                 Content
                                             </label>
-                                            <textarea name="content" rows="5" class="form-control" placeholder="Enter description"></textarea>
+                                            <textarea name="content" rows="5" id="summernote" class="form-control" placeholder="Enter description"></textarea>
                                         </div>
                                         <div class="form-group">
                                             <button type="submit" name="submit"
@@ -927,6 +930,44 @@
         </div>
     @endif
     <script>
+
+        $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         function deleteOrderFunction() {
             if (!confirm("Are you sure you want to delete this Rule order?"))
                 event.preventDefault();

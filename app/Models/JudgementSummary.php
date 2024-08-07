@@ -39,24 +39,37 @@ class JudgementSummary extends Model
     }
     public function ratios()
     {
-        return $this->belongsTo(SummaryRatio::class,'suit_no', 'suit_no');
+        return $this->belongsTo(SummaryRatio::class, 'suit_no', 'suit_no');
     }
     public function counsels()
     {
-        return $this->belongsTo(JudgementCounsel::class,'suit_no', 'suit_no');
+        return $this->belongsTo(JudgementCounsel::class, 'suit_no', 'suit_no');
     }
     public function partyAName()
     {
-        return $this->belongsTo(JudgementPartyA::class,'suit_no', 'suit_no');
+        return $this->belongsTo(JudgementPartyA::class, 'suit_no', 'suit_no');
     }
     public function partyBName()
     {
-        return $this->belongsTo(JudgementPartyB::class,'suit_no', 'suit_no');
+        return $this->belongsTo(JudgementPartyB::class, 'suit_no', 'suit_no');
     }
+    
     public function judgCoram()
     {
-        return $this->belongsTo(JudgementCoram::class,'suit_no', 'suit_no');
+        return $this->belongsTo(JudgementCoram::class, 'suit_no', 'suit_no');
     }
+
+    // Define a new relationship for the API
+    public function judgCoramsForApi()
+    {
+        return $this->hasMany(JudgementCoram::class, 'suit_no', 'suit_no');
+    }
+
+    public function summaryRatio()
+    {
+        return $this->hasMany(SummaryRatio::class, 'suit_no', 'suit_no');
+    }
+
     public function areaOfLaw()
     {
         return $this->hasOne(AreaOfLaw::class, 'id', 'area_of_law');

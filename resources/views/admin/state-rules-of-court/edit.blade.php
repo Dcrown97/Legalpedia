@@ -111,7 +111,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$order->content}}</textarea>
+                                    <textarea name="content" rows="5" id="summernote1" class="form-control" placeholder="Enter description">{{$order->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -172,7 +172,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$schedule->content}}</textarea>
+                                    <textarea name="content" id="summernote2" rows="5" class="form-control" placeholder="Enter description">{{$schedule->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -233,7 +233,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$form->content}}</textarea>
+                                    <textarea name="content" id="summernote3" rows="5" class="form-control" placeholder="Enter description">{{$form->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -294,7 +294,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$part->content}}</textarea>
+                                    <textarea name="content" id="summernote4" rows="5" class="form-control" placeholder="Enter description">{{$part->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -355,7 +355,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$probate_form->content}}</textarea>
+                                    <textarea name="content" rows="5" id="summernote5" class="form-control" placeholder="Enter description">{{$probate_form->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -416,7 +416,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$civil_form->content}}</textarea>
+                                    <textarea name="content" rows="5" id="summernote6" class="form-control" placeholder="Enter description">{{$civil_form->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -477,7 +477,7 @@
                                     <label class="form-label mb-1">
                                         Content
                                     </label>
-                                    <textarea name="content" rows="5" class="form-control" placeholder="Enter description">{{$appendix->content}}</textarea>
+                                    <textarea name="content" rows="5" id="summernote7" class="form-control" placeholder="Enter description">{{$appendix->content}}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" onclick="this.classList.toggle('button--loading')" class="button_load btn btn-primary text-white">
@@ -491,4 +491,42 @@
             </div>
         </div>
       </div>
+      <script>
+        $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    // width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+      </script>
 @endsection

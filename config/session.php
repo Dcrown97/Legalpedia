@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 return [
@@ -31,7 +32,15 @@ return [
     |
     */
 
-    'lifetime' => env('SESSION_LIFETIME', 120),
+    // 'lifetime' => env('SESSION_LIFETIME', 120),
+
+    // 'expire_on_close' => false,
+
+    // 'lifetime' => env('SESSION_LIFETIME', Session::get('session_lifetime', 120)),
+
+    // 'expire_on_close' => false,
+
+    'lifetime' => config('session.lifetime', 120),
 
     'expire_on_close' => false,
 
@@ -128,7 +137,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+        Str::slug(env('APP_NAME', 'laravel'), '_') . '_session'
     ),
 
     /*

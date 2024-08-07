@@ -907,7 +907,7 @@
                                             <label class="form-label mb-1">
                                                 Content
                                             </label>
-                                            <textarea name="content" class="form-control" rows="5" placeholder="Enter description"></textarea>
+                                            <textarea name="content" id="summernote" class="form-control" rows="5" placeholder="Enter description"></textarea>
                                         </div>
                                         <div class="form-group">
                                             <button type="submit" name="submit"
@@ -927,6 +927,44 @@
         </div>
     @endif
     <script>
+
+        $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         function deleteOrderFunction() {
             if (!confirm("Are you sure you want to delete this Rule order?"))
                 event.preventDefault();

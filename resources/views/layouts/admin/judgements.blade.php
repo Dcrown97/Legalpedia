@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}" type="image/x-icon" />
 
     <!-- Map CSS -->
     <link rel="stylesheet" href="../api.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.css" />
 
     <!-- Libs CSS -->
-    <link rel="stylesheet" href="{{asset('assets/css/libs.bundle.css')}}" />
-    <link rel="stylesheet" href="{{asset('assets/css/style.css')}}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/libs.bundle.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.1.95/css/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -21,12 +22,13 @@
     @yield('links')
 
     <!-- Theme CSS -->
-    <link rel="stylesheet" href="{{asset('assets/css/theme.bundle.css')}}" id="stylesheetLight" />
-    <link rel="stylesheet" href="{{asset('assets/css/theme-dark.bundle.css')}}" id="stylesheetDark" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{{ asset('assets/css/theme.bundle.css') }}" id="stylesheetLight" />
+    <link rel="stylesheet" href="{{ asset('assets/css/theme-dark.bundle.css') }}" id="stylesheetDark" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"
+        type="text/css">
 
-    <link href="{{asset('assets/css/recogito.min.css')}}" rel="stylesheet">
-    <script src="{{asset('assets/js/recogito.min.js')}}"></script>
+    <link href="{{ asset('assets/css/recogito.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('assets/js/recogito.min.js') }}"></script>
 
 
     <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
@@ -38,37 +40,56 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    {{-- <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> --}}
+    {{-- <script src="https://cdn.tiny.cloud/1/krgqhy8swtxuko7fbszjqzxzx68s0jzo430qxp9ormf1gm7g/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> --}}
+    <!-- summernote -->
+    <link rel="stylesheet" href="{{ asset('assets/summernote/summernote-bs4.min.css') }}">
+    {{-- <link rel="stylesheet" href="../summernote/summernote-bs4.min.css"> --}}
 
     <!-- Google Tag Manager -->
     <script>
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-MKT36XX');
+        (function(w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-MKT36XX');
     </script>
     <!-- End Google Tag Manager -->
 
-    <style>body { display: none; }</style>
+    <style>
+        body {
+            display: none;
+        }
+    </style>
 
     <!-- Title -->
     @yield('title')
 
-  </head>
-  <body>
+</head>
+
+<body>
     <!-- Google Tag Manager (noscript) -->
     <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MKT36XX"height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MKT36XX"height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
-      <!--- Preloader -->
+    <!--- Preloader -->
     <div class="fh5co-loader" id="search-loader">
         <div class="loader"></div>
     </div>
     <!-- Preloader End -->
     <div class="loader-bg">
-		<div class="loader-bar"></div>
+        <div class="loader-bar"></div>
     </div>
     @include('elements.sidebar.judgements')
     @include('elements.off-canvas.judgements')
@@ -82,53 +103,78 @@
         @include('elements.send-report')
     </div>
 
+    <!-- Summernote -->
+    <script src="{{ asset('assets/summernote/summernote-bs4.min.js') }}"></script>
+    {{-- <script src="../summernote/summernote-bs4.min.js"></script> --}}
     <script src='../api.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
     <!-- Vendor JS -->
-    <script src="{{asset('assets/js/vendor.bundle.js')}}"></script>
+    <script src="{{ asset('assets/js/vendor.bundle.js') }}"></script>
 
     <!-- Theme JS -->
-    <script src="{{asset('assets/js/theme.bundle.js')}}"></script>
+    <script src="{{ asset('assets/js/theme.bundle.js') }}"></script>
 
     <script>
+       
+        var coram_no = 1;
+        var ratio_no = 1;
+        var newRatSummernote = 180;
 
-        $(document).ready(function(){
-            var $window=$(window);
+        $(function() {
+            // Summernote
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11', '#summernote12'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    height: 200
+                });
+            });
+        })
+
+        $(document).ready(function() {
+            var $window = $(window);
             $('.fh5co-loader').fadeOut();
         });
-        $(document).ready(function(){
-            var $window=$(window);
+        $(document).ready(function() {
+            var $window = $(window);
             $('.loader-bg').fadeOut();
         });
 
-        $(document).ready(function(){
-            var $window=$(window);
+        $(document).ready(function() {
+            var $window = $(window);
             $('.loader-bg').fadeOut();
         });
         tinymce.init({
             selector: 'textarea',
             plugins: 'autolink lists link image'
         });
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-  <script>
-        $(document).ready(function(){
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        $(document).ready(function() {
             $('.toast').toast('show');
         });
-  </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<script type="text/javascript">
-    var route = "{{ url('autocomplete-search') }}";
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript">
+        var route = "{{ url('autocomplete-search') }}";
 
-    $('#search').typeahead({
-        source: function (query, process) {
-            return $.get(route, {
-                query: query
-            }, function (data) {
-                return process(data);
-            });
-        }
-    });
-</script>
-  </body>
+        $('#search').typeahead({
+            source: function(query, process) {
+                return $.get(route, {
+                    query: query
+                }, function(data) {
+                    return process(data);
+                });
+            }
+        });
+    </script>
+</body>
+
 </html>

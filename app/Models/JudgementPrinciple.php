@@ -12,6 +12,4 @@ class JudgementPrinciple extends Model
     protected $fillable = [
         'principle_id', 'suit_no'
     ];
-
-    protected $table = 'judgement_principles';
 }

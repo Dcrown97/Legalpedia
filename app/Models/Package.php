@@ -17,7 +17,7 @@ class Package extends Model
         'judgement_feature', 'lfn_feature', 'roc_feature', 'sroc_feature', 'form_feature', 'article_feature', 'maxim_feature', 'dict_feature',
         'resource_feature', 'slug', 'judg_start_year', 'judg_end_year', 'judg_single_year', 'lfn_single_year', 'lfn_start_year', 'lfn_end_year',
         'judg_cat', 'judg_court', 'lfn_cat', 'roc_cat', 'sroc_state', 'form_cat', 'article_cat', 'maxim_cat', 'dict_cat', 'resource_cat', 'team',
-        'note', 'share', 'bookmark', 'is_active', 'ai_cat', 'ai_feature'
+        'note', 'share', 'postman_link', 'bookmark', 'api_access', 'is_active', 'ai_cat', 'ai_feature', 'judgement_featureapi', 'lfn_featureapi', 'roc_featureapi', 'sroc_featureapi', 'form_featureapi', 'article_featureapi', 'maxim_featureapi', 'dict_featureapi', 'resource_featureapi', 'ai_featureapi'
     ];
 
     protected $table = 'packages';

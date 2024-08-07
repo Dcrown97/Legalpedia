@@ -5,6 +5,8 @@ use App\Http\Controllers\ApiRegisterController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApiAdminController;
+use App\Http\Controllers\v1\General\GeneralApiController;
+use App\Http\Controllers\v1\Paid\PaidApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,21 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::group(['prefix' => 'v1'], function () {
+    // Fetch Judgement Detals
+    Route::group(['prefix' => 'judgement'], function () {
+        Route::get('/show/details', [GeneralApiController::class, 'showJudgement']);
+    });
+    // Fetch Law Of Federation Detals
+    Route::group(['prefix' => 'law_of_fed'], function () {
+        Route::get('/show/details', [GeneralApiController::class, 'showLawOfFed']);
+    });
+    // Fetch Rule of Court Detals
+    Route::group(['prefix' => 'rule_of_court'], function () {
+        Route::get('/show/details', [GeneralApiController::class, 'showRuleOfCourt']);
+    });
+});
 
 Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {
     // public routes
@@ -42,6 +59,7 @@ Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {
     Route::get('/admin/all-foreign-resources', [ApiAdmincontroller::class, 'allForeignResources']);
     Route::get('/admin/judgements/details', [ApiAdminController::class, 'judgementDetails']);
     // Route::get('/admin/all-state', [ApiAdmincontroller::class, 'allState']);
+    Route::get('/admin/judgements/by', [ApiAdminController::class, 'judgementDetailsByDate']);
 
 });
 
@@ -130,6 +148,65 @@ Route::middleware(['auth:api', 'XSS'])->group(function () {
     Route::get('/admin/notes', [ApiAdminController::class, 'note'])->name('admin.notes');
 
     Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
+});
+
+Route::group(['prefix' => 'v1', "middleware" => ["auth:api", "paidapi", "XSS"]], function () {
+
+    //Judgement Routes
+    Route::group(['prefix' => 'judgements'], function () {
+        Route::post('/', [PaidApiController::class, 'judgement']);
+        Route::post('/court', [PaidApiController::class, 'court']);
+        Route::post('/subject_matter_index', [PaidApiController::class, 'subjectMatterIndex']);
+        Route::post('/legal_citation', [PaidApiController::class, 'legalCitation']);
+        Route::post('/subject_matter', [PaidApiController::class, 'sbjMatter']);
+        Route::post('/no_summary', [PaidApiController::class, 'noSummary']);
+        Route::get('/{id}', [PaidApiController::class, 'showJudgement']);
+    });
+
+    //Laws of Federation Routes
+    Route::group(['prefix' => 'laws_of_federation'], function () {
+        Route::post('/', [PaidApiController::class, 'fed']);
+        Route::post('/category', [PaidApiController::class, 'fedCategory']);
+        Route::get('/{id}', [PaidApiController::class, 'showFed']);
+    });
+
+    //Rules Of Court Routes
+    Route::group(['prefix' => 'rules_of_court'], function () {
+        Route::post('/', [PaidApiController::class, 'rules']);
+        Route::post('/state_rules', [PaidApiController::class, 'stateRules']);
+        Route::post('/rule_category', [PaidApiController::class, 'ruleCategory']);
+        Route::post('/states', [PaidApiController::class, 'states']);
+        Route::get('/{id}', [PaidApiController::class, 'showRule']);
+        Route::post('/categories', [PaidApiController::class, 'ruleCat']);
+    });
+
+    //Forms And Precedents Routes
+    Route::group(['prefix' => 'forms_and_precedents'], function () {
+        Route::post('/', [PaidApiController::class, 'forms']);
+        Route::post('/category', [PaidApiController::class, 'formCategory']);
+        Route::get('/{id}', [PaidApiController::class, 'showForm']);
+    });
+
+    //Articles And Journal Routes
+    Route::group(['prefix' => 'articles_and_journals'], function () {
+        Route::post('/', [PaidApiController::class, 'articles']);
+        Route::post('/category', [PaidApiController::class, 'articleCategory']);
+        Route::get('/{id}', [PaidApiController::class, 'showArticle']);
+    });
+
+    //Law and Dictionary Routes
+    Route::group(['prefix' => 'law_dictionary'], function () {
+        Route::post('/', [PaidApiController::class, 'dictionary']);
+        Route::post('/category', [PaidApiController::class, 'dictionaryCategory']);
+        Route::get('/{id}', [PaidApiController::class, 'showDictionary']);
+    });
+
+    //Law and Dictionary Routes
+    Route::group(['prefix' => 'legal_maxims'], function () {
+        Route::post('/', [PaidApiController::class, 'maxim']);
+        Route::post('/category', [PaidApiController::class, 'legalMaximCategory']);
+        Route::get('/{id}', [PaidApiController::class, 'showLegalMaxim']);
+    });
 });
 
 

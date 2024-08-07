@@ -292,34 +292,6 @@ class ApiAdminController extends Controller
         }
     }
 
-    public function judgementDetails()
-    {
-        // dd('sffdfsdf');  
-        DB::statement("SET SQL_MODE=''");
-        $courts = Court::orderBy('rank', 'ASC')->paginate(20);
-        $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(20);
-        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(20);
-        $categories = Category::orderBy('category', 'asc')->paginate(20);
-        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement', 'court', 'holden', 'partyAType', 'partyBType', 'ratios', 'counsels', 'partyAName', 'partyBName', 'judgCoram', 'areaOfLaw')->paginate(20)->withQueryString();
-        $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
-
-        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-        $judgement_coram = JudgementCoram::select('suit_no')->first();
-        // dd($judgement_coram);
-        $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-        // dd($corams);
-        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'admin_notes' => $admin_notes, 'judgement_coram' => $judgement_coram, 'corams' => $corams]);
-    }
-
-    public function years()
-    {
-        if (Auth::user()->subscribedUser()) {
-            $years = Package::where('id', Auth::user()->package_id)->first();
-            $year_range = range($years->judg_start_year, $years->judg_end_year);
-            return response(['year_range' => $year_range]);
-        }
-    }
-
     public function allJudgement(Request $request)
     {
         if (checkUser() == false) {
@@ -387,6 +359,60 @@ class ApiAdminController extends Controller
             return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'judgement_count' => $judgement_count, 'categories' => $categories, 'selected_court' => $selected_court, 'area_of_laws' => $area_of_laws, 'selected_year' => $selected_year]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function judgementDetailsByDate(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        try {
+            $judgement_summary = JudgementSummary::where('judgement_date', 'LIKE', '%' . $request->year . '%')->with('court', 'holden', 'partyAName', 'partyAType', 'partyBName', 'partyBType', 'areaOfLaw', 'judgement', 'counsels')->get();
+            
+            if (is_null($judgement_summary)) {
+                return response()->json(['error' => 'Record Not Found'], 500);
+            }
+
+            foreach ($judgement_summary as $item) {
+                $item->judgement_coram = JudgementCoram::where('suit_no', $item->suit_no)->get();
+                $item->ratios = SummaryRatio::where('suit_no', $item->suit_no)->get();
+            }
+
+            return response(['judgement_summary' => $judgement_summary]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function judgementDetails()
+    {
+        // dd('sffdfsdf');  
+        DB::statement("SET SQL_MODE=''");
+        $courts = Court::orderBy('rank', 'ASC')->paginate(20);
+        $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->paginate(20);
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->paginate(20);
+        $categories = Category::orderBy('category', 'asc')->paginate(20);
+        $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->with('judgement', 'court', 'holden', 'partyAType', 'partyBType', 'ratios', 'counsels', 'partyAName', 'partyBName', 'judgCoram', 'areaOfLaw')->paginate(20)->withQueryString();
+        $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
+
+        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $judgement_coram = JudgementCoram::select('suit_no')->first();
+        // dd($judgement_coram);
+        $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
+        // dd($corams);
+        return response(['judgement_summaries' => $judgement_summaries, 'courts' => $courts, 'years' => $years, 'judgement_count' => $judgement_count, 'categories' => $categories, 'area_of_laws' => $area_of_laws, 'admin_notes' => $admin_notes, 'judgement_coram' => $judgement_coram, 'corams' => $corams]);
+    }
+
+    public function years()
+    {
+        if (Auth::user()->subscribedUser()) {
+            $years = Package::where('id', Auth::user()->package_id)->first();
+            $year_range = range($years->judg_start_year, $years->judg_end_year);
+            return response(['year_range' => $year_range]);
         }
     }
 
@@ -1200,39 +1226,55 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $judgement_summary = JudgementSummary::findOrFail($id);
-                $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
-                $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
-                $courts = Court::orderBy('rank', 'ASC')->get();
-                DB::statement("SET SQL_MODE=''");
-                $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
-                $judgement_coram = JudgementCoram::select('suit_no')->first();
-                // dd($judgement_coram);
-                $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
-                // dd($corams);
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                return response(['judgement_summary' => $judgement_summary, 'courts' => $courts, 'years' => $years, 'corams' => $corams, 'judgement_coram' => $judgement_coram, 'area_of_laws' => $area_of_laws, 'notes' => $notes, 'admin_notes' => $admin_notes, 'teams' => $teams]);
+                // $judgement_summary = JudgementSummary::findOrFail($id);
+                // $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
+                // $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+                // $courts = Court::orderBy('rank', 'ASC')->get();
+                // DB::statement("SET SQL_MODE=''");
+                // $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+                // $judgement_coram = JudgementCoram::select('suit_no')->first();
+                // // dd($judgement_coram);
+                // $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
+                // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
+                // // dd($corams);
+                // $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                // return response(['judgement_summary' => $judgement_summary, 'courts' => $courts, 'years' => $years, 'corams' => $corams, 'judgement_coram' => $judgement_coram, 'area_of_laws' => $area_of_laws, 'notes' => $notes, 'admin_notes' => $admin_notes, 'teams' => $teams]);
+
+                $judgement_summary = JudgementSummary::where('id', $id)
+                    ->with('court', 'holden', 'partyAName', 'partyAType', 'partyBName', 'partyBType', 'areaOfLaw', 'judgement', 'counsels', 'summaryRatio', 'judgCoramsForApi')
+                    ->first();
+                if (is_null($judgement_summary)) {
+                    return response()->json(['error' => 'Record Not Found'], 500);
+                }
+                return response(['judgement_summary' => $judgement_summary]);
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    $judgement_summary = JudgementSummary::with('areaOfLaw')->findOrFail($id);
-                    $courts = Court::orderBy('rank', 'ASC')->get();
-                    $court_name = Court::where('id', $judgement_summary->court_id)->first();
-                    $holden = Holden::where('id', $judgement_summary->holden_at_id)->first();
-                    DB::statement("SET SQL_MODE=''");
-                    $judg_coram = JudgementCoram::with('coram')->where('suit_no', $judgement_summary->suit_no)->get();
-                    $judgement_coram = JudgementCoram::select('suit_no')->first();
-                    $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                    $party_a_name = JudgementPartyA::where('suit_no', $judgement_summary->suit_no)->first();
-                    $party_a_type = PartyAType::where('id', $judgement_summary->party_a_type_id)->first();
-                    $party_b_name = JudgementPartyB::where('suit_no', $judgement_summary->suit_no)->first();
-                    $party_b_type = PartyBType::where('id', $judgement_summary->party_b_type_id)->first();
-                    $ratios = SummaryRatio::where('suit_no', $judgement_summary->suit_no)->get();
-                    $full_judgement = Judgement::where('suit_no', 'LIKE', '%' . $judgement_summary->suit_no . '%')->first();
-                    $counsels = JudgementCounsel::where('suit_no', $judgement_summary->suit_no)->first();
+                    // $judgement_summary = JudgementSummary::with('areaOfLaw')->findOrFail($id);
+                    // $courts = Court::orderBy('rank', 'ASC')->get();
+                    // $court_name = Court::where('id', $judgement_summary->court_id)->first();
+                    // $holden = Holden::where('id', $judgement_summary->holden_at_id)->first();
+                    // DB::statement("SET SQL_MODE=''");
+                    // $judg_coram = JudgementCoram::with('coram')->where('suit_no', $judgement_summary->suit_no)->get();
+                    // $judgement_coram = JudgementCoram::select('suit_no')->first();
+                    // $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
+                    // $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    // $party_a_name = JudgementPartyA::where('suit_no', $judgement_summary->suit_no)->first();
+                    // $party_a_type = PartyAType::where('id', $judgement_summary->party_a_type_id)->first();
+                    // $party_b_name = JudgementPartyB::where('suit_no', $judgement_summary->suit_no)->first();
+                    // $party_b_type = PartyBType::where('id', $judgement_summary->party_b_type_id)->first();
+                    // $ratios = SummaryRatio::where('suit_no', $judgement_summary->suit_no)->get();
+                    // $full_judgement = Judgement::where('suit_no', 'LIKE', '%' . $judgement_summary->suit_no . '%')->first();
+                    // $counsels = JudgementCounsel::where('suit_no', $judgement_summary->suit_no)->first();
 
-                    return response(['judgement_summary' => $judgement_summary, 'full_judgement' => $full_judgement, 'court_name' => $court_name, 'holden' => $holden, 'judg_coram' => $judg_coram, 'judgement_coram' => $judgement_coram, 'party_a_name' => $party_a_name, 'party_a_type' => $party_a_type, 'party_b_name' => $party_b_name, 'party_b_type' => $party_b_type, 'ratios' => $ratios, 'counsels' => $counsels, 'notes' => $notes]);
+                    // return response(['judgement_summary' => $judgement_summary, 'full_judgement' => $full_judgement, 'court_name' => $court_name, 'holden' => $holden, 'judg_coram' => $judg_coram, 'judgement_coram' => $judgement_coram, 'party_a_name' => $party_a_name, 'party_a_type' => $party_a_type, 'party_b_name' => $party_b_name, 'party_b_type' => $party_b_type, 'ratios' => $ratios, 'counsels' => $counsels, 'notes' => $notes]);
+
+                    $judgement_summary = JudgementSummary::where('id', $id)
+                        ->with('court', 'holden', 'partyAName', 'partyAType', 'partyBName', 'partyBType', 'areaOfLaw', 'judgement', 'counsels', 'summaryRatio', 'judgCoramsForApi')
+                        ->first();
+                    if (is_null($judgement_summary)) {
+                        return response()->json(['error' => 'Record Not Found'], 500);
+                    }
+                    return response(['judgement_summary' => $judgement_summary]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
             }
@@ -1460,7 +1502,7 @@ class ApiAdminController extends Controller
         return response(['all_rule_categories' => $all_rule_categories, 'all_state' => $all_state]);
     }
 
-    public function showRule($id)
+    public function showRule(Request $request, $id)
     {
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
@@ -1469,79 +1511,167 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                if (Rule::where('section', 'ORDERS')->first()) {
-                    $order = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'SCHEDULES')->first()) {
-                    $schedule = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'APPENDIX')->first()) {
-                    $appendix = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'FORMS')->first()) {
-                    $form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
-                    $civil_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
-                    $probate_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'PARTS')->first()) {
-                    $part = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                // if (Rule::where('section', 'ORDERS')->first()) {
+                //     $order = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'SCHEDULES')->first()) {
+                //     $schedule = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'APPENDIX')->first()) {
+                //     $appendix = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'FORMS')->first()) {
+                //     $form = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
+                //     $civil_form = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
+                //     $probate_form = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'PARTS')->first()) {
+                //     $part = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                // }
+
+                if ($request->section == 'ORDERS') {
+                    $orders = Rule::where('section', 'ORDERS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['orders' => $orders]);
+                } elseif ($request->section == 'SCHEDULES') {
+                    $schedule = Rule::where('section', 'SCHEDULES')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['schedule' => $schedule]);
+                } elseif ($request->section == 'APPENDIX') {
+                    $appendix = Rule::where('section', 'APPENDIX')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['appendix' => $appendix]);
+                } elseif ($request->section == 'FORMS') {
+                    $form = Rule::where('section', 'FORMS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['form' => $form]);
+                } elseif ($request->section == 'CIVIL FORMS') {
+                    $civil_form = Rule::where('section', 'CIVIL FORMS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['civil_form' => $civil_form]);
+                } elseif ($request->section == 'PROBATE FORMS') {
+                    $probate_form = Rule::where('section', 'PROBATE FORMS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['probate_form' => $probate_form]);
+                } elseif ($request->section == 'PARTS') {
+                    $part = Rule::where('section', 'PARTS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['part' => $part]);
                 }
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    if (Rule::where('section', 'ORDERS')->first()) {
-                        $order = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'SCHEDULES')->first()) {
-                        $schedule = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'APPENDIX')->first()) {
-                        $appendix = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'FORMS')->first()) {
-                        $form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
-                        $civil_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
-                        $probate_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'PARTS')->first()) {
-                        $part = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                    // if (Rule::where('section', 'ORDERS')->first()) {
+                    //     $order = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'SCHEDULES')->first()) {
+                    //     $schedule = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'APPENDIX')->first()) {
+                    //     $appendix = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'FORMS')->first()) {
+                    //     $form = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
+                    //     $civil_form = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
+                    //     $probate_form = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'PARTS')->first()) {
+                    //     $part = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                    // }
+
+                    if ($request->section == 'ORDERS') {
+                        $orders = Rule::where('section', 'ORDERS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['orders' => $orders]);
+                    } elseif ($request->section == 'SCHEDULES') {
+                        $schedule = Rule::where('section', 'SCHEDULES')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['schedule' => $schedule]);
+                    } elseif ($request->section == 'APPENDIX') {
+                        $appendix = Rule::where('section', 'APPENDIX')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['appendix' => $appendix]);
+                    } elseif ($request->section == 'FORMS') {
+                        $form = Rule::where('section', 'FORMS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['form' => $form]);
+                    } elseif ($request->section == 'CIVIL FORMS') {
+                        $civil_form = Rule::where('section', 'CIVIL FORMS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['civil_form' => $civil_form]);
+                    } elseif ($request->section == 'PROBATE FORMS') {
+                        $probate_form = Rule::where('section', 'PROBATE FORMS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['probate_form' => $probate_form]);
+                    } elseif ($request->section == 'PARTS') {
+                        $part = Rule::where('section', 'PARTS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['part' => $part]);
                     }
                 }
                 return response(['errorr' => 'You need to subscribe to a package to get access']);
@@ -1704,7 +1834,7 @@ class ApiAdminController extends Controller
     //     return response(['all_state' => $all_state]);
     // }
 
-    public function showStateRule($id)
+    public function showStateRule(Request $request, $id)
     {
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
@@ -1713,79 +1843,167 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                if (Rule::where('section', 'ORDERS')->first()) {
-                    $order = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'SCHEDULES')->first()) {
-                    $schedule = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'APPENDIX')->first()) {
-                    $appendix = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'FORMS')->first()) {
-                    $form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
-                    $civil_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
-                    $probate_form = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
-                } elseif (Rule::where('section', 'PARTS')->first()) {
-                    $part = Rule::findOrFail($id);
-                    $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
-                    return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                // if (Rule::where('section', 'ORDERS')->first()) {
+                //     $order = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'SCHEDULES')->first()) {
+                //     $schedule = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'APPENDIX')->first()) {
+                //     $appendix = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'FORMS')->first()) {
+                //     $form = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
+                //     $civil_form = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
+                //     $probate_form = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
+                // } elseif (Rule::where('section', 'PARTS')->first()) {
+                //     $part = Rule::findOrFail($id);
+                //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id)->paginate(10);
+                //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->paginate(10);
+                //     return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                // }
+
+                if ($request->section == 'ORDERS') {
+                    $orders = Rule::where('section', 'ORDERS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['orders' => $orders]);
+                } elseif ($request->section == 'SCHEDULES') {
+                    $schedule = Rule::where('section', 'SCHEDULES')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['schedule' => $schedule]);
+                } elseif ($request->section == 'APPENDIX') {
+                    $appendix = Rule::where('section', 'APPENDIX')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['appendix' => $appendix]);
+                } elseif ($request->section == 'FORMS') {
+                    $form = Rule::where('section', 'FORMS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['form' => $form]);
+                } elseif ($request->section == 'CIVIL FORMS') {
+                    $civil_form = Rule::where('section', 'CIVIL FORMS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['civil_form' => $civil_form]);
+                } elseif ($request->section == 'PROBATE FORMS') {
+                    $probate_form = Rule::where('section', 'PROBATE FORMS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['probate_form' => $probate_form]);
+                } elseif ($request->section == 'PARTS') {
+                    $part = Rule::where('section', 'PARTS')
+                        ->where('id', $id)
+                        ->with('ruleCategory', 'state')
+                        ->first();
+                    return response(['part' => $part]);
                 }
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    if (Rule::where('section', 'ORDERS')->first()) {
-                        $order = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'SCHEDULES')->first()) {
-                        $schedule = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'APPENDIX')->first()) {
-                        $appendix = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'FORMS')->first()) {
-                        $form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
-                        $civil_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
-                        $probate_form = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
-                    } elseif (Rule::where('section', 'PARTS')->first()) {
-                        $part = Rule::findOrFail($id);
-                        $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id);
-                        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
-                        return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                    // if (Rule::where('section', 'ORDERS')->first()) {
+                    //     $order = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $order->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['order' => $order, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'SCHEDULES')->first()) {
+                    //     $schedule = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $schedule->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['schedule' => $schedule, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'APPENDIX')->first()) {
+                    //     $appendix = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $appendix->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['appendix' => $appendix, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'FORMS')->first()) {
+                    //     $form = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $form->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['form' => $form, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'CIVIL FORMS')->first()) {
+                    //     $civil_form = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $civil_form->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['civil_form' => $civil_form, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'PROBATE FORMS')->first()) {
+                    //     $probate_form = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $probate_form->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['probate_form' => $probate_form, 'notes' => $notes, 'teams' => $teams]);
+                    // } elseif (Rule::where('section', 'PARTS')->first()) {
+                    //     $part = Rule::findOrFail($id);
+                    //     $notes = Annotation::where('resource_type', 'state-rule')->where('user_id', Auth::user()->id)->where('content_id', $part->id);
+                    //     $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id);
+                    //     return response(['part' => $part, 'notes' => $notes, 'teams' => $teams]);
+                    // }
+
+                    if ($request->section == 'ORDERS') {
+                        $orders = Rule::where('section', 'ORDERS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['orders' => $orders]);
+                    } elseif ($request->section == 'SCHEDULES') {
+                        $schedule = Rule::where('section', 'SCHEDULES')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['schedule' => $schedule]);
+                    } elseif ($request->section == 'APPENDIX') {
+                        $appendix = Rule::where('section', 'APPENDIX')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['appendix' => $appendix]);
+                    } elseif ($request->section == 'FORMS') {
+                        $form = Rule::where('section', 'FORMS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['form' => $form]);
+                    } elseif ($request->section == 'CIVIL FORMS') {
+                        $civil_form = Rule::where('section', 'CIVIL FORMS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['civil_form' => $civil_form]);
+                    } elseif ($request->section == 'PROBATE FORMS') {
+                        $probate_form = Rule::where('section', 'PROBATE FORMS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['probate_form' => $probate_form]);
+                    } elseif ($request->section == 'PARTS') {
+                        $part = Rule::where('section', 'PARTS')
+                            ->where('id', $id)
+                            ->with('ruleCategory', 'state')
+                            ->first();
+                        return response(['part' => $part]);
                     }
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
@@ -1891,28 +2109,48 @@ class ApiAdminController extends Controller
 
         try {
             if (Auth::user()->role->name == 'Admin') {
-                $fed = LawOfFederation::findOrFail($id);
-                $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                // $fed = LawOfFederation::findOrFail($id);
+                // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                // $categories = Category::orderBy('category', 'asc')->get();
+                // $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
+                // $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+
+                // $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                // $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                // $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+
+                // return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
+
+                $fed = LawOfFederation::where('id', $id)
+                    ->with('law_of_fed_parts', 'law_of_fed_sections', 'Law_of_fed_sched')
+                    ->first();
+                if (is_null($fed)) {
+                    return response()->json(['error' => 'Record Not Found'], 500);
+                }
                 $categories = Category::orderBy('category', 'asc')->get();
-                $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
-                $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
 
-                $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-                $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-                $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-
-                return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'area_of_laws' => $area_of_laws, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
+                return response(['fed' => $fed, 'categories' => $categories]);
             } else {
                 if (Auth::user()->subscribedUser()) {
-                    $fed = LawOfFederation::findOrFail($id);
-                    $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-                    $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-                    $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-                    // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                    // $fed = LawOfFederation::findOrFail($id);
+                    // $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                    // $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                    // $fed_schedules = LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
+                    // // $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
+                    // $categories = Category::orderBy('category', 'asc')->get();
+                    // $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
+                    // $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+                    // return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
+
+                    $fed = LawOfFederation::where('id', $id)
+                        ->with('law_of_fed_parts', 'law_of_fed_sections', 'Law_of_fed_sched')
+                        ->first();
+                    if (is_null($fed)) {
+                        return response()->json(['error' => 'Record Not Found'], 500);
+                    }
                     $categories = Category::orderBy('category', 'asc')->get();
-                    $notes = Annotation::where('resource_type', 'fed')->where('user_id', Auth::user()->id)->where('content_id', $fed->id)->get();
-                    $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
-                    return response(['fed' => $fed, 'fed_part' => $fed_part, 'fed_sections' => $fed_sections, 'fed_schedules' => $fed_schedules, 'categories' => $categories, 'notes' => $notes, 'teams' => $teams]);
+
+                    return response(['fed' => $fed, 'categories' => $categories]);
                 }
                 return response(['error' => 'You need to subscribe to a package to get access']);
             }

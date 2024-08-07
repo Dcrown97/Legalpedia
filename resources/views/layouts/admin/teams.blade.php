@@ -32,8 +32,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="https://cdn.jsdelivr.net/npm/less@4.1.1" ></script>
+    
+    {{-- <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> --}}
+     {{-- <script src="https://cdn.tiny.cloud/1/krgqhy8swtxuko7fbszjqzxzx68s0jzo430qxp9ormf1gm7g/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> --}}
+
+      <!-- summernote -->
+    <link rel="stylesheet" href="{{ asset('assets/summernote/summernote-bs4.min.css') }}">
 
     <!-- Google Tag Manager -->
     <script>
@@ -71,6 +76,10 @@
         @yield('content')
     </div>
 
+     <!-- Summernote -->
+    <script src="{{ asset('assets/summernote/summernote-bs4.min.js') }}"></script>
+    {{-- <script src="../summernote/summernote-bs4.min.js"></script> --}}
+
     <script src='../api.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
     <!-- Vendor JS -->
     <script src="{{asset('assets/js/vendor.bundle.js')}}"></script>
@@ -83,9 +92,9 @@
             var $window=$(window);
             $('.loader-bg').fadeOut();
         });
-        tinymce.init({
-            selector: '#description',
-        });
+        // tinymce.init({
+        //     selector: '#description',
+        // });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>

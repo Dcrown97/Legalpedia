@@ -314,7 +314,10 @@
                                                     </div>
                                                     <div class="col-auto">
                                                         @php
-                                                            $rating_count = App\Models\FeaturedContent::where('type', 'form')
+                                                            $rating_count = App\Models\FeaturedContent::where(
+                                                                'type',
+                                                                'form',
+                                                            )
                                                                 ->where('review_type', 'rating')
                                                                 ->where('reference_id', $form->id)
                                                                 ->count();
@@ -322,7 +325,7 @@
                                                                 ->where('review_type', 'rating')
                                                                 ->where('reference_id', $form->id)
                                                                 ->max('rating');
-                                                        @endphp 
+                                                        @endphp
                                                         @if ($rating_count > 0)
                                                             <small>{{ number_format($rating_count) }} .
                                                                 {{ getRating($rating) }} </small>
@@ -545,7 +548,8 @@
                                             <label class="form-label mb-1">
                                                 Content
                                             </label>
-                                            <textarea name="content" rows="5" class="description form-control" placeholder="Enter content"></textarea>
+                                            <textarea name="content" id="summernote" rows="5" class="description form-control"
+                                                placeholder="Enter content"></textarea>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label mb-1">
@@ -631,7 +635,8 @@
                                                 <label class="form-label mb-1">
                                                     Content
                                                 </label>
-                                                <textarea name="content" rows="5" class="description form-control" placeholder="Enter content"></textarea>
+                                                <textarea name="content" rows="5" id="summernote1" class="description form-control"
+                                                    placeholder="Enter content"></textarea>
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label mb-1">
@@ -645,7 +650,10 @@
                                                     <option value="">Select Category</option>
                                                     @foreach ($all_categories as $category)
                                                         @php
-                                                            $main_category = App\Models\Category::where('category', $category)->first();
+                                                            $main_category = App\Models\Category::where(
+                                                                'category',
+                                                                $category,
+                                                            )->first();
                                                         @endphp
                                                         <option value="{{ $main_category->category }}">
                                                             {{ $main_category->category }}</option>
@@ -696,6 +704,43 @@
         @endif
     @endif
     <script>
+        $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         function deleteFunction() {
             if (!confirm("Are you sure you want to delete this precedent?"))
                 event.preventDefault();

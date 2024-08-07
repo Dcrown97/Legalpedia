@@ -53,7 +53,7 @@ class User extends Authenticatable implements JWTSubject
         'social_display',
         'web_display',
         'featured',
-
+        'api_access_token',
         'area_of_practice',
         'nba_branch',
     ];

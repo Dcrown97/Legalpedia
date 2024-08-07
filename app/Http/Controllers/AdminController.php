@@ -99,14 +99,14 @@ class AdminController extends Controller
     }
 
     /////////////////////////AI Assistant////////////////////////////////////////
-    public function ask(Request $request){
+    public function ask(Request $request)
+    {
         $question = $request->query('question');
-        
     }
 
     private function uploadPdfToStorage($pdfFile)
     {
-        $imageName = rand(10000,99999).time().'.'.$pdfFile->extension();  
+        $imageName = rand(10000, 99999) . time() . '.' . $pdfFile->extension();
         $path = Storage::disk('s3')->put('/', $pdfFile);
         $path = Storage::disk('s3')->url($path);
 
@@ -116,10 +116,10 @@ class AdminController extends Controller
 
     public function aiAssistant(Request $request)
     {
-        if (Auth::user()->subscribedUser() && Auth::user()->canUseAi()){
+        if (Auth::user()->subscribedUser() && Auth::user()->canUseAi()) {
             return view('admin.ai_assistant');
         }
-        
+
         return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
     }
 
@@ -144,13 +144,13 @@ class AdminController extends Controller
             $pdfParser = new Parser();
             $pdf = $pdfParser->parseFile('storage/' . $data);
             $text = $pdf->getText();
-            if($request->type == 'judgement'){
+            if ($request->type == 'judgement') {
                 $res = AiDocumentSummarizerController::summarize($text);
-            }else if($request->type == 'lfn'){
+            } else if ($request->type == 'lfn') {
                 $res = AiDocumentSummarizerController::summarizeLFN($text);
-            }else{
+            } else {
                 $res = AiDocumentSummarizerController::summarizeAgreement($text);
-            }   
+            }
             // dd($res);
             $summary = implode(' ', $res);
             $summary = nl2br($summary);
@@ -168,7 +168,7 @@ class AdminController extends Controller
             $judgement_summary = JudgementSummary::find($id);
             $full_judgement = Judgement::where('suit_no', 'LIKE', '%' . $judgement_summary->suit_no . '%')->first();
             $text = 'Hello AI';
-            if($full_judgement !== null){
+            if ($full_judgement !== null) {
                 $text = $full_judgement->judgement;
             }
             $res = AiDocumentSummarizerController::summarize($text);
@@ -177,7 +177,7 @@ class AdminController extends Controller
             $summary = nl2br($summary);
             $teams = Team::where('user_id', Auth::user()->id)->get();
             $result_title = $judgement_summary->title;
-            return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
+            return view('admin.ai_assistant_result', compact('summary', 'teams', 'result_title'));
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
         }
@@ -189,15 +189,15 @@ class AdminController extends Controller
         try {
             $text = '';
             $fed = LawOfFederation::findOrFail($id);
-            $fed_part = LawOfFedPart::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get() ;
-            $fed_sections = LawOfFedSection::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get() ;
-            $fed_schedules = LawOfFedSched::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get() ;
+            $fed_part = LawOfFedPart::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get();
+            $fed_sections = LawOfFedSection::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get();
+            $fed_schedules = LawOfFedSched::where('law_of_federation_id', $id)->orderBy('id', 'ASC')->get();
 
-            foreach($fed_sections as $fed_section){
+            foreach ($fed_sections as $fed_section) {
                 $text .= '\n ' . $fed_section->section_body;
             }
 
-            foreach($fed_schedules as $fed_schedule){
+            foreach ($fed_schedules as $fed_schedule) {
                 $text .= '\n ' . $fed_schedule->sched_body;
             }
 
@@ -206,7 +206,7 @@ class AdminController extends Controller
             $summary = nl2br($summary);
             $teams = Team::where('user_id', Auth::user()->id)->get();
             $result_title = $fed->title;
-            return view('admin.ai_assistant_result', compact('summary', 'teams','result_title'));
+            return view('admin.ai_assistant_result', compact('summary', 'teams', 'result_title'));
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
         }
@@ -242,6 +242,7 @@ class AdminController extends Controller
         $featured_article = FeaturedContent::where('type', 'article')->where('review_type', 'rating')->where('featured', 1)->first();
         $featured_form = FeaturedContent::where('type', 'form')->where('review_type', 'rating')->where('featured', 1)->first();
         $featured_note = FeaturedContent::where('type', 'note')->where('review_type', 'rating')->where('featured', 1)->first();
+        // dd($featured_team, $featured_user, $featured_article, $featured_form, $featured_note);
         return view('admin.dashboard', compact('judgement_count', 'fed_count', 'rule_count', 'form_count', 'article_count', 'dict_count', 'maxim_count', 'resource_count', 'all_count', 'team_count', 'latest_judgements', 'notes', 'admin_notes', 'recent_activities', 'teams', 'pop_message', 'new_chat_count', 'featured_user', 'featured_team', 'featured_article', 'featured_form', 'featured_note'));
     }
 
@@ -253,7 +254,6 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-
         if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('rank', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
@@ -391,7 +391,6 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-
         if (Auth::user()->role->name == 'Admin') {
             $courts = Court::orderBy('court', 'ASC')->get();
             DB::statement("SET SQL_MODE=''");
@@ -755,6 +754,7 @@ class AdminController extends Controller
         // DB::commit();
         return back()->with('success', 'Judgement added');
     }
+
     public function updateJudgement(Request $request, $id)
     {
         if (checkUser() == false) {
@@ -849,34 +849,47 @@ class AdminController extends Controller
 
 
 
-        if ($request->coram) {
-            foreach ($request->coram as $key => $coram_input) {
-                $coram_data = [
-                    'name' => $coram_input[1]
-                ];
-                DB::table('corams')->where('id', $key)->update($coram_data);
+        if ($request->corams) {
+            // dd($request->all(), 'upadte');
+            foreach ($request->corams as $coramData) {
+                $coramId = $coramData['coram_id'];
+                $coramName = $coramData['name'];
 
-                $judg_coram_data = [
-                    'coram_id' => $key,
+                // Update coram
+                $coram = Coram::find($coramId);
+                if ($coram) {
+                    $coram->update([
+                        'name' => $coramName
+                    ]);
+                }
+
+                DB::table('judgement_corams')->where('coram_id', $coramId)->update([
+                    'coram_id' => $coramId,
                     'suit_no' => $judg->suit_no,
-                ];
-                DB::table('judgement_corams')->where('id', $coram_input[1])->update($judg_coram_data);
+                ]);
 
                 if ($request->has('remove_coram')) {
-                    $judg_coram = JudgementCoram::where('id', $request->judg_coram_id);
+                    dd($request->judg_coram_id, $request->main_coram_id);
+                    $judg_coram = JudgementCoram::where('id', $request->judg_coram_id)->first();
+                    $coram = Coram::where('id', $request->main_coram_id)->first();
+                    // dd($judg_coram, $coram);
+                    // if ($judg_coram) {
                     $judg_coram->delete();
-                    $coram = Coram::where('id', $request->main_coram_id);
+                    // }
+                    // if ($coram) {
+                    // dd($coram);
                     $coram->delete();
+                    // }
                     return back()->with('success', 'Coram removed');
                 }
             }
         }
 
-
-        if ($request->new_coram) {
-            foreach ($request->new_coram as $coram_input) {
+        if ($request->new_corams) {
+            // dd($request->new_corams, 'create');
+            foreach ($request->new_corams as $coram_input) {
                 $coram_data = [
-                    'name' => $coram_input[0]
+                    'name' => $coram_input['name']
                 ];
                 $coram = Coram::create($coram_data);
 
@@ -969,6 +982,28 @@ class AdminController extends Controller
 
         return back()->with('success', 'Judgement updated');
     }
+
+    public function removeCoram(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        // dd($id, $request->main_coram_id);
+        $judg_coram = JudgementCoram::where('id', $request->judg_coram_id)->first();
+        if ($judg_coram) {
+            // dd($judg_coram, $coram);
+            $judg_coram->delete();
+        }
+        $coram = Coram::where('id', $request->main_coram_id)->first();
+        if ($coram) {
+            // dd($coram);
+            $coram->delete();
+        }
+        return back()->with('success', 'Coram removed');
+    }
+
     public function editJudgement($id)
     {
         if (checkUser() == false) {
@@ -978,13 +1013,20 @@ class AdminController extends Controller
 
         if (Auth::user()->role->name == 'Admin') {
             $judgement_summary = JudgementSummary::findOrFail($id);
+            $judg_corams = JudgementCoram::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->get();
+            $coram_count = $judg_corams->count();
+            $coram = JudgementCoram::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->first();
+            $last_coram = JudgementCoram::orderBy('id', 'DESC')->first();
+            $edit_coram_id = $coram ? $coram->id : ($last_coram ? $last_coram->id : 0);
+            $edit_coram_no = $coram_count;
+            // dd($coram_count, $coram_id, $edit_coram_no);
             $courts = Court::orderBy('rank', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
             $categories = Category::orderBy('category', 'ASC')->get();
             $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
             $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
             $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
-            return view('admin.judgements.edit', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types'));
+            return view('admin.judgements.edit', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types', 'coram_count', 'edit_coram_id', 'edit_coram_no'));
         }
         return redirect('admin/judgements');
     }
@@ -1310,27 +1352,35 @@ class AdminController extends Controller
         if (Auth::user()->role->name == 'Admin') {
             $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
             if ($request->has('fetch_rule')) {
+                dd($request->name);
                 $orders = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'ORDERS')->orderBy('title', 'ASC')->get();
+
                 $appendices = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'APPENDIX')->orderBy('title', 'ASC')->get();
+
                 $schedules = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'SCHEDULES')->orderBy('title', 'ASC')->get();
+
                 $forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'FORMS')->orderBy('title', 'ASC')->get();
+
                 $civil_forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'CIVIL FORMS')->orderBy('title', 'ASC')->get();
+
                 $probate_forms = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'PROBATE FORMS')->orderBy('title', 'ASC')->get();
+
                 $parts = Rule::where(function ($query) use ($request) {
                     return $request->name ? $query->from('rules')->where('name', $request->name) : '';
                 })->where('section', 'PARTS')->orderBy('title', 'ASC')->get();
+
                 $appendix_count = $appendices->count();
                 $order_count = $orders->count();
                 $schedule_count = $schedules->count();
@@ -2150,6 +2200,7 @@ class AdminController extends Controller
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
     }
+
     public function storeFed(Request $request)
     {
         if (checkUser() == false) {
@@ -2162,7 +2213,7 @@ class AdminController extends Controller
             // 'area_of_law' => 'required',
             'description' => 'required',
             // 'category' => 'required',
-            'law_no' => 'required',
+            // 'law_no' => 'required',
             // 'law_date' => 'required',
             // 'subsidiary_legislation' => 'required',
             // 'part_header' => 'required',
@@ -2193,6 +2244,8 @@ class AdminController extends Controller
                     'law_of_federation_id' => $fed->id
                 ];
                 $fed_part = LawOfFedPart::create($fed_part_input);
+                $updateFedPartPosition = LawOfFedPart::where('id', $fed_part->id)->first();
+                $updateFedPartPosition->update(['position' => $fed_part->id]);
                 foreach ($part_header[10] as $section_input) {
                     $data = [
                         'section_header' => $section_input[0],
@@ -2200,7 +2253,9 @@ class AdminController extends Controller
                         'law_of_federation_id' => $fed->id,
                         'law_of_fed_part_id' => $fed_part->id,
                     ];
-                    LawOfFedSection::create($data);
+                    $lawOfFedSec = LawOfFedSection::create($data);
+                    $updateFedSecPosition = LawOfFedSection::where('id', $lawOfFedSec->id)->first();
+                    $updateFedSecPosition->update(['position' => $lawOfFedSec->id]);
                 }
             }
         }
@@ -2236,7 +2291,7 @@ class AdminController extends Controller
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
             // $fed_part = LawOfFedPart::where('law_of_federation_id', $fed->id)->first();
-            $fed_parts = LawOfFedPart::where('law_of_federation_id', $fed->id)->get();
+            $fed_parts = LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('position', 'asc')->get();
             // $fed_sections = LawOfFedSection::where('law_of_federation_id', $fed->id)->get();
             $fed_section_count = LawOfFedSection::where('law_of_federation_id', $fed->id)->count();
             $fed_scheds = LawOfFedSched::where('law_of_federation_id', $fed->id)->get();
@@ -2245,6 +2300,46 @@ class AdminController extends Controller
         }
         return redirect('admin/laws-of-federation');
     }
+
+    public function fed_order_change(Request $request)
+    {
+        $data = $request->input('order');
+        foreach ($data as $index => $id) {
+            $result = LawOfFedPart::where('id', $id)->first();
+            if ($result) {
+                $result->update(['position' => $index]);
+            }
+        }
+        return  response()->json([
+
+            'message' => 'Fed Part Order changed successfully.',
+
+            'alert-type' => 'success'
+
+        ]);
+        //return response()->json(['success' => $data]);
+    }
+
+    public function fed_section_order_change(Request $request)
+    {
+        $data = $request->input('order');
+        // dd($data);
+        foreach ($data as $index => $id) {
+            $result = LawOfFedSection::where('id', $id)->first();
+            if ($result) {
+                $result->update(['position' => $index]);
+            }
+        }
+        return  response()->json([
+
+            'message' => 'Fed Section Order changed successfully.',
+
+            'alert-type' => 'success'
+
+        ]);
+        //return response()->json(['success' => $data]);
+    }
+
     public function showFed($id)
     {
         if (checkUser() == false) {
@@ -2284,6 +2379,7 @@ class AdminController extends Controller
             'anotes' => $anotes,
         ]);
     }
+
     public function updateFed(Request $request, $id)
     {
         if (checkUser() == false) {
@@ -2350,10 +2446,11 @@ class AdminController extends Controller
                     'law_of_federation_id' => $fed->id,
                     'law_of_fed_part_id' => $fed_part->id,
                 ];
-                LawOfFedSection::create($data);
+                $lawOfFedSec = LawOfFedSection::create($data);
+                $updateFedSecPosition = LawOfFedSection::where('id', $lawOfFedSec->id)->first();
+                $updateFedSecPosition->update(['position' => $lawOfFedSec->id]);
             }
         }
-
 
         // saving a new part and new section
         if ($request->new_part_header) {
@@ -2363,6 +2460,8 @@ class AdminController extends Controller
                     'law_of_federation_id' => $fed->id
                 ];
                 $fed_part = LawOfFedPart::create($fed_part_input);
+                $updateFedPartPosition = LawOfFedPart::where('id', $fed_part->id)->first();
+                $updateFedPartPosition->update(['position' => $fed_part->id]);
                 foreach ($part_header[10] as $section_input) {
                     $data = [
                         'section_header' => $section_input[0],
@@ -2370,7 +2469,9 @@ class AdminController extends Controller
                         'law_of_federation_id' => $fed->id,
                         'law_of_fed_part_id' => $fed_part->id,
                     ];
-                    LawOfFedSection::create($data);
+                    $lawOfFedSec = LawOfFedSection::create($data);
+                    $updateFedSecPosition = LawOfFedSection::where('id', $lawOfFedSec->id)->first();
+                    $updateFedSecPosition->update(['position' => $lawOfFedSec->id]);
                 }
             }
         }
@@ -2448,6 +2549,7 @@ class AdminController extends Controller
 
         return back()->with('success', 'Law updated');
     }
+
     public function removeSection(Request $request)
     {
         if (checkUser() == false) {
@@ -3261,11 +3363,11 @@ class AdminController extends Controller
             $article->update($input);
 
             $version = Setting::first();
-        $input = [
-            'version' => $version->version + 0.1,
-        ];
-        $version->update($input);
-            
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
+
             return back()->with('success', 'Article featured');
         }
         if ($request->has('remove_featured')) {
@@ -3312,20 +3414,18 @@ class AdminController extends Controller
                 $like->update($input);
 
                 $version = Setting::first();
-        $input = [
-            'version' => $version->version + 0.1,
-        ];
-        $version->update($input);
-
+                $input = [
+                    'version' => $version->version + 0.1,
+                ];
+                $version->update($input);
             } else {
                 Like::create($input);
 
                 $version = Setting::first();
                 $input = [
-                        'version' => $version->version + 0.1,
-                    ];
+                    'version' => $version->version + 0.1,
+                ];
                 $version->update($input);
-
             }
             return response()->json(['success' => 'Article liked']);
         }
@@ -3370,11 +3470,10 @@ class AdminController extends Controller
                 Comment::create($input);
 
                 $version = Setting::first();
-        $input = [
-            'version' => $version->version + 0.1,
-        ];
-        $version->update($input);
-
+                $input = [
+                    'version' => $version->version + 0.1,
+                ];
+                $version->update($input);
             }
             RecentActivity::create([
                 'user_id' => Auth::user()->id,
@@ -3822,6 +3921,7 @@ class AdminController extends Controller
             'featured_notes' => $featured_notes,
         ]);
     }
+
     public function saveFeature(Request $request, $id)
     {
         if (checkUser() == false) {
@@ -3830,12 +3930,58 @@ class AdminController extends Controller
         };
 
         if ($request->has('make_featured')) {
-            FeaturedContent::where('reference_id', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => $request->featured));
-            FeaturedContent::where('reference_id', '<>', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => 0));
+            FeaturedContent::where('reference_id', $id)
+                ->where('type', $request->type)
+                ->where('review_type', 'rating')
+                ->update(array('featured' => $request->featured));
+            FeaturedContent::where('reference_id', '<>', $id)
+                ->where('type', $request->type)
+                ->where('review_type', 'rating')
+                ->update(array('featured' => 0));
+
+            // if ($request->type == 'article') {
+            //     Article::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'user') {
+            //     User::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'team') {
+            //     Team::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'form') {
+            //     FormsPrecedence::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'note') {
+            //     Annotation::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // }
+
             return back()->with('success', 'Featured on Dashboard');
         }
+
         if ($request->has('remove_featured')) {
-            FeaturedContent::where('reference_id', $id)->where('type', $request->type)->where('review_type', 'rating')->update(array('featured' => $request->featured));
+            FeaturedContent::where('reference_id', $id)
+                ->where('type', $request->type)
+                ->where('review_type', 'rating')
+                ->update(array('featured' => $request->featured));
+
+            // if ($request->type == 'article') {
+            //     Article::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'user') {
+            //     User::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'team') {
+            //     Team::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'form') {
+            //     FormsPrecedence::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // } elseif ($request->type == 'note') {
+            //     Annotation::where('id', $id)
+            //         ->update(array('featured' => $request->featured));
+            // }
+
             return back()->with('success', 'Feature removed from dashboard');
         }
     }
@@ -3893,6 +4039,7 @@ class AdminController extends Controller
             'validity' => 'required',
             'recur_date' => 'required',
         ]);
+        // dd($request->all());
         $input = [
             'name' => $request->name,
             'description' => $request->description,
@@ -3929,8 +4076,21 @@ class AdminController extends Controller
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
+            'api_access' => $request->api_access,
+            'postman_link' => $request->postman_link,
             'bookmark' => $request->bookamrk,
             'is_active' => $request->is_active,
+
+            'judgement_featureapi' => $request->judgement_featureapi,
+            'lfn_featureapi' => $request->lfn_featureapi,
+            'roc_featureapi' => $request->roc_featureapi,
+            'sroc_featureapi' => $request->sroc_featureapi,
+            'form_featureapi' => $request->form_featureapi,
+            'article_featureapi' => $request->article_featureapi,
+            'maxim_featureapi' => $request->maxim_featureapi,
+            'dict_featureapi' => $request->dict_featureapi,
+            'resource_featureapi' => $request->resource_featureapi,
+            'ai_featureapi' => $request->ai_featureapi,
         ];
         if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
@@ -3985,6 +4145,7 @@ class AdminController extends Controller
             'validity' => 'required',
             'recur_date' => 'required',
         ]);
+        // dd($request->all());
         $input = [
             'name' => $request->name,
             'description' => $request->description,
@@ -4021,8 +4182,22 @@ class AdminController extends Controller
             'team' => $request->team,
             'share' => $request->share,
             'note' => $request->note,
+            'postman_link' => $request->postman_link,
             'bookmark' => $request->bookamrk,
+            'api_access' => $request->api_access,
             'is_active' => $request->is_active,
+
+            'judgement_featureapi' => $request->judgement_featureapi,
+            'lfn_featureapi' => $request->lfn_featureapi,
+            'roc_featureapi' => $request->roc_featureapi,
+            'sroc_featureapi' => $request->sroc_featureapi,
+            'form_featureapi' => $request->form_featureapi,
+            'article_featureapi' => $request->article_featureapi,
+            'maxim_featureapi' => $request->maxim_featureapi,
+            'dict_featureapi' => $request->dict_featureapi,
+            'resource_featureapi' => $request->resource_featureapi,
+            'ai_featureapi' => $request->ai_featureapi,
+
         ];
         if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
@@ -4048,7 +4223,7 @@ class AdminController extends Controller
         if (!$request->lfn_cat) {
             $input['lfn_cat'] = $request->lfn_cat;
         }
-       
+
         if (!$request->judg_cat) {
             $input['judg_cat'] = $request->judg_cat;
         }
@@ -4580,19 +4755,17 @@ class AdminController extends Controller
 
                 $version = Setting::first();
                 $input = [
-                        'version' => $version->version + 0.1,
-                    ];
+                    'version' => $version->version + 0.1,
+                ];
                 $version->update($input);
-
             } else {
                 Like::create($input);
 
                 $version = Setting::first();
                 $input = [
-                        'version' => $version->version + 0.1,
-                    ];
+                    'version' => $version->version + 0.1,
+                ];
                 $version->update($input);
-
             }
             return response()->json(['success' => 'Team Post liked']);
         }
@@ -4612,10 +4785,10 @@ class AdminController extends Controller
                     $saved_post->update($input);
 
                     $version = Setting::first();
-        $input = [
-            'version' => $version->version + 0.1,
-        ];
-        $version->update($input);
+                    $input = [
+                        'version' => $version->version + 0.1,
+                    ];
+                    $version->update($input);
 
                     return back()->with('success', 'Post saved');
                 } else {
@@ -4825,8 +4998,10 @@ class AdminController extends Controller
         };
 
         $team = Team::findOrFail($id);
+        $featured_team = FeaturedContent::where('reference_id', $team->id)->first();
         UserTeam::where('team_id', $team->id)->delete();
         $team->delete();
+        $featured_team->delete();
 
         $version = Setting::first();
         $input = [
@@ -4860,7 +5035,6 @@ class AdminController extends Controller
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
         };
-
         $input = $request->all();
         FeaturedContent::create($input);
         return back()->with('success', 'Review sent');
@@ -4868,14 +5042,15 @@ class AdminController extends Controller
 
 
     ///////////////////////////////////////comment and replies/////////////////////////
-    public function commentApi(Request $request){
+    public function commentApi(Request $request)
+    {
         $input = [
             'user_id' => $request->user_id,
             'team_id' => $request->team_id,
             'comment_body' => $request->comment_body
         ];
         Comment::create($input);
-        return response()->json([ 'data' => true]);
+        return response()->json(['data' => true]);
     }
 
     public function comment(Request $request)
@@ -4987,10 +5162,10 @@ class AdminController extends Controller
             $comment->update($input);
 
             $version = Setting::first();
-        $input = [
-            'version' => $version->version + 0.1,
-        ];
-        $version->update($input);
+            $input = [
+                'version' => $version->version + 0.1,
+            ];
+            $version->update($input);
 
             return back()->with('success', 'Post pinned');
         } elseif ($request->has('unpin_post')) {
@@ -5732,7 +5907,7 @@ class AdminController extends Controller
             'version' => $version->version + 0.1,
         ];
         $version->update($input);
-        
+
         return response()->json([
             'success' => 'Note added',
             'anote' => json_decode($anote->content),
@@ -6216,7 +6391,6 @@ class AdminController extends Controller
         };
 
         $message = MailMessage::orderBy('created_at', 'DESC')->first();
-        dd($message);
         $details = [
             'subject' => $message->content,
             'body' => 'How far'
@@ -6448,9 +6622,9 @@ class AdminController extends Controller
         $user->password = bcrypt($license->license_code);
         $user->license_code = $license->license_code;
         $user->package_id = $license->package_id;
-        $user->expiry_date = $license->created_at->addDays($license->license_days);
+        $user->expiry_date = Carbon::now()->addDays($license->license_days);
 
-        $exp = $license->created_at->addDays($license->license_days);
+        $exp = Carbon::now()->addDays($license->license_days);
         if ($exp > now()) {
             $user_input['status'] = 'active';
         } else {
@@ -6477,6 +6651,7 @@ class AdminController extends Controller
         }
         return back()->with('success', 'License updated');
     }
+
     public function deleteLicense($id)
     {
         if (checkUser() == false) {

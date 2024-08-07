@@ -210,6 +210,20 @@
                         <i class="fe fe-message-square"></i> Chats
                     </a>
                 </li>
+
+                @if (Auth::user()->role->name == 'Staff')
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('admin/categories') }}">
+                            <i class="fe fe-bell"></i> Categories
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('admin/featured-content') }}">
+                            <i class="fe fe-bell"></i> Featured Content
+                        </a>
+                    </li>
+                @endif
+
                 @if (Auth::user()->role->name == 'Admin')
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url('admin/categories') }}">

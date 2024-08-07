@@ -31,7 +31,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
+    {{-- <script src="https://cdn.tiny.cloud/1/ej11umb33e5ff2ugdnkhk98qxver3s1mfis8ko5ovmimyk5l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> --}}
+     <script src="https://cdn.tiny.cloud/1/krgqhy8swtxuko7fbszjqzxzx68s0jzo430qxp9ormf1gm7g/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
     <!-- Google Tag Manager -->
     <script>
