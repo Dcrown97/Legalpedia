@@ -214,7 +214,7 @@
                                             <label class="form-label mb-1">
                                                 Meaning
                                             </label>
-                                            <textarea name="content" rows="5" class="form-control" placeholder="Enter content"></textarea>
+                                            <textarea name="content" id="summernote" rows="5" class="form-control" placeholder="Enter content"></textarea>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label mb-1">
@@ -248,6 +248,44 @@
         </div>
     @endif
     <script>
+
+         $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         function deleteFunction() {
             if(!confirm("Are you sure you want to delete this maxim?"))
             event.preventDefault();

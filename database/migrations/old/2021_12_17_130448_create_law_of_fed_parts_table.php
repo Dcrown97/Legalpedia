@@ -15,6 +15,7 @@ class CreateLawOfFedPartsTable extends Migration
     {
         Schema::create('law_of_fed_parts', function (Blueprint $table) {
             $table->id();
+            $table->string('position')->nullable();
             $table->integer('law_of_federation_id')->nullable();
             $table->text('part_header')->nullable();
             $table->timestamps();

@@ -6,6 +6,7 @@
 
 @section('links')
     <link rel="stylesheet" href="{{ asset('assets/css/register.css') }}">
+    <script async src="https://www.google.com/recaptcha/api.js"></script>
 @endsection
 
 @section('content')
@@ -39,8 +40,8 @@
         }
 
         /* .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
-                border: none;
-            } */
+                                                                                                                border: none;
+                                                                                                            } */
 
         .nav-tabs .nav-link.active {
             color: #EC6959;
@@ -109,6 +110,12 @@
                                                 </span>
                                             @enderror
                                         </div>
+
+                                        <!-- Google Recaptcha -->
+                                        {{-- <div class="g-recaptcha mt-4 mb-4"
+                                            data-sitekey={{ config('services.recaptcha.key') }}>
+                                        </div> --}}
+
                                         <button type="submit" class="btn button_load btn-block login-btn"
                                             onclick="this.classList.toggle('button--loading')">
                                             <span class="button__text">Login</span>
@@ -130,9 +137,9 @@
                                     @endif
                                     {{-- <p class="login-card-footer-text"><span style="color: #EC6959;">Don't have an account?</span> <a href="{{ url('/register') }}" class="text-reset">Sign up</a></p> --}}
                                     <!-- <nav class="login-card-footer-nav">
-                                            <a href="#!">Terms of use.</a>
-                                            <a href="#!">Privacy policy</a>
-                                        </nav> -->
+                                                                                                                                            <a href="#!">Terms of use.</a>
+                                                                                                                                            <a href="#!">Privacy policy</a>
+                                                                                                                                        </nav> -->
                                 </div>
                                 <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
                                     <p class="login-card-description mt-4">Create an account</p>
@@ -263,6 +270,35 @@
                                                 </span>
                                             @enderror
                                         </div>
+
+                                        {{-- <div class="form-group">
+                                            <div class="form-check mb-n2">
+                                                <input class="form-check-input list-checkbox-all" name="developer"
+                                                    id="ordersSelectAll" type="checkbox">
+                                                <label class="form-check-label" for="ordersSelectAll">&nbsp;</label> Are
+                                                you
+                                                a developer?
+                                            </div>
+                                            @error('developer')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div> --}}
+
+                                        {{-- <!-- Add this inside your registration form -->
+                                        <div class="g-recaptcha mb-4"
+                                            data-sitekey="{{ config('services.recaptcha.key') }}">
+                                        </div> --}}
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <div id="html_element"></div>
+
+                                            </div>
+                                        </div>
+
+
                                         {{-- <div class="form-group">
                                         <label for="link">Referrer</label>
                                         <input id="referrer" type="text" class="form-control @error('referrer') is-invalid @enderror" placeholder="Referrer" name="referrer">
@@ -273,15 +309,15 @@
                                         @enderror
                                     </div> --}}
                                         <button type="submit" class="btn btn-block login-btn mb-4"
-                                            onclick="this.classList.toggle('button--loading')">
+                                            onclick="this.classList.toggle('button--loading')" id="submit_btn">
                                             <span class="button__text">Sign up</span>
                                         </button>
                                     </form>
                                     {{-- <p class="login-card-footer-text"><span style="color: #EC6959;">Don't have an account?</span> <a href="{{ url('/register') }}" class="text-reset">Sign up</a></p> --}}
                                     <!-- <nav class="login-card-footer-nav">
-                                            <a href="#!">Terms of use.</a>
-                                            <a href="#!">Privacy policy</a>
-                                        </nav> -->
+                                                                                                                                            <a href="#!">Terms of use.</a>
+                                                                                                                                            <a href="#!">Privacy policy</a>
+                                                                                                                                        </nav> -->
                                 </div>
                             </div>
                         </div>
@@ -290,6 +326,29 @@
             </div>
         </div>
     </div>
+
+    <script type="text/javascript">
+        document.getElementById('submit_btn').disabled = true;
+
+        var verifyCallback = function(response) {
+            if (response) {
+                document.getElementById('submit_btn').removeAttribute('disabled');
+
+            }
+        };
+
+        var onloadCallback = function() {
+            grecaptcha.render('html_element', {
+                'sitekey': "{{ env('RECAPTCHA_SITE_KEY') }}",
+                'callback': verifyCallback,
+            });
+        };
+    </script>
+
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
+
+
+
     <script>
         const togglePassword = document.querySelector('#togglePassword');
         const togglePasswords = document.querySelector('#togglePasswords');
@@ -303,7 +362,7 @@
             this.classList.toggle('mdi-eye-off-outline');
             this.classList.toggle('mdi-eye-outline');
         });
-        
+
         togglePasswords.addEventListener('click', function(e) {
             // toggle the type attribute
             const type = passwords.getAttribute('type') === 'password' ? 'text' : 'password';

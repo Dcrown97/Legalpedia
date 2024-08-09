@@ -23,4 +23,8 @@ class LawOfFederation extends Model
     public function law_of_fed_sections() {
         return $this->hasMany(LawOfFedSection::class);
     }
+
+    public function Law_of_fed_sched() {
+        return $this->hasMany(LawOfFedSched::class);
+    }
 }

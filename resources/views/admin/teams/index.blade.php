@@ -1115,7 +1115,7 @@
                                     <small class="form-text text-muted">
                                         This is what others will see about your team
                                     </small>
-                                    <textarea name="description" id="description" rows="5" class="form-control" placeholder="Enter description"></textarea>
+                                    <textarea name="description" id="description summernote" rows="5" class="form-control" placeholder="Enter description"></textarea>
                                 </div>
                                 <hr class="mt-4 mb-5">
                                 <div class="form-group">
@@ -1180,7 +1180,7 @@
                                     <small class="form-text text-muted">
                                         This is what others will see about your team
                                     </small>
-                                    <textarea class="textarea-1 form-control" name="description" id="descr" rows="5"></textarea>
+                                    <textarea class="textarea-1 form-control" name="description" id="descr summernote1" rows="5"></textarea>
                                 </div>
                                 <hr class="mt-4 mb-5">
                                 <div class="form-group">
@@ -1215,6 +1215,44 @@
         </div>
     </div>
     <script>
+
+         $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         const actualBtn = document.getElementById('actual-btn');
 
         const fileChosen = document.getElementById('file-chosen');

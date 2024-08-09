@@ -1,26 +1,30 @@
 @extends('layouts.admin.laws-of-federation')
 
 @section('title')
-    <title>{{$fed->title}} - Legalpedia</title>
+    <title>{{ $fed->title }} - Legalpedia</title>
 @endsection
 
 @section('content')
-<style>
-    .modal-content {
-        width: 100% !important;
-        height: auto !important;
-    }
-</style>
-<style>html {scroll-behavior: smooth;}</style>
+    <style>
+        .modal-content {
+            width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
     @php
         if (isset(request()->search) && !empty(request()->search)) {
             $searchData = request()->search;
-        } elseif(isset(request()->year_result) && !empty(request()->year_result)) {
+        } elseif (isset(request()->year_result) && !empty(request()->year_result)) {
             $searchData = request()->year_result;
-        } elseif(isset(request()->more_result) && !empty(request()->more_result)) {
+        } elseif (isset(request()->more_result) && !empty(request()->more_result)) {
             $searchData = request()->more_result;
         } else {
-            $searchData = "";
+            $searchData = '';
         }
     @endphp
     <div class="header">
@@ -28,27 +32,27 @@
             <div class="header-body">
                 <div class="row align-items-end">
                     <div class="col">
-                        <a href="{{url('admin/laws-of-federation')}}" class="text-color mb-4"><i class="fe fe-arrow-left mr-2"></i> Back</a>
+                        <a href="{{ url('admin/laws-of-federation') }}" class="text-color mb-4"><i
+                                class="fe fe-arrow-left mr-2"></i> Back</a>
                         <h1 class="header-title text-center" style="color: #990033">
-                            {{$fed->title}}
+                            {{ $fed->title }}
                         </h1>
-                        <h3 class="card-text text-center text-color mt-2 mb-2">{{$fed->law_no}}</h3>
+                        <h3 class="card-text text-center text-color mt-2 mb-2">{{ $fed->law_no }}</h3>
                     </div>
-                    @if(Auth::user()->role->name == 'Admin')
+                    @if (Auth::user()->role->name == 'Admin')
                         <div class="col-auto">
-                            <a href="{{route('edit.fed', $fed->id)}}" class="btn text-white btn-primary">
+                            <a href="{{ route('edit.fed', $fed->id) }}" class="btn text-white btn-primary">
                                 <i class="mdi mdi-pencil"></i> Edit Law
                             </a>
                         </div>
                     @endif
-                    @if(Auth::user()->canUseAi())
-                    <div class="col-auto">
-                        <a href="{{ route('admin.aiLawsOfFedSummary', $fed->id) }}"
-                            class="btn text-white btn-primary"
-                            onclick="this.classList.toggle('button--loading')">
-                            Summarize with LegalpediaLens
-                        </a>
-                    </div>
+                    @if (Auth::user()->canUseAi())
+                        <div class="col-auto">
+                            <a href="{{ route('admin.aiLawsOfFedSummary', $fed->id) }}" class="btn text-white btn-primary"
+                                onclick="this.classList.toggle('button--loading')">
+                                Summarize with LegalpediaLens
+                            </a>
+                        </div>
                     @endif
                     @include('elements.notifications')
                 </div>
@@ -61,29 +65,49 @@
             <div class="col-12 col-lg-12 col-xl-12">
                 <div class="card">
                     <div class="card-body p-5" id="content">
-                        <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get();
-                            $fed_sections = App\Models\LawOfFedSection::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
-                            $fed_schedules = App\Models\LawOfFedSched::where('law_of_federation_id', $fed->id)->orderBy('id', 'ASC')->get() ;
+                        <?php $fed_part = App\Models\LawOfFedPart::where('law_of_federation_id', $fed->id)
+                            ->orderBy('position', 'asc')
+                            ->get();
+                        $fed_sections = App\Models\LawOfFedSection::where('law_of_federation_id', $fed->id)
+                            ->orderBy('position', 'asc')
+                            ->get();
+                        $fed_schedules = App\Models\LawOfFedSched::where('law_of_federation_id', $fed->id)
+                            ->orderBy('id', 'ASC')
+                            ->get();
                         ?>
-                        {{-- @if($fed_part)
+                        {{-- @if ($fed_part)
                             <p class="card-text text-muted small mb-1">Part: <span class="text-color">{{$fed_part->part_header}}</span></p>
                         @endif --}}
 
-                        @if(count($fed_sections) > 0)
+                        @if (count($fed_sections) > 0)
                             <?php $fed_section_no = 1; ?>
-                            @foreach($fed_sections as $fed_section)
-                                <h3 class="text-muted" id="{{returnHighlightText($fed_section->section_header, $searchData) == true ? 'section' : '' }}">{{$fed_section_no}}. {!! highlightText($fed_section->section_header, $searchData) !!}</h3>
+                            @foreach ($fed_sections as $fed_section)
+                                <h3 class="text-muted"
+                                    id="{{ returnHighlightText($fed_section->section_header, $searchData) == true ? 'section' : '' }}">
+                                    {{ $fed_section_no }}. {!! highlightText($fed_section->section_header, $searchData) !!}</h3>
                                 <?php $fed_section_no++; ?>
-                                <p class="card-text mb-1" id="{{returnHighlightText($fed_section->section_body, $searchData) == true ? 'section' : '' }}">{!! highlightText(htmlspecialchars_decode(nl2br(e(strip_tags($fed_section->section_body))), ENT_QUOTES), $searchData) !!}</p>
+                                <p class="card-text mb-1"
+                                    id="{{ returnHighlightText($fed_section->section_body, $searchData) == true ? 'section' : '' }}">
+                                    {!! highlightText(
+                                        htmlspecialchars_decode(nl2br(e(strip_tags($fed_section->section_body))), ENT_QUOTES),
+                                        $searchData,
+                                    ) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
-                        @if(count($fed_schedules) > 0)
+                        @if (count($fed_schedules) > 0)
                             <?php $fed_schedule_no = 1; ?>
-                            @foreach($fed_schedules as $fed_schedule)
-                                <h3 class="text-muted" id="{{returnHighlightText($fed_schedule->sched_header, $searchData) == true ? 'schedule' : '' }}">{{$fed_schedule_no}}. {!! highlightText($fed_schedule->sched_header, $searchData) !!}</h3>
+                            @foreach ($fed_schedules as $fed_schedule)
+                                <h3 class="text-muted"
+                                    id="{{ returnHighlightText($fed_schedule->sched_header, $searchData) == true ? 'schedule' : '' }}">
+                                    {{ $fed_schedule_no }}. {!! highlightText($fed_schedule->sched_header, $searchData) !!}</h3>
                                 <?php $fed_schedule_no++; ?>
-                                <p class="card-text mb-1" id="{{returnHighlightText($fed_schedule->sched_body, $searchData) == true ? 'schedule' : '' }}">{!! highlightText(htmlspecialchars_decode(nl2br(e(strip_tags($fed_schedule->sched_body))), ENT_QUOTES), $searchData) !!}</p>
+                                <p class="card-text mb-1"
+                                    id="{{ returnHighlightText($fed_schedule->sched_body, $searchData) == true ? 'schedule' : '' }}">
+                                    {!! highlightText(
+                                        htmlspecialchars_decode(nl2br(e(strip_tags($fed_schedule->sched_body))), ENT_QUOTES),
+                                        $searchData,
+                                    ) !!}</p>
                                 <hr class="my-4">
                             @endforeach
                         @endif
@@ -117,20 +141,21 @@
                             </div>
                         </div>
                         <div class="col-auto me-n3">
-                            <a href="{{url('admin/notes')}}" class="btn text-white btn-primary">
+                            <a href="{{ url('admin/notes') }}" class="btn text-white btn-primary">
                                 View all <i class="mdi arrow-right"></i></span>
                             </a>
                         </div>
                     </div>
                     <div class="card-body">
                         <ul class="list-group list-group-flush list my-n3">
-                            @if(count($notes) > 0)
-                                @foreach($notes as $note)
+                            @if (count($notes) > 0)
+                                @foreach ($notes as $note)
                                     <li class="list-group-item">
                                         <div class="row align-items-center">
                                             <div class="col-auto">
                                                 <div class="avatar avatar-sm">
-                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                    <div
+                                                        class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
                                                         <i class="fe fe-file"></i>
                                                     </div>
                                                 </div>
@@ -141,7 +166,7 @@
                                                         $note->comment = json_decode($note->comment);
                                                     @endphp
                                                     @foreach ($note->comment as $comment_type)
-                                                        {{ucwords(strtolower($comment_type->value))}}
+                                                        {{ ucwords(strtolower($comment_type->value)) }}
                                                     @endforeach
                                                 </h5>
                                                 @php
@@ -152,23 +177,24 @@
                                         <div class="row">
                                             <div class="col-auto">
                                                 <div class="avatar avatar-sm" style="visibility: hidden">
-                                                    <div class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
+                                                    <div
+                                                        class="avatar-title fs-lg bg-primary-soft rounded-circle text-primary">
                                                         <i class="fe fe-file"></i>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col">
                                                 <p class="small text-gray-700 mb-0">
-                                                    {{Str::words(ucwords(strtolower($note->content->selector[0]->exact)), 20)}}
+                                                    {{ Str::words(ucwords(strtolower($note->content->selector[0]->exact)), 20) }}
                                                 </p>
                                                 <p class="card-text small text-muted">
-                                                    {{$note->created_at->diffForHumans()}}
+                                                    {{ $note->created_at->diffForHumans() }}
                                                 </p>
                                             </div>
                                         </div>
                                     </li>
                                 @endforeach
-                                @else
+                            @else
                                 <div class="text-center my-4">
                                     <h3 class="text-muted"><i class="fe fe-file"></i> No notes</h3>
                                 </div>
@@ -237,7 +263,7 @@
                                 <a class="cursor-pointer printText">
                                     <div id="print" class="note12">
                                         <span class="icon-1">
-                                            <img src="{{asset('assets/images/printing-text-1.png')}}" alt="">
+                                            <img src="{{ asset('assets/images/printing-text-1.png') }}" alt="">
                                         </span>
                                     </div>
                                     <span class="t-1">
@@ -247,28 +273,30 @@
                             </div>
                         </div>
                         <div class="row justify-content-center" id="main">
-                          <div class="col-12">
-                            <form class="tab-content pb-4" id="wizardSteps" action="{{route('update.anote')}}" method="POST">
-                                {{ csrf_field() }}
-                                {{ method_field('patch') }}
-                                <div class="row justify-content-center">
-                                    <div class="text-center">
-                                        <p class="mb-5 text-muted">Make notes searchable by saving to public</p>
-                                        <input type="text" id="input" style="opacity: 0; position: absolute">
+                            <div class="col-12">
+                                <form class="tab-content pb-4" id="wizardSteps" action="{{ route('update.anote') }}"
+                                    method="POST">
+                                    {{ csrf_field() }}
+                                    {{ method_field('patch') }}
+                                    <div class="row justify-content-center">
+                                        <div class="text-center">
+                                            <p class="mb-5 text-muted">Make notes searchable by saving to public</p>
+                                            <input type="text" id="input" style="opacity: 0; position: absolute">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <select name="display" class="form-select">
-                                        <option value="public">Public</option>
-                                        <option value="private">Private</option>
-                                    </select>
-                                </div>
-                                <input type="hidden" name="note_id" id="note-id">
-                                <button type="submit" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white w-100 btn-primary">
-                                    <span class="button__text"><i class="mdi mdi-check"></i> Save Note</span>
-                                </button>
-                            </form>
-                          </div>
+                                    <div class="form-group">
+                                        <select name="display" class="form-select">
+                                            <option value="public">Public</option>
+                                            <option value="private">Private</option>
+                                        </select>
+                                    </div>
+                                    <input type="hidden" name="note_id" id="note-id">
+                                    <button type="submit" onclick="this.classList.toggle('button--loading')"
+                                        class="btn button_load text-white w-100 btn-primary">
+                                        <span class="button__text"><i class="mdi mdi-check"></i> Save Note</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         <div class="row justify-content-center" id="shareToTeam" style="display: none">
                             <div data-list='{"valueNames": ["name"]}'>
@@ -277,66 +305,83 @@
                                         Share Note to teams
                                     </h4>
                                 </div>
-                                <form action="{{route('share.anote')}}" method="POST">
+                                <form action="{{ route('share.anote') }}" method="POST">
                                     @csrf
                                     <div class="card-header">
                                         <div class="input-group input-group-flush input-group-merge input-group-reverse">
                                             <input class="form-control list-search" type="search" placeholder="Search">
                                             <div class="input-group-text">
-                                            <span class="fe fe-search"></span>
+                                                <span class="fe fe-search"></span>
                                             </div>
                                         </div>
                                         <div class="col-auto">
                                             <div class="form-check mb-n2">
-                                                <input class="form-check-input list-checkbox-all" name="checkBoxArray" id="orders" type="checkbox">
+                                                <input class="form-check-input list-checkbox-all" name="checkBoxArray"
+                                                    id="orders" type="checkbox">
                                                 <label class="form-check-label" for="orders">&nbsp;</label> All Teams
                                             </div>
                                         </div>
                                         <div class="col-auto me-n3">
                                             <input type="hidden" name="anote_id" id="anote-id">
                                             <input type="hidden" name="comment_body" id="anote-content">
-                                            <button type="submit" name="share_all" onclick="this.classList.toggle('button--loading')" class="btn button_load text-white w-100 btn-primary">
-                                                <span class="button__text"><i class="mdi mdi-share-variant-outline"></i> Share</span>
+                                            <button type="submit" name="share_all"
+                                                onclick="this.classList.toggle('button--loading')"
+                                                class="btn button_load text-white w-100 btn-primary">
+                                                <span class="button__text"><i class="mdi mdi-share-variant-outline"></i>
+                                                    Share</span>
                                             </button>
                                         </div>
                                     </div>
                                     <div class="card-body">
                                         <ul class="list-group list-group-flush list my-n3">
-                                            @if(count($teams) > 0)
-                                                @foreach($teams as $team)
+                                            @if (count($teams) > 0)
+                                                @foreach ($teams as $team)
                                                     <li class="list-group-item">
                                                         <div class="row align-items-center">
                                                             <div class="col-1">
                                                                 <div class="form-check mb-n2">
-                                                                    <input class="form-check-input list-checkbox" type="checkbox" name="checkBoxArray[]" id="ordersSelectOnes" value="{{$team->team_id}}">
-                                                                    <label class="form-check-label" for="ordersSelect">&nbsp;</label>
+                                                                    <input class="form-check-input list-checkbox"
+                                                                        type="checkbox" name="checkBoxArray[]"
+                                                                        id="ordersSelectOnes"
+                                                                        value="{{ $team->team_id }}">
+                                                                    <label class="form-check-label"
+                                                                        for="ordersSelect">&nbsp;</label>
                                                                 </div>
                                                             </div>
                                                             <div class="col-2">
                                                                 <?php $my_team = App\Models\Team::where('id', $team->team_id)->first(); ?>
-                                                                <a href="{{route('show.team', $team->team_id)}}" class="avatar avatar-lg">
-                                                                    <img src="{{$my_team->photo}}" class="avatar-img rounded-circle w-2 h-2" alt="{{$my_team->name}}">
+                                                                <a href="{{ route('show.team', $team->team_id) }}"
+                                                                    class="avatar avatar-lg">
+                                                                    <img src="{{ $my_team->photo }}"
+                                                                        class="avatar-img rounded-circle w-2 h-2"
+                                                                        alt="{{ $my_team->name }}">
                                                                 </a>
                                                             </div>
                                                             <div class="col-6">
                                                                 <h4 class="mb-1 name">
-                                                                    <a href="{{route('show.team', $team->team_id)}}">{{$my_team->name}}</a>
+                                                                    <a
+                                                                        href="{{ route('show.team', $team->team_id) }}">{{ $my_team->name }}</a>
                                                                 </h4>
-                                                                <?php $team_member_count = App\Models\UserTeam::where('approve_request', 1)->where('team_id', $team->team_id)->count(); ?>
+                                                                <?php $team_member_count = App\Models\UserTeam::where('approve_request', 1)
+                                                                    ->where('team_id', $team->team_id)
+                                                                    ->count(); ?>
                                                                 <small class="text-muted">
-                                                                    {{$team_member_count}} members
+                                                                    {{ $team_member_count }} members
                                                                 </small>
                                                             </div>
                                                             <div class="col-3">
-                                                                <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
-                                                                <input type="hidden" name="team_id" value="{{$team->team_id}}">
+                                                                <input type="hidden" name="user_id"
+                                                                    value="{{ Auth::user()->id }}">
+                                                                <input type="hidden" name="team_id"
+                                                                    value="{{ $team->team_id }}">
                                                             </div>
                                                         </div>
                                                     </li>
                                                 @endforeach
-                                                @else
+                                            @else
                                                 <div class="text-center mt-8 mb-8">
-                                                    <h3 class="text-muted"><i class="fe fe-users"></i> You have no teams</h3>
+                                                    <h3 class="text-muted"><i class="fe fe-users"></i> You have no teams
+                                                    </h3>
                                                 </div>
                                             @endif
                                         </ul>
@@ -350,7 +395,8 @@
                                     <h4 class="card-header-title" id="exampleModalCenterTitle">
                                         Print note
                                     </h4>
-                                    <a class="cursor-pointer btn btn-primary text-white printNow" onclick="printContent('printTag')">Print</a>
+                                    <a class="cursor-pointer btn btn-primary text-white printNow"
+                                        onclick="printContent('printTag')">Print</a>
                                 </div>
                                 <div class="card-body">
                                     <div id="printTag"></div>
@@ -364,13 +410,12 @@
     </div>
 
     <script>
-        function printContent(elem)
-        {
+        function printContent(elem) {
             var mywindow = window.open('', 'PRINT', 'height=800,width=1200');
 
-            mywindow.document.write('<html><head><title>' + document.title  + '</title>');
+            mywindow.document.write('<html><head><title>' + document.title + '</title>');
             mywindow.document.write('</head><body >');
-            mywindow.document.write('<h1>' + document.title  + '</h1>');
+            mywindow.document.write('<h1>' + document.title + '</h1>');
             mywindow.document.write(document.getElementById(elem).innerHTML);
             mywindow.document.write('</body></html>');
 
@@ -384,97 +429,104 @@
         }
 
         (function() {
-        // Intialize Recogito
-        var r = Recogito.init({
-          content: 'content', // Element id or DOM node to attach to
-          locale: 'auto',
-      	  widgets: [
-            { widget: 'COMMENT' },
-            { widget: 'TAG', vocabulary: [ 'Place', 'Person', 'Event', 'Organization', 'Animal' ] }
-          ],
-          relationVocabulary: [ 'isRelated', 'isPartOf', 'isSameAs ']
-        });
+            // Intialize Recogito
+            var r = Recogito.init({
+                content: 'content', // Element id or DOM node to attach to
+                locale: 'auto',
+                widgets: [{
+                        widget: 'COMMENT'
+                    },
+                    {
+                        widget: 'TAG',
+                        vocabulary: ['Place', 'Person', 'Event', 'Organization', 'Animal']
+                    }
+                ],
+                relationVocabulary: ['isRelated', 'isPartOf', 'isSameAs ']
+            });
 
-        // r.loadAnnotations('annotations.w3c.json');
-        var jid = {{$fed->id}};
+            // r.loadAnnotations('annotations.w3c.json');
+            var jid = {{ $fed->id }};
 
-        r.on('selectAnnotation', function(annote) {
-          console.log(annote);
-        });
+            r.on('selectAnnotation', function(annote) {
+                console.log(annote);
+            });
 
-        r.on('createAnnotation', function(annote) {
-            var userId = "{{Auth::user()->id}}";
-            var contentId = "{{$fed ? $fed->id : ''}}";
-            var resource_type = "fed";
-            $.ajax({
-                type: 'POST',
-                url: "/admin/annotations",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    user_id: userId,
-                    note_id: annote.id,
-                    content_id: contentId,
-                    content_type: annote.type,
-                    content: annote.target,
-                    comment: annote.body,
-                    resource_type: resource_type,
-                },
-                success: function (response) {
-                    console.log(response);
-                    document.getElementById('note-id').value = annote.id;
-                    $('#save_public').modal('show')
-                    document.getElementById('note-id').value = annote.id;
-                    document.getElementById('anote-id').value = response.anote.id;
-                    document.getElementById('anote-content').value = response.anote.selector[0].exact;
-                    document.getElementById('printTag').innerHTML = response.anote.selector[0].exact;
-                    $('#save_public').modal('show');
+            r.on('createAnnotation', function(annote) {
+                var userId = "{{ Auth::user()->id }}";
+                var contentId = "{{ $fed ? $fed->id : '' }}";
+                var resource_type = "fed";
+                $.ajax({
+                    type: 'POST',
+                    url: "/admin/annotations",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        user_id: userId,
+                        note_id: annote.id,
+                        content_id: contentId,
+                        content_type: annote.type,
+                        content: annote.target,
+                        comment: annote.body,
+                        resource_type: resource_type,
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        document.getElementById('note-id').value = annote.id;
+                        $('#save_public').modal('show')
+                        document.getElementById('note-id').value = annote.id;
+                        document.getElementById('anote-id').value = response.anote.id;
+                        document.getElementById('anote-content').value = response.anote.selector[0]
+                            .exact;
+                        document.getElementById('printTag').innerHTML = response.anote.selector[0]
+                            .exact;
+                        $('#save_public').modal('show');
 
-                    $('.copiedText').click(function() {
-                        var Url = document.getElementById("input");
-                        Url.value =  response.anote.selector[0].exact;
-                        Url.focus();
-                        Url.select();
-                        document.execCommand("Copy");
-                        document.getElementById('hide-copy1').style.display = 'none';
-                        document.getElementById('show-copy').style.display = 'initial';
-                    });
-                    $('.shareText').click(function() {
-                        $('#main').hide();
-                        $('#shareToTeam').show();
-                        $('#printNote').hide();
-                    });
-                    $('.printText').click(function() {
-                        $('#main').hide();
-                        $('#shareToTeam').hide();
-                        $('#printNote').show();
-                    });
-                    $('.publicText').click(function() {
-                        $('#main').show();
-                        $('#shareToTeam').hide();
-                        $('#printNote').hide();
-                    });
-                }
+                        $('.copiedText').click(function() {
+                            var Url = document.getElementById("input");
+                            Url.value = response.anote.selector[0].exact;
+                            Url.focus();
+                            Url.select();
+                            document.execCommand("Copy");
+                            document.getElementById('hide-copy1').style.display = 'none';
+                            document.getElementById('show-copy').style.display = 'initial';
+                        });
+                        $('.shareText').click(function() {
+                            $('#main').hide();
+                            $('#shareToTeam').show();
+                            $('#printNote').hide();
+                        });
+                        $('.printText').click(function() {
+                            $('#main').hide();
+                            $('#shareToTeam').hide();
+                            $('#printNote').show();
+                        });
+                        $('.publicText').click(function() {
+                            $('#main').show();
+                            $('#shareToTeam').hide();
+                            $('#printNote').hide();
+                        });
+                    }
+
+                });
 
             });
 
-        });
-
-        r.on('updateAnnotation', function(annotation, previous) {
-          console.log('updated', previous, 'with', annotation);
-        });
-      })();
+            r.on('updateAnnotation', function(annotation, previous) {
+                console.log('updated', previous, 'with', annotation);
+            });
+        })();
     </script>
 
     <script>
-        var fedId = "{{$fed ? $fed->id : ''}}";
-        $(document).ready(function () {
+        var fedId = "{{ $fed ? $fed->id : '' }}";
+        $(document).ready(function() {
             fetchAnote();
         });
+
         function fetchAnote() {
             $.ajax({
                 type: 'GET',
                 url: "/admin/laws-of-federation/fetch-annotations/" + fedId,
-                success: function (response) {
+                success: function(response) {
                     console.log(response);
                     var array = response.anotes;
                     var objTo = document.getElementById('content');
@@ -485,6 +537,7 @@
                 }
             });
         }
+
         function getTextNodesIn(node) {
             var textNodes = [];
             if (node.nodeType == 3) {
@@ -504,11 +557,13 @@
                 range.selectNodeContents(el);
                 var textNodes = getTextNodesIn(el);
                 var foundStart = false;
-                var charCount = 0, endCharCount;
+                var charCount = 0,
+                    endCharCount;
 
-                for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+                for (var i = 0, textNode; textNode = textNodes[i++];) {
                     endCharCount = charCount + textNode.length;
-                    if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <= textNodes.length))) {
+                    if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i <=
+                            textNodes.length))) {
                         range.setStart(textNode, start - charCount);
                         foundStart = true;
                     }

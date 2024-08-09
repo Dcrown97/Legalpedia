@@ -17,7 +17,7 @@ class CreateLawOfFedSchedsTable extends Migration
             $table->id();
             $table->integer('law_of_federation_id')->nullable();
             $table->text('sched_header')->nullable();
-            $table->text('sched_body')->nullable();
+            $table->longText('sched_body')->nullable();
             $table->timestamps();
         });
     }

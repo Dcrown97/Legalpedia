@@ -13,6 +13,8 @@ use App\Notifications\WelcomeOnboard;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class RegisterController extends Controller
 {
@@ -70,95 +72,100 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $role = Role::where('name','Customer')->first();
-        if(!$role){
-            return back()->withErrors('Role Customer not found please contact admin');
-        }
-        
-        if(Invite::where('token', $data['token'])->first() !==null) {
-            $invite = Invite::where('token', $data['token'])->first();
-
-            $user = User::create([
-                'name' => $data['name'],
-                'surname' => $data['surname'],
-                'email' => $data['email'],
-                'role_id' => $role->id,
-                'phone' => $data['phone'],
-                // 'referrer' => $data['referrer'],
-                'dob' => $data['dob'],
-                'area_of_practice' => $data['area_of_practice'],
-                'nba_branch' => $data['nba_branch'],
-                'password' => Hash::make($data['password']),
-            ]);
-
-            UserTeam::create([
-                'token' => $data['token'],
-                'user_id' => $user->id,
-                'team_id' => $data['team_id'],
-                'send_request' => $data['send_request'],
-                'approve_request' => $data['approve_request'],
-            ]);
-
-            // $role = Role::where('name','Admin')->first();
-            // $admin_user = User::where('role_id', $role->id)->first();
-            $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
-            if($team) {
-                UserTeam::create([
-                    'user_id' => $user->id,
-                    'team_id' => $team ? $team->id : NULL,
-                    'send_request' => 1,
-                    'approve_request' => 1,
-                ]);
+        try {
+            $role = Role::where('name', 'Customer')->first();
+            if (!$role) {
+                return back()->withErrors('Role Customer not found please contact admin');
             }
+            DB::beginTransaction();
+            if (Invite::where('token', $data['token'])->first() !== null) {
+                $invite = Invite::where('token', $data['token'])->first();
 
-            // $user->notify(new WelcomeOnboard($user));
-            $explodedMail =  $user->email;
-            $subject = 'Welcome Onboard!';
-            $newContent =  [
-                'user' => $user->name
-            ];
-            $content = view("emails.welcomeOnboard", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
-
-            return $user;
-
-        } else {
-            $user = User::create([
-                'name' => $data['name'],
-                'surname' => $data['surname'],
-                'email' => $data['email'],
-                'role_id' => $role->id,
-                'phone' => $data['phone'],
-                // 'referrer' => $data['referrer'],
-                'dob' => $data['dob'],
-                'area_of_practice' => $data['area_of_practice'],
-                'nba_branch' => $data['nba_branch'],
-                'password' => Hash::make($data['password']),
-            ]);
-
-            // $role = Role::where('name','Admin')->first();
-            // $admin_user = User::where('role_id', $role->id)->first();
-            $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
-            if($team) {
-                UserTeam::create([
-                    'user_id' => $user->id,
-                    'team_id' => $team ? $team->id : NULL,
-                    'send_request' => 1,
-                    'approve_request' => 1,
+                $user = User::create([
+                    'name' => $data['name'],
+                    'surname' => $data['surname'],
+                    'email' => $data['email'],
+                    'role_id' => $role->id,
+                    'phone' => $data['phone'],
+                    // 'referrer' => $data['referrer'],
+                    'dob' => $data['dob'],
+                    'area_of_practice' => $data['area_of_practice'],
+                    'nba_branch' => $data['nba_branch'],
+                    'password' => Hash::make($data['password']),
                 ]);
+
+                UserTeam::create([
+                    'token' => $data['token'],
+                    'user_id' => $user->id,
+                    'team_id' => $data['team_id'],
+                    'send_request' => $data['send_request'],
+                    'approve_request' => $data['approve_request'],
+                ]);
+
+                // $role = Role::where('name','Admin')->first();
+                // $admin_user = User::where('role_id', $role->id)->first();
+                $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
+                if ($team) {
+                    UserTeam::create([
+                        'user_id' => $user->id,
+                        'team_id' => $team ? $team->id : NULL,
+                        'send_request' => 1,
+                        'approve_request' => 1,
+                    ]);
+                }
+
+                // $user->notify(new WelcomeOnboard($user));
+                $explodedMail =  $user->email;
+                $subject = 'Welcome Onboard!';
+                $newContent =  [
+                    'user' => $user->name
+                ];
+                $content = view("emails.welcomeOnboard", $newContent)->render();
+                tribearcSendMail($subject, $content, $explodedMail);
+
+                return $user;
+            } else {
+                $user = User::create([
+                    'name' => $data['name'],
+                    'surname' => $data['surname'],
+                    'email' => $data['email'],
+                    'role_id' => $role->id,
+                    'phone' => $data['phone'],
+                    // 'referrer' => $data['referrer'],
+                    'dob' => $data['dob'],
+                    'area_of_practice' => $data['area_of_practice'],
+                    'nba_branch' => $data['nba_branch'],
+                    'password' => Hash::make($data['password']),
+                ]);
+
+                // $role = Role::where('name','Admin')->first();
+                // $admin_user = User::where('role_id', $role->id)->first();
+                $team = Team::where('main_team', 'main')->first(); // create a column in teams table and tag it main legalpedia team
+                if ($team) {
+                    UserTeam::create([
+                        'user_id' => $user->id,
+                        'team_id' => $team ? $team->id : NULL,
+                        'send_request' => 1,
+                        'approve_request' => 1,
+                    ]);
+                }
+
+
+                // $user->notify(new WelcomeOnboard($user));
+                $explodedMail =  $user->email;
+                $subject = 'Welcome Onboard!';
+                $newContent =  [
+                    'user' => $user->name
+                ];
+                $content = view("emails.welcomeOnboard", $newContent)->render();
+                tribearcSendMail($subject, $content, $explodedMail);
+
+                return $user;
             }
-
-
-            // $user->notify(new WelcomeOnboard($user));
-            $explodedMail =  $user->email;
-            $subject = 'Welcome Onboard!';
-            $newContent =  [
-                'user' => $user->name
-            ];
-            $content = view("emails.welcomeOnboard", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
-
-            return $user;
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with(['error' => $th]);
         }
     }
 }

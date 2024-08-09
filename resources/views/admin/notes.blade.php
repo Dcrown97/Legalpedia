@@ -950,7 +950,7 @@
                                         <label class="form-label mb-1">
                                             Content
                                         </label>
-                                        <textarea name="content" class="form-control" rows="5" placeholder="Enter note"></textarea>
+                                        <textarea name="content" id="summernote" class="form-control" rows="5" placeholder="Enter note"></textarea>
                                     </div>
                                     <input type="hidden" name="note_id" value="{{ $admin_note_id }}">
                                     <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
@@ -1002,7 +1002,7 @@
                                         <label class="form-label mb-1">
                                             Content
                                         </label>
-                                        <textarea name="content" id="note-content" class="form-control" rows="5" placeholder="Enter note"></textarea>
+                                        <textarea name="content" id="note-content summernote1" class="form-control" rows="5" placeholder="Enter note"></textarea>
                                     </div>
                                     <input type="hidden" name="admin_note_id" id="admin-note-id">
                                     <button type="submit" onclick="this.classList.toggle('button--loading')"
@@ -1079,7 +1079,7 @@
                                         <input type="hidden" name="type" value="note">
                                         <input type="hidden" name="review_type" value="rating">
                                         <input type="hidden" name="reference_id" id="reference">
-                                        <textarea name="review" id="review-input" class="form-control"></textarea>
+                                        <textarea name="review" id="review-input" id="summernote2" class="form-control"></textarea>
                                         <div class="mt-4">
                                             <button type="submit" disabled id="reviewBtn"
                                                 class="btn button_load text-white w-100 btn-primary"
@@ -1097,6 +1097,44 @@
         </div>
     </div>
     <script>
+
+         $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         function showTeamModal(content, id) {
             document.getElementById("anote-content").value = content;
             document.getElementById("anote-id").value = id;

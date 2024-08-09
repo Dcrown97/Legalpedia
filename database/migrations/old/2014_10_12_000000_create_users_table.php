@@ -19,6 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('role_id')->nullable();
             $table->string('referrer')->nullable();
             $table->string('license_code')->nullable();
+            $table->string('api_access_token')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

@@ -40,7 +40,7 @@
                                 <label class="form-label mb-1">
                                     Description
                                 </label>
-                                <textarea class="description form-control" name="description" rows="5" placeholder="Enter content">{{$article->description}}</textarea>
+                                <textarea class="description form-control" id="summernote" name="description" rows="5" placeholder="Enter content">{{$article->description}}</textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
@@ -49,7 +49,7 @@
                                 <small class="form-text text-muted">
                                     This is the body of the article
                                 </small>
-                                <textarea class="description form-control" name="content" rows="5" placeholder="Enter content">{{$article->content}}</textarea>
+                                <textarea class="description form-control" id="summernote1" name="content" rows="5" placeholder="Enter content">{{$article->content}}</textarea>
                             </div>
                             @if(Auth::user()->role->name == 'Admin')
                                 <div class="form-group">
@@ -104,7 +104,7 @@
                                 <label class="form-label mb-1">
                                     References
                                 </label>
-                                <textarea class="description form-control" name="references" rows="5" placeholder="References">{{$article->references}}</textarea>
+                                <textarea class="description form-control" name="references" id="summernote2" rows="5" placeholder="References">{{$article->references}}</textarea>
                             </div>
                             <div class="form-group">
                                 <label class="form-label mb-1">
@@ -154,6 +154,44 @@
         </div>
     </div>
     <script>
+
+         $(function() {
+
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    // width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
+
         function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();

@@ -65,7 +65,7 @@ if (!function_exists('tribearcMail')) {
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false); //
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST'); //
         curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-            'api_key' => 'MEmpZy6IbBGEdkbqQmEr',
+            'api_key' => 'eaMwfGpPoFAgvUVnJjWkXYOrBDIuNd',
             'from_name' => 'Legalpedia',
             'from_email' => 'legalpediapro@gmail.com',
             'reply_to' => 'legalpediapro@gmail.com',
@@ -79,7 +79,7 @@ if (!function_exists('tribearcMail')) {
             'business_address' => 'Plot A4 Justice Coker Estate, CBD Alausa, Ikeja, Lagos Nigeria.',
             'business_name' => 'Legalpedia'
         ));
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Api-Token: MEmpZy6IbBGEdkbqQmEr'));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Api-Token: eaMwfGpPoFAgvUVnJjWkXYOrBDIuNd'));
 
         $response = curl_exec($curl);
         $res = json_decode($response);
@@ -98,7 +98,7 @@ if (!function_exists('tribearcSendMail')) {
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false); //
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST'); //
         curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-            'api_key' => 'MEmpZy6IbBGEdkbqQmEr',
+            'api_key' => 'eaMwfGpPoFAgvUVnJjWkXYOrBDIuNd',
             'from_name' => 'Legalpedia',
             'from_email' => 'legalpediapro@tribearc.net',
             'reply_to' => 'legalpediapro@gmail.com',
@@ -112,11 +112,11 @@ if (!function_exists('tribearcSendMail')) {
             'business_address' => 'Plot A4 Justice Coker Estate, CBD Alausa, Ikeja, Lagos Nigeria.',
             'business_name' => 'Legalpedia'
         ));
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Api-Token: MEmpZy6IbBGEdkbqQmEr'));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Api-Token: eaMwfGpPoFAgvUVnJjWkXYOrBDIuNd'));
 
         $response = curl_exec($curl);
-        $res = json_decode($response);
         // dd($response);
+        $res = json_decode($response);
         curl_close($curl);
     }
 }

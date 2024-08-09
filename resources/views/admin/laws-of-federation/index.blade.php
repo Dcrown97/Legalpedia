@@ -215,7 +215,7 @@
     </div>
     @if (Auth::user()->role->name == 'Admin')
         <div class="modal fade" id="kt_modal_create_project" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen p-9">
+            <div class="modal-dialog modal-lg modal-fullscreen p-9">
                 <div class="modal-content rounded">
                     <div class="modal-header">
                         <div class="fs-1 fw-boldest">Add Law of Federation</div>
@@ -268,7 +268,7 @@
                                                 <label class="form-label mb-1">
                                                     Description
                                                 </label>
-                                                <textarea name="description" class="form-control" rows="5" placeholder="Enter description"></textarea>
+                                                <textarea name="description" id="summernote" class="form-control" rows="5" placeholder="Enter description"></textarea>
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label mb-1">
@@ -293,7 +293,7 @@
                                                 <label class="form-label mb-1">
                                                     Subsidiary Legislation
                                                 </label>
-                                                <textarea name="subsidiary_legislation" class="form-control" rows="5" placeholder=""></textarea>
+                                                <textarea name="subsidiary_legislation" id="summernote1" class="form-control" rows="5" placeholder=""></textarea>
                                             </div>
                                             <hr class="my-5">
                                             <div class="nav row align-items-center">
@@ -335,7 +335,7 @@
                                                     <label class="form-label mb-1">
                                                         Section Body
                                                     </label>
-                                                    <textarea class="form-control" name="part_header[0][10][0][]" rows="5"></textarea>
+                                                    <textarea class="form-control" name="part_header[0][10][0][]" id="summernote3" rows="5"></textarea>
                                                 </div>
                                             </div>
                                             <hr class="my-5">
@@ -384,7 +384,7 @@
                                                     <label class="form-label mb-1">
                                                         Schedule Body
                                                     </label>
-                                                    <textarea class="form-control" name="sched[0][]" rows="5"></textarea>
+                                                    <textarea class="form-control" name="sched[0][]" id="summernote2" rows="5"></textarea>
                                                 </div>
                                             </div>
                                             <hr class="my-5">
@@ -420,6 +420,9 @@
             </div>
         </div>
     @endif
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
     <script>
         function initMCEall() {
             tinymce.init({
@@ -428,32 +431,131 @@
             });
         }
 
+        $(function() {
+            // Summernote
 
+            // Summernote initialization
+            const summernoteIds = [
+                '#summernote', '#summernote1', '#summernote2', '#summernote3',
+                '#summernote4', '#summernote5', '#summernote6', '#summernote7',
+                '#summernote8', '#summernote9', '#summernote0', '#summernote11'
+            ];
+
+            summernoteIds.forEach(id => {
+                $(id).summernote({
+                    // placeholder: 'Enter description here...',
+                    tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+                });
+            });
+        })
 
         var section_no = 0;
         var section_number = 1;
+        var secSummernote = 3;
+
+        // Function to initialize Summernote on a specific element
+        function initSummernoteOnElement(elementId) {
+            $('#' + elementId).summernote({
+                tabsize: 2,
+                height: 200,
+                width: 650,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']]
+                ],
+                popover: {
+                    air: [
+                        ['color', ['color']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['para', ['ul', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ]
+                }
+            });
+        }
+
+        // Initialize the first Summernote
+        initSummernoteOnElement('summernote3');
 
         function addFields(addField) {
             section_no++; // section array
             section_number++; // section numbering
             no = 0; // part array
+            secSummernote++;
+            var newSecTextAreaId = 'summernote' + secSummernote;
+            console.log(newSecTextAreaId, 'first')
             var objTo = document.getElementById(addField)
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + section_number +
                 '. Section Header</label><input type="text" name="part_header[' + no + '][10][' + section_no +
                 '][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="part_header[' +
-                no + '][10][' + section_no + '][]" rows="5"></textarea></div><hr class="my-5">';
+                no + '][10][' + section_no + '][]" rows="5" id="' + newSecTextAreaId +
+                '"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initSummernoteOnElement(newSecTextAreaId);
             initMCEall();
         }
 
+        // Function to initialize Summernote on a specific element
+        function initSummernoteOnElement(elementId) {
+            $('#' + elementId).summernote({
+                 tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+            });
+        }
 
-        var part_no = 1;
-        var section_noss = 1;
-        var section_nos = 0;
+        // Initialize the first Summernote
+        initSummernoteOnElement('summernote101');
 
         function addPart() {
             part_no++;
+            newPartSummernote++;
+            var newPartTextAreaId = 'summernote' + newPartSummernote;
             var objTo = document.getElementById('add_part')
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + part_no +
@@ -462,7 +564,8 @@
                 section_noss + '. Section Header</label><input type="text" name="part_header[' + part_no + '][10][' +
                 section_nos +
                 '][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="part_header[' +
-                part_no + '][10][' + section_nos + '][]" rows="5"></textarea></div><hr class="my-5"><div id="add_field' +
+                part_no + '][10][' + section_nos + '][]" rows="5" id="' + newPartTextAreaId +
+                '"></textarea></div><hr class="my-5"><div id="add_field' +
                 part_no + '"></div><input type="hidden" id="secton-no' + part_no + '" value="' + section_noss +
                 '"><input type="hidden" id="secton-id' + part_no + '" value="' + section_nos +
                 '"><div class="justify-content-end"><a type="button" id="more_fields' + part_no +
@@ -470,9 +573,38 @@
             part_no + '`, `secton-no' + part_no +
             '`)"><i class="mdi mdi-plus"></i>Add Section</a></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initSummernoteOnElement(newPartTextAreaId);
             initMCEall();
         }
 
+        function initSummernoteOnElement(elementId) {
+            $('#' + elementId).summernote({
+                tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+            });
+        }
+
+        // Initialize the first Summernote
+        initSummernoteOnElement('summernote151');
 
         function addFieldss(addField, section_id, partNo, section_no) {
             sectionId = document.getElementById(section_id).value;
@@ -481,29 +613,61 @@
             sectionNo++;
             document.getElementById(section_id).value = sectionId;
             document.getElementById(section_no).value = sectionNo;
+            newPartSecSummernote++;
+            var newPartSecTextAreaId = 'summernote' + newPartSecSummernote;
             var objTo = document.getElementById(addField)
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + sectionNo +
                 '. Section Header</label><input type="text" name="part_header[' + partNo + '][10][' + sectionId +
                 '][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Section Body</label> <textarea class="form-control" name="part_header[' +
-                partNo + '][10][' + sectionId + '][]" rows="5"></textarea></div><hr class="my-5">';
+                partNo + '][10][' + sectionId + '][]" rows="5" id="' + newPartSecTextAreaId +
+                '"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initSummernoteOnElement(newPartSecTextAreaId);
             initMCEall();
         }
 
+        function initSummernoteOnElement(elementId) {
+            $('#' + elementId).summernote({
+                tabsize: 2,
+                    height: 200,
+                    width: 650,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']]
+                    ],
+                    popover: {
+                        air: [
+                            ['color', ['color']],
+                            ['font', ['bold', 'underline', 'clear']],
+                            ['para', ['ul', 'paragraph']],
+                            ['table', ['table']],
+                            ['insert', ['link', 'picture']]
+                        ]
+                    }
+            });
+        }
 
-
-        var sched_no = 1;
+        // Initialize the first Summernote
+        initSummernoteOnElement('summernote2');
 
         function addScheds() {
             sched_no++;
+            newSchedsSummernote++;
+            var newSchedsTextAreaId = 'summernote' + newSchedsSummernote;
             var objTo = document.getElementById('add_sched')
             var divcreate = document.createElement("div");
             divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + sched_no +
                 '. Schedule Header</label><input type="text" name="sched[' + sched_no +
                 '][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Schedule Body</label> <textarea class="form-control" name="sched[' +
-                sched_no + '][]" rows="5"></textarea></div><hr class="my-5">';
+                sched_no + '][]" rows="5" id="' + newSchedsTextAreaId + '"></textarea></div><hr class="my-5">';
             objTo.appendChild(divcreate);
+            initSummernoteOnElement(newSchedsTextAreaId);
             initMCEall();
         }
 

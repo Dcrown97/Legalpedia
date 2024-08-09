@@ -15,4 +15,15 @@ class Rule extends Model
     ];
 
     protected $table = 'rules';
+    // protected $with = ['state', 'ruleCategory'];
+
+    public function state()
+    {
+        return $this->belongsTo(State::class, 'name', 'name');
+    }
+
+    public function ruleCategory()
+    {
+        return $this->belongsTo(RuleCategory::class, 'name', 'name');
+    }
 }

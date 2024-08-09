@@ -16,8 +16,8 @@ class CreateSummaryRatiosTable extends Migration
         Schema::create('summary_ratios', function (Blueprint $table) {
             $table->id();
             $table->text('suit_no')->nullable();
-            $table->text('heading')->nullable();
-            $table->text('body')->nullable();
+            $table->longText('heading')->nullable();
+            $table->longText('body')->nullable();
             $table->timestamps();
         });
     }

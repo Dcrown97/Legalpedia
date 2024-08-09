@@ -65,6 +65,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin/judgements', [AdminController::class, 'storeJudgement'])->name('store.judgement');
     Route::get('/admin/judgements/edit/{id}', [AdminController::class, 'editJudgement'])->name('edit.judgement');
     Route::patch('/admin/judgements/edit/{id}', [AdminController::class, 'updateJudgement'])->name('update.judgement');
+    Route::POST('/admin/judgements/remove/coram', [AdminController::class, 'removeCoram']);
     Route::delete('/admin/judgements/{id}', [AdminController::class, 'deleteJudgement'])->name('delete.judgement');
 
     Route::get('/admin/rules-of-court', [AdminController::class, 'rules'])->name('admin.rules-of-court');
@@ -91,6 +92,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('/admin/laws-of-federation', [AdminController::class, 'fed'])->name('admin.laws-of-federation');
+    Route::post('/fed/post_order_change', [AdminController::class, 'fed_order_change'])->name('fed.order_change');
+    Route::post('/fed/section_order_change', [AdminController::class, 'fed_section_order_change'])->name('fedSection.order_change');
     Route::get('/admin/laws-of-federation/create', [AdminController::class, 'createFed'])->name('create.fed');
     Route::post('/admin/laws-of-federation', [AdminController::class, 'storeFed'])->name('store.fed');
     Route::get('/admin/laws-of-federation/edit-fed/{id}', [AdminController::class, 'editFed'])->name('edit.fed');
@@ -178,6 +181,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/admin/customers/{id}', [AdminUserController::class, 'show'])->name('show.customer');
     Route::get('/admin/customers/{id}/profile', [AdminUserController::class, 'edit'])->name('edit.customer');
     Route::patch('/admin/customers/{id}/profile', [AdminUserController::class, 'update'])->name('update.customer');
+    Route::post('/admin/customer/api_token', [AdminUserController::class, 'apiAccess'])->name('api.access');
     Route::patch('/admin/customers', [AdminUserController::class, 'updateRole'])->name('update.role');
     Route::delete('/admin/customers/{id}', [AdminUserController::class, 'deleteCustomer'])->name('delete.customer');
     Route::post('/admin/customers/export', [AdminUserController::class, 'exportCustomer'])->name('export.customer');
@@ -212,7 +216,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin/teams/comment', [AdminController::class, 'comment'])->name('post.comment');
     Route::post('/admin/teams/comment-api', [AdminController::class, 'commentApi'])->name('post.commentApi');
 
-    
+
     Route::patch('/admin/teams/comment', [AdminController::class, 'updateComment'])->name('update.comment');
     Route::post('/admin/teams/reply', [AdminController::class, 'reply'])->name('reply.comment');
     Route::delete('/admin/teams/comment/{id}', [AdminController::class, 'deleteComment'])->name('delete.comment');
