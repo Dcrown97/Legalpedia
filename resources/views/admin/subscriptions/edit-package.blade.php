@@ -1005,7 +1005,7 @@
             if ($(this).is(":checked")) {
                 $("#show_article_content").show();
             } else {
-                $("#show_article_content").hide();  
+                $("#show_article_content").hide();
             }
         });
         $("#dictCheck").click(function() {
