@@ -115,7 +115,7 @@
             <div class="header-body">
                 <div class="row align-items-end">
                     <div class="row" style="justify-content: space-between;">
-                        <div class="col">
+                        <div class="col-md-10">
                             <h6 class="header-pretitle">
                             </h6>
                             <h1 class="header-title">
@@ -126,19 +126,19 @@
                                 @endif
                             </h1>
                         </div>
-                        <div class="col-sm-3">
-                            <div class="flex">
-                                <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
+                        <div class="col-md-2">
+                            <!-- <div class="flex"> -->
+                                <!-- <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
                                     <span class="button__text">LegalpediaLens</span>
-                                </a>
+                                </a> -->
                                 @if(Auth::user()->subscribedUser() && Auth::user()->canUseAiCounsel())
-                                <a target="_blank" href="{{env('AI_COUNSEL')}}/legalpedia/{{base64_encode(Auth::user()->email)}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
+                                <a target="_blank" href="{{env('AI_COUNSEL')}}/legalpedia/{{base64_encode(Auth::user()->email)}}" class="w-48 btn button_load text-white btn-sm btn-primary p-2 px-3">
                                 <span class="button__text">AI Counsel</span>
                                 </a>
                                 
                                 @endif
                            
-                            </div>
+                            <!-- </div> -->
                            
                         </div>
                     </div>
