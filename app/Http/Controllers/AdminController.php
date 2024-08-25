@@ -1036,6 +1036,33 @@ class AdminController extends Controller
         }
         return redirect('admin/judgements');
     }
+
+    public function showJudgementByTitle($title)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            $judgement_summary = JudgementSummary::where('title', $title)->first();
+            $judg_corams = JudgementCoram::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->get();
+            $coram_count = $judg_corams->count();
+            $coram = JudgementCoram::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->first();
+            $last_coram = JudgementCoram::orderBy('id', 'DESC')->first();
+            $edit_coram_id = $coram ? $coram->id : ($last_coram ? $last_coram->id : 0);
+            $edit_coram_no = $coram_count;
+            // dd($coram_count, $coram_id, $edit_coram_no);
+            $courts = Court::orderBy('rank', 'ASC')->get();
+            $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
+            $categories = Category::orderBy('category', 'ASC')->get();
+            $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
+            $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
+            $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
+            return view('admin.judgements.show-by-title', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types', 'coram_count', 'edit_coram_id', 'edit_coram_no'));
+        }
+        return redirect('admin/judgements');
+    }
     public function showJudgement($id)
     {
         if (checkUser() == false) {

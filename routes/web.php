@@ -64,6 +64,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/admin/judgements/{id}', [AdminController::class, 'showJudgement'])->name('show.judgement');
     Route::post('/admin/judgements', [AdminController::class, 'storeJudgement'])->name('store.judgement');
     Route::get('/admin/judgements/edit/{id}', [AdminController::class, 'editJudgement'])->name('edit.judgement');
+    Route::get('/admin/judgements/show/{title}', [AdminController::class, 'showJudgementByTitle'])->name('title.judgement');
     Route::patch('/admin/judgements/edit/{id}', [AdminController::class, 'updateJudgement'])->name('update.judgement');
     Route::POST('/admin/judgements/remove/coram', [AdminController::class, 'removeCoram']);
     Route::delete('/admin/judgements/{id}', [AdminController::class, 'deleteJudgement'])->name('delete.judgement');
