@@ -189,7 +189,7 @@ class PaymentController extends Controller
             $content = view("emails.newBankSubscriber", $newContent)->render();
             $admincontent = view("emails.notifyAdminBankSubscriber", $mainContent)->render();
             zohoSendMail($subject, $content, $explodedMail); // send to user
-            tribearcSendMail($adminsubject, $admincontent, $explodedMails); // send to admin
+            zohoSendMail($adminsubject, $admincontent, $explodedMails); // send to admin
 
             $this->addSubscriber($user);
 
@@ -315,37 +315,35 @@ class PaymentController extends Controller
         $user_data = json_decode($response);
         $get_data = (array) $user_data;
         // dd($get_data);
-        if(isset($get_data['contact'])){
+        if (isset($get_data['contact'])) {
             $data['contactList'] =  [
                 "list" => 117,
                 "contact" => $get_data['contact']->id,
-                "status"=> 1
+                "status" => 1
             ];
-    
+
             curl_setopt_array($curl, array(
-              CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contactLists',
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => '',
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 0,
-              CURLOPT_FOLLOWLOCATION => true,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => 'POST',
-              CURLOPT_POSTFIELDS => json_encode($data),
-              CURLOPT_HTTPHEADER => array(
-                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-                'Content-Type: application/json',
-                'Cookie: PHPSESSID=d09ae0ba781b73250bc06560910257e5; em_acp_globalauth_cookie=784f19ac-a870-4d9b-8cf1-bb74c2b2478e'
-              ),
+                CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contactLists',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => array(
+                    'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                    'Content-Type: application/json',
+                    'Cookie: PHPSESSID=d09ae0ba781b73250bc06560910257e5; em_acp_globalauth_cookie=784f19ac-a870-4d9b-8cf1-bb74c2b2478e'
+                ),
             ));
-    
+
             $responseData = curl_exec($curl);
-    
+
             curl_close($curl);
             info($responseData);
         }
-        
-
     }
 
     public function savePayment(Request $request, $reference)

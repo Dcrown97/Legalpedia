@@ -147,11 +147,10 @@ class AdminController extends Controller
             $pdfParser = new Parser();
             $pdf = $pdfParser->parseFile('storage/' . $data);
             $text = $pdf->getText();
-            if($request->type == 'judgement'){
+            if ($request->type == 'judgement') {
                 // $res = AiDocumentSummarizerController::summarize($text);
                 $res = AiDocumentSummarizerController::summarizeText($text);
-                
-            }else if($request->type == 'lfn'){
+            } else if ($request->type == 'lfn') {
 
                 $res = AiDocumentSummarizerController::summarizeLFN($text);
             } else {
@@ -4732,15 +4731,15 @@ class AdminController extends Controller
         if ($transaction->status == 'paid') {
             $user->status = 'active';
             // $user->notify(new ActivatedSubscriber($transaction, $user));
-            tribearcSendMail($activesubject, $activated, $explodedMail);
+            zohoSendMail($activesubject, $activated, $explodedMail);
         } elseif ($transaction->status == 'pending') {
             $user->status = 'inactive';
             // $user->notify(new PendingSubscriber($transaction, $user));
-            tribearcSendMail($pendingsubject, $pending, $explodedMail);
+            zohoSendMail($pendingsubject, $pending, $explodedMail);
         } elseif ($transaction->status == 'failed') {
             $user->status = 'inactive';
             // $user->notify(new FailedSubscriber($transaction, $user));
-            tribearcSendMail($failedsubject, $failed, $explodedMail);
+            zohoSendMail($failedsubject, $failed, $explodedMail);
         }
         $user->save();
 
@@ -6779,7 +6778,7 @@ class AdminController extends Controller
 
             $content = view("emails.licensedEmail", $newContent)->render();
 
-            tribearcSendMail($subject, $content, $explodedMails);
+            zohoSendMail($subject, $content, $explodedMails);
         }
         return back()->with('success', 'License created');
     }
@@ -6841,7 +6840,7 @@ class AdminController extends Controller
 
             $content = view("emails.updatedLicensedEmail", $newContent)->render();
 
-            tribearcSendMail($subject, $content, $explodedMails);
+            zohoSendMail($subject, $content, $explodedMails);
         }
         return back()->with('success', 'License updated');
     }
@@ -6949,8 +6948,8 @@ class AdminController extends Controller
         $content = view("emails.newReport", $newContent)->render();
         $usercontent = view("emails.legapediaReport", $getContent)->render();
 
-        tribearcSendMail($subject, $content, $explodedMails); // send to admin
-        tribearcSendMail($newsubject, $usercontent, $explodedMail); // send to user
+        zohoSendMail($subject, $content, $explodedMails); // send to admin
+        zohoSendMail($newsubject, $usercontent, $explodedMail); // send to user
 
         return back()->with('success', 'Report sent, We\'ll get to you shortly');
     }

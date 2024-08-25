@@ -87,8 +87,8 @@ if (!function_exists('tribearcMail')) {
     }
 }
 
-if (!function_exists('tribearcSendMail')) {
-    function tribearcSendMail($subject, $content, $mails)
+if (!function_exists('zohoSendMail')) {
+    function zohoSendMail($subject, $content, $mails)
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, 'https://mail.tribearc.com/api/campaigns/send_now.php');
