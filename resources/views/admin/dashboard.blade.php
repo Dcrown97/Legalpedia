@@ -1069,13 +1069,13 @@
                             <div class="row align-items-center gx-0">
                                 <div class="col">
                                     <h6 class="text-uppercase text-muted mb-3">
-                                        AI Assistant
+                                        AI Counsel
                                     </h6>
                                     <span class="h2 mb-0">
                                         <div class="row align-items-center">
                                             <div class="col-auto">
                                                 <a href="{{url('admin/ai-assistant')}}">
-                                                    <img src="{{asset('assets/images/ai.jpg')}}" alt="LegalpediaLens" class="card-img-top h-90">
+                                                    <img src="{{asset('assets/images/aicounsel_logo.jpeg')}}" alt="LegalpediaLens" class="card-img-top h-85">
                                                 </a>
                                             </div>
                                             <div class="col">

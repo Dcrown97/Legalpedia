@@ -97,6 +97,18 @@
                         <i class="fe fe-home"></i> Dashboard
                     </a>
                 </li>
+                @if(Auth::user()->subscribedUser() && Auth::user()->canUseAiCounsel())
+                <li class="nav-item">
+                    <a class="nav-link" href="{{env('AI_COUNSEL')}}/legalpedia/{{base64_encode(Auth::user()->email)}}">
+                        <i class="fe fe-bell"></i> AI Counsel
+                    </a>
+                </li>
+                @endif
+                <li class="nav-item">
+                    <a class="nav-link" href="{{route('admin.ai')}}">
+                        <i class="fe fe-bell"></i> LegalpediaLens
+                    </a>
+                </li>
                 @if (Auth::user()->role->name == 'Admin')
                     <li class="nav-item">
                         <a class="nav-link" href="#judg" data-bs-toggle="collapse" role="button"
@@ -130,18 +142,7 @@
                         </a>
                     </li>
                 @endif
-                @if(Auth::user()->subscribedUser() && Auth::user()->canUseAiCounsel())
-                <li class="nav-item">
-                    <a class="nav-link" href="{{env('AI_COUNSEL')}}/legalpedia/{{base64_encode(Auth::user()->email)}}">
-                        <i class="fe fe-bell"></i> AI Counsel
-                    </a>
-                </li>
-                @endif
-                <li class="nav-item">
-                    <a class="nav-link" href="{{route('admin.ai')}}">
-                        <i class="fe fe-bell"></i> LegalpediaLens
-                    </a>
-                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url('admin/laws-of-federation') }}">
                         <i class="fe fe-bell"></i> Laws of Federation
