@@ -166,6 +166,15 @@
                                         <div class="form-group">
                                             <div class="form-check mb-n2">
                                                 <input class="form-check-input list-checkbox" type="checkbox"
+                                                    name="prompt_featureapi" id="promptCheck" value="promptapi"
+                                                    {{ $package->prompt_featureapi !== null ? 'checked' : '' }}>
+                                                <h5 class="pt-2 pl-2">Legal Prompts</h5>
+                                                <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="form-check mb-n2">
+                                                <input class="form-check-input list-checkbox" type="checkbox"
                                                     name="dict_featureapi" id="dictCheck" value="dictionaryapi"
                                                     {{ $package->dict_featureapi !== null ? 'checked' : '' }}>
                                                 <h5 class="pt-2 pl-2">Law Dictionary</h5>
@@ -779,6 +788,54 @@
                                         <div class="form-group">
                                             <div class="form-check mb-n2">
                                                 <input class="form-check-input list-checkbox" type="checkbox"
+                                                    name="prompt_feature" id="promptCheck" value="prompt"
+                                                    {{ $package->prompt_feature !== null ? 'checked' : '' }}>
+                                                <h5 class="pt-2 pl-2">Legal Prompts</h5>
+                                                <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                            </div>
+                                            @if ($package->prompt_feature !== null)
+                                                <div id="show_prompt_content">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            Category
+                                                        </label>
+                                                        @php
+                                                            $prompt_cat = json_decode($package->prompt_cat);
+                                                        @endphp
+                                                        <select name="prompt_cat[]" multiple
+                                                            class="form-select form-select-sm form-control-flush"
+                                                            data-choices='{"searchEnabled": true}'>
+                                                            <option value="">Select Category</option>
+                                                            @foreach ($propmptsCategories as $category)
+                                                                <option value="{{ $category->name }}"
+                                                                    @if ($prompt_cat) {{ in_array($category->name, $prompt_cat) ? 'selected' : '' }} @endif>
+                                                                    {{ $category->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div id="show_prompt_content" style="display: none">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            Category
+                                                        </label>
+                                                        <select name="prompt_cat[]" multiple
+                                                            class="form-select form-select-sm form-control-flush"
+                                                            data-choices='{"searchEnabled": true}'>
+                                                            <option value="">Select Category</option>
+                                                            @foreach ($propmptsCategories as $category)
+                                                                <option value="{{ $category->name }}">
+                                                                    {{ $category->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="form-check mb-n2">
+                                                <input class="form-check-input list-checkbox" type="checkbox"
                                                     name="dict_feature" id="dictCheck" value="dictionary"
                                                     {{ $package->dict_feature !== null ? 'checked' : '' }}>
                                                 <h5 class="pt-2 pl-2">Law Dictionary</h5>
@@ -1062,6 +1119,13 @@
                     $("#show_judgement_content").show();
                 } else {
                     $("#show_judgement_content").hide();
+                }
+            });
+             $("#promptCheck").click(function() {
+                if ($(this).is(":checked")) {
+                    $("#show_prompt_content").show();
+                } else {
+                    $("#show_prompt_content").hide();
                 }
             });
             $("#lfnCheck").click(function() {

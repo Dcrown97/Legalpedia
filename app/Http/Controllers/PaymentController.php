@@ -25,10 +25,10 @@ class PaymentController extends Controller
      */
     public function redirectToGateway()
     {
-        try{
+        try {
             return Paystack::getAuthorizationUrl()->redirectNow();
-        }catch(\Exception $e) {
-            return Redirect::back()->withMessage(['msg'=>'The paystack token has expired. Please refresh the page and try again.', 'type'=>'error']);
+        } catch (\Exception $e) {
+            return Redirect::back()->withMessage(['msg' => 'The paystack token has expired. Please refresh the page and try again.', 'type' => 'error']);
         }
     }
 
@@ -52,8 +52,8 @@ class PaymentController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-            "Authorization: Bearer $secret_key",
-            "Cache-Control: no-cache",
+                "Authorization: Bearer $secret_key",
+                "Cache-Control: no-cache",
             ),
         ));
 
@@ -69,17 +69,17 @@ class PaymentController extends Controller
 
         $package = Package::where('id', $transact->package_id)->first();
 
-        if($package->validity == 'Days'){
+        if ($package->validity == 'Days') {
             $day = $package->recur_date;
             $transact_date = $transact->created_at;
             $expiry_date =  $transact->created_at->addDays($day);
         }
-        if($package->validity == 'Months'){
+        if ($package->validity == 'Months') {
             $month = $package->recur_date;
             $transact_date = $transact->created_at;
             $expiry_date =  $transact->created_at->addMonths($month);
         }
-        if($package->validity == 'Years'){
+        if ($package->validity == 'Years') {
             $year = $package->recur_date;
             $transact_date = $transact->created_at;
             $expiry_date =  $transact->created_at->addYears($year);
@@ -89,7 +89,7 @@ class PaymentController extends Controller
         $user->package_id = $transact->package_id;
         $user->active_date = $transact_date;
         $user->expiry_date = $expiry_date;
-        if($transact->status == 'paid') {
+        if ($transact->status == 'paid') {
             $user->status = 'active';
         } else {
             $user->status = 'inactive';
@@ -106,43 +106,43 @@ class PaymentController extends Controller
             'package_price' => $transact->amount,
         ];
         $content = view("emails.newSubscriber", $newContent)->render();
-        tribearcSendMail($subject, $content, $explodedMail);
+        zohoSendMail($subject, $content, $explodedMail);
 
         $this->addSubscriber($user);
 
         return $new_data;
-
     }
 
-    public function paymentSuccess(Request $request, $reference) {
-        if($request->has('bank_payment')) {
+    public function paymentSuccess(Request $request, $reference)
+    {
+        if ($request->has('bank_payment')) {
             $input = [
-                'name'=> $request->name,
-                'user_id'=> $request->user_id,
-                'email'=> $request->email,
-                'reference'=> $reference,
-                'amount'=> $request->amount,
-                'package'=> $request->package,
-                'package_id'=> $request->package_id,
-                'status'=> $request->status,
-                'discounted_price'=> $request->discounted_price,
+                'name' => $request->name,
+                'user_id' => $request->user_id,
+                'email' => $request->email,
+                'reference' => $reference,
+                'amount' => $request->amount,
+                'package' => $request->package,
+                'package_id' => $request->package_id,
+                'status' => $request->status,
+                'discounted_price' => $request->discounted_price,
             ];
 
             $transact = Transaction::create($input);
 
             $package = Package::where('id', $transact->package_id)->first();
 
-            if($package->validity == 'Days'){
+            if ($package->validity == 'Days') {
                 $day = $package->recur_date;
                 $transact_date = $transact->created_at;
                 $expiry_date =  $transact->created_at->addDays($day);
             }
-            if($package->validity == 'Months'){
+            if ($package->validity == 'Months') {
                 $month = $package->recur_date;
                 $transact_date = $transact->created_at;
                 $expiry_date =  $transact->created_at->addMonths($month);
             }
-            if($package->validity == 'Years'){
+            if ($package->validity == 'Years') {
                 $year = $package->recur_date;
                 $transact_date = $transact->created_at;
                 $expiry_date =  $transact->created_at->addYears($year);
@@ -152,7 +152,7 @@ class PaymentController extends Controller
             $user->package_id = $transact->package_id;
             $user->active_date = $transact_date;
             $user->expiry_date = $expiry_date;
-            if($transact->status == 'paid') {
+            if ($transact->status == 'paid') {
                 $user->status = 'active';
             } else {
                 $user->status = 'inactive';
@@ -188,7 +188,7 @@ class PaymentController extends Controller
             ];
             $content = view("emails.newBankSubscriber", $newContent)->render();
             $admincontent = view("emails.notifyAdminBankSubscriber", $mainContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail); // send to user
+            zohoSendMail($subject, $content, $explodedMail); // send to user
             tribearcSendMail($adminsubject, $admincontent, $explodedMails); // send to admin
 
             $this->addSubscriber($user);
@@ -197,25 +197,26 @@ class PaymentController extends Controller
         }
     }
 
-    public function addSubscriber($user) {
+    public function addSubscriber($user)
+    {
         $package = Package::where('id', $user->package_id)->first();
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts?status=-1&email='.$user->email,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_HTTPHEADER => array(
-            'Accept: application/json',
-            'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-            'Cookie: PHPSESSID=04a10f3af56b8443eaf4b634cee35999; em_acp_globalauth_cookie=b8b1817d-ee1b-46ba-9abc-746bff155ede'
-        ),
+            CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts?status=-1&email=' . $user->email,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Accept: application/json',
+                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                'Cookie: PHPSESSID=04a10f3af56b8443eaf4b634cee35999; em_acp_globalauth_cookie=b8b1817d-ee1b-46ba-9abc-746bff155ede'
+            ),
         ));
 
         $response = curl_exec($curl);
@@ -224,11 +225,11 @@ class PaymentController extends Controller
 
         $get_data = (array) $user_data;
 
-        if(isset($get_data['contacts']) && !empty($get_data['contacts'])) { // if the user already exists in active campaign update the user's details
+        if (isset($get_data['contacts']) && !empty($get_data['contacts'])) { // if the user already exists in active campaign update the user's details
             $data['contact'] =  [
                 "email" => $user->email,
                 "firstName" => $user->name,
-                "lastName"=> $user->surname,
+                "lastName" => $user->surname,
                 "phone" => $user->phone,
                 "fieldValues" => [
                     [
@@ -243,20 +244,20 @@ class PaymentController extends Controller
             ];
             $curl = curl_init();
             curl_setopt_array($curl, array(
-              CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts/'.$get_data['contacts'][0]->id,
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => '',
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 0,
-              CURLOPT_FOLLOWLOCATION => true,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => 'PUT',
-              CURLOPT_POSTFIELDS => json_encode($data),
-              CURLOPT_HTTPHEADER => array(
-                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-                'Content-Type: application/json',
-                'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
-              ),
+                CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts/' . $get_data['contacts'][0]->id,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'PUT',
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => array(
+                    'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                    'Content-Type: application/json',
+                    'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+                ),
             ));
             $response = curl_exec($curl);
             curl_close($curl);
@@ -267,7 +268,7 @@ class PaymentController extends Controller
             $data['contact'] =  [
                 "email" => $user->email,
                 "firstName" => $user->name,
-                "lastName"=> $user->surname,
+                "lastName" => $user->surname,
                 "phone" => $user ? $user->phone : '',
                 "fieldValues" => [
                     [
@@ -282,20 +283,20 @@ class PaymentController extends Controller
             ];
             $curl = curl_init();
             curl_setopt_array($curl, array(
-              CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => '',
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 0,
-              CURLOPT_FOLLOWLOCATION => true,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => 'POST',
-              CURLOPT_POSTFIELDS => json_encode($data),
-              CURLOPT_HTTPHEADER => array(
-                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-                'Content-Type: application/json',
-                'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
-              ),
+                CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contacts',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => array(
+                    'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                    'Content-Type: application/json',
+                    'Cookie: PHPSESSID=f5fe8b31b9008a5c64608178b66b5a27; em_acp_globalauth_cookie=df1330e2-35cc-4d82-8e34-4e6f7e895792'
+                ),
             ));
 
             $response = curl_exec($curl);
@@ -304,10 +305,10 @@ class PaymentController extends Controller
             info($response);
             return $this->updateSubscriberList($response);
         }
-
     }
 
-    public function updateSubscriberList($response) {
+    public function updateSubscriberList($response)
+    {
 
         $curl = curl_init();
 
@@ -316,57 +317,59 @@ class PaymentController extends Controller
         $data['contactList'] =  [
             "list" => 117,
             "contact" => $get_data['contact']->id,
-            "status"=> 1
+            "status" => 1
         ];
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contactLists',
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => '',
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => json_encode($data),
-          CURLOPT_HTTPHEADER => array(
-            'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
-            'Content-Type: application/json',
-            'Cookie: PHPSESSID=d09ae0ba781b73250bc06560910257e5; em_acp_globalauth_cookie=784f19ac-a870-4d9b-8cf1-bb74c2b2478e'
-          ),
+            CURLOPT_URL => 'https://ivendmc.api-us1.com/api/3/contactLists',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => array(
+                'Api-Token: 9bb4a3a2a06332474aeb0909b0e624411f1f652e1b61be8acb80b278e0d711e92462dbea',
+                'Content-Type: application/json',
+                'Cookie: PHPSESSID=d09ae0ba781b73250bc06560910257e5; em_acp_globalauth_cookie=784f19ac-a870-4d9b-8cf1-bb74c2b2478e'
+            ),
         ));
 
         $responseData = curl_exec($curl);
 
         curl_close($curl);
         info($responseData);
-
     }
 
-    public function savePayment(Request $request, $reference) {
+    public function savePayment(Request $request, $reference)
+    {
         $input = [
-            'name'=> $request->name,
-            'user_id'=> $request->user_id,
-            'email'=> $request->email,
-            'reference'=> $reference,
-            'amount'=> $request->amount,
-            'package'=> $request->package,
-            'package_id'=> $request->package_id,
-            'status'=> $request->status,
-            'discounted_price'=> $request->discounted_price,
+            'name' => $request->name,
+            'user_id' => $request->user_id,
+            'email' => $request->email,
+            'reference' => $reference,
+            'amount' => $request->amount,
+            'package' => $request->package,
+            'package_id' => $request->package_id,
+            'status' => $request->status,
+            'discounted_price' => $request->discounted_price,
         ];
 
         Transaction::create($input);
 
         return response()->json([
             'status' => 'success',
-            'data', 'Payment successful'
+            'data',
+            'Payment successful'
         ]);
         // $paymentDetails = Paystack::getPaymentData();
     }
 
 
-    public function paymentSuccessful($reference) {
+    public function paymentSuccessful($reference)
+    {
         $transaction = Transaction::where('reference', $reference)->first();
 
         return view('payment-success', [

@@ -114,6 +114,11 @@
                         </a>
                     </li>
                 @endif
+                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url('admin/legal-prompts') }}">
+                        <i class="fe fe-bell"></i> Legal Prompts
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url('admin/laws-of-federation') }}">
                         <i class="fe fe-bell"></i> Laws of Federation

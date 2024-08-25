@@ -353,6 +353,30 @@
                                             </div>
                                             <div class="form-group">
                                                 <div class="form-check mb-n2">
+                                                    <input class="form-check-input list-checkbox" type="checkbox"
+                                                        name="prompt_feature" id="promptCheck" value="prompt">
+                                                    <h5 class="pt-2 pl-2">Legal Prompts</h5>
+                                                    <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                                </div>
+                                                <div id="show_prompt_content" style="display: none">
+                                                    <div class="form-group">
+                                                        <label class="form-label mb-1">
+                                                            Category
+                                                        </label>
+                                                        <select name="prompt_cat[]" multiple
+                                                            class="form-select form-select-sm form-control-flush"
+                                                            data-choices='{"searchEnabled": true}'>
+                                                            <option value="">Select Category</option>
+                                                            @foreach ($propmptsCategories as $category)
+                                                                <option value="{{ $category->name }}">
+                                                                    {{ $category->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="form-check mb-n2">
                                                     <input class="form-check-input list-checkbox" name="lfn_feature"
                                                         type="checkbox" id="lfnCheck" value="lfn">
                                                     <h5 class="pt-2 pl-2">Law of Federation</h5>
@@ -626,6 +650,14 @@
                                             </div>
                                             <div class="form-group">
                                                 <div class="form-check mb-n2">
+                                                    <input class="form-check-input list-checkbox" type="checkbox"
+                                                        name="prompt_featureapi" id="promptCheck" value="promptapi">
+                                                    <h5 class="pt-2 pl-2">Legal Prompt Api</h5>
+                                                    <label class="form-check-label" for="ordersSelectOne">&nbsp;</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="form-check mb-n2">
                                                     <input class="form-check-input list-checkbox" name="lfn_featureapi"
                                                         type="checkbox" id="lfnCheck" value="lfnapi">
                                                     <h5 class="pt-2 pl-2">Law of Federation Api</h5>
@@ -837,6 +869,13 @@
                     $("#show_judgement_content").show();
                 } else {
                     $("#show_judgement_content").hide();
+                }
+            });
+            $("#promptCheck").click(function() {
+                if ($(this).is(":checked")) {
+                    $("#show_prompt_content").show();
+                } else {
+                    $("#show_prompt_content").hide();
                 }
             });
             $("#lfnCheck").click(function() {

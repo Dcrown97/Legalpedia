@@ -121,7 +121,7 @@ class RegisterController extends Controller
                     'user' => $user->name
                 ];
                 $content = view("emails.welcomeOnboard", $newContent)->render();
-                tribearcSendMail($subject, $content, $explodedMail);
+                zohoSendMail($subject, $content, $explodedMail);
 
                 return $user;
             } else {
@@ -158,7 +158,7 @@ class RegisterController extends Controller
                     'user' => $user->name
                 ];
                 $content = view("emails.welcomeOnboard", $newContent)->render();
-                tribearcSendMail($subject, $content, $explodedMail);
+                zohoSendMail($subject, $content, $explodedMail);
 
                 return $user;
             }

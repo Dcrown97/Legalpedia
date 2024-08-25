@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use Carbon\Carbon;
@@ -11,7 +12,8 @@ use App\Notifications\ForgotPasswordNotification;
 use App\Notifications\SendDefaultEmailNotification;
 use App\Notifications\PasswordResetSuccessNotification;
 
-class PasswordResetService {
+class PasswordResetService
+{
 
     public $passwordReset;
 
@@ -23,11 +25,11 @@ class PasswordResetService {
     public function forgotPassword(string $email)
     {
 
-        if(!$user = User::whereEmail($email)->first()){
+        if (!$user = User::whereEmail($email)->first()) {
             return back()->with('error1', 'User not found');
         }
 
-        $this->passwordReset->where('user_id', $user->id)->update(['expiry'=> now()]);
+        $this->passwordReset->where('user_id', $user->id)->update(['expiry' => now()]);
 
         $expiry = now()->addMinutes(30);  // change password reset from 5mins to 30mins
         $passwordReset =  $this->passwordReset->create([
@@ -40,7 +42,9 @@ class PasswordResetService {
 
 
         $url = URL::temporarySignedRoute(
-            'password.reset', $expiry, ['token' => $passwordReset->token, 'id' => $user->id]
+            'password.reset',
+            $expiry,
+            ['token' => $passwordReset->token, 'id' => $user->id]
         );
 
         // $user->notify(new ForgotPasswordNotification($user, $passwordReset, $url));
@@ -53,10 +57,10 @@ class PasswordResetService {
             'url' => $url,
         ];
         $content = view("emails.forgotPassword", $newContent)->render();
-        tribearcSendMail($subject, $content, $explodedMail);
+        zohoSendMail($subject, $content, $explodedMail);
+        // zohoSendMail($subject, $content, $explodedMail);
 
         return back()->with('success', 'We have sent a password reset link to your email');
-
     }
 
 
@@ -64,22 +68,22 @@ class PasswordResetService {
     public function resetPassword(array $data, string $userId)
     {
 
-        if(!$user = User::find($userId)){
+        if (!$user = User::find($userId)) {
             return redirect()->route('login')->with('error1', 'An error occured, we can not verify this user');
         }
 
-        if(!$passwordReset =  $this->passwordReset->where('token', $data['token'])->first()){
+        if (!$passwordReset =  $this->passwordReset->where('token', $data['token'])->first()) {
             return back()->with('error1', 'Invalid password reset link code');
         }
 
 
-        if(Carbon::parse($passwordReset->expiry)->isPast()){
+        if (Carbon::parse($passwordReset->expiry)->isPast()) {
             return back()->with('error1', 'Password reset link expired');
         }
 
         $user->password = bcrypt($data['password']);
 
-        if(!$user->save()){
+        if (!$user->save()) {
             return back()->with('error1', 'Unable to change password, please try again');
         }
 
@@ -93,11 +97,9 @@ class PasswordResetService {
             'user' => $user->name
         ];
         $content = view("emails.passwordResetSuccess", $newContent)->render();
-        tribearcSendMail($subject, $content, $explodedMail);
-
+        zohoSendMail($subject, $content, $explodedMail);
+        zohoSendMail($subject, $content, $explodedMail);
 
         return redirect()->route('login')->with('success', 'Password reset successful login with your new password');
-
     }
-
 }

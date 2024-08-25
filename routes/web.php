@@ -153,6 +153,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::patch('/admin/legal-maxims/edit-maxims/{id}', [AdminController::class, 'updateMaxim'])->name('update.maxim');
     Route::delete('/admin/legal-maxims/{id}', [AdminController::class, 'deleteMaxim'])->name('delete.maxim');
 
+    Route::get('/admin/legal-prompts', [AdminController::class, 'prompt'])->name('admin.legal-prompts');
+    Route::get('/admin/legal-prompts/p', [AdminController::class, 'fetch_prompt']);
+    Route::post('/admin/legal-prompts', [AdminController::class, 'storePrompt'])->name('store.prompt');
+    Route::get('/admin/legal-prompts/edit-prompts/{id}', [AdminController::class, 'editPrompt'])->name('edit.prompt');
+    Route::patch('/admin/legal-prompts/edit-prompts/{id}', [AdminController::class, 'updatePrompt'])->name('update.prompt');
+    Route::delete('/admin/legal-prompts/{id}', [AdminController::class, 'deletePrompt'])->name('delete.prompt');
+
     Route::get('/admin/resources', [AdminController::class, 'resource'])->name('admin.resources');
     Route::post('/admin/resources', [AdminController::class, 'storeResource'])->name('store.resource');
     Route::get('/admin/resources/edit-resources/{id}', [AdminController::class, 'editResource'])->name('edit.resource');

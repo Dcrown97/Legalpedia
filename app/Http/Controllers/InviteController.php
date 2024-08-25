@@ -59,7 +59,9 @@ class InviteController extends Controller
         ]);
         $url = URL::temporarySignedRoute(
 
-            'registration', now()->addMinutes(300), ['token' => $token]
+            'registration',
+            now()->addMinutes(300),
+            ['token' => $token]
         );
 
         // Notification::route('mail', $request->input('email'))->notify(new TeamInvite($url, $user));
@@ -70,7 +72,7 @@ class InviteController extends Controller
             'url' => $url
         ];
         $content = view("emails.teamInvite", $newContent)->render();
-        tribearcSendMail($subject, $content, $explodedMail);
+        zohoSendMail($subject, $content, $explodedMail);
 
         return redirect()->back()->with('success', 'Your Invite has been sent');
     }
@@ -78,6 +80,6 @@ class InviteController extends Controller
     public function registration_view($token)
     {
         $invite = Invite::where('token', $token)->first();
-        return view('auth.invite.register',['invite' => $invite]);
+        return view('auth.invite.register', ['invite' => $invite]);
     }
 }

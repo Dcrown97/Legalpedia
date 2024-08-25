@@ -44,7 +44,7 @@
                         </li>
                     @endif
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('admin/legal-prompts') }}">
+                        <a class="nav-link active" style="background: #f5f5f5" href="{{ url('admin/legal-prompts') }}">
                             <i class="fe fe-bell"></i> Legal Prompts
                         </a>
                     </li>
@@ -86,8 +86,8 @@
                             <i class="fe fe-bell"></i> State Rules of Court
                         </a>
                     </li>
-                    <li class="nav-item" style="background: #f5f5f5">
-                        <a class="nav-link active" href="{{ url('admin/forms-and-precedents') }}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('admin/forms-and-precedents') }}">
                             <i class="fe fe-bell"></i> Forms and Precedents
                         </a>
                     </li>
@@ -102,8 +102,8 @@
                             <i class="fe fe-bell"></i> Law Dictionary
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('admin/legal-maxims') }}">
+                    <li class="nav-item" style="background: #f5f5f5">
+                        <a class="nav-link active" href="{{ url('admin/legal-maxims') }}">
                             <i class="fe fe-bell"></i> Legal Maxims
                         </a>
                     </li>

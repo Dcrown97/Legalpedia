@@ -114,8 +114,8 @@
                         </a>
                     </li>
                 @endif
-                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('admin/legal-prompts') }}">
+                <li class="nav-item">
+                    <a class="nav-link active" style="background: #f5f5f5" href="{{ url('admin/legal-prompts') }}">
                         <i class="fe fe-bell"></i> Legal Prompts
                     </a>
                 </li>
@@ -249,8 +249,8 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item" style="background: #f5f5f5">
-                        <a class="nav-link active" href="{{ url('admin/discount') }}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('admin/discount') }}">
                             <i class="fe fe-bell"></i> Discount
                         </a>
                     </li>

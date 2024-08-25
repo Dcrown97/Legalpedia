@@ -121,6 +121,47 @@ if (!function_exists('tribearcSendMail')) {
     }
 }
 
+function zohoSendMail($subject, $content, $mails)
+{
+    $curl = curl_init();
+    $postData = json_encode([
+        "from" => ["address" => "noreply@legalpediaresources.com"],
+        "to" => [["email_address" => ["address" => $mails]]],
+        "subject" => $subject,
+        "htmlbody" => $content,
+    ]);
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://api.zeptomail.com/v1.1/email",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => $postData,
+        CURLOPT_HTTPHEADER => array(
+            "accept: application/json",
+            "authorization: Zoho-enczapikey " . env('ZEPTO_MAIL_API_KEY'),
+            "cache-control: no-cache",
+            "content-type: application/json",
+        ),
+        CURLOPT_SSL_VERIFYPEER => false, // Disable SSL verification
+    ));
+
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
+
+    curl_close($curl);
+
+    if ($err) {
+        // Handle error
+        echo "cURL Error #:" . $err;
+    } else {
+        // Handle success
+        echo $response;
+    }
+}
 
 function checkUser()
 {

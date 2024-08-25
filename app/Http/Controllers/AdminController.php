@@ -60,6 +60,8 @@ use App\Notifications\NewReport;
 use App\Notifications\MemberLeft;
 use App\Notifications\NewMessage;
 use App\Models\JudgementPrinciple;
+use App\Models\LegalPrompt;
+use App\Models\LegalPromptCategory;
 use App\Models\SubjectMatterIndex;
 use App\Notifications\TeamRequest;
 use Illuminate\Support\Collection;
@@ -3761,6 +3763,138 @@ class AdminController extends Controller
     }
 
 
+    ////////////////////////////////////Legal Prompts///////////////////////////////////////
+    public function prompt(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            $categories = LegalPromptCategory::orderBy('name', 'asc')->get();
+            if ($request->has('fetch_category')) {
+                $prompts = LegalPrompt::where(function ($query) use ($request) {
+                    return $request->category ? $query->from('prompts')->where('category', $request->category) : '';
+                })->orderBy('prompt', 'asc')->get();
+                $prompt_count = $prompts->count();
+                $selected_category = [];
+                $selected_category['category'] = $request->category;
+                return view('admin.legal-prompts.index', compact('prompts', 'prompt_count', 'categories', 'selected_category'));
+            } else {
+                $prompts = LegalPrompt::orderBy('id', 'desc')->get();
+                $prompt_count = LegalPrompt::count();
+                $selected_category = [];
+                $selected_category['category'] = '';
+                return view('admin.legal-prompts.index', compact('prompts', 'prompt_count', 'categories', 'selected_category'));
+            }
+        } else {
+            if (Auth::user()->subscribedUser()) {
+                $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
+                if ($subscribed_package->prompt_feature) {
+                    // $categories = LegalPromptCategory::orderBy('name', 'asc')->get();
+                    $categories = Package::where('id', Auth::user()->package_id)->first();
+                    if ($request->has('fetch_category')) {
+                        $prompts = LegalPrompt::where(function ($query) use ($request) {
+                            return $request->category ? $query->from('prompts')->where('category', $request->category) : '';
+                        })->orderBy('prompt', 'asc')->get();
+                        $prompt_count = $prompts->count();
+                        $selected_category = [];
+                        $selected_category['category'] = $request->category;
+                        return view('admin.legal-prompts.index', compact('prompts', 'prompt_count', 'categories', 'selected_category'));
+                    } else {
+                        $prompts = LegalPrompt::orderBy('id', 'desc')->get();
+                        $prompt_count = LegalPrompt::count();
+                        $selected_category = [];
+                        $selected_category['category'] = '';
+                        return view('admin.legal-prompts.index', compact('prompts', 'prompt_count', 'categories', 'selected_category'));
+                    }
+                }
+                return redirect('admin/dashboard')->with('error1', 'You need to upgrade your package to get access');
+            }
+            return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
+        }
+    }
+
+    public function storePrompt(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        $validated = $request->validate([
+            'prompt' => 'required',
+            'description' => 'required'
+        ]);
+        $input = $request->all();
+        LegalPrompt::create($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
+        return back()->with('success', 'Prompt Added');
+    }
+
+    public function editPrompt($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        if (Auth::user()->role->name == 'Admin') {
+            $prompt = LegalPrompt::findOrFail($id);
+            $categories = LegalPromptCategory::orderBy('id', 'desc')->get();
+            return view('admin.legal-prompts.edit-prompts', compact('prompt', 'categories'));
+        }
+        return redirect('admin/legal-prompts');
+    }
+    public function updatePrompt(Request $request, $id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        $prompt = LegalPrompt::findOrFail($id);
+        $validated = $request->validate([
+            'prompt' => 'required',
+            'description' => 'required'
+        ]);
+        $input = $request->all();
+        $prompt->update($input);
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
+        return back()->with('success', 'Prompt updated');
+    }
+
+    public function deletePrompt($id)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        $prompt = LegalPrompt::findOrFail($id);
+        $prompt->delete();
+
+        $version = Setting::first();
+        $input = [
+            'version' => $version->version + 0.1,
+        ];
+        $version->update($input);
+
+        return back()->with('success', 'Prompt deleted');
+    }
 
     ///////////////////////////////////Foreign resources///////////////////////////////////
     public function resource(Request $request)
@@ -4000,10 +4134,11 @@ class AdminController extends Controller
             $packages = Package::orderBy('name', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
+            $propmptsCategories = LegalPromptCategory::orderBy('name', 'asc')->get();
             $courts = Court::orderBy('court', 'ASC')->get();
             $states = State::orderBy('name', 'ASC')->get();
             $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
-            return view('admin.subscriptions.index', compact('packages', 'area_of_laws', 'categories', 'courts', 'states', 'rule_categories'));
+            return view('admin.subscriptions.index', compact('packages', 'propmptsCategories', 'area_of_laws', 'categories', 'courts', 'states', 'rule_categories'));
         }
         return redirect('admin/dashboard');
     }
@@ -4018,10 +4153,11 @@ class AdminController extends Controller
             $package = Package::findOrFail($id);
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'asc')->get();
             $categories = Category::orderBy('category', 'asc')->get();
+            $propmptsCategories = LegalPromptCategory::orderBy('name', 'asc')->get();
             $courts = Court::orderBy('court', 'ASC')->get();
             $states = State::orderBy('name', 'ASC')->get();
             $rule_categories = RuleCategory::orderBy('name', 'ASC')->get();
-            return view('admin.subscriptions.edit-package', compact('package', 'area_of_laws', 'categories', 'courts', 'states', 'rule_categories'));
+            return view('admin.subscriptions.edit-package', compact('package', 'propmptsCategories', 'area_of_laws', 'categories', 'courts', 'states', 'rule_categories'));
         }
         return redirect('admin/dashboard');
     }
@@ -4067,6 +4203,8 @@ class AdminController extends Controller
             'article_cat' => json_encode($request->article_cat),
             'maxim_feature' => $request->maxim_feature,
             'maxim_cat' => json_encode($request->maxim_cat),
+            'prompt_feature' => $request->prompt_feature,
+            'prompt_cat' => json_encode($request->prompt_cat),
             'dict_feature' => $request->dict_feature,
             'dict_cat' => json_encode($request->dict_cat),
             'resource_feature' => $request->resource_feature,
@@ -4088,12 +4226,16 @@ class AdminController extends Controller
             'form_featureapi' => $request->form_featureapi,
             'article_featureapi' => $request->article_featureapi,
             'maxim_featureapi' => $request->maxim_featureapi,
+            'prompt_featureapi' => $request->prompt_featureapi,
             'dict_featureapi' => $request->dict_featureapi,
             'resource_featureapi' => $request->resource_featureapi,
             'ai_featureapi' => $request->ai_featureapi,
         ];
         if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
+        }
+        if (!$request->prompt_cat) {
+            $input['prompt_cat'] = $request->prompt_cat;
         }
         if (!$request->article_cat) {
             $input['article_cat'] = $request->article_cat;
@@ -4173,6 +4315,8 @@ class AdminController extends Controller
             'article_cat' => json_encode($request->article_cat),
             'maxim_feature' => $request->maxim_feature,
             'maxim_cat' => json_encode($request->maxim_cat),
+            'prompt_feature' => $request->prompt_feature,
+            'prompt_cat' => json_encode($request->prompt_cat),
             'dict_feature' => $request->dict_feature,
             'dict_cat' => json_encode($request->dict_cat),
             'resource_feature' => $request->resource_feature,
@@ -4194,6 +4338,7 @@ class AdminController extends Controller
             'form_featureapi' => $request->form_featureapi,
             'article_featureapi' => $request->article_featureapi,
             'maxim_featureapi' => $request->maxim_featureapi,
+            'prompt_featureapi' => $request->prompt_featureapi,
             'dict_featureapi' => $request->dict_featureapi,
             'resource_featureapi' => $request->resource_featureapi,
             'ai_featureapi' => $request->ai_featureapi,
@@ -4201,6 +4346,9 @@ class AdminController extends Controller
         ];
         if (!$request->maxim_cat) {
             $input['maxim_cat'] = $request->maxim_cat;
+        }
+        if (!$request->prompt_cat) {
+            $input['prompt_cat'] = $request->prompt_cat;
         }
         if (!$request->article_cat) {
             $input['article_cat'] = $request->article_cat;
@@ -4276,6 +4424,10 @@ class AdminController extends Controller
         if (!$request->maxim_feature) {
             $input['maxim_feature'] = $request->maxim_feature;
             $input['maxim_cat'] = NULL;
+        }
+        if (!$request->prompt_feature) {
+            $input['prompt_feature'] = $request->prompt_feature;
+            $input['prompt_cat'] = NULL;
         }
         if (!$request->article_feature) {
             $input['article_feature'] = $request->article_feature;
@@ -4878,7 +5030,7 @@ class AdminController extends Controller
                 'team_id' => $team->team_id,
             ];
             $content = view("emails.teamRequest", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'Request sent');
     }
@@ -4917,7 +5069,7 @@ class AdminController extends Controller
                 'user' => $approved_member->name
             ];
             $content = view("emails.requestApproved", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You have just approved this member');
     }
@@ -4942,7 +5094,7 @@ class AdminController extends Controller
                 'user' => $declined_member->name
             ];
             $content = view("emails.requestDeclined", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You declined this member');
     }
@@ -4964,7 +5116,7 @@ class AdminController extends Controller
                 'user' => $removed_user->name
             ];
             $content = view("emails.memberRemoval", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You have just removed a user');
     }
@@ -4986,7 +5138,7 @@ class AdminController extends Controller
                 'user' => $left_user->name
             ];
             $content = view("emails.memberLeft", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
         }
         return redirect()->back()->with('success', 'You just left this team');
     }

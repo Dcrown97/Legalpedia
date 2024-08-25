@@ -16,7 +16,7 @@ class ApiRegisterController extends Controller
     public function register(Request $request)
     {
 
-        $data = Validator::make($request->all(),[
+        $data = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -92,7 +92,7 @@ class ApiRegisterController extends Controller
                 'user' => $user->name
             ];
             $content = view("emails.welcomeOnboard", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
 
             return response(['user' => $user, 'token' => $userToken]);
             // return response([$userToken, 200]);
@@ -114,7 +114,7 @@ class ApiRegisterController extends Controller
             // $userToken = [];
             // $userToken['token'] = $user->createToken('API Token')->accessToken;
             // $userToken['name'] = $user->name;
-            
+
             $userToken = $user->createToken('API Token')->accessToken;
 
             // $role = Role::where('name','Admin')->first();
@@ -137,7 +137,7 @@ class ApiRegisterController extends Controller
                 'user' => $user->name
             ];
             $content = view("emails.welcomeOnboard", $newContent)->render();
-            tribearcSendMail($subject, $content, $explodedMail);
+            zohoSendMail($subject, $content, $explodedMail);
 
             return response(['user' => $user, 'token' => $userToken]);
             // return response([$userToken, 200]);
