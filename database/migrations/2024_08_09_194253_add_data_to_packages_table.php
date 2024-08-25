@@ -26,6 +26,9 @@ class AddDataToPackagesTable extends Migration
             $table->string('dict_featureapi')->nullable();
             $table->string('resource_featureapi')->nullable();
             $table->string('ai_featureapi')->nullable();
+            $table->string('prompt_featureapi')->nullable();
+            $table->string('prompt_feature')->nullable();
+            $table->string('prompt_cat')->nullable();
         });
     }
 
