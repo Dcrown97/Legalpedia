@@ -17,10 +17,15 @@ class Package extends Model
         'judgement_feature', 'lfn_feature', 'roc_feature', 'sroc_feature', 'form_feature', 'article_feature', 'maxim_feature',
         'prompt_feature', 'dict_feature',
         'resource_feature', 'slug', 'judg_start_year', 'judg_end_year', 'judg_single_year', 'lfn_single_year', 'lfn_start_year', 'lfn_end_year',
+<<<<<<< HEAD
         'judg_cat', 'judg_court', 'lfn_cat', 'roc_cat', 'sroc_state', 'form_cat', 'article_cat', 'maxim_cat',
         'prompt_cat', 'dict_cat', 'resource_cat', 'team',
         'note', 'share', 'postman_link', 'bookmark', 'api_access', 'is_active', 'ai_cat', 'ai_feature', 'judgement_featureapi', 'lfn_featureapi', 'roc_featureapi', 'sroc_featureapi', 'form_featureapi', 'article_featureapi', 'maxim_featureapi',
         'prompt_featureapi', 'dict_featureapi', 'resource_featureapi', 'ai_featureapi'
+=======
+        'judg_cat', 'judg_court', 'lfn_cat', 'roc_cat', 'sroc_state', 'form_cat', 'article_cat', 'maxim_cat', 'dict_cat', 'resource_cat', 'team',
+        'note', 'share', 'postman_link', 'bookmark', 'api_access', 'is_active', 'ai_cat', 'ai_feature', 'judgement_featureapi', 'lfn_featureapi', 'roc_featureapi', 'sroc_featureapi', 'form_featureapi', 'article_featureapi', 'maxim_featureapi', 'dict_featureapi', 'resource_featureapi', 'ai_featureapi', 'ai_counsel', 'ai_counsel_cat'
+>>>>>>> bd129319de83c81b6fae0535d1db137ba4d2372d
     ];
 
     protected $table = 'packages';

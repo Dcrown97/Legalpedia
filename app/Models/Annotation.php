@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Annotation extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = [
     'user_id', 'note_id', 'content_id', 'content_type', 'content', 'comment', 'replies', 'text_target', 'tags', 'display', 'resource_type',
