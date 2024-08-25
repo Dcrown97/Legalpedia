@@ -115,7 +115,7 @@
             <div class="header-body">
                 <div class="row align-items-end">
                     <div class="row" style="justify-content: space-between;">
-                        <div class="col">
+                        <div class="col-md-10">
                             <h6 class="header-pretitle">
                             </h6>
                             <h1 class="header-title">
@@ -126,10 +126,20 @@
                                 @endif
                             </h1>
                         </div>
-                        <div class="col-sm-2">
-                            <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
-                                <span class="button__text">LegalpediaLens</span>
-                            </a>
+                        <div class="col-md-2">
+                            <!-- <div class="flex"> -->
+                                <!-- <a href="{{route('admin.ai')}}" class="btn button_load text-white btn-sm btn-primary p-2 px-3">
+                                    <span class="button__text">LegalpediaLens</span>
+                                </a> -->
+                                @if(Auth::user()->subscribedUser() && Auth::user()->canUseAiCounsel())
+                                <a target="_blank" href="{{env('AI_COUNSEL')}}/legalpedia/{{base64_encode(Auth::user()->email)}}" class="w-48 btn button_load text-white btn-sm btn-primary p-2 px-3">
+                                <span class="button__text">AI Counsel</span>
+                                </a>
+                                
+                                @endif
+                           
+                            <!-- </div> -->
+                           
                         </div>
                     </div>
                     
@@ -1059,13 +1069,13 @@
                             <div class="row align-items-center gx-0">
                                 <div class="col">
                                     <h6 class="text-uppercase text-muted mb-3">
-                                        AI Assistant
+                                        AI Counsel
                                     </h6>
                                     <span class="h2 mb-0">
                                         <div class="row align-items-center">
                                             <div class="col-auto">
                                                 <a href="{{url('admin/ai-assistant')}}">
-                                                    <img src="{{asset('assets/images/ai.jpg')}}" alt="LegalpediaLens" class="card-img-top h-90">
+                                                    <img src="{{asset('assets/images/aicounsel_logo.jpeg')}}" alt="LegalpediaLens" class="card-img-top h-85">
                                                 </a>
                                             </div>
                                             <div class="col">
