@@ -4191,6 +4191,7 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
+    
     public function storePackage(Request $request)
     {
         if (checkUser() == false) {
