@@ -758,7 +758,7 @@
                                                             <div class="col-12">
                                                                 <a class="mt-4" href="#">
                                                                     <button type="submit" name="submit"
-                                                                        onclick="this.classList.toggle('button--loading'); openPostmanCollection('{{ $subscribed_package->postman_link }}')"
+                                                                        onclick="this.classList.toggle('button--loading'); openPostmanCollection('{{ $subscribed_package ? $subscribed_package->postman_link : null  }}')"
                                                                         class="button_load w-100 btn btn-primary">
                                                                         <span class="button__text"><i
                                                                                 class="mdi mdi-rotate-3d-variant"></i>

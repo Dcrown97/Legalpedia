@@ -70,6 +70,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
+
     protected function create(array $data)
     {
         try {
@@ -77,8 +78,9 @@ class RegisterController extends Controller
             if (!$role) {
                 return back()->withErrors('Role Customer not found please contact admin');
             }
-            DB::beginTransaction();
+
             if (Invite::where('token', $data['token'])->first() !== null) {
+                // DB::transaction();
                 $invite = Invite::where('token', $data['token'])->first();
 
                 $user = User::create([
@@ -122,9 +124,10 @@ class RegisterController extends Controller
                 ];
                 $content = view("emails.welcomeOnboard", $newContent)->render();
                 zohoSendMail($subject, $content, $explodedMail);
-
+                // DB::commit();
                 return $user;
             } else {
+                // DB::transaction();
                 $user = User::create([
                     'name' => $data['name'],
                     'surname' => $data['surname'],
@@ -159,12 +162,11 @@ class RegisterController extends Controller
                 ];
                 $content = view("emails.welcomeOnboard", $newContent)->render();
                 zohoSendMail($subject, $content, $explodedMail);
-
+                // DB::commit();
                 return $user;
             }
-            DB::commit();
         } catch (\Throwable $th) {
-            DB::rollBack();
+            // DB::rollBack();
             return back()->with(['error' => $th]);
         }
     }
