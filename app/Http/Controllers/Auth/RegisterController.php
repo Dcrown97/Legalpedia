@@ -153,7 +153,6 @@ class RegisterController extends Controller
                     ]);
                 }
 
-
                 // $user->notify(new WelcomeOnboard($user));
                 $explodedMail =  $user->email;
                 $subject = 'Welcome Onboard!';
