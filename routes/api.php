@@ -67,87 +67,87 @@ Route::middleware(['auth:api', 'XSS'])->group(function () {
     // Protected Routes are in here
     Route::post('/logout', [ApiLoginController::class, "logout"]);
 
-    Route::get('/admin/dashboard', [ApiAdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [ApiAdminController::class, 'index']);
 
     //court
-    Route::get('/admin/judgements/courts', [ApiAdminController::class, 'court'])->name('admin.court');
+    Route::get('/admin/judgements/courts', [ApiAdminController::class, 'court']);
 
     //subject matter index
-    Route::get('/admin/judgements/subject-matter-index', [ApiAdminController::class, 'getSbj'])->name('get.sbj');
+    Route::get('/admin/judgements/subject-matter-index', [ApiAdminController::class, 'getSbj']);
 
     //Judgement routes
-    Route::get('/admin/judgements', [ApiAdminController::class, 'judgement'])->name('admin.judgement');
-    Route::get('/admin/judgements/legal-citation', [ApiAdminController::class, 'legalCitation'])->name('judgement.citation');
+    Route::get('/admin/judgements', [ApiAdminController::class, 'judgement']);
+    Route::get('/admin/judgements/legal-citation', [ApiAdminController::class, 'legalCitation']);
     Route::get('/admin/judgements/subject-matter', [ApiAdminController::class, 'sbjMatter']);
-    Route::get('/admin/judgements/no-summary', [ApiAdminController::class, 'noSummary'])->name('judgement.no-summary');
-    Route::get('/admin/judgements/create', [ApiAdminController::class, 'create'])->name('judge.create');
-    Route::post('/admin/judgements', [ApiAdminController::class, 'storeJudgement'])->name('store.judgement');
-    Route::get('/admin/judgements/{id}', [ApiAdminController::class, 'showJudgement'])->name('show.judgement');
-    Route::get('/admin/judgements/edit/{id}', [ApiAdminController::class, 'editJudgement'])->name('edit.judgement');
-    Route::patch('/admin/judgements/edit/{id}', [ApiAdminController::class, 'updateJudgement'])->name('update.judgement');
-    Route::delete('/admin/judgements/{id}', [ApiAdminController::class, 'deleteJudgement'])->name('delete.judgement');
+    Route::get('/admin/judgements/no-summary', [ApiAdminController::class, 'noSummary']);
+    Route::get('/admin/judgements/create', [ApiAdminController::class, 'create']);
+    Route::post('/admin/judgements', [ApiAdminController::class, 'storeJudgement']);
+    Route::get('/admin/judgements/{id}', [ApiAdminController::class, 'showJudgement']);
+    Route::get('/admin/judgements/edit/{id}', [ApiAdminController::class, 'editJudgement']);
+    Route::patch('/admin/judgements/edit/{id}', [ApiAdminController::class, 'updateJudgement']);
+    Route::delete('/admin/judgements/{id}', [ApiAdminController::class, 'deleteJudgement']);
 
-    Route::get('/admin/rules-of-court', [ApiAdminController::class, 'rules'])->name('admin.rules-of-court');
+    Route::get('/admin/rules-of-court', [ApiAdminController::class, 'rules']);
 
-    Route::get('/admin/rules-of-court/categories', [ApiAdminController::class, 'ruleCat'])->name('admin.rule_cat');
+    Route::get('/admin/rules-of-court/categories', [ApiAdminController::class, 'ruleCat']);
 
-    Route::get('/admin/rules-of-court/{id}', [ApiAdminController::class, 'showRule'])->name('show.rule');
+    Route::get('/admin/rules-of-court/{id}', [ApiAdminController::class, 'showRule']);
 
-    Route::get('/admin/rules-of-court/fetch-annotations/{id}', [ApiAdminController::class, 'fetchRuleAnote'])->name('fetch.rule-anote');
+    Route::get('/admin/rules-of-court/fetch-annotations/{id}', [ApiAdminController::class, 'fetchRuleAnote']);
 
-    Route::get('/admin/state-rules-of-court', [ApiAdminController::class, 'state_rules'])->name('admin.state-rules-of-court');
-    Route::get('/admin/state-rules-of-court/{id}', [ApiAdminController::class, 'showStateRule'])->name('show.state-rule');
-    Route::get('/admin/state-rules-of-court/fetch-annotations/{id}', [ApiAdminController::class, 'fetchStateRuleAnote'])->name('fetch.state-rule-anote');
+    Route::get('/admin/state-rules-of-court', [ApiAdminController::class, 'state_rules']);
+    Route::get('/admin/state-rules-of-court/{id}', [ApiAdminController::class, 'showStateRule']);
+    Route::get('/admin/state-rules-of-court/fetch-annotations/{id}', [ApiAdminController::class, 'fetchStateRuleAnote']);
 
-    Route::get('/admin/laws-of-federation', [ApiAdminController::class, 'fed'])->name('admin.laws-of-federation');
-    Route::get('/admin/laws-of-federation/{id}', [ApiAdminController::class, 'showFed'])->name('show.fed');
-    Route::get('/admin/laws-of-federation/fetch-annotations/{id}', [ApiAdminController::class, 'fetchLawAnote'])->name('fetch.law-anote');
+    Route::get('/admin/laws-of-federation', [ApiAdminController::class, 'fed']);
+    Route::get('/admin/laws-of-federation/{id}', [ApiAdminController::class, 'showFed']);
+    Route::get('/admin/laws-of-federation/fetch-annotations/{id}', [ApiAdminController::class, 'fetchLawAnote']);
 
     Route::get('/admin/areas-of-laws', [ApiAdminController::class, 'area_of_law']);
 
-    Route::get('/admin/categories', [ApiAdminController::class, 'category'])->name('admin.categories');
+    Route::get('/admin/categories', [ApiAdminController::class, 'category']);
 
-    Route::get('/admin/forms-and-precedents', [ApiAdminController::class, 'forms'])->name('admin.forms');
-    Route::get('/admin/forms-and-precedents/{id}', [ApiAdminController::class, 'showForm'])->name('show.form');
-    Route::get('/admin/forms-and-precedents/fetch-annotations/{id}', [ApiAdminController::class, 'fetchFormAnote'])->name('fetch.form-anote');
+    Route::get('/admin/forms-and-precedents', [ApiAdminController::class, 'forms']);
+    Route::get('/admin/forms-and-precedents/{id}', [ApiAdminController::class, 'showForm']);
+    Route::get('/admin/forms-and-precedents/fetch-annotations/{id}', [ApiAdminController::class, 'fetchFormAnote']);
 
-    Route::get('/admin/legal-articles/fetch-annotations/{id}', [ApiAdminController::class, 'fetchArticleAnote'])->name('fetch.article-anote');
+    Route::get('/admin/legal-articles/fetch-annotations/{id}', [ApiAdminController::class, 'fetchArticleAnote']);
     Route::get('/admin/legal-articles', [ApiAdminController::class, 'articles'])->name('admin.articles');
-    Route::post('/admin/legal-articles/create', [ApiAdminController::class, 'storeArticle'])->name('store.article');
-    Route::get('/admin/legal-articles/{id}', [ApiAdminController::class, 'showArticle'])->name('show.article');
-    Route::post('/admin/legal-articles/rate-article/{id}', [ApiAdminController::class, 'rateArticle'])->name('rate.article');
+    Route::post('/admin/legal-articles/create', [ApiAdminController::class, 'storeArticle']);
+    Route::get('/admin/legal-articles/{id}', [ApiAdminController::class, 'showArticle']);
+    Route::post('/admin/legal-articles/rate-article/{id}', [ApiAdminController::class, 'rateArticle']);
 
-    Route::get('/admin/law-dictionary', [ApiAdmincontroller::class, 'dictionary'])->name('admin.law-dictionary');
+    Route::get('/admin/law-dictionary', [ApiAdmincontroller::class, 'dictionary']);
 
-    Route::get('/admin/legal-maxims', [ApiAdminController::class, 'maxim'])->name('admin.legal-maxims');
+    Route::get('/admin/legal-maxims', [ApiAdminController::class, 'maxim']);
 
-    Route::get('/admin/resources', [ApiAdminController::class, 'resource'])->name('admin.resources');
+    Route::get('/admin/resources', [ApiAdminController::class, 'resource']);
 
-    Route::get('/admin/featured-content', [ApiAdminController::class, 'featuredContent'])->name('admin.featured-content');
+    Route::get('/admin/featured-content', [ApiAdminController::class, 'featuredContent']);
 
-    Route::get('/admin/subscriptions', [ApiAdminController::class, 'subscription'])->name('admin.subscriptions');
+    Route::get('/admin/subscriptions', [ApiAdminController::class, 'subscription']);
 
-    Route::get('/admin/discount', [ApiAdminController::class, 'discount'])->name('admin.discount');
+    Route::get('/admin/discount', [ApiAdminController::class, 'discount']);
 
-    Route::patch('/checkout/{id}', [ApiAdminController::class, 'useDiscount'])->name('use.discount');
+    Route::patch('/checkout/{id}', [ApiAdminController::class, 'useDiscount']);
 
-    Route::get('/admin/transactions', [ApiAdmincontroller::class, 'transaction'])->name('admin.transaction');
+    Route::get('/admin/transactions', [ApiAdmincontroller::class, 'transaction']);
 
-    Route::get('/admin/teams', [ApiAdminController::class, 'team'])->name('admin.teams');
+    Route::get('/admin/teams', [ApiAdminController::class, 'team']);
 
-    Route::get('/admin/teams/{id}', [ApiAdminController::class, 'showTeam'])->name('show.team');
+    Route::get('/admin/teams/{id}', [ApiAdminController::class, 'showTeam']);
 
-    Route::get('/admin/teams/{id}/join', [ApiAdminController::class, 'joinTeam'])->name('join.team');
+    Route::get('/admin/teams/{id}/join', [ApiAdminController::class, 'joinTeam']);
 
-    Route::get('/admin/search', [ApiAdminController::class, 'search'])->name('search');
+    Route::get('/admin/search', [ApiAdminController::class, 'search']);
 
     Route::get('/admin/year', [ApiAdminController::class, 'years']);
 
-    Route::get('/admin/filter-sbj', [ApiAdminController::class, 'filterSbj'])->name('judgement.sbj-matter');
+    Route::get('/admin/filter-sbj', [ApiAdminController::class, 'filterSbj']);
 
-    Route::get('/admin/notes', [ApiAdminController::class, 'note'])->name('admin.notes');
+    Route::get('/admin/notes', [ApiAdminController::class, 'note']);
 
-    Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
+    // Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
 });
 
 Route::group(['prefix' => 'v1', "middleware" => ["auth:api", "paidapi", "XSS"]], function () {
