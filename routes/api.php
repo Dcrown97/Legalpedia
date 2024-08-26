@@ -63,7 +63,7 @@ Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {
 
 });
 
-Route::middleware(['auth:api', 'XSS'])->group(function () {
+Route::middleware(['auth:sanctum', 'XSS'])->group(function () {
     // Protected Routes are in here
     Route::post('/logout', [ApiLoginController::class, "logout"]);
 

@@ -93,6 +93,7 @@ class ApiAdminController extends Controller
 {
     public function index(Request $request)
     {
+        // return 'hello';
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
             return response(['errror' => 'You have been logged out by another user']);
@@ -371,7 +372,7 @@ class ApiAdminController extends Controller
 
         try {
             $judgement_summary = JudgementSummary::where('judgement_date', 'LIKE', '%' . $request->year . '%')->with('court', 'holden', 'partyAName', 'partyAType', 'partyBName', 'partyBType', 'areaOfLaw', 'judgement', 'counsels')->get();
-            
+
             if (is_null($judgement_summary)) {
                 return response()->json(['error' => 'Record Not Found'], 500);
             }
@@ -382,7 +383,6 @@ class ApiAdminController extends Controller
             }
 
             return response(['judgement_summary' => $judgement_summary]);
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
