@@ -455,7 +455,7 @@
                                                 <label class="form-label mb-1">
                                                     Ratio Body
                                                 </label>
-                                                <input type="hidden" name="ratio_id" value="{{ $ratio->id }}">
+                                                <input type="hidden" name="ratio[{{ $ratio->id }}][ratio_id]" value="{{ $ratio->id }}">
                                                 <textarea name="ratio[{{ $ratio->id }}][]" rows="5" id="summernote{{ $id_start }}"
                                                     class="form-control">{{ $ratio->body }}</textarea>
                                                 @php
@@ -465,7 +465,7 @@
                                             <div class="form-roup mb-4">
                                                 <div class="justify-content-end">
                                                     <input type="hidden" name="ratio_id" value="{{ $ratio->id }}">
-                                                    <button type="submit" name="remove_ratio"
+                                                    <button type="button" onclick="removeRatio('{{ $ratio->id }}')" name="remove_ratio"
                                                         class="text-color custom-button"><i class="mdi mdi-close"></i>
                                                         Remove</button>
                                                 </div>
@@ -542,7 +542,13 @@
         $(document).ready(function() {
             update_coram_no = {{ $edit_coram_no }}
             coram_id = {{ $edit_coram_id }}
-            console.log(update_coram_no, coram_id)
+            console.log(update_coram_no, coram_id, 'test')
+        });
+
+        $(document).ready(function() {
+            update_ratio_no = {{ $ratio_count }}
+            ratio_id = {{ $ratio_id }}
+            console.log(update_ratio_no, ratio_id, 'ratio')
         });
 
         function removeCoram(judg_coram_id, main_coram_id) {
@@ -562,6 +568,35 @@
                     swal({
                         title: "Success!",
                         text: 'Coram removed',
+                        icon: "success",
+                    });
+                    window.location.href = "{{ url()->current() }}";
+                },
+                error: function(error) {
+                    swal({
+                        title: "Error!",
+                        text: 'Failed to remove coram, please try again',
+                        icon: "error",
+                    });
+                    console.log(error);
+                }
+            });
+        }
+
+        function removeRatio(ratioID) {
+            console.log(ratioID)
+            $.ajax({
+                type: "POST",
+                url: '/admin/judgements/remove/ratio',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    ratioID: ratioID,
+                },
+                success: function(data) {
+                    console.log(data);
+                    swal({
+                        title: "Success!",
+                        text: 'Ratio removed',
                         icon: "success",
                     });
                     window.location.href = "{{ url()->current() }}";
@@ -649,13 +684,6 @@
             objTo.appendChild(divcreate);
         }
 
-        <?php $ratio = App\Models\SummaryRatio::where('suit_no', $judgement_summary->suit_no)
-            ->orderBy('id', 'DESC')
-            ->first(); ?>
-        <?php $last_ratio = App\Models\SummaryRatio::orderBy('id', 'DESC')->first(); ?>
-        var ratio_no = {{ $ratio_count }};
-        var ratio_id = {{ $ratio ? $ratio->id : $last_ratio->id }};
-
         // Function to initialize Summernote on a specific element
         function initSummernoteOnElement(elementId) {
             $('#' + elementId).summernote({
@@ -668,12 +696,14 @@
         initSummernoteOnElement('summernote11');
 
         function addRatio() {
-            ratio_no++;
+            console.log(update_ratio_no, 'ratio_no')
+            update_ratio_no++;
+            ratio_id++;
             newRatSummernote++;
             var newRatioTextAreaId = 'summernote' + newRatSummernote;
             var objTo = document.getElementById('add_ratio')
             var divcreate = document.createElement("div");
-            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + ratio_no +
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + update_ratio_no +
                 '. Ratio Header</label><input type="text" name="new_ratio[' + ratio_id +
                 '][]" class="form-control"></div><div class="form-group"><label class="form-label mb-1">Ratio Body</label> <textarea class="form-control" name="new_ratio[' +
                 ratio_id + '][]" id="' + newRatioTextAreaId + '" rows="5"></textarea></div><hr class="my-5">';

@@ -54,86 +54,70 @@ class LoginController extends Controller
 
     public function Authenticated(Request $request, User $user)
     {
-        if (Auth::check()) {
+        if (!Auth::check()) {
+            return redirect('/login')->withErrors('User is not authenticated');
+        }
 
-            $user = Auth::user();
-            $time = time();
-            Session::put('join', 1);
-            Session::put('welcome', 1);
-            Session::put('who', $time);
+        $user = Auth::user();
+        $time = time();
 
-            if (!empty($user->license_code)) {
-                // dd("has license");
-                // $license = LicensedUserSession::where('user_id', $user->id)->first();
-                $license = LicensedUserSession::where('user_id', $user->id)->orderBy('id', 'DESC')->first();
-                $license_count = LicensedUserSession::where('user_id', $user->id)->count();
+        // Store session variables
+        Session::put([
+            'join' => 1,
+            'welcome' => 1,
+            'who' => $time
+        ]);
 
-                if ($license) {
-                    $licensed_users = License::where('license_code', $user->license_code)->first();
-                    $allowed_users = $licensed_users->active_users;
-                    // dd($license_count, $allowed_users);
-                    if ($license_count < $allowed_users) {
-                        // $license->increment('session_no');
-                        LicensedUserSession::create([
-                            'license_id' => $license->license_id + 1,
-                            'user_id' => $user->id,
-                            'session_no' => $time,
-                        ]);
+        // Check if the user has a license code
+        if (!empty($user->license_code)) {
+            // Retrieve license details for the organization
+            $license = License::where('license_code', $user->license_code)->first();
 
-                        return;
-                    } else {
-                        $logged_out_user = LicensedUserSession::where('user_id', Auth::user()->id)->orderBy('session_no', 'ASC')->first();
-                        $to_logout = $logged_out_user->session_no;
-                        $me = Session::get('who');
-                        // dd($logged_out_user, $me, $me == $to_logout);
-                        if ($me == $to_logout) {
-                            // dd('here');
-                            $logged_out_user->delete();
-                            Auth::logout();
-                            Session::flash('error', 'Maximmum number of users reached');
-                            return redirect('/login')->withErrors('Maximmum number of users reached');
-                        } else {
-                            LicensedUserSession::create([
-                                'license_id' => $license->license_id + 1,
-                                'user_id' => $user->id,
-                                'session_no' => $time,
-                            ]);
-                            $logged_out_user->delete();
-                        }
-                    }
-                    // if ($license_count >= $allowed_users) {
+            if ($license) {
+                // Get the count of active user sessions for this license
+                $active_sessions_count = LicensedUserSession::where('license_id', $license->id)->count();
+                $allowed_users = $license->active_users;
 
-                    // foreach ($license as $login) {
-                    //     if ($login->session_no < time() - 300) {
-                    //         $logged_out_user = LicensedUserSession::where('id', $login->id)->orderBy('session_no', 'ASC')->first();
-                    //         $logged_out_user->delete();
-                    //         $request->session()->flush();
-                    //         Auth::logout();
-                    //         Session::flash('error', 'Time expired');
-                    //         return redirect('/login')->withErrors('Time expired');
-                    //     }else{
-                    //         dd('sfsdvgfhj');
-                    //     }
-                    // }
-                    // Auth::logout();
-                    // Session::flash('error', 'Maximmum number of users reached');
-                    // return redirect('/login')->withErrors('Maximmum number of users reached');
-                    // }
-                } else {
-                    $license = License::where('license_code', $user->license_code)->first();
-                    LicensedUserSession::create([
-                        'license_id' => $license->id,
-                        'user_id' => $user->id,
-                        'session_no' => $time,
-                    ]);
+                // dd($allowed_users);
 
-                    return redirect()->intended();
+                // Check if the number of active sessions exceeds the allowed users
+                if ($active_sessions_count >= $allowed_users) {
+                    // Kick out the first logged-in user (the one with the earliest session)
+                    $this->kickOutFirstUser($license->id);
                 }
+
+                // Now allow the new user to create a session
+                $this->createNewSession($user->id, $license->id, $time);
+                return redirect()->intended();
             }
+        }
 
-            Auth::logoutOtherDevices($request['password']);
+        // Logout other devices if no license code is provided
+        Auth::logoutOtherDevices($request['password']);
 
-            return redirect()->intended();
+        return redirect()->intended();
+    }
+
+    protected function createNewSession($user_id, $license_id, $session_no)
+    {
+        LicensedUserSession::create([
+            'license_id' => $license_id,
+            'user_id' => $user_id,
+            'session_no' => $session_no
+        ]);
+    }
+
+    protected function kickOutFirstUser($license_id)
+    {
+        // Find the first logged-in user by the session time (the earliest session)
+        $first_logged_user = LicensedUserSession::where('license_id', $license_id)
+            ->orderBy('session_no', 'ASC') // Order by the earliest session
+            ->first();
+
+        if ($first_logged_user) {
+            // Notify the first user that they are being logged out
+            $first_logged_user->delete(); // Delete the session, effectively logging them out
+            Session::flash('error', 'You have been logged out because the maximum number of users has been reached.');
         }
     }
 }

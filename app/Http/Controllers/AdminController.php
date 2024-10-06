@@ -762,6 +762,7 @@ class AdminController extends Controller
 
     public function updateJudgement(Request $request, $id)
     {
+        // dd($request->all());
         if (checkUser() == false) {
             Session::flash('error', 'You have been logged out by another user');
             return redirect('/login')->withErrors('You have been logged out by another user');
@@ -1009,6 +1010,21 @@ class AdminController extends Controller
         return back()->with('success', 'Coram removed');
     }
 
+    public function removeRatio(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        // dd($id, $request->main_coram_id);
+        $ratio = SummaryRatio::where('id', $request->ratioID);
+        if ($ratio) {
+            $ratio->delete();
+        }
+        return back()->with('success', 'Ratio removed');
+    }
+
     public function editJudgement($id)
     {
         if (checkUser() == false) {
@@ -1024,6 +1040,13 @@ class AdminController extends Controller
             $last_coram = JudgementCoram::orderBy('id', 'DESC')->first();
             $edit_coram_id = $coram ? $coram->id : ($last_coram ? $last_coram->id : 0);
             $edit_coram_no = $coram_count;
+
+            $ratios = SummaryRatio::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->get();
+            $ratio = SummaryRatio::where('suit_no', $judgement_summary->suit_no)->orderBy('id', 'DESC')->first();
+            $last_ratio = SummaryRatio::orderBy('id', 'DESC')->first();
+            $ratio_count = $ratios->count();
+            $ratio_id = $ratio ? $ratio->id : $last_ratio->id;
+
             // dd($coram_count, $coram_id, $edit_coram_no);
             $courts = Court::orderBy('rank', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
@@ -1031,7 +1054,7 @@ class AdminController extends Controller
             $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
             $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
             $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
-            return view('admin.judgements.edit', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types', 'coram_count', 'edit_coram_id', 'edit_coram_no'));
+            return view('admin.judgements.edit', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types', 'coram_count', 'edit_coram_id', 'edit_coram_no', 'ratio_count', 'ratio_id'));
         }
         return redirect('admin/judgements');
     }
@@ -4191,7 +4214,7 @@ class AdminController extends Controller
         }
         return redirect('admin/dashboard');
     }
-    
+
     public function storePackage(Request $request)
     {
         if (checkUser() == false) {
