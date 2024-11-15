@@ -812,31 +812,36 @@ class AdminController extends Controller
             'area_of_law' => $request->area_of_law
         ];
         $judg->update($judg_input);
-
+        // dd($request->subject);
         if ($request->subject) {
             foreach ($request->subject as $key => $subject_input) {
                 $principle_input = [
                     'subject_matter_index_id' => $subject_input[0],
                     'principle' => $subject_input[1]
                 ];
-                DB::table('principles')->where('id', $key)->update($principle_input);
+                $fetch_judge_principle = JudgementPrinciple::where('id', $subject_input['judg_principle_id'])->first();
+                DB::table('principles')->where('id', $fetch_judge_principle->principle_id)->update($principle_input);
+                // DB::table('principles')->where('id', $key)->update($principle_input);
 
-                $judg_principle_input = [
-                    'principle_id' => $request->principle_id,
-                    'suit_no' => $judg->suit_no,
-                ];
-                DB::table('judgement_principles')->where('id', $request->judg_principle_id)->update($judg_principle_input);
+                // $judg_principle_input = [
+                //     'principle_id' => $request->principle_id,
+                //     'suit_no' => $judg->suit_no,
+                // ];
+                // DB::table('judgement_principles')->where('principle_id', $fetch_judge_principle->principle_id)->update($judg_principle_input);
 
                 if ($request->has('remove_principle')) {
-                    $judg_principle = JudgementPrinciple::where('id', $request->judg_principle_id);
+                    dd($request->judg_principle_id, $request->principle_id);
+                    $judg_principle = JudgementPrinciple::where('id', $request->judg_principle_id)->first();
+                    $principle = Principle::where('id', $judg_principle->principle_id)->first();
+                    dd($judg_principle, $principle);
                     $judg_principle->delete();
-                    $principle = Principle::where('id', $request->principle_id);
                     $principle->delete();
                     return back()->with('success', 'Principle removed');
                 }
             }
         }
 
+        // dd($request->new_subject);
         if ($request->new_subject) {
             foreach ($request->new_subject as $subject_input) {
                 $principle_input = [
@@ -852,8 +857,6 @@ class AdminController extends Controller
                 JudgementPrinciple::create($judg_principle_input);
             }
         }
-
-
 
         if ($request->corams) {
             // dd($request->all(), 'upadte');
@@ -875,7 +878,7 @@ class AdminController extends Controller
                 ]);
 
                 if ($request->has('remove_coram')) {
-                    dd($request->judg_coram_id, $request->main_coram_id);
+                    // dd($request->judg_coram_id, $request->main_coram_id);
                     $judg_coram = JudgementCoram::where('id', $request->judg_coram_id)->first();
                     $coram = Coram::where('id', $request->main_coram_id)->first();
                     // dd($judg_coram, $coram);
@@ -904,6 +907,35 @@ class AdminController extends Controller
                     'suit_no' => $judg->suit_no,
                 ];
                 JudgementCoram::create($judg_coram_data);
+            }
+        }
+
+        // dd($request->ratio);
+        if ($request->ratio) {
+            foreach ($request->ratio as $key => $ratio_input) {
+                $ratio_data = [
+                    'heading' => $ratio_input[0],
+                    'body' => $ratio_input[1],
+                    'suit_no' => $judg->suit_no
+                ];
+                DB::table('summary_ratios')->where('id', $key)->update($ratio_data);
+
+                if ($request->has('remove_ratio')) {
+                    $ratio = SummaryRatio::where('id', $request->ratio_id);
+                    $ratio->delete();
+                    return back()->with('success', 'Ratio removed');
+                }
+            }
+        }
+
+        if ($request->new_ratio) {
+            foreach ($request->new_ratio as $ratio_input) {
+                $ratio_data = [
+                    'heading' => $ratio_input[0],
+                    'body' => $ratio_input[1],
+                    'suit_no' => $judg->suit_no
+                ];
+                SummaryRatio::create($ratio_data);
             }
         }
 
@@ -989,6 +1021,27 @@ class AdminController extends Controller
         return back()->with('success', 'Judgement updated');
     }
 
+    public function removeSubMatter(Request $request)
+    {
+        if (checkUser() == false) {
+            Session::flash('error', 'You have been logged out by another user');
+            return redirect('/login')->withErrors('You have been logged out by another user');
+        };
+
+        // dd($id, $request->main_coram_id);
+        $judg_principle = JudgementPrinciple::where('id', $request->judg_principle_id)->first();
+        if ($judg_principle) {
+            // dd($judg_principle);
+            $judg_principle->delete();
+        }
+        $principle = Principle::where('id', $request->principle_id)->first();
+        if ($principle) {
+            // dd($principle);
+            $principle->delete();
+        }
+        return back()->with('success', 'Subject matter removed');
+    }
+
     public function removeCoram(Request $request)
     {
         if (checkUser() == false) {
@@ -1047,6 +1100,14 @@ class AdminController extends Controller
             $ratio_count = $ratios->count();
             $ratio_id = $ratio ? $ratio->id : $last_ratio->id;
 
+            $judg_principle = JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->orderBy('id', 'DESC')->first();
+            $principle = Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')->orderBy('id', 'DESC')->first();
+            $last_principle = Principle::orderBy('id', 'DESC')->first();
+            // dd($principle, $last_principle);
+            $subject_id = $principle ? $principle->id : $last_principle->id;
+            $get_judg_principle = JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->get();
+            $subject_no = $get_judg_principle->count();
+
             // dd($coram_count, $coram_id, $edit_coram_no);
             $courts = Court::orderBy('rank', 'ASC')->get();
             $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
@@ -1054,7 +1115,7 @@ class AdminController extends Controller
             $subject_matters = SubjectMatterIndex::orderBy('subject_matter_index', 'ASC')->get();
             $party_a_types = PartyAType::orderBy('party_a_type', 'ASC')->get();
             $party_b_types = PartyBType::orderBy('party_b_type', 'ASC')->get();
-            return view('admin.judgements.edit', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types', 'coram_count', 'edit_coram_id', 'edit_coram_no', 'ratio_count', 'ratio_id'));
+            return view('admin.judgements.edit', compact('judgement_summary', 'courts', 'area_of_laws', 'categories', 'subject_matters', 'party_a_types', 'party_b_types', 'coram_count', 'edit_coram_id', 'edit_coram_no', 'subject_id', 'subject_no', 'ratio_count', 'ratio_id'));
         }
         return redirect('admin/judgements');
     }

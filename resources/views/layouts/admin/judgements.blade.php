@@ -114,10 +114,10 @@
     <script src="{{ asset('assets/js/theme.bundle.js') }}"></script>
 
     <script>
-       
         var coram_no = 1;
         var ratio_no = 1;
         var newRatSummernote = 180;
+        var subSummernote = 120;
 
         $(function() {
             // Summernote

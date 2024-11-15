@@ -246,7 +246,7 @@
                                 @if ($judg_principles)
                                     @php
                                         $principle_no = 1;
-                                        $prinId_start = 12;
+                                        $prinId_start = 13;
                                     @endphp
                                     @foreach ($judg_principles as $judg_principle)
                                         @php
@@ -279,11 +279,15 @@
                                                             {{ $subject_matter->subject_matter_index }}</option>
                                                     @endforeach
                                                 </select>
+
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label mb-1">
                                                     Principles
                                                 </label>
+                                                <input type="hidden"
+                                                    name="subject[{{ $judg_principle->id }}][judg_principle_id]"
+                                                    value="{{ $judg_principle->id }}">
                                                 <textarea name="subject[{{ $judg_principle->id }}][]" rows="5" id="summernote{{ $prinId_start }}"
                                                     class="form-control" placeholder="Enter Principle">{{ $principle ? $principle->principle : '' }}</textarea>
                                                 @php
@@ -293,10 +297,14 @@
                                             <div class="form-roup mb-4">
                                                 <div class="justify-content-end">
                                                     <input type="hidden" name="principle_id"
-                                                        value="{{ $principle ? $principle->id : '' }}">
+                                                        value="{{ $principle->id }}">
                                                     <input type="hidden" name="judg_principle_id"
-                                                        value="{{ $judg_principle ? $judg_principle->id : '' }}">
-                                                    <button type="submit" name="remove_principle"
+                                                        value="{{ $judg_principle->id }}">
+                                                    {{-- <button type="submit" name="remove_principle"
+                                                        class="text-color custom-button"><i class="mdi mdi-close"></i>
+                                                        Remove</button> --}}
+                                                    <button type="button" name="remove_principle"
+                                                        onclick="removePrinciples('{{ $judg_principle->id }}', '{{ $principle->id }}')"
                                                         class="text-color custom-button"><i class="mdi mdi-close"></i>
                                                         Remove</button>
                                                 </div>
@@ -455,7 +463,8 @@
                                                 <label class="form-label mb-1">
                                                     Ratio Body
                                                 </label>
-                                                <input type="hidden" name="ratio[{{ $ratio->id }}][ratio_id]" value="{{ $ratio->id }}">
+                                                <input type="hidden" name="ratio[{{ $ratio->id }}][ratio_id]"
+                                                    value="{{ $ratio->id }}">
                                                 <textarea name="ratio[{{ $ratio->id }}][]" rows="5" id="summernote{{ $id_start }}"
                                                     class="form-control">{{ $ratio->body }}</textarea>
                                                 @php
@@ -465,8 +474,9 @@
                                             <div class="form-roup mb-4">
                                                 <div class="justify-content-end">
                                                     <input type="hidden" name="ratio_id" value="{{ $ratio->id }}">
-                                                    <button type="button" onclick="removeRatio('{{ $ratio->id }}')" name="remove_ratio"
-                                                        class="text-color custom-button"><i class="mdi mdi-close"></i>
+                                                    <button type="button" onclick="removeRatio('{{ $ratio->id }}')"
+                                                        name="remove_ratio" class="text-color custom-button"><i
+                                                            class="mdi mdi-close"></i>
                                                         Remove</button>
                                                 </div>
                                             </div>
@@ -551,6 +561,12 @@
             console.log(update_ratio_no, ratio_id, 'ratio')
         });
 
+        $(document).ready(function() {
+            update_subject_no = {{ $subject_no }}
+            subject_id = {{ $subject_id }}
+            console.log(update_subject_no, subject_id, 'subject')
+        });
+
         function removeCoram(judg_coram_id, main_coram_id) {
             console.log(judg_coram_id, main_coram_id)
             //  judg_coram_id = document.getElementById(judg_coram_id).value;
@@ -576,6 +592,36 @@
                     swal({
                         title: "Error!",
                         text: 'Failed to remove coram, please try again',
+                        icon: "error",
+                    });
+                    console.log(error);
+                }
+            });
+        }
+
+        function removePrinciples(judg_principle_id, principle_id) {
+            console.log(judg_principle_id, principle_id)
+            $.ajax({
+                type: "POST",
+                url: '/admin/judgements/remove/subMatter',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    judg_principle_id: judg_principle_id,
+                    principle_id: principle_id
+                },
+                success: function(data) {
+                    console.log(data);
+                    swal({
+                        title: "Success!",
+                        text: 'Subject Matter removed',
+                        icon: "success",
+                    });
+                    window.location.href = "{{ url()->current() }}";
+                },
+                error: function(error) {
+                    swal({
+                        title: "Error!",
+                        text: 'Failed to remove subject matter, please try again',
                         icon: "error",
                     });
                     console.log(error);
@@ -613,17 +659,19 @@
         }
 
         $(document).ready(function() {
-            var prinId_start = 12;
+            var prinId_start = 13;
             var id_start = 61;
             @foreach ($ratios as $ratio)
-                $('#summernote' + prinId_start).summernote({
-                    height: 200
-                });
                 $('#summernote' + id_start).summernote({
                     height: 200
                 });
-                prinId_start++;
                 id_start++;
+            @endforeach
+            @foreach ($judg_principles as $principle)
+                $('#summernote' + prinId_start).summernote({
+                    height: 200
+                });
+                prinId_start++;
             @endforeach
         });
 
@@ -634,15 +682,6 @@
                 plugins: 'autolink lists link image'
             });
         }
-        <?php $judg_principle = App\Models\JudgementPrinciple::where('suit_no', $judgement_summary ? $judgement_summary->suit_no : '')->first(); ?>
-        <?php $principle = App\Models\Principle::where('id', $judg_principle ? $judg_principle->principle_id : '')
-            ->orderBy('id', 'DESC')
-            ->first(); ?>
-        <?php $last_principle = App\Models\Principle::orderBy('id', 'DESC')->first(); ?>
-        var subject_id = {{ $principle ? $principle->id : $last_principle->id }};
-        var subject_no = {{ $principle_count }};
-
-        var subSummernote = 120;
 
         // Function to initialize Summernote on a specific element
         function initSummernoteOnElement(elementId) {
@@ -655,12 +694,15 @@
         initSummernoteOnElement('summernote7');
 
         function addSubs() {
-            subject_no++;
+            update_subject_no++;
+            console.log(update_subject_no, 'first')
+            subject_id++;
+            console.log(subject_id, 'second')
             subSummernote++;
             var newSubTextAreaId = 'summernote' + subSummernote;
             var objTo = document.getElementById('add_sub')
             var divcreate = document.createElement("div");
-            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + subject_no +
+            divcreate.innerHTML = '<div class="form-group"><label class="form-label mb-1">' + update_subject_no +
                 '.  Subject Matter Index</label><select name="new_subject[' + subject_id +
                 '][]" class="form-select" data-choices="{"searchEnabled": true}"><option value="">Select Subject Matter Index</option>@foreach ($subject_matters as $subject_matter)<option value="{{ $subject_matter->id }}">{{ $subject_matter->subject_matter_index }}</option>@endforeach</select></div><div class="form-group"><label class="form-label mb-1">Principles</label><textarea name="new_subject[' +
                 subject_id + '][]" rows="5" id="' + newSubTextAreaId +
