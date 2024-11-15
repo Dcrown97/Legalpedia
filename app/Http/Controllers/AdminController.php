@@ -910,35 +910,6 @@ class AdminController extends Controller
             }
         }
 
-        // dd($request->ratio);
-        if ($request->ratio) {
-            foreach ($request->ratio as $key => $ratio_input) {
-                $ratio_data = [
-                    'heading' => $ratio_input[0],
-                    'body' => $ratio_input[1],
-                    'suit_no' => $judg->suit_no
-                ];
-                DB::table('summary_ratios')->where('id', $key)->update($ratio_data);
-
-                if ($request->has('remove_ratio')) {
-                    $ratio = SummaryRatio::where('id', $request->ratio_id);
-                    $ratio->delete();
-                    return back()->with('success', 'Ratio removed');
-                }
-            }
-        }
-
-        if ($request->new_ratio) {
-            foreach ($request->new_ratio as $ratio_input) {
-                $ratio_data = [
-                    'heading' => $ratio_input[0],
-                    'body' => $ratio_input[1],
-                    'suit_no' => $judg->suit_no
-                ];
-                SummaryRatio::create($ratio_data);
-            }
-        }
-
         // dd($request->party_a_names);
 
         $party_a_input = [
@@ -989,6 +960,7 @@ class AdminController extends Controller
             }
         }
 
+        // dd($request->new_ratio);
         if ($request->new_ratio) {
             foreach ($request->new_ratio as $ratio_input) {
                 $ratio_data = [
