@@ -32,72 +32,102 @@ use Illuminate\Support\Facades\Session;
 class PaidApiController extends Controller
 {
     //////////////////////////////////judgement//////////////////////////////////////
+    // public function judgement(Request $request)
+    // {
+    //     try {
+
+    //         $search_param = $request->search_param;
+    //         $filterByYear = $request->filterByYear;
+    //         $filterByNoSummary = $request->filterByNoSummary;
+    //         $filterBySbjMatterIndex = "";
+    //         $courtId = $request->filterByCourtId;
+    //         $sbj = SubjectMatterIndex::where('subject_matter_index', $request->filterBySbjMatterIndex)->first();
+    //         if ($sbj) {
+    //             $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
+    //             $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
+    //             $filterBySbjMatterIndex = $judg_principle->suit_no;
+    //         }
+
+    //         if (Auth::user()->role->name == 'Admin') {
+
+    //             $records = JudgementSummary::when($search_param, function ($query, $search_param) {
+    //                 return $query->where('title', 'LIKE', '%' . $search_param . '%')
+    //                     ->orWhere('suit_no', 'LIKE', '%' . $search_param . '%')
+    //                     ->orWhere('judgement_date', 'LIKE', '%' . $search_param . '%')
+    //                     ->orWhereRelation('court', 'court', 'LIKE', '%' . $search_param . '%');
+    //             })->when($filterByYear, function ($query) use ($filterByYear) {
+    //                 return $query->where('judgement_date', 'LIKE', '%' . $filterByYear . '%');
+    //             })->when($filterBySbjMatterIndex, function ($query) use ($filterBySbjMatterIndex) {
+    //                 return $query->where('suit_no', $filterBySbjMatterIndex);
+    //             })->when($filterByNoSummary == "no_summarry", function ($query) {
+    //                 return $query->where('summary_of_facts', NULL);
+    //             })->when($courtId, function ($query) use ($courtId) {
+    //                 return $query->where('court_id', $courtId);
+    //             })->latest()
+    //                 ->paginate(10);
+
+    //             return response(['records' => $records]);
+    //         } else {
+    //             if (Auth::user()->subscribedUser()) {
+
+    //                 $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
+
+    //                 if ($subscribed_package->judgement_featureapi) {
+
+    //                     $records = JudgementSummary::when($search_param, function ($query, $search_param) {
+    //                         return $query->where('title', 'LIKE', '%' . $search_param . '%')
+    //                             ->orWhere('suit_no', 'LIKE', '%' . $search_param . '%')
+    //                             ->orWhere('judgement_date', 'LIKE', '%' . $search_param . '%')
+    //                             ->orWhereRelation('court', 'court', 'LIKE', '%' . $search_param . '%');
+    //                     })->when($filterByYear, function ($query) use ($filterByYear) {
+    //                         return $query->where('judgement_date', 'LIKE', '%' . $filterByYear . '%');
+    //                     })->when($filterBySbjMatterIndex, function ($query) use ($filterBySbjMatterIndex) {
+    //                         return $query->where('suit_no', $filterBySbjMatterIndex);
+    //                     })->when($filterByNoSummary == "no_summarry", function ($query) {
+    //                         return $query->where('summary_of_facts', NULL);
+    //                     })->when($courtId, function ($query) use ($courtId) {
+    //                         return $query->where('court_id', $courtId);
+    //                     })->latest()
+    //                         ->paginate(10);
+
+    //                     return response(['records' => $records]);
+    //                 }
+
+    //                 return response(['error' => 'You need to upgrade your package to get access']);
+    //             }
+
+    //             return response(['error' => 'You need to subscribe to a package to get access']);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+
     public function judgement(Request $request)
     {
         try {
+            $queryParams = [];
 
-            $search_param = $request->search_param;
-            $filterByYear = $request->filterByYear;
-            $filterByNoSummary = $request->filterByNoSummary;
-            $filterBySbjMatterIndex = "";
-            $courtId = $request->filterByCourtId;
-            $sbj = SubjectMatterIndex::where('subject_matter_index', $request->filterBySbjMatterIndex)->first();
-            if ($sbj) {
-                $principle = Principle::where('subject_matter_index_id', $sbj->id)->first();
-                $judg_principle = JudgementPrinciple::where('principle_id', $principle ? $principle->id : '')->first();
-                $filterBySbjMatterIndex = $judg_principle->suit_no;
+            if ($request->search_param) {
+                $queryParams['search_param'] = $request->search_param;
+            }
+            if ($request->filterByYear) {
+                $queryParams['filterByYear'] = $request->filterByYear;
+            }
+            if ($request->filterByNoSummary == "no_summarry") {
+                $queryParams['filterByNoSummary'] = $request->filterByNoSummary;
+            }
+            if ($request->filterByCourtId) {
+                $queryParams['filterByCourtId'] = $request->filterByCourtId;
+            }
+            if ($request->filterBySbjMatterIndex) {
+                $queryParams['filterBySbjMatterIndex'] = $request->filterBySbjMatterIndex;
             }
 
-            if (Auth::user()->role->name == 'Admin') {
+            $queryString = http_build_query($queryParams);
+            $webUrl = url('/admin/judgements') . ($queryString ? '?' . $queryString : '');
 
-                $records = JudgementSummary::when($search_param, function ($query, $search_param) {
-                    return $query->where('title', 'LIKE', '%' . $search_param . '%')
-                        ->orWhere('suit_no', 'LIKE', '%' . $search_param . '%')
-                        ->orWhere('judgement_date', 'LIKE', '%' . $search_param . '%')
-                        ->orWhereRelation('court', 'court', 'LIKE', '%' . $search_param . '%');
-                })->when($filterByYear, function ($query) use ($filterByYear) {
-                    return $query->where('judgement_date', 'LIKE', '%' . $filterByYear . '%');
-                })->when($filterBySbjMatterIndex, function ($query) use ($filterBySbjMatterIndex) {
-                    return $query->where('suit_no', $filterBySbjMatterIndex);
-                })->when($filterByNoSummary == "no_summarry", function ($query) {
-                    return $query->where('summary_of_facts', NULL);
-                })->when($courtId, function ($query) use ($courtId) {
-                    return $query->where('court_id', $courtId);
-                })->latest()
-                    ->paginate(10);
-
-                return response(['records' => $records]);
-            } else {
-                if (Auth::user()->subscribedUser()) {
-
-                    $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
-
-                    if ($subscribed_package->judgement_featureapi) {
-
-                        $records = JudgementSummary::when($search_param, function ($query, $search_param) {
-                            return $query->where('title', 'LIKE', '%' . $search_param . '%')
-                                ->orWhere('suit_no', 'LIKE', '%' . $search_param . '%')
-                                ->orWhere('judgement_date', 'LIKE', '%' . $search_param . '%')
-                                ->orWhereRelation('court', 'court', 'LIKE', '%' . $search_param . '%');
-                        })->when($filterByYear, function ($query) use ($filterByYear) {
-                            return $query->where('judgement_date', 'LIKE', '%' . $filterByYear . '%');
-                        })->when($filterBySbjMatterIndex, function ($query) use ($filterBySbjMatterIndex) {
-                            return $query->where('suit_no', $filterBySbjMatterIndex);
-                        })->when($filterByNoSummary == "no_summarry", function ($query) {
-                            return $query->where('summary_of_facts', NULL);
-                        })->when($courtId, function ($query) use ($courtId) {
-                            return $query->where('court_id', $courtId);
-                        })->latest()
-                            ->paginate(10);
-
-                        return response(['records' => $records]);
-                    }
-
-                    return response(['error' => 'You need to upgrade your package to get access']);
-                }
-
-                return response(['error' => 'You need to subscribe to a package to get access']);
-            }
+            return response()->json(['link' => $webUrl]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -1054,7 +1084,6 @@ class PaidApiController extends Controller
                     ->paginate(10);
 
                 return response(['records' => $records]);
-
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
@@ -1160,7 +1189,6 @@ class PaidApiController extends Controller
                     ->paginate(10);
 
                 return response(['records' => $records]);
-
             } else {
                 if (Auth::user()->subscribedUser()) {
                     $subscribed_package = Package::where('id', Auth::user()->package_id)->first();
@@ -1175,7 +1203,6 @@ class PaidApiController extends Controller
                             ->paginate(10);
 
                         return response(['records' => $records]);
-
                     }
                     return response(['error' => 'You need to upgrade your package to get access']);
                 }
@@ -1240,7 +1267,6 @@ class PaidApiController extends Controller
                         }
 
                         return response(['record' => $record]);
-                        
                     }
                     return response(['error' => 'You need to subscribe to a package to get access']);
                 }

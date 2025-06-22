@@ -112,7 +112,13 @@
                                             class="ml-2 button_load btn button_load text-white btn-sm btn-primary p-2">
                                             <span class="button__text"><i class="mdi mdi-close"></i> Clear</span>
                                         </a>
-                                    </form>
+                                    {{-- </form>
+                                    <form action="{{ url('admin/export-judgments') }}" method="GET" class="d-flex">
+                                        <button type="submit" onclick="this.classList.toggle('button--loading')"
+                                            class="ml-3 btn button_load text-white btn-sm btn-primary p-2">
+                                            <span class="button__text"><i class="mdi mdi-filter"></i> Export</span>
+                                        </button>
+                                    </form> --}}
                                 </div>
                             </div>
                             <div class="card-header">
@@ -259,7 +265,10 @@
                                                     <option value="">All Courts</option>
                                                     @foreach ($all_courts as $court)
                                                         @php
-                                                            $main_court = App\Models\Court::where('court', $court)->first();
+                                                            $main_court = App\Models\Court::where(
+                                                                'court',
+                                                                $court,
+                                                            )->first();
                                                         @endphp
                                                         <option value="{{ $main_court->id }}"
                                                             {{ $main_court->id == $selected_court['court_id'] ? 'selected' : '' }}>

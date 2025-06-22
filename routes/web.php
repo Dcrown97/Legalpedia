@@ -17,6 +17,7 @@ use App\Http\Controllers\SendBulkMessageController;
 use App\Models\Article;
 use App\Models\Judgement;
 use App\Models\JudgementSummary;
+use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::get('/logout', function () {
@@ -46,6 +47,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
+    // Route::get('/admin/export-judgments', function () {
+    //     return Excel::download(new AdminController, 'judgments.xlsx');
+    // });
+    Route::get('/admin/export-judgments', [AdminController::class, 'exportJudge'])->name('admin.expojudge');
+    Route::get('/admin/export-judgments-pdf/{id}', [AdminController::class, 'exportJudgePDF'])->name('admin.expojudgepdf');
+    
     Route::get('/admin/judgements/courts', [AdminController::class, 'court'])->name('admin.court');
     Route::post('/admin/judgements/courts', [AdminController::class, 'storeCourt'])->name('store.court');
     Route::patch('/admin/judgements/courts', [AdminController::class, 'updateCourt'])->name('update.court');

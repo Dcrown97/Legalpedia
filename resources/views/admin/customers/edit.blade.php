@@ -708,8 +708,8 @@
                                             </div>
                                             <div class="card-body">
                                                 <div class="list-group list-group-flush list-group-activity my-n3">
-                                                    <div class="list-group-item">
-                                                        @if (Auth::user()->api_access_token)
+                                                    @if (Auth::user()->api_access_token)
+                                                        <div class="list-group-item">
                                                             <div class="col ms-n2 mb-4">
                                                                 <span id="apiToken"
                                                                     class="small text-gray-700 mb-0 mr-2">
@@ -718,21 +718,21 @@
                                                                 <span><i class="mdi mdi-content-copy" id="copyButton"
                                                                         style="cursor: pointer; color: #EC6959"></i></span>
                                                             </div>
-                                                        @endif
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <a class="mt-4" href="#">
-                                                                    <button type="submit" name="submit"
-                                                                        onclick="this.classList.toggle('button--loading'), generateToken()"
-                                                                        class="button_load w-100 btn btn-primary">
-                                                                        <span class="button__text"><i
-                                                                                class="mdi mdi-rotate-3d-variant"></i>
-                                                                            Generate Token</span>
-                                                                    </button>
-                                                                </a>
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <a class="mt-4" href="#">
+                                                                        <button type="submit" name="submit"
+                                                                            onclick="this.classList.toggle('button--loading'), generateToken()"
+                                                                            class="button_load w-100 btn btn-primary">
+                                                                            <span class="button__text"><i
+                                                                                    class="mdi mdi-rotate-3d-variant"></i>
+                                                                                Generate Token</span>
+                                                                        </button>
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -758,7 +758,7 @@
                                                             <div class="col-12">
                                                                 <a class="mt-4" href="#">
                                                                     <button type="submit" name="submit"
-                                                                        onclick="this.classList.toggle('button--loading'); openPostmanCollection('{{ $subscribed_package ? $subscribed_package->postman_link : null  }}')"
+                                                                        onclick="this.classList.toggle('button--loading'); openPostmanCollection('{{ $subscribed_package ? $subscribed_package->postman_link : null }}')"
                                                                         class="button_load w-100 btn btn-primary">
                                                                         <span class="button__text"><i
                                                                                 class="mdi mdi-rotate-3d-variant"></i>

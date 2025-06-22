@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\JudgmentsExport;
 use PDO;
 use DateTime;
 use Carbon\Carbon;
@@ -87,10 +88,15 @@ use App\Notifications\ActivatedSubscriber;
 use App\Notifications\SecondRenewalNotice;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\UpdatedLicenseCredentials;
+use Barryvdh\DomPDF\Facade\Pdf;
+// use Barryvdh\Snappy\Facades\SnappyPdf as Pdf;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Smalot\PdfParser\Parser;
 // use NunoMaduro\Collision\Adapters\Phpunit\State;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -373,21 +379,72 @@ class AdminController extends Controller
                         $selected_year['judgement_date'] = '';
                         return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                     }
-                    $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
-                    $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
-                    $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
-                    $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
+
+                    // $start_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_start_year . '-01-00 24:00:00' : ''));
+                    // $end_date = date('Y-m-d H:i:s', strtotime($years ? $years->judg_end_year . '-12-31 00:00:00' : ''));
+                    // $judgement_summaries = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    // $judgement_count = JudgementSummary::whereBetween('judgement_date', [$start_date, $end_date])->count();
+                    // $selected_court = [];
+                    // $selected_court['court_id'] = '';
+                    // $selected_year = [];
+                    // $selected_year['judgement_date'] = '';
+
+                    $judgement_summaries = JudgementSummary::orderBy('judgement_date', 'DESC')->simplePaginate()->withQueryString();
+                    $judgement_count = JudgementSummary::orderBy('judgement_date', 'DESC')->count();
                     $selected_court = [];
                     $selected_court['court_id'] = '';
                     $selected_year = [];
                     $selected_year['judgement_date'] = '';
-                    // dd($judgement_summaries, 'web');
+
                     return view('admin.judgements.index', compact('judgement_summaries', 'courts', 'years', 'judgement_count', 'categories', 'selected_court', 'area_of_laws', 'selected_year'));
                 }
                 return redirect('admin/dashboard')->with('error1', 'You need to upgrade your package to get access');
             }
             return redirect('admin/dashboard')->with('error1', 'You need to subscribe to a package to get access');
         }
+    }
+
+    public function exportJudge()
+    {
+        return Excel::download(new JudgmentsExport, 'judgements.xlsx');
+    }
+
+    // Export as PDF
+    public function exportJudgePDF($id)
+    {
+        set_time_limit(300); // Increase execution time
+
+        $judgement_summary = JudgementSummary::findOrFail($id);
+        $notes = Annotation::where('user_id', Auth::user()->id)->where('content_id', 'LIKE', '%' . trim($judgement_summary->suit_no) . '%')->get();
+        $admin_notes = Annotation::where('resource_type', 'admin-note')->orderBy('created_at', 'DESC')->limit(5)->get();
+        $courts = Court::orderBy('rank', 'ASC')->get();
+        DB::statement("SET SQL_MODE=''");
+        $years = JudgementSummary::orderBy('judgement_date', 'ASC')->groupBy('judgement_date')->get();
+        $judgement_coram = JudgementCoram::select('suit_no')->first();
+        // dd($judgement_coram);
+        $corams = Coram::orderBy('name', 'DESC')->limit(5)->get();
+        $area_of_laws = AreaOfLaw::orderBy('area_of_law', 'ASC')->get();
+        // dd($corams);
+        $teams = UserTeam::where('approve_request', 1)->where('user_id', Auth::user()->id)->get();
+
+        // // Create Dompdf instance
+        // $options = new Options();
+        // $options->set('defaultFont', 'Arial'); // Set custom font as default
+        // $dompdf = new Dompdf($options);
+
+        // // Register custom font
+        // $fontMetrics = $dompdf->getFontMetrics();
+        // $fontPath = storage_path('fonts\material_design_icons.ttf');
+        // $fontMetrics->registerFont('Material Icons', $fontPath);
+        // dd($fontPath);
+
+        // return view('admin.judgements.show', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes', 'teams'));
+
+        // dd('gi');
+        $pdf = Pdf::loadView('exports.judgment', compact('judgement_summary', 'courts', 'years', 'corams', 'judgement_coram', 'area_of_laws', 'notes', 'admin_notes', 'teams'));
+        // dd('hello');
+        // return $pdf->stream('judgment.pdf');
+        return $pdf->download('judgment.pdf');
     }
 
     public function sbjMatter(Request $request)

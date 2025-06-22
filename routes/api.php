@@ -60,7 +60,6 @@ Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {
     Route::get('/admin/judgements/details', [ApiAdminController::class, 'judgementDetails']);
     // Route::get('/admin/all-state', [ApiAdmincontroller::class, 'allState']);
     Route::get('/admin/judgements/by', [ApiAdminController::class, 'judgementDetailsByDate']);
-
 });
 
 Route::middleware(['auth:sanctum', 'XSS'])->group(function () {
@@ -150,7 +149,7 @@ Route::middleware(['auth:sanctum', 'XSS'])->group(function () {
     // Route::apiResource('/employee', EmployeeController::class)->middleware('api.authenticate');
 });
 
-Route::group(['prefix' => 'v1', "middleware" => ["auth:api", "paidapi", "XSS"]], function () {
+Route::group(['prefix' => 'v1', "middleware" => ["auth:sanctum", "paidapi", "XSS"]], function () {
 
     //Judgement Routes
     Route::group(['prefix' => 'judgements'], function () {
