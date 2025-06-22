@@ -2,7 +2,7 @@ name: 🚀 Deploy update on merge to dev
 on:
   push:
     branches:
-      - develop
+      - dev-review
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -14,6 +14,7 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: 162.0.235.154
+          server: ftp.legalpediaonline.com
           username: developer@staging.legalpediaresources.com
-          password: ${{ secrets.STAGINGPASSWORD }}
+          password: ${{ secrets.stagingpassword }}
+          protocol: ftps
