@@ -17,5 +17,5 @@ jobs:
           host: ftp.staging.legalpediaresources.com
           username: developer@staging.legalpediaresources.com
           password: ${{ secrets.STAGINGPASSWORD }}
-          source: "/"
+          source: "/home/legaxdfh/teststaging"
           target: "/home/legaxdfh/teststaging"
