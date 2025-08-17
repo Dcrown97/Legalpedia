@@ -2,7 +2,7 @@ name: 🚀 Deploy update on merge to dev
 on:
   push:
     branches:
-      - dev-review
+      - develop
 jobs:
   web-deploy:
     name: 🎉 Deploy
