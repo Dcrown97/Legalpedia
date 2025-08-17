@@ -19,5 +19,5 @@ jobs:
           username: developer@staging.legalpediaresources.com
           password: ${{ secrets.STAGINGPASSWORD }}
           local_path: "./"   # files to upload
-          remote_path: "/home/legaxdfh/teststaging
+          remote_path: "/home/legaxdfh/teststaging"
           sftp_only: true
