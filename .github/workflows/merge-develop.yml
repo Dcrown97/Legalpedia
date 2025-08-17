@@ -11,8 +11,8 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: SFTP Deploy
+        uses: appleboy/scp-action@master
         with:
           server: ftp.staging.legalpediaresources.com
           username: developer@staging.legalpediaresources.com
