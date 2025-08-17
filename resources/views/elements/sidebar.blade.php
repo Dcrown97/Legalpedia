@@ -94,7 +94,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item" style="background: #f5f5f5">
                     <a class="nav-link active" href="{{ url('admin/dashboard') }}">
-                        <i class="fe fe-home"></i> Dashboard this
+                        <i class="fe fe-home"></i> Dashboard
                     </a>
                 </li>
                 @if (Auth::user()->subscribedUser() && Auth::user()->canUseAiCounsel())

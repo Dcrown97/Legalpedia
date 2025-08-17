@@ -479,13 +479,15 @@
                                                 cellspacing="0" role="presentation">
                                                 <tr>
                                                     <td align="center">
-                                                        <h1 class="f-fallback discount_heading">Welcome to Legalpedia
+                                                        <h1 class="f-fallback discount_heading">Welcome to Legalpedia AI
+                                                            Council
                                                         </h1>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <p class="f-fallback discount_body">Hello {{ $user }},
+                                                        <p class="f-fallback discount_body">Hello
+                                                            {{ $user }},
                                                             You can now access thousands of records of recent and old
                                                             Judgments, Laws, Rules, Articles and so much more! Subscribe
                                                             to Legalpedia packages to get started</p>
@@ -493,7 +495,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <a href="{{ route('login') }}"
+                                                        <a href="{{ $url }}"
                                                             class="btn btn-primary text-white" data-bs-toggle="modal"
                                                             data-bs-target="#admin_note" id="kt_toolbar_primary_button"
                                                             class="btn btn-primary lift">

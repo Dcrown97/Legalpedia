@@ -435,7 +435,7 @@
         }
 
         .btn-primary {
-            background-color: #fadeda !important;
+            background-color: #EC6959 !important;
             border-color: #EC6959 !important;
             color: #fff !important;
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
@@ -446,19 +446,28 @@
             font-weight: 400;
             line-height: 1.5;
             padding: 0.5rem 0.75rem;
+            text-decoration: none !important;
             text-align: center;
             transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         }
     </style>
+    <!--[if mso]>
+    <style type="text/css">
+      .f-fallback  {
+        font-family: Arial, sans-serif;
+      }
+    </style>
+  <![endif]-->
 </head>
 
 <body>
+    {{-- <span class="preheader">Legalpedia.</span> --}}
     <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
             <td align="center">
                 <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr>
-                        <td class="email-masthead">
+                        <td class="email-masthead" align="center">
                             <a href="{{ route('login') }}" style="font-size: 30px; color: rgb(238, 106, 128);"
                                 class="f-fallback email-masthead_name">
                                 <img src="{{ asset('assets/images/legalpedia_logo.png') }}"
@@ -475,37 +484,38 @@
                                 <tr>
                                     <td class="content-cell">
                                         <div class="f-fallback">
+                                            <p>Hi {{ $user }},</p>
                                             <table class="discount" align="center" width="100%" cellpadding="0"
                                                 cellspacing="0" role="presentation">
                                                 <tr>
-                                                    <td align="center">
-                                                        <h1 class="f-fallback discount_heading">Welcome to Legalpedia
-                                                        </h1>
-                                                    </td>
-                                                </tr>
-                                                <tr>
                                                     <td>
-                                                        <p class="f-fallback discount_body">Hello {{ $user }},
-                                                            You can now access thousands of records of recent and old
-                                                            Judgments, Laws, Rules, Articles and so much more! Subscribe
-                                                            to Legalpedia packages to get started</p>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <a href="{{ route('login') }}"
-                                                            class="btn btn-primary text-white" data-bs-toggle="modal"
-                                                            data-bs-target="#admin_note" id="kt_toolbar_primary_button"
-                                                            class="btn btn-primary lift">
-                                                            <i class="fe fe-plus"></i> Get started
-                                                        </a>
+                                                        @if ($billing_type == 'paid')
+                                                            <p class="f-fallback discount_body">You have subscribed to
+                                                                {{ $package_name }}.</p>
+                                                            <p class="f-fallback discount_body">Package:
+                                                                {{ $package_name }}</p>
+                                                            <p class="f-fallback discount_body">Package Amount:
+                                                                ₦{{ number_format($package_price) }}</p>
+                                                            <p class="f-fallback discount_body">Continue enjoying your
+                                                                access.</p>
+                                                        @else
+                                                            <p class="f-fallback discount_body">You are currently on a
+                                                                trial of {{ $package_name }}.</p>
+                                                            <p class="f-fallback discount_body">Your trial gives you
+                                                                access to all features of this package.</p>
+                                                            <p class="f-fallback discount_body">Make the most of your
+                                                                trial period and explore everything we offer.</p>
+                                                            <p class="f-fallback discount_body">Upgrade to a paid
+                                                                subscription before your trial ends to avoid losing
+                                                                access.</p>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             </table>
-                                            <table class="" align="center"role="presentation">
+                                            <table class="" role="presentation">
                                                 <tr>
                                                     <td>
-                                                        <!-- <p class="f-fallback sub">Respond and earn!</p> -->
+                                                        <small class="f-fallback sub">From Legalpedia</small>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -517,16 +527,14 @@
                     </tr>
                     <tr>
                         <td>
-                            <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0"
-                                role="presentation">
-                                <tr>
-                                    <td class="content-cell" align="center">
-                                        <p class="f-fallback sub align-center">&copy; Legalpedia. All rights reserved.
-                                        </p>
+                            {{-- <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td class="content-cell" align="center">
+                      <p  class="f-fallback sub align-center">&copy; Legalpedia. All rights reserved.</p>
 
-                                    </td>
-                                </tr>
-                            </table>
+                    </td>
+                  </tr>
+                </table> --}}
                         </td>
                     </tr>
                 </table>
