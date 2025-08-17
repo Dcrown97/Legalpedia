@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - develop
-
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -12,11 +11,9 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
-      - name: 📂 Deploy to server via SFTP
-        uses: appleboy/scp-action@master
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ftp.staging.legalpediaresources.com
+          server: ftp.staging.legalpediaresources.com
           username: developer@staging.legalpediaresources.com
           password: ${{ secrets.STAGINGPASSWORD }}
-          source: "./"                # take all repo files
-          target: "/home/legaxdfh/teststaging" # destination path on server
