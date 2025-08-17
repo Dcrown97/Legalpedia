@@ -38,6 +38,27 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group(['prefix' => 'rule_of_court'], function () {
         Route::get('/show/details', [GeneralApiController::class, 'showRuleOfCourt']);
     });
+
+    // Auth
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('/register', [GeneralApiController::class, 'register']);
+        Route::post('/login', [GeneralApiController::class, "login"]);
+        Route::get('/user/{email}', [GeneralApiController::class, 'fetchUser']);
+    });
+
+    // Fetch Packages
+    Route::group(['prefix' => 'packages'], function () {
+        Route::get('/', [GeneralApiController::class, 'packages']);
+        Route::get('/{id}', [GeneralApiController::class, 'viewPackages']);
+    });
+
+    Route::post('/discount/apply/{id}', [GeneralApiController::class, 'useDiscount']);
+
+    // Paystack Payment
+    Route::post('/paystack/payment/{reference}', [GeneralApiController::class, 'savePayment']);
+    Route::get('/paystack/payment/callback/{id}/{reference}', [GeneralApiController::class, 'handleGatewayCallback']);
+    // Bank Payment
+    Route::post('/bank/payment/{reference}', [GeneralApiController::class, 'bankPayment']);
 });
 
 Route::group(['middleware' => ['cors', 'json.response', 'XSS']], function () {

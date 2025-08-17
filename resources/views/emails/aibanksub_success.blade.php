@@ -435,7 +435,7 @@
         }
 
         .btn-primary {
-            background-color: #fadeda !important;
+            background-color: #EC6959 !important;
             border-color: #EC6959 !important;
             color: #fff !important;
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%) !important;
@@ -446,19 +446,28 @@
             font-weight: 400;
             line-height: 1.5;
             padding: 0.5rem 0.75rem;
+            text-decoration: none !important;
             text-align: center;
             transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         }
     </style>
+    <!--[if mso]>
+    <style type="text/css">
+      .f-fallback  {
+        font-family: Arial, sans-serif;
+      }
+    </style>
+  <![endif]-->
 </head>
 
 <body>
+    {{-- <span class="preheader">Legalpedia.</span> --}}
     <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
             <td align="center">
                 <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr>
-                        <td class="email-masthead">
+                        <td class="email-masthead" align="center">
                             <a href="{{ route('login') }}" style="font-size: 30px; color: rgb(238, 106, 128);"
                                 class="f-fallback email-masthead_name">
                                 <img src="{{ asset('assets/images/legalpedia_logo.png') }}"
@@ -475,37 +484,86 @@
                                 <tr>
                                     <td class="content-cell">
                                         <div class="f-fallback">
+                                            <p>Hi {{ $mainContent['user'] }},</p>
                                             <table class="discount" align="center" width="100%" cellpadding="0"
                                                 cellspacing="0" role="presentation">
                                                 <tr>
-                                                    <td align="center">
-                                                        <h1 class="f-fallback discount_heading">Welcome to Legalpedia
-                                                        </h1>
-                                                    </td>
-                                                </tr>
-                                                <tr>
                                                     <td>
-                                                        <p class="f-fallback discount_body">Hello {{ $user }},
-                                                            You can now access thousands of records of recent and old
-                                                            Judgments, Laws, Rules, Articles and so much more! Subscribe
-                                                            to Legalpedia packages to get started</p>
+                                                        @if ($mainContent['billing_type'] == 'paid')
+                                                            <p class="f-fallback discount_body">You have just purchased
+                                                                {{ $mainContent['package_name'] }} Legalpedia Package.
+                                                            </p>
+                                                            <p class="f-fallback discount_body">
+                                                                To confirm your payment and activate your package, send
+                                                                a receipt of payment issued from your bank to
+                                                                <a
+                                                                    href="mailto:legalpediapayments@gmail.com">legalpediapayments@gmail.com</a>
+                                                                alongside your payment reference ID.
+                                                            </p>
+                                                            <p class="f-fallback discount_body">Your purchase details
+                                                                are below:</p>
+                                                            <p class="f-fallback discount_body">Payment Reference ID:
+                                                                {{ $mainContent['reference'] }}</p>
+                                                            <p class="f-fallback discount_body">Subscribed Package:
+                                                                {{ $mainContent['package_name'] }}</p>
+                                                            <p class="f-fallback discount_body">Amount to Pay:
+                                                                ₦{{ number_format($mainContent['package_price']) }}</p>
+                                                            <p class="f-fallback discount_body">Purchase Date:
+                                                                {{ $mainContent['date'] }}</p>
+                                                            <p class="f-fallback discount_body">Name:
+                                                                {{ $mainContent['name'] }}</p>
+                                                            <p class="f-fallback discount_body">Email:
+                                                                {{ $mainContent['email'] }}</p>
+                                                            <p class="f-fallback discount_body">Haven't made payment
+                                                                yet? Make your payment to Legalpedia account details
+                                                                below:</p>
+                                                            <p class="f-fallback discount_body text-color">Account
+                                                                Number: 0809282089</p>
+                                                            <p class="f-fallback discount_body text-color">Account Name:
+                                                                Legalpedia Nig Ltd</p>
+                                                            <p class="f-fallback discount_body text-color">Bank: Access
+                                                                Bank</p>
+                                                        @else
+                                                            <p class="f-fallback discount_body">You have activated a
+                                                                trial of the {{ $mainContent['package_name'] }}
+                                                                Legalpedia Package.</p>
+                                                            <p class="f-fallback discount_body">
+                                                                Your trial gives you 2 months free access to platform.
+                                                            </p>
+                                                            <p class="f-fallback discount_body">Trial Details:</p>
+                                                            <p class="f-fallback discount_body">Trial Start Date:
+                                                                {{ $mainContent['transact_date'] }}</p>
+                                                            <p class="f-fallback discount_body">Trial Expiry Date:
+                                                                {{ $mainContent['expiry_date'] }}</p>
+                                                            <p class="f-fallback discount_body">Name:
+                                                                {{ $mainContent['name'] }}</p>
+                                                            <p class="f-fallback discount_body">Email:
+                                                                {{ $mainContent['email'] }}</p>
+                                                            <p class="f-fallback discount_body">
+                                                                Upgrade to the paid {{ $mainContent['package_name'] }}
+                                                                package before your trial ends to keep uninterrupted
+                                                                access.
+                                                            </p>
+                                                            <p class="f-fallback discount_body">Amount to Pay:
+                                                                ₦{{ number_format($mainContent['package_amount']) }}
+                                                            </p>
+                                                            <p class="f-fallback discount_body">Make your payment to the
+                                                                Legalpedia account details below:</p>
+                                                            <p class="f-fallback discount_body text-color">Account
+                                                                Number: 0809282089</p>
+                                                            <p class="f-fallback discount_body text-color">Account Name:
+                                                                Legalpedia Nig Ltd</p>
+                                                            <p class="f-fallback discount_body text-color">Bank: Access
+                                                                Bank</p>
+                                                        @endif
                                                     </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <a href="{{ route('login') }}"
-                                                            class="btn btn-primary text-white" data-bs-toggle="modal"
-                                                            data-bs-target="#admin_note" id="kt_toolbar_primary_button"
-                                                            class="btn btn-primary lift">
-                                                            <i class="fe fe-plus"></i> Get started
-                                                        </a>
-                                                    </td>
+
                                                 </tr>
                                             </table>
-                                            <table class="" align="center"role="presentation">
+                                            <table class="" role="presentation">
                                                 <tr>
                                                     <td>
-                                                        <!-- <p class="f-fallback sub">Respond and earn!</p> -->
+                                                        <small class="f-fallback sub">From Legalpedia</small>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -517,16 +575,14 @@
                     </tr>
                     <tr>
                         <td>
-                            <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0"
-                                role="presentation">
-                                <tr>
-                                    <td class="content-cell" align="center">
-                                        <p class="f-fallback sub align-center">&copy; Legalpedia. All rights reserved.
-                                        </p>
+                            {{-- <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td class="content-cell" align="center">
+                      <p  class="f-fallback sub align-center">&copy; Legalpedia. All rights reserved.</p>
 
-                                    </td>
-                                </tr>
-                            </table>
+                    </td>
+                  </tr>
+                </table> --}}
                         </td>
                     </tr>
                 </table>
